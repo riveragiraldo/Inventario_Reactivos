@@ -1,0 +1,5 @@
+{% for reactivo in reactivos %}
+<h2>{{reactivo.name}}</h2>
+<a href="{% url 'reactivos:detalle_reactivo' reactivo.id %}">Ver más...</a>
+
+{% endfor %}
