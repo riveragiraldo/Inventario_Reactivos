@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.shortcuts import get_object_or_404, redirect
 from django.http import JsonResponse, HttpResponseBadRequest
 from .models import *
+from django.db.models import Q
 
 def index(request):
     unidades=Unidades.objects.all()
@@ -212,7 +213,7 @@ def get_value(request):
         value_selected = request.GET.get('value_selected')
         try:
             # Intentar obtener el valor correspondiente de la base de datos
-            reactivo = Reactivos.objects.get(id=value_selected)
+            reactivo = Reactivos.objects.get(name=value_selected)
             densidad = reactivo.density
             codigo= reactivo.code
         except Reactivos.DoesNotExist:
@@ -225,3 +226,14 @@ def get_value(request):
     else:
         # Si la solicitud no es una solicitud AJAX, devolver una respuesta HTTP 400 Bad Request
         return HttpResponseBadRequest()
+    
+def autocomplete(request):
+    term = request.GET.get('term', '')
+    reactivos = Reactivos.objects.filter(Q(name__icontains=term) | Q(code__icontains=term))[:10]
+    results = []
+    for reactivo in reactivos:
+        results.append({'id': reactivo.id, 'value': reactivo.name})
+
+    return JsonResponse(results, safe=False)
+
+
