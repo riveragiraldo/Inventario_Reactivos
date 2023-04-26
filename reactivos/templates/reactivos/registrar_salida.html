@@ -58,22 +58,8 @@
                         required>
                 </div>
 
-                <div class="col-md-4">
-                    <label class="form-label">Peso reactivo:</label>
-                    <input type="number" step="any" class="form-control" placeholder="Peso de reactivo" id="weight" name="weight"
-                        min="0" oninput="updateOutput()">
-                </div>
-
-                <div class="col-md-4">
-                    <div class="form-check">
-                        <br>
-                        <input class="form-check-input" type="checkbox" value="" id="is_liquid" name="is_liquid"
-                            checked onchange="updateOutput()">
-                        <label class="form-check-label" for="flexCheckDefault">
-                            Es líquido
-                        </label>
-                    </div>
-                </div>
+                
+                
                 <script>
                     $(document).ready(function () {
                         $('#name').on('change', function () {
@@ -123,16 +109,32 @@
                 </div>
 
                 <div class="col-md-4">
+                    <div class="form-check">
+                        <br>
+                        <input class="form-check-input" type="checkbox" value="" id="is_liquid" name="is_liquid" checked
+                            onchange="updateOutput()">
+                        <label class="form-check-label" for="flexCheckDefault">
+                            Es líquido
+                        </label>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
                     <label class="form-label">Densidad:</label>
                     <input type="text" name="density" class="form-control" value="" id="density" readonly>
                 </div>
                 <input type="hidden" name="densityh" class="form-control" value="hola" id="densityh" readonly>
                 <div class="col-md-4">
-                    <label class="form-label">Peso recipiente:</label>
-                    <input type="number" step="any" class="form-control" placeholder="Peso recipiente" name="weight"
-                        min="0">
+                    <label class="form-label">Peso reactivo:</label>
+                    <input type="number" step="any" class="form-control" placeholder="Peso de reactivo" id="weight"
+                        name="weight" min="0" oninput="updateOutput()">
                 </div>
-                <div class="col-md-4">
+                <div class="md-4">
+                    <label class="form-label">Total Salida:</label>
+                    <input type="text" name="out_reagent" class="form-control" value="" id="out_reagent" readonly>
+                </div>
+
+                <div class="col-md-6">
                     <label class="form-label">Destino:</label>
                     <select name="destination" class="form-select" required>
                         {% for destino in destinos %}
@@ -140,7 +142,7 @@
                         {% endfor %}
                     </select>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-6">
                     <label class="form-label">Responsable:</label>
                     <select name="manager" class="form-select" required>
                         {% for responsable in responsables %}
@@ -148,6 +150,7 @@
                         {% endfor %}
                     </select>
                 </div>
+                
                 <div class="col-md-12">
                     <label class="form-label">Observaciones:</label>
                     <textarea name="observations" class="form-control" placeholder="Escriba sus observaciones"
@@ -155,25 +158,24 @@
 
                 </div>
                 <script>
+
                     function updateOutput() {
-                      const weight = parseFloat(document.getElementById('weight').value);
-                      const isLiquid = document.getElementById('is_liquid').checked;
-                      const density = parseFloat(document.getElementById('densityh').value);
-                  
-                      let output = 0;
-                      if (isLiquid) {
-                        output = weight * density;
-                      } else {
-                        output = weight;
-                      }
-                  
-                      document.getElementById('out_reagent').value = output;
+                        const weight = parseFloat(document.getElementById('weight').value) || 0;
+                        const isLiquid = document.getElementById('is_liquid').checked;
+                        const density = parseFloat(document.getElementById('densityh').value) || 0;
+
+                        let output = 0;
+                        if (isLiquid) {
+                            output = (weight * density).toFixed(4);
+                        } else {
+                            output = weight.toFixed(4);
+                        }
+
+                        document.getElementById('out_reagent').value = output;
                     }
-                  </script>
-                <div class="col-md-4">
-                    <label class="form-label">Total Salida:</label>
-                    <input type="text" name="out_reagent" class="form-control" value="" id="out_reagent" readonly>
-                </div>
+
+                </script>
+                
                 <div class="col-md-9">
                     <input type="submit" value="Crear Ractivo" class="btn btn-primary">
                 </div>
