@@ -20,18 +20,9 @@
                 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 
 
-                <div class="col-md-10">
-                    <label class="form-label">Fecha:</label>
-                    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 
-                    <!-- <script>
-                        $(document).ready(function () {
-                            var now = new Date();
-                            var today = now.toLocaleString();
-                            $('#date').val(today);
-                        });
-                    </script> -->
-                    <script>
+                <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+                <script>
                     $(document).ready(function () {
                         var now = new Date();
                         var year = now.getFullYear();
@@ -43,16 +34,15 @@
                         var formattedDate = year + '-' + padNumber(month) + '-' + padNumber(day) + ' ' + padNumber(hours) + ':' + padNumber(minutes) + ':' + padNumber(seconds);
                         $('#date').val(formattedDate);
                     });
-                    
+
                     function padNumber(num) {
                         return num < 10 ? '0' + num : num;
                     }
-                    </script>
-                    
-
-                    <input type="text" class="form-control-plaintext" readonly name="date" id="date"
+                </script>
+                <div class="col-md-4">
+                    <label class="form-label">Fecha:</label>
+                    <input type="text" class="form-control" readonly name="date" id="date"
                         value="<script>#date</script>" />
-
                 </div>
                 <div class="col-md-12">
                     <label class="form-label">Nombre reactivo:</label>
@@ -72,31 +62,33 @@
                 </div>
                 <div class="col-md-4">
                     <label class="form-label">Referencia:</label>
-                    <input type="text" class="form-control" placeholder="Referencia de reactivo" name="reference"
-                        >
+                    <input type="text" class="form-control" placeholder="Referencia de reactivo" name="reference">
                 </div>
 
-                
-                
+
+
                 <script>
                     $(document).ready(function () {
-                        $('#name').on('change', function () {
-                            var optionSelected = $(this).find('option:selected');
-                            var valueSelected = optionSelected.val();
+                        var updateFields = function () {
+                            var valueSelected = $('#name').val();
                             $.ajax({
-                                url: '/get-value/',  // la URL de la vista de Django que devuelve el valor correspondiente
+                                url: '/get-value/',
                                 data: {
                                     'value_selected': valueSelected
                                 },
                                 dataType: 'json',
                                 success: function (data) {
-                                    $('#density').val(data.value);  // actualiza el valor del campo de entrada con el valor correspondiente devuelto por la vista de Django
-                                    $('#code').val(data.codigo);  // actualiza el valor del campo de entrada con el valor correspondiente devuelto por la vista de Django
+                                    $('#density').val(data.value);
+                                    $('#code').val(data.codigo);
                                     $('#densityh').val(data.value);
                                 }
                             });
-                        });
+                        };
+
+                        $('#name').on('change', updateFields); // llama la función en el evento "change"
+                        updateFields(); // llama la función en el evento "ready"
                     });
+
 
                     const checkbox = document.querySelector('input[name=is_liquid]');
 
@@ -129,9 +121,9 @@
                 <div class="col-md-4">
                     <div class="form-check">
                         <br>
-                        <input class="form-check-input" type="checkbox" value="" id="is_liquid" name="is_liquid" value="True" checked
-                            onchange="updateOutput()">
-                            <input type="hidden" name="is_liquid" value="False">
+                        <input class="form-check-input" type="checkbox" value="" id="is_liquid" name="is_liquid"
+                            value="True" checked onchange="updateOutput()">
+                        <input type="hidden" name="is_liquid" value="False">
                         <label class="form-check-label" for="flexCheckDefault">
                             Es líquido
                         </label>
@@ -177,7 +169,7 @@
                         {% endfor %}
                     </select>
                 </div>
-                
+
                 <div class="col-md-12">
                     <label class="form-label">Observaciones:</label>
                     <textarea name="observations" class="form-control" placeholder="Escriba sus observaciones"
@@ -202,7 +194,7 @@
                     }
 
                 </script>
-                
+
                 <div class="col-md-9">
                     <input type="submit" value="Registrar Salida Reactivo" class="btn btn-primary">
                 </div>
