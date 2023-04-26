@@ -38,7 +38,7 @@ deactivate () {
 # unset irrelevant variables
 deactivate nondestructive
 
-VIRTUAL_ENV="C:\xampp\htdocs\Inventario_Reactivos\env"
+VIRTUAL_ENV="C:\Inventario_Reactivos\env"
 export VIRTUAL_ENV
 
 _OLD_VIRTUAL_PATH="$PATH"
