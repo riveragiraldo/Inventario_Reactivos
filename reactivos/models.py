@@ -92,7 +92,6 @@ class Salidas(models.Model):
     reference=models.CharField(max_length=255, verbose_name='Referencia')
     weight=models.DecimalField(max_digits=10, decimal_places=4, verbose_name='Peso Reactivo')
     is_liquid=models.BooleanField(default=False, verbose_name='Es líquido')
-    
     destination=models.ForeignKey(Destinos, on_delete=models.CASCADE, related_name='destination', verbose_name='Destino')
     schoolsubject=models.ForeignKey(Asignaturas, on_delete=models.CASCADE, related_name='ssubject', verbose_name='Asignatura')
     manager=models.ForeignKey(Responsables, on_delete=models.CASCADE, related_name='manager', verbose_name='Responsable')

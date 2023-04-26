@@ -24,13 +24,31 @@
                     <label class="form-label">Fecha:</label>
                     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 
-                    <script>
+                    <!-- <script>
                         $(document).ready(function () {
                             var now = new Date();
                             var today = now.toLocaleString();
                             $('#date').val(today);
                         });
+                    </script> -->
+                    <script>
+                    $(document).ready(function () {
+                        var now = new Date();
+                        var year = now.getFullYear();
+                        var month = now.getMonth() + 1;
+                        var day = now.getDate();
+                        var hours = now.getHours();
+                        var minutes = now.getMinutes();
+                        var seconds = now.getSeconds();
+                        var formattedDate = year + '-' + padNumber(month) + '-' + padNumber(day) + ' ' + padNumber(hours) + ':' + padNumber(minutes) + ':' + padNumber(seconds);
+                        $('#date').val(formattedDate);
+                    });
+                    
+                    function padNumber(num) {
+                        return num < 10 ? '0' + num : num;
+                    }
                     </script>
+                    
 
                     <input type="text" class="form-control-plaintext" readonly name="date" id="date"
                         value="<script>#date</script>" />
@@ -55,7 +73,7 @@
                 <div class="col-md-4">
                     <label class="form-label">Referencia:</label>
                     <input type="text" class="form-control" placeholder="Referencia de reactivo" name="reference"
-                        required>
+                        >
                 </div>
 
                 
@@ -111,8 +129,9 @@
                 <div class="col-md-4">
                     <div class="form-check">
                         <br>
-                        <input class="form-check-input" type="checkbox" value="" id="is_liquid" name="is_liquid" checked
+                        <input class="form-check-input" type="checkbox" value="" id="is_liquid" name="is_liquid" value="True" checked
                             onchange="updateOutput()">
+                            <input type="hidden" name="is_liquid" value="False">
                         <label class="form-check-label" for="flexCheckDefault">
                             Es líquido
                         </label>
@@ -127,14 +146,14 @@
                 <div class="col-md-4">
                     <label class="form-label">Peso reactivo:</label>
                     <input type="number" step="any" class="form-control" placeholder="Peso de reactivo" id="weight"
-                        name="weight" min="0" oninput="updateOutput()">
+                        name="weight" min="0" oninput="updateOutput()" required>
                 </div>
                 <div class="md-4">
                     <label class="form-label">Total Salida:</label>
                     <input type="text" name="out_reagent" class="form-control" value="" id="out_reagent" readonly>
                 </div>
 
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <label class="form-label">Destino:</label>
                     <select name="destination" class="form-select" required>
                         {% for destino in destinos %}
@@ -142,7 +161,15 @@
                         {% endfor %}
                     </select>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-4">
+                    <label class="form-label">Asignatura:</label>
+                    <select name="schoolsubject" class="form-select" required>
+                        {% for asignatura in asignaturas %}
+                        <option value="{{ asignatura.id }}">{{ asignatura.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4">
                     <label class="form-label">Responsable:</label>
                     <select name="manager" class="form-select" required>
                         {% for responsable in responsables %}
@@ -177,7 +204,7 @@
                 </script>
                 
                 <div class="col-md-9">
-                    <input type="submit" value="Crear Ractivo" class="btn btn-primary">
+                    <input type="submit" value="Registrar Salida Reactivo" class="btn btn-primary">
                 </div>
             </form>
 

@@ -160,58 +160,42 @@ def crear_responsable(request):
 def registrar_salida(request):
     if request.method=='POST':
         date = request.POST.get('date')
-        reference = request.POST.get('reference')
-        weight = request.POST.get('weight')
-        
-        is_liquid = request.POST.get('is_liquid')
-        observations = request.POST.get('observations')
-        
-
-        if is_liquid==True:
-            density = request.POST.get('name')
-            density = Reactivos.objects.get(id=density)
-        else:
-            density=1
-
-        if is_liquid==True:
-            out_reagent=density*weight
-        else:
-            out_reagent=weight
-        
-        destination = request.POST.get('destination')
-        destination = Destinos.objects.get(id=destination)
-        manager = request.POST.get('manager')
-        manager = Responsables.objects.get(id=manager)
         name = request.POST.get('name')
-        name = Responsables.objects.get(id=name)
-        schoolsubject = request.POST.get('schoolsubject')
-        schoolsubject = Responsables.objects.get(id=schoolsubject)
+        name = Reactivos.objects.get(id=name)
         trademark = request.POST.get('trademark')
         trademark = Marcas.objects.get(id=trademark)
+        reference = request.POST.get('reference')
+        is_liquid = request.POST.get('is_liquid')
+        weight = request.POST.get('weight')
+        out_reagent=request.POST.get('out_reagent')
+        destination = request.POST.get('destination')
+        destination = Destinos.objects.get(id=destination)
+        schoolsubject = request.POST.get('schoolsubject')
+        schoolsubject = Asignaturas.objects.get(id=schoolsubject)
+        manager = request.POST.get('manager')
+        manager = Responsables.objects.get(id=manager)
         observations = request.POST.get('observations')
-
-
+        
         salida = Salidas.objects.create(
             date = date,
+            name = name,
+            trademark = trademark,
             reference = reference,
-            weight = weight,
             is_liquid = is_liquid,
-            observations = observations,
+            weight = weight,
             out_reagent=out_reagent,
             destination = destination,
-            manager = manager,
-            name = name,
             schoolsubject = schoolsubject,
-            trademark = trademark,
-           
-        )
+            manager = manager,            
+            observations = observations,
+            )
         #return redirect('reactivos:detalle_reactivo', pk=reactivo.id)
 
     context={
         'reactivos':Reactivos.objects.all(),
         'destinos':Destinos.objects.all(),
         'responsables':Responsables.objects.all(),
-        'asignatura':Asignaturas.objects.all(),
+        'asignaturas':Asignaturas.objects.all(),
         'marcas':Marcas.objects.all(),
 
 
