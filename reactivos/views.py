@@ -47,6 +47,9 @@ def crear_reactivo(request):
         unit = request.POST.get('unit')
         unit = Unidades.objects.get(id=unit)
         cas = request.POST.get('cas')
+        wlocation = request.POST.get('wlocation')
+        is_liquid = request.POST.get('is_liquid')
+        
        
 
         reactivo = Reactivos.objects.create(
@@ -57,6 +60,8 @@ def crear_reactivo(request):
             name = name,
             unit = unit,
             cas = cas,
+            wlocation=wlocation,
+            is_liquid=is_liquid,
             
         )
         return redirect('reactivos:detalle_reactivo', pk=reactivo.id)
