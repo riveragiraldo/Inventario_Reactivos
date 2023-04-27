@@ -14,8 +14,8 @@
                 <form method="post" class="row g-3">
                     {% csrf_token %}
                     <div class="col-md-3">
-                        <label class="form-label">Color:</label>
-                    <input type="number" class="form-control" placeholder="Número Color" name="color" required min="0">
+                        <label class="form-label">Color (o SGA):</label>
+                    <input type="number" class="form-control" placeholder="Número Color (o SGA)" name="color" required min="0">
                     </div>
                     <div class="col-md-3">
                         <label class="form-label">Número:</label>
@@ -38,8 +38,8 @@
                         </select>
                     </div>
                     <div class="col-md-3">
-                        <label class="form-label">Densidad:</label>
-                    <input type="number" step="any" class="form-control" placeholder="Densidad de reactivo" name="density" min="0">
+                        <label class="form-label">Código CAS:</label>
+                    <input type="text" step="any" class="form-control" placeholder="Código CAS" name="cas">
                     </div>
                     <div class="col-md-9">
                         <input type="submit" value="Crear Ractivo" class="btn btn-primary">

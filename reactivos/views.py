@@ -3,6 +3,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.http import JsonResponse, HttpResponseBadRequest
 from .models import *
 from django.db.models import Q
+from django.core.exceptions import ValidationError
 
 def index(request):
     unidades=Unidades.objects.all()
@@ -45,9 +46,8 @@ def crear_reactivo(request):
         name = request.POST.get('name')
         unit = request.POST.get('unit')
         unit = Unidades.objects.get(id=unit)
-        density = request.POST.get('density')
-        if density=='':
-            density = '0'
+        cas = request.POST.get('cas')
+       
 
         reactivo = Reactivos.objects.create(
             color = color,
@@ -56,7 +56,7 @@ def crear_reactivo(request):
             code = code,
             name = name,
             unit = unit,
-            density = density,
+            cas = cas,
             
         )
         return redirect('reactivos:detalle_reactivo', pk=reactivo.id)
@@ -158,48 +158,103 @@ def crear_responsable(request):
 
 
 
+# def registrar_salida(request):
+    
+#     if request.method=='POST':
+#         date = request.POST.get('date')
+#         name = request.POST.get('name')
+#         nameReactivo = Reactivos.objects.get(name=name)
+#         name = nameReactivo.id
+#         name = Reactivos.objects.get(id=name)
+
+#         trademark = request.POST.get('trademark')
+#         trademark = Marcas.objects.get(id=trademark)
+#         reference = request.POST.get('reference')
+#         is_liquid = request.POST.get('is_liquid')
+#         weight = request.POST.get('weight')
+#         out_reagent=request.POST.get('out_reagent')
+#         destination = request.POST.get('destination')
+#         destination = Destinos.objects.get(id=destination)
+#         schoolsubject = request.POST.get('schoolsubject')
+#         schoolsubject = Asignaturas.objects.get(id=schoolsubject)
+#         manager = request.POST.get('manager')
+#         manager = Responsables.objects.get(id=manager)
+#         observations = request.POST.get('observations')
+
+       
+#         salida = Salidas.objects.create(
+#             date = date,
+#             name = name,
+#             trademark = trademark,
+#             reference = reference,
+#             is_liquid = is_liquid,
+#             weight = weight,
+#             out_reagent=out_reagent,
+#             destination = destination,
+#             schoolsubject = schoolsubject,
+#             manager = manager,            
+#             observations = observations,
+#             )
+        
+       
+#     context={
+#         'reactivos':Reactivos.objects.all(),
+#         'destinos':Destinos.objects.all(),
+#         'responsables':Responsables.objects.all(),
+#         'asignaturas':Asignaturas.objects.all(),
+#         'marcas':Marcas.objects.all(),
+
+
+#     }
+#     return render(request, 'reactivos/registrar_salida.html', context)
 def registrar_salida(request):
-    if request.method=='POST':
+    error_message = ""
+    if request.method == 'POST':
         date = request.POST.get('date')
         name = request.POST.get('name')
-        name = Reactivos.objects.get(id=name)
-        trademark = request.POST.get('trademark')
-        trademark = Marcas.objects.get(id=trademark)
-        reference = request.POST.get('reference')
-        is_liquid = request.POST.get('is_liquid')
-        weight = request.POST.get('weight')
-        out_reagent=request.POST.get('out_reagent')
-        destination = request.POST.get('destination')
-        destination = Destinos.objects.get(id=destination)
-        schoolsubject = request.POST.get('schoolsubject')
-        schoolsubject = Asignaturas.objects.get(id=schoolsubject)
-        manager = request.POST.get('manager')
-        manager = Responsables.objects.get(id=manager)
-        observations = request.POST.get('observations')
-        
-        salida = Salidas.objects.create(
-            date = date,
-            name = name,
-            trademark = trademark,
-            reference = reference,
-            is_liquid = is_liquid,
-            weight = weight,
-            out_reagent=out_reagent,
-            destination = destination,
-            schoolsubject = schoolsubject,
-            manager = manager,            
-            observations = observations,
+        try:
+            nameReactivo = Reactivos.objects.get(name=name)
+            name = nameReactivo
+        except Reactivos.DoesNotExist:
+            error_message = "El reactivo ingresado no se encuentra en la base de datos."
+            name = None
+
+        if name:
+            trademark = request.POST.get('trademark')
+            trademark = Marcas.objects.get(id=trademark)
+            reference = request.POST.get('reference')
+            is_liquid = request.POST.get('is_liquid')
+            weight = request.POST.get('weight')
+            out_reagent = request.POST.get('out_reagent')
+            destination = request.POST.get('destination')
+            destination = Destinos.objects.get(id=destination)
+            schoolsubject = request.POST.get('schoolsubject')
+            schoolsubject = Asignaturas.objects.get(id=schoolsubject)
+            manager = request.POST.get('manager')
+            manager = Responsables.objects.get(id=manager)
+            observations = request.POST.get('observations')
+
+            salida = Salidas.objects.create(
+                date=date,
+                name=name,
+                trademark=trademark,
+                reference=reference,
+                is_liquid=is_liquid,
+                weight=weight,
+                out_reagent=out_reagent,
+                destination=destination,
+                schoolsubject=schoolsubject,
+                manager=manager,
+                observations=observations,
             )
-        #return redirect('reactivos:detalle_reactivo', pk=reactivo.id)
 
-    context={
-        'reactivos':Reactivos.objects.all(),
-        'destinos':Destinos.objects.all(),
-        'responsables':Responsables.objects.all(),
-        'asignaturas':Asignaturas.objects.all(),
-        'marcas':Marcas.objects.all(),
-
-
+    context = {
+        'reactivos': Reactivos.objects.all(),
+        'destinos': Destinos.objects.all(),
+        'responsables': Responsables.objects.all(),
+        'asignaturas': Asignaturas.objects.all(),
+        'marcas': Marcas.objects.all(),
+        'error_message': error_message
     }
     return render(request, 'reactivos/registrar_salida.html', context)
 
@@ -218,7 +273,8 @@ def get_value(request):
             codigo= reactivo.code
         except Reactivos.DoesNotExist:
             # Si el reactivo no existe, devolver un valor por defecto
-            value = 1
+            densidad = 1
+            codigo = "0-000-0"
 
         return JsonResponse({'value': densidad,
                              'codigo':codigo
@@ -226,6 +282,8 @@ def get_value(request):
     else:
         # Si la solicitud no es una solicitud AJAX, devolver una respuesta HTTP 400 Bad Request
         return HttpResponseBadRequest()
+    
+
     
 def autocomplete(request):
     term = request.GET.get('term', '')

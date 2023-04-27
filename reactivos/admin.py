@@ -14,7 +14,7 @@ class Marcasadmin(admin.ModelAdmin):
 
 @admin.register(Reactivos)
 class Reactivosadmin(admin.ModelAdmin):
-    list_display=('id','code','name','unit','is_active','density',)
+    list_display=('id','code','cas','name','is_liquid','unit','is_active','wlocation')
     list_filter=('code','name',)
     search_fields=('code','name',)
     list_editable=('is_active',)
