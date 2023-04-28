@@ -58,7 +58,7 @@
 
 
 
-                 
+
 
                     <script>$(document).ready(function () {
                             $("#name").autocomplete({
@@ -89,39 +89,39 @@
 
 
                 <script>
-                    
 
-                    $(document).ready(function() {
-    var updateFields = function() {
-        var valueSelected = $('#name').val();
-        $.ajax({
-            url: '/get-value/',
-            data: {
-                'value_selected': valueSelected
-            },
-            dataType: 'json',
-            success: function(data) {
-                $('#density').val(data.value);
-                $('#code').val(data.codigo);
-                $('#densityh').val(data.value);
-            }
-        });
-    };
 
-    $('#name').autocomplete({
-        source: '/autocomplete/',
-        select: function(event, ui) { // Llamamos la función updateFields en el evento "select"
-            updateFields();
-        },
-        minLength: 3
-    });
+                    $(document).ready(function () {
+                        var updateFields = function () {
+                            var valueSelected = $('#name').val();
+                            $.ajax({
+                                url: '/get-value/',
+                                data: {
+                                    'value_selected': valueSelected
+                                },
+                                dataType: 'json',
+                                success: function (data) {
+                                    $('#density').val(data.value);
+                                    $('#code').val(data.codigo);
+                                    $('#densityh').val(data.value);
+                                }
+                            });
+                        };
 
-    updateFields(); // llama la función en el evento "ready"
-});
+                        $('#name').autocomplete({
+                            source: '/autocomplete/',
+                            select: function (event, ui) { // Llamamos la función updateFields en el evento "select"
+                                updateFields();
+                            },
+                            minLength: 3
+                        });
 
-                    
+                        updateFields(); // llama la función en el evento "ready"
+                    });
+
+
                 </script>
-                  <script>
+                <script>
 
                     const checkbox = document.querySelector('input[name=is_liquid]');
 
