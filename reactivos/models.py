@@ -91,12 +91,12 @@ class Salidas(models.Model):
     trademark=models.ForeignKey(Marcas, on_delete=models.CASCADE, related_name='name_trademark', verbose_name='Marca')
     reference=models.CharField(max_length=255, verbose_name='Referencia')
     weight=models.DecimalField(max_digits=10, decimal_places=4, verbose_name='Peso Reactivo')
-    is_liquid=models.BooleanField(default=False, verbose_name='Es líquido')
+    is_liquid=models.CharField(max_length=3, verbose_name='Es líquido')
     destination=models.ForeignKey(Destinos, on_delete=models.CASCADE, related_name='destination', verbose_name='Destino')
     schoolsubject=models.ForeignKey(Asignaturas, on_delete=models.CASCADE, related_name='ssubject', verbose_name='Asignatura')
     manager=models.ForeignKey(Responsables, on_delete=models.CASCADE, related_name='manager', verbose_name='Responsable')
     observations=models.TextField(max_length=1000, verbose_name='Observaciones')
-    out_reagent=models.DecimalField(max_digits=10, decimal_places=4, verbose_name='Total Salida')
+    location=models.CharField(max_length=100, verbose_name='Ubicación Salida')
 
     def __str__ (self):
         return self.name

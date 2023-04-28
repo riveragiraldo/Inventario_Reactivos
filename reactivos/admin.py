@@ -42,7 +42,7 @@ class Responsableadmin(admin.ModelAdmin):
 
 @admin.register(Salidas)
 class Salidaadmin(admin.ModelAdmin):
-    list_display=('id','date','name','trademark','reference','weight','is_liquid','destination','schoolsubject','manager','observations','out_reagent')
+    list_display=('id','date','name','trademark','reference','weight','is_liquid','destination','schoolsubject','manager','observations','location')
     list_filter=('date','name',)
     search_fields=('date','name',)
     list_per_page=10

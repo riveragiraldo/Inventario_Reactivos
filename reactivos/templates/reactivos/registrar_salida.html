@@ -8,17 +8,14 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
-
     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
-
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-
-
     <script src="https://code.jquery.com/ui/1.13.0/jquery-ui.min.js"></script>
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.0/themes/smoothness/jquery-ui.css">
-
-
+    <script src="/reactivos/templates/JS/reactivos.js"></script>
+    {% load static %}
+    <script src="{% static 'script.js' %}"></script>
 </head>
 
 <body>
@@ -28,24 +25,6 @@
 
             <form method="post" class="row g-3">
                 {% csrf_token %}
-
-                <script>
-                    $(document).ready(function () {
-                        var now = new Date();
-                        var year = now.getFullYear();
-                        var month = now.getMonth() + 1;
-                        var day = now.getDate();
-                        var hours = now.getHours();
-                        var minutes = now.getMinutes();
-                        var seconds = now.getSeconds();
-                        var formattedDate = year + '-' + padNumber(month) + '-' + padNumber(day) + ' ' + padNumber(hours) + ':' + padNumber(minutes) + ':' + padNumber(seconds);
-                        $('#date').val(formattedDate);
-                    });
-
-                    function padNumber(num) {
-                        return num < 10 ? '0' + num : num;
-                    }
-                </script>
                 <div class="col-md-4">
                     <label class="form-label">Fecha:</label>
                     <input type="text" class="form-control" readonly name="date" id="date"
@@ -53,27 +32,9 @@
                 </div>
                 <div class="col-md-12">
                     <label class="form-label">Nombre reactivo:</label>
-
-                    <input type="text" class="form-control" name="name" id="name" />
-
-
-
-
-
-                    <script>$(document).ready(function () {
-                            $("#name").autocomplete({
-                                source: "{% url 'reactivos:autocomplete' %}",
-                                minLength: 2,
-                                select: function (event, ui) {
-                                    $("#name").val(ui.item.value);
-                                    return false;
-                                }
-                            });
-                        });
-                    </script>
-
+                    <input type="text" class="form-control" name="name" id="name" placeholder="Nombre del reactivo" />
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <label class="form-label">Marca reactivo:</label>
                     <select name="trademark" class="form-select" required>
                         {% for marca in marcas %}
@@ -81,101 +42,43 @@
                         {% endfor %}
                     </select>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <label class="form-label">Referencia:</label>
-                    <input type="text" class="form-control" placeholder="Referencia de reactivo" name="reference">
+                    <input type="text" class="form-control" placeholder="Ref. reactivo" name="reference">
                 </div>
 
-
-
-                <script>
-
-
-                    $(document).ready(function () {
-                        var updateFields = function () {
-                            var valueSelected = $('#name').val();
-                            $.ajax({
-                                url: '/get-value/',
-                                data: {
-                                    'value_selected': valueSelected
-                                },
-                                dataType: 'json',
-                                success: function (data) {
-                                    $('#density').val(data.value);
-                                    $('#code').val(data.codigo);
-                                    $('#densityh').val(data.value);
-                                }
-                            });
-                        };
-
-                        $('#name').autocomplete({
-                            source: '/autocomplete/',
-                            select: function (event, ui) { // Llamamos la función updateFields en el evento "select"
-                                updateFields();
-                            },
-                            minLength: 3
-                        });
-
-                        updateFields(); // llama la función en el evento "ready"
-                    });
-
-
-                </script>
-                <script>
-
-                    const checkbox = document.querySelector('input[name=is_liquid]');
-
-
-                    checkbox.addEventListener('change', function () {
-                        if (this.checked) {
-                            // Si el checkbox está marcado, mostrar la otra input y establecer su valor
-                            console.log('check')
-                            const aux = document.getElementById('densityh')
-                            console.log(aux.value)
-
-                            // otraInput.style.display = 'block';
-                            // Establecer el valor de la otra input al valor obtenido de la solicitud AJAX
-                            // En este ejemplo, asumimos que el valor ya ha sido obtenido y almacenado en la variable "value"
-                            document.getElementById('density').value = aux.value
-                        } else {
-                            // Si el checkbox está desmarcado, ocultar la otra input y borrar su valor
-                            console.log('uncheck')
-
-                            document.getElementById('density').value = '';
-                        }
-                    });
-                </script>
-
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <label class="form-label">Código:</label>
-                    <input type="text" name="code" class="form-control" value="" id="code" readonly>
+                    <input type="text" name="code" class="form-control" value="" id="code" readonly
+                        placeholder="Cód. Interno">
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">CAS:</label>
+                    <input type="text" name="cas" class="form-control" value="" id="cas" readonly
+                        placeholder="Cód. CAS">
                 </div>
 
                 <div class="col-md-4">
-                    <div class="form-check">
-                        <br>
-                        <input class="form-check-input" type="checkbox" value="" id="is_liquid" name="is_liquid"
-                            value="True" checked onchange="updateOutput()">
-                        <input type="hidden" name="is_liquid" value="False">
-                        <label class="form-check-label" for="flexCheckDefault">
-                            Es líquido
-                        </label>
-                    </div>
+                    <label class="form-label">Liquido:</label>
+                    <input type="text" name="is_liquid" class="form-control" value="" id="is_liquid" readonly
+                        placeholder="Es líquido?">
                 </div>
 
                 <div class="col-md-4">
-                    <label class="form-label">Densidad:</label>
-                    <input type="text" name="density" class="form-control" value="" id="density" readonly>
+                    <label class="form-label" for="weight"></label>
+                    <input type="number" step="any" class="form-control" placeholder="Cant. reactivo" id="weight"
+                        name="weight" min="0" required>
                 </div>
-                <input type="hidden" name="densityh" class="form-control" value="hola" id="densityh" readonly>
+
                 <div class="col-md-4">
-                    <label class="form-label">Peso reactivo:</label>
-                    <input type="number" step="any" class="form-control" placeholder="Peso de reactivo" id="weight"
-                        name="weight" min="0" oninput="updateOutput()" required>
+                    <label class="form-label">Unidades:</label>
+                    <input type="text" name="unit" class="form-control" value="" id="unit" readonly>
                 </div>
+
                 <div class="md-4">
-                    <label class="form-label">Total Salida:</label>
-                    <input type="text" name="out_reagent" class="form-control" value="" id="out_reagent" readonly>
+                    <label class="form-label">Ubicación:</label>
+                    <input type="text" name="location" class="form-control" value="" id="location" required placeholder="Ubicación Destino">
                 </div>
 
                 <div class="col-md-4">
@@ -186,6 +89,7 @@
                         {% endfor %}
                     </select>
                 </div>
+
                 <div class="col-md-4">
                     <label class="form-label">Asignatura:</label>
                     <select name="schoolsubject" class="form-select" required>
@@ -194,6 +98,7 @@
                         {% endfor %}
                     </select>
                 </div>
+
                 <div class="col-md-4">
                     <label class="form-label">Responsable:</label>
                     <select name="manager" class="form-select" required>
@@ -207,32 +112,13 @@
                     <label class="form-label">Observaciones:</label>
                     <textarea name="observations" class="form-control" placeholder="Escriba sus observaciones"
                         rows="4"></textarea>
-
                 </div>
-                <script>
-
-                    function updateOutput() {
-                        const weight = parseFloat(document.getElementById('weight').value) || 0;
-                        const isLiquid = document.getElementById('is_liquid').checked;
-                        const density = parseFloat(document.getElementById('densityh').value) || 0;
-
-                        let output = 0;
-                        if (isLiquid) {
-                            output = (weight * density).toFixed(4);
-                        } else {
-                            output = weight.toFixed(4);
-                        }
-
-                        document.getElementById('out_reagent').value = output;
-                    }
-
-                </script>
 
                 <div class="col-md-9">
                     <input type="submit" value="Registrar Salida Reactivo" class="btn btn-primary">
                 </div>
-            </form>
 
+            </form>
         </div>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"
             integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe"

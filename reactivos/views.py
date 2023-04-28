@@ -162,56 +162,6 @@ def crear_responsable(request):
     return render(request, 'reactivos/crear_responsable.html', context)
 
 
-
-# def registrar_salida(request):
-    
-#     if request.method=='POST':
-#         date = request.POST.get('date')
-#         name = request.POST.get('name')
-#         nameReactivo = Reactivos.objects.get(name=name)
-#         name = nameReactivo.id
-#         name = Reactivos.objects.get(id=name)
-
-#         trademark = request.POST.get('trademark')
-#         trademark = Marcas.objects.get(id=trademark)
-#         reference = request.POST.get('reference')
-#         is_liquid = request.POST.get('is_liquid')
-#         weight = request.POST.get('weight')
-#         out_reagent=request.POST.get('out_reagent')
-#         destination = request.POST.get('destination')
-#         destination = Destinos.objects.get(id=destination)
-#         schoolsubject = request.POST.get('schoolsubject')
-#         schoolsubject = Asignaturas.objects.get(id=schoolsubject)
-#         manager = request.POST.get('manager')
-#         manager = Responsables.objects.get(id=manager)
-#         observations = request.POST.get('observations')
-
-       
-#         salida = Salidas.objects.create(
-#             date = date,
-#             name = name,
-#             trademark = trademark,
-#             reference = reference,
-#             is_liquid = is_liquid,
-#             weight = weight,
-#             out_reagent=out_reagent,
-#             destination = destination,
-#             schoolsubject = schoolsubject,
-#             manager = manager,            
-#             observations = observations,
-#             )
-        
-       
-#     context={
-#         'reactivos':Reactivos.objects.all(),
-#         'destinos':Destinos.objects.all(),
-#         'responsables':Responsables.objects.all(),
-#         'asignaturas':Asignaturas.objects.all(),
-#         'marcas':Marcas.objects.all(),
-
-
-#     }
-#     return render(request, 'reactivos/registrar_salida.html', context)
 def registrar_salida(request):
     error_message = ""
     if request.method == 'POST':
@@ -230,7 +180,7 @@ def registrar_salida(request):
             reference = request.POST.get('reference')
             is_liquid = request.POST.get('is_liquid')
             weight = request.POST.get('weight')
-            out_reagent = request.POST.get('out_reagent')
+            location = request.POST.get('location')
             destination = request.POST.get('destination')
             destination = Destinos.objects.get(id=destination)
             schoolsubject = request.POST.get('schoolsubject')
@@ -246,7 +196,7 @@ def registrar_salida(request):
                 reference=reference,
                 is_liquid=is_liquid,
                 weight=weight,
-                out_reagent=out_reagent,
+                location=location,
                 destination=destination,
                 schoolsubject=schoolsubject,
                 manager=manager,
@@ -274,19 +224,27 @@ def get_value(request):
         try:
             # Intentar obtener el valor correspondiente de la base de datos
             reactivo = Reactivos.objects.get(name=value_selected)
-            densidad = reactivo.density
-            codigo= reactivo.code
+            cas = reactivo.cas
+            codigo = reactivo.code
+            liquid = reactivo.is_liquid
+            nombre_unit = reactivo.unit.name  # Obtener el nombre de la unidad
         except Reactivos.DoesNotExist:
             # Si el reactivo no existe, devolver un valor por defecto
-            densidad = 1
-            codigo = "0-000-0"
+            cas = ""
+            codigo = ""
+            liquid = ''
+            nombre_unit = ""
 
-        return JsonResponse({'value': densidad,
-                             'codigo':codigo
-                             })
+        return JsonResponse({
+            'cas': cas,
+            'codigo': codigo,
+            'liquid': liquid,
+            'nombre_unit': nombre_unit  # Pasar el nombre de la unidad
+        })
     else:
         # Si la solicitud no es una solicitud AJAX, devolver una respuesta HTTP 400 Bad Request
         return HttpResponseBadRequest()
+
     
 
     
