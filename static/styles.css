@@ -1,0 +1,33 @@
+.ui-menu {
+    background-color: white;
+    border: 2px solid #131168;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    max-height: 200px;
+    overflow-y: auto;
+    border-bottom-right-radius: 8px;
+    border-bottom-left-radius: 8px;
+    
+}
+
+.ui-menu li {
+    padding: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.ui-menu li:hover {
+    background-color:#64b4f686;
+    border-radius: 8px;
+}
+
+.ui-menu .ui-menu-item-wrapper {
+    border-radius: 5px;
+    border-color: #4a8dc4d8;
+
+}
+
+.ui-menu .ui-state-focus {
+    background-color: #ddd;
+}

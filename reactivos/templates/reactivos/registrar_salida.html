@@ -13,9 +13,10 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://code.jquery.com/ui/1.13.0/jquery-ui.min.js"></script>
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.0/themes/smoothness/jquery-ui.css">
-    <script src="/reactivos/templates/JS/reactivos.js"></script>
+    
     {% load static %}
     <script src="{% static 'script.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
 </head>
 
 <body>
@@ -32,7 +33,19 @@
                 </div>
                 <div class="col-md-12">
                     <label class="form-label">Nombre reactivo:</label>
-                    <input type="text" class="form-control" name="name" id="name" placeholder="Nombre del reactivo" />
+                    <input type="text" class="form-control" name="name" id="name" placeholder="Nombre, CI o CAS" title="Se puede filtrar por nombre, CI o CAS"/>
+                </div>
+                
+                <div class="col-md-3">
+                    <label class="form-label">Código:</label>
+                    <input type="text" name="code" class="form-control" value="" id="code" readonly
+                        placeholder="Cód. Interno">
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">CAS:</label>
+                    <input type="text" name="cas" class="form-control" value="" id="cas" readonly
+                        placeholder="Cód. CAS">
                 </div>
                 <div class="col-md-3">
                     <label class="form-label">Marca reactivo:</label>
@@ -45,18 +58,6 @@
                 <div class="col-md-3">
                     <label class="form-label">Referencia:</label>
                     <input type="text" class="form-control" placeholder="Ref. reactivo" name="reference">
-                </div>
-
-                <div class="col-md-3">
-                    <label class="form-label">Código:</label>
-                    <input type="text" name="code" class="form-control" value="" id="code" readonly
-                        placeholder="Cód. Interno">
-                </div>
-
-                <div class="col-md-3">
-                    <label class="form-label">CAS:</label>
-                    <input type="text" name="cas" class="form-control" value="" id="cas" readonly
-                        placeholder="Cód. CAS">
                 </div>
 
                 <div class="col-md-4">

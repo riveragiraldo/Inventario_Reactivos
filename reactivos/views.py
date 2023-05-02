@@ -34,14 +34,13 @@ def crear_reactivo(request):
     if request.method=='POST':
         color = request.POST.get('color')
         number = request.POST.get('number')
-        number = '00'+number
+        number = str(number).zfill(3)
         subnumber=request.POST.get('subnumber')
         
         if subnumber=='' :
             subnumber = '0'
-            code = color+'-'+number
-        else:
-            code = color+'-'+number+'-'+subnumber
+
+        code = request.POST.get('code')           
             
         name = request.POST.get('name')
         unit = request.POST.get('unit')
@@ -250,7 +249,7 @@ def get_value(request):
     
 def autocomplete(request):
     term = request.GET.get('term', '')
-    reactivos = Reactivos.objects.filter(Q(name__icontains=term) | Q(code__icontains=term))[:10]
+    reactivos = Reactivos.objects.filter(Q(name__icontains=term) | Q(code__icontains=term) | Q(cas__icontains=term))[:10]
     results = []
     for reactivo in reactivos:
         results.append({'id': reactivo.id, 'value': reactivo.name})

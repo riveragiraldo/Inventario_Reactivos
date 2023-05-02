@@ -1,68 +1,87 @@
 <!doctype html>
 <html lang="en">
-  <head>
+
+<head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Registro de reactivos</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
-  </head>
-  <body>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
+        {% load static %}
+    <script src="{% static 'codeconst.js' %}" defer></script>
+    
+</head>
+
+<body>
 
     <div class="container mt-5">
         <div class="row">
             <div class="col-md-8">
                 <form method="post" class="row g-3">
                     {% csrf_token %}
+
+                    <div class="col-md-2">
+                        <label class="form-label">Color (o SGA):</label>
+                        <input type="number" class="form-control" placeholder="Núm. Color (o SGA)" id="color"
+                            name="color" required min="0">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Número:</label>
+                        <input type="number" class="form-control" placeholder="Núm. reactivo" id="number"
+                            name="number" required min="0">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Sub - Número:</label>
+                        <input type="text" class="form-control" placeholder="Sub-Número reactivo" id="subnumber"
+                            name="subnumber" pattern="[A-Z0-9]*|[1-9][0-9]*"
+                            title="Ingrese números positivos o letras mayúsculas">
+
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Código interno:</label>
+                        <input type="text" class="form-control" name="code" id="code" placeholder="Código interno" title="Código interno" readonly>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Código CAS:</label>
+                        <input type="text" step="any" class="form-control" placeholder="Código CAS" name="cas" required>
+                    </div>
+                    <div class="col-md-5">
+                        <label class="form-label">Nombre del reactivo:</label>
+                        <input type="text" class="form-control" placeholder="Nombre de reactivo" name="name" required>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Es líquido:</label>
+                        <select name="is_liquid" class="form-select" required>
+
+                            <option value="SI">SI</option>
+                            <option value="NO">NO</option>
+
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Unidades:</label>
+                        <select name="unit" class="form-select" required>
+                            {% for unidad in unidades %}
+                            <option value="{{ unidad.id }}">{{ unidad.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
                     
-                        <div class="col-md-3">
-                            <label class="form-label">Color (o SGA):</label>
-                        <input type="number" class="form-control" placeholder="Número Color (o SGA)" name="color" required min="0">
-                        </div>
-                        <div class="col-md-3">
-                            <label class="form-label">Número:</label>
-                            <input type="number" class="form-control" placeholder="Número de reactivo" name="number" required min="0">
-                        </div>
-                        <div class="col-md-3">
-                            <label class="form-label">Sub - Número:</label>
-                            <input type="text" class="form-control" placeholder="Sub-Número de reactivo" name="subnumber" pattern="[A-Z0-9]{1,3}" title="Ingrese números positivos o letras mayúsculas" oninvalid="this.setCustomValidity('Ingrese números positivos o letras mayúsculas')">
-                        </div>
-                        <div class="col-md-3">
-                            <label class="form-label">Código CAS:</label>
-                        <input type="text" step="any" class="form-control" placeholder="Código CAS" name="cas">
-                        </div>
-                        <div class="col-md-5">
-                            <label class="form-label">Nombre del reactivo:</label>
-                            <input type="text" class="form-control" placeholder="Nombre de reactivo" name="name" required>
-                        </div>
-                        <div class="col-md-2">
-                            <label class="form-label">Unidades:</label>
-                            <select name="unit" class="form-select" required>
-                                {% for unidad in unidades %}
-                                <option value="{{ unidad.id }}">{{ unidad.name }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <div class="col-md-2">
-                            <label class="form-label">Es líquido:</label>
-                            <select name="is_liquid" class="form-select" required>
-                                
-                                <option value="SI">SI</option>
-                                <option value="NO">NO</option>
-                                
-                            </select>
-                        </div>
-                        <div class="col-md-3">
-                            <label class="form-label">Ubicación en Almacén:</label>
+                    <div class="col-md-3">
+                        <label class="form-label">Ubicación en Almacén:</label>
                         <input type="text" step="any" class="form-control" placeholder="Ubicación" name="wlocation">
-                        </div>
-                        
-                        <div class="col-md-9">
-                            <input type="submit" value="Crear Ractivo" class="btn btn-primary">
-                        </div>
-                    
+                    </div>
+
+                    <div class="col-md-9">
+                        <input type="submit" value="Crear Ractivo" class="btn btn-primary">
+                    </div>
+
                 </form>
             </div>
-    </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe" crossorigin="anonymous"></script>
-  </body>
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe"
+            crossorigin="anonymous"></script>
+</body>
+
 </html>
