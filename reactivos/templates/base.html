@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %} {% endblock %}</title>
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <nav>
+        <!-- ... -->
+      </nav>
+      <div class="container">
+        {% block content %}
+        {% endblock %}
+        {% include "reactivos/crear_reactivo.html" with form=reactivo_form%}
+      </div>
+      <footer>
+        <!-- ... -->
+      </footer>
+</body>
+</html>

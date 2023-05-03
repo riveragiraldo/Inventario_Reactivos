@@ -54,15 +54,15 @@ def crear_reactivo(request):
         
         # Verifica si ya existe un registro con el mismo nombre, código o número CAS
         if Reactivos.objects.filter(name=name).exists():
-            messages.error(request, 'Ya existe un reactivo con este nombre.')
+            messages.error(request, 'Ya existe un reactivo con nombre '+name)
             return redirect('reactivos:crear_reactivo')
 
         if Reactivos.objects.filter(code=code).exists():
-            messages.error(request, 'Ya existe un reactivo con este código.')
+            messages.error(request, 'Ya existe un reactivo con código '+code)
             return redirect('reactivos:crear_reactivo')
 
         if Reactivos.objects.filter(cas=cas).exists():
-            messages.error(request, 'Ya existe un reactivo con este número CAS.')
+            messages.error(request, 'Ya existe un reactivo con  CAS '+cas)
             return redirect('reactivos:crear_reactivo')
 
         reactivo = Reactivos.objects.create(
@@ -77,7 +77,7 @@ def crear_reactivo(request):
             is_liquid=is_liquid,
         )
 
-        messages.success(request, 'El reactivo se ha creado correctamente.')
+        messages.success(request, 'Se ha creado exitosamente el reactivo con nombre: '+name+', CAS: '+cas+', código interno: '+code)
         return redirect('reactivos:crear_reactivo')
 
     context={
@@ -93,12 +93,20 @@ def crear_unidad(request):
     if request.method=='POST':
         name = request.POST.get('name')
 
+        # Verifica si ya existe un registro con el mismo nombre de la unidad
+        if Unidades.objects.filter(name=name).exists():
+            messages.error(request, 'Ya existe una unidad con nombre: '+name)
+            return redirect('reactivos:crear_unidad')
+
+        
+
         unidad = Unidades.objects.create(
             
             name = name,
             
         )
-        #return redirect('reactivos:detalle_reactivo', pk=reactivo.id)
+        messages.success(request, 'Se ha creado exitosamente la unidad con nombre: '+name+'.')
+        return redirect('reactivos:crear_unidad')
 
     context={
         
@@ -110,13 +118,18 @@ def crear_unidad(request):
 def crear_marca(request):
     if request.method=='POST':
         name = request.POST.get('name')
+        # Verifica si ya existe un registro con el mismo nombre de la marca
+        if Marcas.objects.filter(name=name).exists():
+            messages.error(request, 'Ya existe una marca con nombre: '+name)
+            return redirect('reactivos:crear_marca')
 
         marca = Marcas.objects.create(
             
             name = name,
             
         )
-        #return redirect('reactivos:detalle_reactivo', pk=reactivo.id)
+        messages.success(request, 'Se ha creado exitosamente la marca con nombre: '+name+'.')
+        return redirect('reactivos:crear_marca')
 
     context={
         
@@ -128,12 +141,19 @@ def crear_destino(request):
     if request.method=='POST':
         name = request.POST.get('name')
 
+        # Verifica si ya existe un registro con el mismo nombre del destino
+        if Destinos.objects.filter(name=name).exists():
+            messages.error(request, 'Ya existe un destino con nombre: '+name)
+            return redirect('reactivos:crear_destino')
+
+
         destino = Destinos.objects.create(
             
             name = name,
             
         )
-        #return redirect('reactivos:detalle_reactivo', pk=reactivo.id)
+        messages.success(request, 'Se ha creado exitosamente el destino con nombre: '+name+'.')
+        return redirect('reactivos:crear_destino')
 
     context={
         
@@ -145,13 +165,18 @@ def crear_asignatura(request):
     if request.method=='POST':
         name = request.POST.get('name')
 
+        # Verifica si ya existe un registro con el mismo nombre de la asignatura
+        if Asignaturas.objects.filter(name=name).exists():
+            messages.error(request, 'Ya existe una asignatura con nombre: '+name)
+            return redirect('reactivos:crear_asignatura')
+
         asignatura = Asignaturas.objects.create(
             
             name = name,
             
         )
-        #return redirect('reactivos:detalle_reactivo', pk=reactivo.id)
-
+        messages.success(request, 'Se ha creado exitosamente la asignatura con nombre: '+name+'.')
+        return redirect('reactivos:crear_asignatura')
     context={
         
     }
@@ -163,6 +188,19 @@ def crear_responsable(request):
         phone = request.POST.get('phone')
         mail = request.POST.get('mail')
 
+        # Verifica si ya existe un registro con el mismo nombre, telefono o email de la marca
+        if Responsables.objects.filter(name=name).exists():
+            messages.error(request, 'Ya existe una responsable con nombre: '+name)
+            return redirect('reactivos:crear_responsable')
+        
+        if Responsables.objects.filter(phone=phone).exists():
+            messages.error(request, 'Ya existe una responsable con telefono: '+phone)
+            return redirect('reactivos:crear_responsable')
+        
+        if Responsables.objects.filter(mail=mail).exists():
+            messages.error(request, 'Ya existe una responsable con email: '+mail)
+            return redirect('reactivos:crear_responsable')
+
         responsable = Responsables.objects.create(
             
             name = name,
@@ -170,7 +208,8 @@ def crear_responsable(request):
             mail = mail,
             
         )
-        #return redirect('reactivos:detalle_reactivo', pk=reactivo.id)
+        messages.success(request, 'Se ha creado exitosamente el responsable con nombre: '+name+', teléfono: '+phone+', email: '+mail+'.')
+        return redirect('reactivos:crear_responsable')
 
     context={
         
