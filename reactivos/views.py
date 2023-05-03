@@ -4,6 +4,8 @@ from django.http import JsonResponse, HttpResponseBadRequest
 from .models import *
 from django.db.models import Q
 from django.core.exceptions import ValidationError
+from django.contrib import messages
+from django.db import IntegrityError
 
 def index(request):
     unidades=Unidades.objects.all()
@@ -30,18 +32,19 @@ def detalle_reactivo(request, pk):
 
 
 
+
+
 def crear_reactivo(request):
     if request.method=='POST':
         color = request.POST.get('color')
         number = request.POST.get('number')
         number = str(number).zfill(3)
         subnumber=request.POST.get('subnumber')
-        
-        if subnumber=='' :
+
+        if subnumber=='':
             subnumber = '0'
 
-        code = request.POST.get('code')           
-            
+        code = request.POST.get('code')
         name = request.POST.get('name')
         unit = request.POST.get('unit')
         unit = Unidades.objects.get(id=unit)
@@ -49,7 +52,18 @@ def crear_reactivo(request):
         wlocation = request.POST.get('wlocation')
         is_liquid = request.POST.get('is_liquid')
         
-       
+        # Verifica si ya existe un registro con el mismo nombre, código o número CAS
+        if Reactivos.objects.filter(name=name).exists():
+            messages.error(request, 'Ya existe un reactivo con este nombre.')
+            return redirect('reactivos:crear_reactivo')
+
+        if Reactivos.objects.filter(code=code).exists():
+            messages.error(request, 'Ya existe un reactivo con este código.')
+            return redirect('reactivos:crear_reactivo')
+
+        if Reactivos.objects.filter(cas=cas).exists():
+            messages.error(request, 'Ya existe un reactivo con este número CAS.')
+            return redirect('reactivos:crear_reactivo')
 
         reactivo = Reactivos.objects.create(
             color = color,
@@ -61,14 +75,17 @@ def crear_reactivo(request):
             cas = cas,
             wlocation=wlocation,
             is_liquid=is_liquid,
-            
         )
-        return redirect('reactivos:detalle_reactivo', pk=reactivo.id)
+
+        messages.success(request, 'El reactivo se ha creado correctamente.')
+        return redirect('reactivos:crear_reactivo')
 
     context={
         'unidades':Unidades.objects.all()
     }
     return render(request, 'reactivos/crear_reactivo.html', context)
+
+
 
 
 
