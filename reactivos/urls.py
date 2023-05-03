@@ -14,4 +14,5 @@ urlpatterns=[
     path('reactivos/registrar_salida', registrar_salida, name='registrar_salida'),
     path('get-value/', get_value, name='get_value'),
     path('autocomplete/', autocomplete, name='autocomplete'),
+    # path('salidas/<int:pk>', salida_info, name='salida_info'),
 ]

@@ -3,9 +3,8 @@ from django.shortcuts import get_object_or_404, redirect
 from django.http import JsonResponse, HttpResponseBadRequest
 from .models import *
 from django.db.models import Q
-from django.core.exceptions import ValidationError
 from django.contrib import messages
-from django.db import IntegrityError
+#from django.contrib.sessions.models import Session
 
 def index(request):
     unidades=Unidades.objects.all()
@@ -222,12 +221,15 @@ def registrar_salida(request):
     if request.method == 'POST':
         date = request.POST.get('date')
         name = request.POST.get('name')
+        nReactivo=name
         try:
             nameReactivo = Reactivos.objects.get(name=name)
             name = nameReactivo
         except Reactivos.DoesNotExist:
-            error_message = "El reactivo ingresado no se encuentra en la base de datos."
+            messages.error(request,"El reactivo ingresado no se encuentra en la base de datos.") 
             name = None
+            return redirect('reactivos:registrar_salida')
+            
 
         if name:
             trademark = request.POST.get('trademark')
@@ -243,6 +245,12 @@ def registrar_salida(request):
             manager = request.POST.get('manager')
             manager = Responsables.objects.get(id=manager)
             observations = request.POST.get('observations')
+            unit=request.POST.get('unit')
+
+
+            # request.session['fecha'] = date
+            # request.session['nombre'] = name
+            
 
             salida = Salidas.objects.create(
                 date=date,
@@ -256,7 +264,13 @@ def registrar_salida(request):
                 schoolsubject=schoolsubject,
                 manager=manager,
                 observations=observations,
-            )
+                )       
+            messages.success(request, 'Se ha registrado de manera exitosa la salida del insumo: '+nReactivo+', cantidad '+weight+' '+unit)
+            return redirect('reactivos:registrar_salida')
+            # salida_id = salida.id
+            # return redirect('reactivos:salida_info', pk=salida_id)
+        
+           
 
     context = {
         'reactivos': Reactivos.objects.all(),
@@ -268,6 +282,22 @@ def registrar_salida(request):
     }
     return render(request, 'reactivos/registrar_salida.html', context)
 
+
+
+
+# def salida_info(request,pk):
+#     salida = get_object_or_404(Salidas,pk=pk)
+
+#     fecha = request.session.get('fecha')
+#     nombre = request.session.get('nombre')
+#     context={
+        
+#         'salidas':salida.name,
+#         'mensaje': 'Salida registrada correctamente',
+#         'fecha': fecha,
+#         'nombre': nombre
+#     }
+#     return render(request, 'reactivos/salida_info.html', context)
 
 
 
