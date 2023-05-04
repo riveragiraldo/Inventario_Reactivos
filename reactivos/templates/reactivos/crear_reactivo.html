@@ -51,7 +51,7 @@
                         <label class="form-label">Código CAS:</label>
                         <input type="text" step="any" class="form-control" placeholder="Código CAS" name="cas" required>
                     </div>
-                    <div class="col-md-5">
+                    <div class="col-md-4">
                         <label class="form-label">Nombre del reactivo:</label>
                         <input type="text" class="form-control" placeholder="Nombre de reactivo" name="name" required>
                     </div>
@@ -71,7 +71,25 @@
                             <option value="{{ unidad.id }}">{{ unidad.name }}</option>
                             {% endfor %}
                         </select>
+                        
                     </div>
+                    
+
+                    <div class="col-md-1">
+                        <label class="form-label" style="color: transparent;">Add</label>
+                        <button type="button" id="add_unit_btn" class="btn btn-secondary" title="Agregar Unidad">+</button>
+                    </div>
+                    <script>
+                        function openPopupWindow() {
+                          var w = 450; // ancho de la ventana emergente
+                          var h = 400; // altura de la ventana emergente
+                          var left = (screen.width / 2) - (w / 2);
+                          var top = (screen.height / 2) - (h / 2);
+                          window.open("{% url 'reactivos:crear_unidades' %}", "popup", "width=" + w + ",height=" + h + ",left=" + left + ",top=" + top);
+                        }
+                        var addUnitBtn = document.getElementById("add_unit_btn");
+                        addUnitBtn.addEventListener("click", openPopupWindow);
+                      </script>
 
                     <div class="col-md-3">
                         <label class="form-label">Ubicación en Almacén:</label>
