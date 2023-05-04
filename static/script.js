@@ -43,6 +43,18 @@ $(document).ready(function () {
     });
 });
 
+//Función autocompletar por Responsable
+$(document).ready(function () {
+    $("#manager").autocomplete({
+        source: "autocomplete_manager", 
+        minLength: 2,
+        select: function (event, ui) {
+            $("#manager").val(ui.item.value);
+            return false;
+        }
+    });
+});
+
 
 //Actualiza campos código, cas, is_liquid, unidades    
 $(document).ready(function () {

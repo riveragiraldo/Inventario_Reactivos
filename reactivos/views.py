@@ -243,6 +243,16 @@ def registrar_salida(request):
             messages.error(request,"La ubicación "+nlocation+" no se encuentra en la base de datos, favor crearlo primero.") 
             location = None
             return redirect('reactivos:registrar_salida')
+        
+        manager = request.POST.get('manager')
+        nmanager=manager
+        try:
+            nameManager = Responsables.objects.get(name=manager)
+            manager = nameManager
+        except Responsables.DoesNotExist:
+            messages.error(request,"El responsable "+nmanager+" no se encuentra en la base de datos, favor crearlo primero.") 
+            manager = None
+            return redirect('reactivos:registrar_salida')
             
 
         if name:
@@ -255,8 +265,7 @@ def registrar_salida(request):
             destination = request.POST.get('destination')
             destination = Destinos.objects.get(id=destination)
             
-            manager = request.POST.get('manager')
-            manager = Responsables.objects.get(id=manager)
+            
             observations = request.POST.get('observations')
             unit=request.POST.get('unit')
 
@@ -344,6 +353,16 @@ def autocomplete_location(request):
     results = []
     for ubicacion in ubicaciones:
         results.append({'value': ubicacion.name})
+    pass
+
+    return JsonResponse(results, safe=False)
+
+def autocomplete_manager(request):
+    term = request.GET.get('term', '')
+    responsables = Responsables.objects.filter(Q(name__icontains=term))[:10]
+    results = []
+    for responsable in responsables:
+        results.append({'value': responsable.name})
     pass
 
     return JsonResponse(results, safe=False)

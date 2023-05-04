@@ -37,7 +37,7 @@
                 </div>
                 <div class="col-md-12">
                     <label class="form-label">Nombre reactivo:</label>
-                    <input type="text" class="form-control" name="name" id="name" placeholder="Nombre, CI o CAS" title="Se puede filtrar por nombre, CI o CAS"/>
+                    <input type="text" class="form-control" name="name" id="name" placeholder="Nombre, CI o CAS" title="Se puede filtrar por nombre, CI o CAS" required/>
                 </div>
                 
                 <div class="col-md-3">
@@ -94,17 +94,12 @@
                         <option value="{{ destino.id }}">{{ destino.name }}</option>
                         {% endfor %}
                     </select>
-                </div>
-
-                
+                </div>               
 
                 <div class="col-md-12">
                     <label class="form-label">Responsable:</label>
-                    <select name="manager" class="form-select" required>
-                        {% for responsable in responsables %}
-                        <option value="{{ responsable.id }}">{{ responsable.name }}</option>
-                        {% endfor %}
-                    </select>
+                    <input type="text" name="manager" class="form-control"  id="manager" required placeholder="Responsable del insumo">
+                    
                 </div>
 
                 <div class="col-md-12">
