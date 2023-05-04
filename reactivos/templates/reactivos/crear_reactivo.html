@@ -21,7 +21,7 @@
     <div class="container mt-5">
         <div class="row">
             <div class="col-md-8">
-              
+
                 <form method="post" class="row g-3" id="reactivo_form" name="form">
                     {% csrf_token %}
 
@@ -66,18 +66,19 @@
                     </div>
                     <div class="col-md-2">
                         <label class="form-label">Unidades:</label>
-                        <select name="unit" class="form-select" required>
+                        <select name="unit" class="form-select" required id="selectUnidades">
                             {% for unidad in unidades %}
                             <option value="{{ unidad.id }}">{{ unidad.name }}</option>
                             {% endfor %}
                         </select>
-                        
+
                     </div>
-                    
+
 
                     <div class="col-md-1">
                         <label class="form-label" style="color: transparent;">Add</label>
-                        <button type="button" id="add_unit_btn" class="btn btn-secondary" title="Agregar Unidad">+</button>
+                        <button type="button" id="add_unit_btn" class="btn btn-secondary"
+                            title="Agregar Unidad">+</button>
                     </div>
                     <script>
                         function openPopupWindow() {
@@ -89,7 +90,25 @@
                         }
                         var addUnitBtn = document.getElementById("add_unit_btn");
                         addUnitBtn.addEventListener("click", openPopupWindow);
-                      </script>
+
+                        
+
+                            popup.onunload = function () {
+                                // Enviar petición AJAX para actualizar el contenido del select
+                                var xhr = new XMLHttpRequest();
+                                xhr.onreadystatechange = function () {
+                                    if (this.readyState === 4 && this.status === 200) {
+                                        // Actualizar el contenido del select con la respuesta de la petición
+                                        var select = document.getElementById("id_unit");
+                                        select.innerHTML = this.responseText;
+                                    }
+                                };
+                                xhr.open("GET", "{% url 'reactivos:get_unidades_options' %}", true);
+                                xhr.send();
+                            };
+                       
+
+                    </script>
 
                     <div class="col-md-3">
                         <label class="form-label">Ubicación en Almacén:</label>

@@ -1,10 +1,10 @@
 from django.shortcuts import render
 from django.shortcuts import get_object_or_404, redirect
-from django.http import JsonResponse, HttpResponseBadRequest
+from django.http import JsonResponse, HttpResponseBadRequest, HttpResponse
 from .models import *
 from django.db.models import Q
 from django.contrib import messages
-#from django.contrib.sessions.models import Session
+
 
 def index(request):
     unidades=Unidades.objects.all()
@@ -113,29 +113,6 @@ def crear_unidad(request):
     return render(request, 'reactivos/crear_unidad.html', context)
 
 
-# def crear_unidades(request):
-#     if request.method=='POST':
-#         name = request.POST.get('name')
-
-#         # Verifica si ya existe un registro con el mismo nombre de la unidad
-#         if Unidades.objects.filter(name=name).exists():
-#             messages.error(request, 'Ya existe una unidad con nombre: '+name)
-#             return redirect('reactivos:crear_unidad')
-
-        
-
-#         unidad = Unidades.objects.create(
-            
-#             name = name,
-            
-#         )
-#         messages.success(request, 'Se ha creado exitosamente la unidad con nombre: '+name+'.')
-#         return redirect('reactivos:crear_unidades')
-
-#     context={
-        
-#     }
-#     return render(request, 'reactivos/crear_unidad.html', context)
 
 def crear_unidades(request):
     if request.method=='POST':
@@ -152,10 +129,11 @@ def crear_unidades(request):
         messages.success(request, 'Se ha creado exitosamente la unidad con nombre: '+name+'.')
         
         # Agregar el ID de la unidad al contexto para seleccionarla en la plantilla
-        context = {'unidad_id': unidad.id,}
+        context = {'unidad_id': unidad.id,'unidad_name': unidad.name,}
         return render(request, 'reactivos/crear_unidades.html', context)
 
     context={
+        
     }
     return render(request, 'reactivos/crear_unidades.html', context)
 
@@ -415,5 +393,10 @@ def autocomplete_manager(request):
 
     return JsonResponse(results, safe=False)
 
-
+def get_unidades_options(request):
+    unidades = Unidades.objects.all()
+    options = ''
+    for unidad in unidades:
+        options += '<option value="{}">{}</option>'.format(unidad.id, unidad.name)
+    return HttpResponse(options)
 

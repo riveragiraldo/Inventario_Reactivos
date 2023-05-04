@@ -17,5 +17,6 @@ urlpatterns=[
     path('autocomplete/', autocomplete, name='autocomplete'),
     path('reactivos/autocomplete_location', autocomplete_location, name='autocomplete_location'),
     path('reactivos/autocomplete_manager', autocomplete_manager, name='autocomplete_manager'),
+    path('reactivos/get_unidades_options', get_unidades_options, name='get_unidades_options'),
     
 ]
