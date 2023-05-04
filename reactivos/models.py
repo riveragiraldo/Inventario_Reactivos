@@ -84,6 +84,16 @@ class Responsables(models.Model):
         verbose_name_plural='Responsables'
         verbose_name='Responsable'
 
+class Ubicaciones(models.Model):
+    name=models.CharField(max_length=30, verbose_name="Ubicación")
+
+    def __str__ (self):
+        return self.name
+
+    class Meta:
+        verbose_name_plural='Ubicaciones'
+        verbose_name='Ubicación'
+
 
 class Salidas(models.Model):
     date=models.DateTimeField(verbose_name='Fecha')
@@ -96,7 +106,7 @@ class Salidas(models.Model):
     schoolsubject=models.ForeignKey(Asignaturas, on_delete=models.CASCADE, related_name='ssubject', verbose_name='Asignatura')
     manager=models.ForeignKey(Responsables, on_delete=models.CASCADE, related_name='manager', verbose_name='Responsable')
     observations=models.TextField(max_length=1000, verbose_name='Observaciones')
-    location=models.CharField(max_length=100, verbose_name='Ubicación Salida')
+    location=models.ForeignKey(Ubicaciones, on_delete=models.CASCADE, related_name='location', verbose_name='Ubicación')
 
     def __str__ (self):
         return self.name

@@ -181,6 +181,29 @@ def crear_asignatura(request):
     }
     return render(request, 'reactivos/crear_asignatura.html', context)
 
+
+def crear_ubicacion(request):
+    if request.method=='POST':
+        name = request.POST.get('name')
+
+        # Verifica si ya existe un registro con el mismo nombre de la asignatura
+        if Ubicaciones.objects.filter(name=name).exists():
+            messages.error(request, 'Ya existe una ubicación con nombre: '+name)
+            return redirect('reactivos:crear_ubicacion')
+
+        asignatura = Ubicaciones.objects.create(
+            
+            name = name,
+            
+        )
+        messages.success(request, 'Se ha creado exitosamente la ubicación con nombre: '+name+'.')
+        return redirect('reactivos:crear_ubicacion')
+    context={
+        
+    }
+    return render(request, 'reactivos/crear_ubicacion.html', context)
+
+
 def crear_responsable(request):
     if request.method=='POST':
         name = request.POST.get('name')
@@ -285,19 +308,7 @@ def registrar_salida(request):
 
 
 
-# def salida_info(request,pk):
-#     salida = get_object_or_404(Salidas,pk=pk)
 
-#     fecha = request.session.get('fecha')
-#     nombre = request.session.get('nombre')
-#     context={
-        
-#         'salidas':salida.name,
-#         'mensaje': 'Salida registrada correctamente',
-#         'fecha': fecha,
-#         'nombre': nombre
-#     }
-#     return render(request, 'reactivos/salida_info.html', context)
 
 
 

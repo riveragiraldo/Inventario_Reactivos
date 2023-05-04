@@ -33,6 +33,12 @@ class Asignaturaadmin(admin.ModelAdmin):
     list_display=('id','name',)
     ordering=('id',)
 
+@admin.register(Ubicaciones)
+class Ubicacionadmin(admin.ModelAdmin):
+    list_display=('id','name',)
+    ordering=('id',)
+
+
 
 @admin.register(Responsables)
 class Responsableadmin(admin.ModelAdmin):
