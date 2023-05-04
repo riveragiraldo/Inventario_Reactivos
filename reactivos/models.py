@@ -56,15 +56,7 @@ class Destinos(models.Model):
         verbose_name='Destino'
 
 
-class Asignaturas(models.Model):
-    name=models.CharField(max_length=30, verbose_name="Asignatura")
 
-    def __str__ (self):
-        return self.name
-
-    class Meta:
-        verbose_name_plural='Asignaturas'
-        verbose_name='Asignatura'
 
 
 
@@ -85,14 +77,14 @@ class Responsables(models.Model):
         verbose_name='Responsable'
 
 class Ubicaciones(models.Model):
-    name=models.CharField(max_length=30, verbose_name="Ubicación")
+    name=models.CharField(max_length=100, verbose_name="Ubicación/Asignaturas")
 
     def __str__ (self):
         return self.name
 
     class Meta:
-        verbose_name_plural='Ubicaciones'
-        verbose_name='Ubicación'
+        verbose_name_plural='Ubicaciones/Asignaturas'
+        verbose_name='Ubicación/Asignaturas'
 
 
 class Salidas(models.Model):
@@ -103,7 +95,6 @@ class Salidas(models.Model):
     weight=models.DecimalField(max_digits=10, decimal_places=4, verbose_name='Peso Reactivo')
     is_liquid=models.CharField(max_length=3, verbose_name='Es líquido')
     destination=models.ForeignKey(Destinos, on_delete=models.CASCADE, related_name='destination', verbose_name='Destino')
-    schoolsubject=models.ForeignKey(Asignaturas, on_delete=models.CASCADE, related_name='ssubject', verbose_name='Asignatura')
     manager=models.ForeignKey(Responsables, on_delete=models.CASCADE, related_name='manager', verbose_name='Responsable')
     observations=models.TextField(max_length=1000, verbose_name='Observaciones')
     location=models.ForeignKey(Ubicaciones, on_delete=models.CASCADE, related_name='location', verbose_name='Ubicación')

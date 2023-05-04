@@ -1,4 +1,3 @@
-
 //Fecha actual
 
 $(document).ready(function () {
@@ -18,13 +17,27 @@ function padNumber(num) {
 }
 
 
-//Función autocompletar por nombre o código
+//autocompletar por nombre o código
+
 $(document).ready(function () {
+    
     $("#name").autocomplete({
         source: "{% url 'reactivos:autocomplete' %}",
         minLength: 2,
         select: function (event, ui) {
             $("#name").val(ui.item.value);
+            return false;
+        }
+    });
+});
+
+//Función autocompletar por Ubicación
+$(document).ready(function () {
+    $("#location").autocomplete({
+        source: "autocomplete_location", 
+        minLength: 2,
+        select: function (event, ui) {
+            $("#location").val(ui.item.value);
             return false;
         }
     });

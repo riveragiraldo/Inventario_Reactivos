@@ -28,10 +28,7 @@ class Destinoadmin(admin.ModelAdmin):
     ordering=('id',)
 
 
-@admin.register(Asignaturas)
-class Asignaturaadmin(admin.ModelAdmin):
-    list_display=('id','name',)
-    ordering=('id',)
+
 
 @admin.register(Ubicaciones)
 class Ubicacionadmin(admin.ModelAdmin):
@@ -48,7 +45,7 @@ class Responsableadmin(admin.ModelAdmin):
 
 @admin.register(Salidas)
 class Salidaadmin(admin.ModelAdmin):
-    list_display=('id','date','name','trademark','reference','weight','is_liquid','destination','schoolsubject','manager','observations','location')
+    list_display=('id','date','name','trademark','reference','weight','is_liquid','destination','manager','observations','location')
     list_filter=('date','name',)
     search_fields=('date','name',)
     list_per_page=10

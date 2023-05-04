@@ -16,19 +16,10 @@
     
     {% load static %}
     <script src="{% static 'script.js' %}"></script>
+    
+    <script src="{% static 'clearFds.js' %}"></script>
     <link rel="stylesheet" href="{% static 'styles.css' %}">
-    <script>
-		 window.addEventListener('pageshow', function(event) {
-            document.getElementById("name").value = "";
-            document.getElementById("code").value = "";
-            document.getElementById("cas").value = "";
-            document.getElementById("is_liquid").value = "";
-            document.getElementById("location").value = "";
-            document.getElementById("observations").value = "";
-            document.getElementById("weight").value = "";
-            document.getElementById("reference").value = "";
-        });
-	</script>
+    
 </head>
 
 <body>
@@ -37,7 +28,7 @@
         <h1>Registrar salida de insumos</h1>
         <div class="col-5">
 
-            <form method="post" class="row g-3" id="salida_form" name="salida_form" >
+            <form method="post" class="row g-3" id="salida_form" name="form" >
                 {% csrf_token %}
                 <div class="col-md-4">
                     <label class="form-label">Fecha:</label>
@@ -89,13 +80,14 @@
                     <label class="form-label">Unidades:</label>
                     <input type="text" name="unit" class="form-control" value="" id="unit" readonly>
                 </div>
+                
 
-                <div class="md-4">
-                    <label class="form-label">Ubicación:</label>
-                    <input type="text" name="location" class="form-control" value="" id="location" required placeholder="Ubicación Destino">
+                <div class="col-md-6">
+                    <label class="form-label">Asignatura/Ubicación:</label>
+                    <input type="text" name="location" class="form-control"  id="location" required placeholder="Asignatura/Ubicación Destino">
                 </div>
 
-                <div class="col-md-4">
+                <div class="col-md-6">
                     <label class="form-label">Destino:</label>
                     <select name="destination" class="form-select" required>
                         {% for destino in destinos %}
@@ -104,16 +96,9 @@
                     </select>
                 </div>
 
-                <div class="col-md-4">
-                    <label class="form-label">Asignatura:</label>
-                    <select name="schoolsubject" class="form-select" required>
-                        {% for asignatura in asignaturas %}
-                        <option value="{{ asignatura.id }}">{{ asignatura.name }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
+                
 
-                <div class="col-md-4">
+                <div class="col-md-12">
                     <label class="form-label">Responsable:</label>
                     <select name="manager" class="form-select" required>
                         {% for responsable in responsables %}

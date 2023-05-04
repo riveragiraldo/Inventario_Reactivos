@@ -160,26 +160,7 @@ def crear_destino(request):
     return render(request, 'reactivos/crear_destino.html', context)
 
 
-def crear_asignatura(request):
-    if request.method=='POST':
-        name = request.POST.get('name')
 
-        # Verifica si ya existe un registro con el mismo nombre de la asignatura
-        if Asignaturas.objects.filter(name=name).exists():
-            messages.error(request, 'Ya existe una asignatura con nombre: '+name)
-            return redirect('reactivos:crear_asignatura')
-
-        asignatura = Asignaturas.objects.create(
-            
-            name = name,
-            
-        )
-        messages.success(request, 'Se ha creado exitosamente la asignatura con nombre: '+name+'.')
-        return redirect('reactivos:crear_asignatura')
-    context={
-        
-    }
-    return render(request, 'reactivos/crear_asignatura.html', context)
 
 
 def crear_ubicacion(request):
@@ -240,7 +221,7 @@ def crear_responsable(request):
 
 
 def registrar_salida(request):
-    error_message = ""
+    
     if request.method == 'POST':
         date = request.POST.get('date')
         name = request.POST.get('name')
@@ -249,8 +230,18 @@ def registrar_salida(request):
             nameReactivo = Reactivos.objects.get(name=name)
             name = nameReactivo
         except Reactivos.DoesNotExist:
-            messages.error(request,"El reactivo ingresado no se encuentra en la base de datos.") 
+            messages.error(request,"El reactivo "+nReactivo+" no se encuentra en la base de datos, favor crearlo primero.") 
             name = None
+            return redirect('reactivos:registrar_salida')
+        
+        location = request.POST.get('location')
+        nlocation=location
+        try:
+            nameLocation = Ubicaciones.objects.get(name=location)
+            location = nameLocation
+        except Ubicaciones.DoesNotExist:
+            messages.error(request,"La ubicación "+nlocation+" no se encuentra en la base de datos, favor crearlo primero.") 
+            location = None
             return redirect('reactivos:registrar_salida')
             
 
@@ -260,19 +251,16 @@ def registrar_salida(request):
             reference = request.POST.get('reference')
             is_liquid = request.POST.get('is_liquid')
             weight = request.POST.get('weight')
-            location = request.POST.get('location')
+            
             destination = request.POST.get('destination')
             destination = Destinos.objects.get(id=destination)
-            schoolsubject = request.POST.get('schoolsubject')
-            schoolsubject = Asignaturas.objects.get(id=schoolsubject)
+            
             manager = request.POST.get('manager')
             manager = Responsables.objects.get(id=manager)
             observations = request.POST.get('observations')
             unit=request.POST.get('unit')
 
 
-            # request.session['fecha'] = date
-            # request.session['nombre'] = name
             
 
             salida = Salidas.objects.create(
@@ -284,14 +272,12 @@ def registrar_salida(request):
                 weight=weight,
                 location=location,
                 destination=destination,
-                schoolsubject=schoolsubject,
                 manager=manager,
                 observations=observations,
                 )       
             messages.success(request, 'Se ha registrado de manera exitosa la salida del insumo: '+nReactivo+', cantidad '+weight+' '+unit)
             return redirect('reactivos:registrar_salida')
-            # salida_id = salida.id
-            # return redirect('reactivos:salida_info', pk=salida_id)
+
         
            
 
@@ -299,9 +285,8 @@ def registrar_salida(request):
         'reactivos': Reactivos.objects.all(),
         'destinos': Destinos.objects.all(),
         'responsables': Responsables.objects.all(),
-        'asignaturas': Asignaturas.objects.all(),
-        'marcas': Marcas.objects.all(),
-        'error_message': error_message
+         'marcas': Marcas.objects.all(),
+        'ubicaiones': Ubicaciones.objects.all()
     }
     return render(request, 'reactivos/registrar_salida.html', context)
 
@@ -352,5 +337,16 @@ def autocomplete(request):
         results.append({'id': reactivo.id, 'value': reactivo.name})
 
     return JsonResponse(results, safe=False)
+
+def autocomplete_location(request):
+    term = request.GET.get('term', '')
+    ubicaciones = Ubicaciones.objects.filter(Q(name__icontains=term))[:10]
+    results = []
+    for ubicacion in ubicaciones:
+        results.append({'value': ubicacion.name})
+    pass
+
+    return JsonResponse(results, safe=False)
+
 
 

@@ -9,6 +9,7 @@
         integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
     {% load static %}
     <script src="{% static 'codeconst.js' %}" defer></script>
+    <script src="{% static 'clearFds.js' %}"></script>
 
 </head>
 
@@ -21,7 +22,7 @@
         <div class="row">
             <div class="col-md-8">
               
-                <form method="post" class="row g-3" id="reactivo_form" name="reactivo_form">
+                <form method="post" class="row g-3" id="reactivo_form" name="form">
                     {% csrf_token %}
 
                     <div class="col-md-2">
