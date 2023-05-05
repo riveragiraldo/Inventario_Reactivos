@@ -91,6 +91,7 @@ def crear_reactivo(request):
 def crear_unidad(request):
     if request.method=='POST':
         name = request.POST.get('name')
+        
 
         # Verifica si ya existe un registro con el mismo nombre de la unidad
         if Unidades.objects.filter(name=name).exists():
@@ -117,16 +118,25 @@ def crear_unidad(request):
 def crear_unidades(request):
     if request.method=='POST':
         name = request.POST.get('name')
+        
 
         # Verifica si ya existe un registro con el mismo nombre de la unidad
+
+        
+
+
         if Unidades.objects.filter(name=name).exists():
-            messages.error(request, 'Ya existe una unidad con nombre: '+name)
+            unidad=Unidades.objects.get(name=name)
+            unidad_id=unidad.id
+            messages.error(request, 'Ya existe una unidad con nombre '+name+' id: '+str(unidad_id))
             return redirect('reactivos:crear_unidades')
 
         unidad = Unidades.objects.create(
             name=name,
         )
-        messages.success(request, 'Se ha creado exitosamente la unidad con nombre: '+name+'.')
+        unidad_id=unidad.id
+        
+        messages.success(request, 'Se ha creado exitosamente la unidad con nombre '+name+' id: '+str(unidad_id))
         
         # Agregar el ID de la unidad al contexto para seleccionarla en la plantilla
         context = {'unidad_id': unidad.id,'unidad_name': unidad.name,}
@@ -136,6 +146,30 @@ def crear_unidades(request):
         
     }
     return render(request, 'reactivos/crear_unidades.html', context)
+
+
+
+# def crear_unidades(request):
+#     if request.method=='POST':
+#         name = request.POST.get('name')
+
+#         # Verifica si ya existe un registro con el mismo nombre de la unidad
+#         if Unidades.objects.filter(name=name).exists():
+#             messages.error(request, 'Ya existe una unidad con nombre: '+name)
+#             return redirect('reactivos:crear_unidades')
+
+#         unidad = Unidades.objects.create(
+#             name=name,
+#         )
+#         messages.success(request, 'Se ha creado exitosamente la unidad con nombre: '+name+'.')
+        
+#         # Devolver el ID de la unidad como respuesta en formato JSON
+#         data = {'unidad_id': unidad.id, 'unidad_name': unidad.name}
+#         return JsonResponse(data)
+
+#     context = {}
+#     return render(request, 'reactivos/crear_unidades.html', context)
+
 
 
 
@@ -393,10 +427,5 @@ def autocomplete_manager(request):
 
     return JsonResponse(results, safe=False)
 
-def get_unidades_options(request):
-    unidades = Unidades.objects.all()
-    options = ''
-    for unidad in unidades:
-        options += '<option value="{}">{}</option>'.format(unidad.id, unidad.name)
-    return HttpResponse(options)
+
 

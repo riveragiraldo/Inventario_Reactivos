@@ -49,15 +49,15 @@
                     </div>
                     <div class="col-md-3">
                         <label class="form-label">Código CAS:</label>
-                        <input type="text" step="any" class="form-control" placeholder="Código CAS" name="cas" required>
+                        <input type="text" step="any" class="form-control" placeholder="Código CAS" name="cas" required id="cas">
                     </div>
                     <div class="col-md-4">
                         <label class="form-label">Nombre del reactivo:</label>
-                        <input type="text" class="form-control" placeholder="Nombre de reactivo" name="name" required>
+                        <input type="text" class="form-control" placeholder="Nombre de reactivo" name="name" required id="name">
                     </div>
                     <div class="col-md-2">
                         <label class="form-label">Es líquido:</label>
-                        <select name="is_liquid" class="form-select" required>
+                        <select name="is_liquid" class="form-select" required id="is_liquid">
 
                             <option value="NO">NO</option>
                             <option value="SI">SI</option>
@@ -90,29 +90,13 @@
                         }
                         var addUnitBtn = document.getElementById("add_unit_btn");
                         addUnitBtn.addEventListener("click", openPopupWindow);
-
-                        
-
-                            popup.onunload = function () {
-                                // Enviar petición AJAX para actualizar el contenido del select
-                                var xhr = new XMLHttpRequest();
-                                xhr.onreadystatechange = function () {
-                                    if (this.readyState === 4 && this.status === 200) {
-                                        // Actualizar el contenido del select con la respuesta de la petición
-                                        var select = document.getElementById("id_unit");
-                                        select.innerHTML = this.responseText;
-                                    }
-                                };
-                                xhr.open("GET", "{% url 'reactivos:get_unidades_options' %}", true);
-                                xhr.send();
-                            };
-                       
+                    
 
                     </script>
 
                     <div class="col-md-3">
                         <label class="form-label">Ubicación en Almacén:</label>
-                        <input type="text" step="any" class="form-control" placeholder="Ubicación" name="wlocation">
+                        <input type="text" step="any" class="form-control" placeholder="Ubicación" name="wlocation" id="wlocation">
                     </div>
 
                     <div class="col-md-9">
