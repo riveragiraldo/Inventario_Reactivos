@@ -45,22 +45,14 @@
             {% for message in messages %}
             <script>
                 window.onload = function () {
-
-
-
-
-
+                    
                     mensaje = "{{ message }}";
                     console.log(mensaje)
                     var unidad = mensaje.split(": ")[1];
                     console.log(unidad);
-
-
-
+                    
                     alert('{{ message }}');
-
-
-
+                    
                     // Obtener los valores de los elementos necesarios de la ventana padre
                     var color = window.opener.document.getElementById("color").value;
                     var number = window.opener.document.getElementById("number").value;

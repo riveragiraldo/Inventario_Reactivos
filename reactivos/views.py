@@ -16,9 +16,6 @@ def index(request):
     return render(request, 'reactivos/index.html', context)
 
 
-
-
-
 def detalle_reactivo(request, pk):
     
     reactivo = get_object_or_404(Reactivos, pk=pk)
@@ -27,10 +24,6 @@ def detalle_reactivo(request, pk):
         'reactivo':reactivo
     }
     return render(request, 'reactivos/detalle_reactivo.html', context)
-
-
-
-
 
 
 def crear_reactivo(request):
@@ -119,12 +112,7 @@ def crear_unidades(request):
     if request.method=='POST':
         name = request.POST.get('name')
         
-
         # Verifica si ya existe un registro con el mismo nombre de la unidad
-
-        
-
-
         if Unidades.objects.filter(name=name).exists():
             unidad=Unidades.objects.get(name=name)
             unidad_id=unidad.id
@@ -148,32 +136,6 @@ def crear_unidades(request):
     return render(request, 'reactivos/crear_unidades.html', context)
 
 
-
-# def crear_unidades(request):
-#     if request.method=='POST':
-#         name = request.POST.get('name')
-
-#         # Verifica si ya existe un registro con el mismo nombre de la unidad
-#         if Unidades.objects.filter(name=name).exists():
-#             messages.error(request, 'Ya existe una unidad con nombre: '+name)
-#             return redirect('reactivos:crear_unidades')
-
-#         unidad = Unidades.objects.create(
-#             name=name,
-#         )
-#         messages.success(request, 'Se ha creado exitosamente la unidad con nombre: '+name+'.')
-        
-#         # Devolver el ID de la unidad como respuesta en formato JSON
-#         data = {'unidad_id': unidad.id, 'unidad_name': unidad.name}
-#         return JsonResponse(data)
-
-#     context = {}
-#     return render(request, 'reactivos/crear_unidades.html', context)
-
-
-
-
-
 def crear_marca(request):
     if request.method=='POST':
         name = request.POST.get('name')
@@ -194,6 +156,32 @@ def crear_marca(request):
         
     }
     return render(request, 'reactivos/crear_marca.html', context)
+
+def crear_marcas(request):
+    if request.method=='POST':
+        name = request.POST.get('name')
+        
+        # Verifica si ya existe un registro con el mismo nombre de la marca
+        if Marcas.objects.filter(name=name).exists():
+            marca=Marcas.objects.get(name=name)
+            marca_id=marca.id
+            messages.error(request, 'Ya existe una marca con nombre '+name+' id: '+str(marca_id))
+            return redirect('reactivos:crear_marcas')
+
+        marca = Marcas.objects.create(
+            
+            name = name,
+            
+        )
+        marca_id=marca.id
+        messages.success(request, 'Se ha creado exitosamente la marca con nombre '+name+' id: '+str(marca_id))
+        return redirect('reactivos:crear_marcas')
+
+    context={
+        
+    }
+    return render(request, 'reactivos/crear_marcas.html', context)
+
 
 
 def crear_destino(request):
@@ -218,6 +206,32 @@ def crear_destino(request):
         
     }
     return render(request, 'reactivos/crear_destino.html', context)
+
+def crear_destinos(request):
+    if request.method=='POST':
+        name = request.POST.get('name')
+
+        # Verifica si ya existe un registro con el mismo nombre del destino
+        if Destinos.objects.filter(name=name).exists():
+            destino=Destinos.objects.get(name=name)
+            destino_id=destino.id
+            messages.error(request, 'Ya existe un destino llamado '+name+' con id: '+str(destino_id))
+            return redirect('reactivos:crear_destinos')
+
+
+        destino = Destinos.objects.create(
+            
+            name = name,
+            
+        )
+        destino_id=destino.id
+        messages.success(request, 'Se ha creado exitosamente el destino con nombre '+name+' con id: '+str(destino_id))
+        return redirect('reactivos:crear_destinos')
+
+    context={
+        
+    }
+    return render(request, 'reactivos/crear_destinos.html', context)
 
 
 
@@ -313,8 +327,7 @@ def registrar_salida(request):
             messages.error(request,"El responsable "+nmanager+" no se encuentra en la base de datos, favor crearlo primero.") 
             manager = None
             return redirect('reactivos:registrar_salida')
-            
-
+        
         if name:
             trademark = request.POST.get('trademark')
             trademark = Marcas.objects.get(id=trademark)
