@@ -34,11 +34,36 @@
                 {% if messages %}
                 {% for message in messages %}
                 <script>
-                  window.onload = function () {
-                    alert('{{ message }}');
-                    document.getElementById("responsable_form").reset();
-                  };
-                </script>
+                  if (window.opener) {
+                      // Si es una ventana emergente, hacer algo y luego cerrar la ventana
+                      window.onload = function () {
+  
+                          alert('{{ message }}');
+  
+                          //Obtener nombre despues del mensaje
+                          mensaje = "{{ message }}";
+                          var manager = mensaje.split(": ")[1];
+  
+  
+                          //retardo para que los valores se escriban despues de recargar la página
+                          setTimeout(function () {
+                              window.opener.document.querySelector("#manager").value = manager;
+  
+                              window.close();
+  
+                          }, 500);
+                      };
+  
+                  } else {
+                      window.onload = function () {
+  
+                          alert('{{ message }}');
+                          
+                      };
+                  }
+  
+  
+              </script>
                 {% endfor %}
                 {% endif %}
     </div>

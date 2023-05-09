@@ -234,15 +234,13 @@ def crear_destinos(request):
     return render(request, 'reactivos/crear_destinos.html', context)
 
 
-
-
-
 def crear_ubicacion(request):
     if request.method=='POST':
         name = request.POST.get('name')
 
         # Verifica si ya existe un registro con el mismo nombre de la asignatura
         if Ubicaciones.objects.filter(name=name).exists():
+            
             messages.error(request, 'Ya existe una ubicación con nombre: '+name)
             return redirect('reactivos:crear_ubicacion')
 
@@ -258,6 +256,28 @@ def crear_ubicacion(request):
     }
     return render(request, 'reactivos/crear_ubicacion.html', context)
 
+def crear_ubicaciones(request):
+    if request.method=='POST':
+        name = request.POST.get('name')
+
+        # Verifica si ya existe un registro con el mismo nombre de la asignatura
+        if Ubicaciones.objects.filter(name=name).exists():
+            messages.error(request, 'Ya existe una ubicación con nombre: '+name)
+            return redirect('reactivos:crear_ubicaciones')
+
+        ubicacion = Ubicaciones.objects.create(
+            
+            name = name,
+            
+        )
+        
+        messages.success(request, 'Se ha creado exitosamente la ubicación: '+name)
+        return redirect('reactivos:crear_ubicaciones')
+    context={
+        
+    }
+    return render(request, 'reactivos/crear_ubicaciones.html', context)
+
 
 def crear_responsable(request):
     if request.method=='POST':
@@ -265,17 +285,25 @@ def crear_responsable(request):
         phone = request.POST.get('phone')
         mail = request.POST.get('mail')
 
+        
+
         # Verifica si ya existe un registro con el mismo nombre, telefono o email de la marca
         if Responsables.objects.filter(name=name).exists():
-            messages.error(request, 'Ya existe una responsable con nombre: '+name)
+            responsablename=Responsables.objects.get(name=name)
+            responsable_name=responsablename.name
+            messages.error(request, 'Ya existe una responsable con nombre: '+responsable_name)
             return redirect('reactivos:crear_responsable')
         
         if Responsables.objects.filter(phone=phone).exists():
-            messages.error(request, 'Ya existe una responsable con telefono: '+phone)
+            responsablename=Responsables.objects.get(phone=phone)
+            responsable_name=responsablename.name
+            messages.error(request, 'Ya existe una responsable con el telefono registrado: '+responsable_name)
             return redirect('reactivos:crear_responsable')
         
         if Responsables.objects.filter(mail=mail).exists():
-            messages.error(request, 'Ya existe una responsable con email: '+mail)
+            responsablename=Responsables.objects.get(mail=mail)
+            responsable_name=responsablename.name
+            messages.error(request, 'Ya existe una responsable con el email registrado: '+responsable_name)
             return redirect('reactivos:crear_responsable')
 
         responsable = Responsables.objects.create(
@@ -285,7 +313,7 @@ def crear_responsable(request):
             mail = mail,
             
         )
-        messages.success(request, 'Se ha creado exitosamente el responsable con nombre: '+name+', teléfono: '+phone+', email: '+mail+'.')
+        messages.success(request, 'Se ha creado exitosamente el siguiente responsable: '+name)
         return redirect('reactivos:crear_responsable')
 
     context={

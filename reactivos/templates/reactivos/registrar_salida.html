@@ -101,10 +101,29 @@
                 </div>
                 
 
-                <div class="col-md-6">
+                <div class="col-md-5">
                     <label class="form-label">Asignatura/Ubicación:</label>
                     <input type="text" name="location" class="form-control"  id="location" required placeholder="Asignatura/Ubicación Destino">
                 </div>
+
+                <div class="col-md-1">
+                    <label class="form-label" style="color: transparent;">Add</label>
+                    <button type="button" id="add_location_btn" class="btn btn-secondary"
+                        title="Agregar Responsable">+</Address></button>
+                </div>
+                <script>
+                    function openPopupWindow() {
+                      var w = 450; // ancho de la ventana emergente
+                      var h = 400; // altura de la ventana emergente
+                      var left = (screen.width / 2) - (w / 2);
+                      var top = (screen.height / 2) - (h / 2);
+                      window.open("{% url 'reactivos:crear_ubicaciones' %}", "popup", "width=" + w + ",height=" + h + ",left=" + left + ",top=" + top);
+                    }
+                    var addUnitBtn = document.getElementById("add_location_btn");
+                    addUnitBtn.addEventListener("click", openPopupWindow);
+                
+
+                </script>
 
                 <div class="col-md-5">
                     <label class="form-label">Destino:</label>
@@ -117,7 +136,7 @@
                 <div class="col-md-1">
                     <label class="form-label" style="color: transparent;">Add</label>
                     <button type="button" id="add_destination_btn" class="btn btn-secondary"
-                        title="Agregar Unidad">+</Address></button>
+                        title="Agregar Destino">+</Address></button>
                 </div>
                 <script>
                     function openPopupWindow() {
@@ -134,11 +153,29 @@
                 </script>
                 
 
-                <div class="col-md-12">
+                <div class="col-md-11">
                     <label class="form-label">Responsable:</label>
                     <input type="text" name="manager" class="form-control"  id="manager" required placeholder="Responsable del insumo">
                     
                 </div>
+                <div class="col-md-1">
+                    <label class="form-label" style="color: transparent;">Add</label>
+                    <button type="button" id="add_manager_btn" class="btn btn-secondary"
+                        title="Agregar Responsable">+</Address></button>
+                </div>
+                <script>
+                    function openPopupWindow() {
+                      var w = 450; // ancho de la ventana emergente
+                      var h = 400; // altura de la ventana emergente
+                      var left = (screen.width / 2) - (w / 2);
+                      var top = (screen.height / 2) - (h / 2);
+                      window.open("{% url 'reactivos:crear_responsable' %}", "popup", "width=" + w + ",height=" + h + ",left=" + left + ",top=" + top);
+                    }
+                    var addUnitBtn = document.getElementById("add_manager_btn");
+                    addUnitBtn.addEventListener("click", openPopupWindow);
+                
+
+                </script>
 
                 <div class="col-md-12">
                     <label class="form-label">Observaciones:</label>

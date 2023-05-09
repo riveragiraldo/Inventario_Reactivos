@@ -1,3 +1,31 @@
+<br>
+<h2>Crear Unidades</h2>
+<a href="/unidades/crear/" target="_blank">Ver más...</a>
+
+<br>
+<h2>Crear sustancia química</h2>
+<a href="/reactivos/crear/" target="_blank">Ver más...</a>
+
+<br>
+<h2>Crear Destinos</h2>
+<a href="/destinos/crear/" target="_blank">Ver más...</a>
+
+<br>
+<h2>Crear Responsables</h2>
+<a href="/responsables/crear/" target="_blank">Ver más...</a>
+
+<br>
+<h2>Crear Marcas</h2>
+<a href="/marcas/crear/" target="_blank">Ver más...</a>
+
+<br>
+<h2>Crear Ubicaciones/Asignaturas</h2>
+<a href="/ubicaciones/crear/" target="_blank">Ver más...</a>
+
+<br>
+<h2>Registrar salida de sustancia química</h2>
+<a href="/reactivos/registrar_salida/" target="_blank">Ver más...</a>
+
 {% for reactivo in reactivos %}
 <h2>{{reactivo.name}}</h2>
 <a href="{% url 'reactivos:detalle_reactivo' reactivo.id %}">Ver más...</a>
