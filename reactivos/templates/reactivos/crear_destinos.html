@@ -58,6 +58,8 @@
                     var marca_id = window.opener.document.getElementById("trademark").value;
                     var manager = window.opener.document.getElementById("manager").value;
                     var observations = window.opener.document.getElementById("observations").value;
+                    var cantidad = window.opener.document.querySelector('label[for="weight"]');
+                    cantidad=cantidad.textContent
 
 
                     // Recargar la página padre
@@ -79,8 +81,11 @@
                         window.opener.document.querySelector("#location").value = location;
                         window.opener.document.querySelector("#manager").value = manager;
                         window.opener.document.querySelector("#observations").innerHTML = observations;
-                            
                         
+                            
+                        //Actualizar Etiqueta Cantidad
+                        var label = window.opener.document.querySelector('.form-label[for="weight"]'); // selecciona la etiqueta con el id "weight"
+                        label.innerHTML = cantidad;
                         
 
 

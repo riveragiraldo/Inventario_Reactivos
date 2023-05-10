@@ -46,7 +46,7 @@
                     var weight = window.opener.document.getElementById("weight").value;
                     var unit = window.opener.document.getElementById("unit").value;
                     var location = window.opener.document.getElementById("location").value;
-                    var destination = window.opener.document.getElementById("destination").value;
+                    var order = window.opener.document.getElementById("order").value;
                     var manager = window.opener.document.getElementById("manager").value;
                     var observations = window.opener.document.getElementById("observations").value;
                     var cantidad = window.opener.document.querySelector('label[for="weight"]');
@@ -67,17 +67,15 @@
                         window.opener.document.querySelector("#weight").value = weight;
                         window.opener.document.querySelector("#unit").value = unit;
                         window.opener.document.querySelector("#location").value = location;
+                        window.opener.document.querySelector("#order").value = order;
                         window.opener.document.querySelector("#manager").value = manager;
                         window.opener.document.querySelector("#observations").innerHTML = observations;
 
                         //Actualizar Etiqueta Cantidad
-                        var label = document.querySelector('.form-label[for="weight"]'); // selecciona la etiqueta con el id "weight"
+                        var label = window.opener.document.querySelector('.form-label[for="weight"]'); // selecciona la etiqueta con el id "weight"
                         label.innerHTML = cantidad;
 
-                        //Actualiza Select destination
-                        var destination_new = window.opener.document.querySelector("#destination");
-                        destination_new.value = destination;
-                        destination_new.setAttribute("selected", true);
+                        
 
                         //Actualiza Select trademark
                         var marca_new = window.opener.document.querySelector("#trademark");

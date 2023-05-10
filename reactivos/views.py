@@ -69,7 +69,7 @@ def crear_reactivo(request):
             is_liquid=is_liquid,
         )
 
-        messages.success(request, 'Se ha creado exitosamente el reactivo con nombre: '+name+', CAS: '+cas+', código interno: '+code)
+        messages.success(request, 'Se ha creado exitosamente el reactivo: '+name)
         return redirect('reactivos:crear_reactivo')
 
     context={
@@ -399,6 +399,82 @@ def registrar_salida(request):
         'ubicaiones': Ubicaciones.objects.all()
     }
     return render(request, 'reactivos/registrar_salida.html', context)
+
+
+def registrar_entrada(request):
+    
+    if request.method == 'POST':
+        date = request.POST.get('date')
+        name = request.POST.get('name')
+        nReactivo=name
+        try:
+            nameReactivo = Reactivos.objects.get(name=name)
+            name = nameReactivo
+        except Reactivos.DoesNotExist:
+            messages.error(request,"El reactivo "+nReactivo+" no se encuentra en la base de datos, favor crearlo primero.") 
+            name = None
+            return redirect('reactivos:registrar_entrada')
+        
+        location = request.POST.get('location')
+        nlocation=location
+        try:
+            nameLocation = Ubicaciones.objects.get(name=location)
+            location = nameLocation
+        except Ubicaciones.DoesNotExist:
+            messages.error(request,"La ubicación "+nlocation+" no se encuentra en la base de datos, favor crearlo primero.") 
+            location = None
+            return redirect('reactivos:registrar_entrada')
+        
+        manager = request.POST.get('manager')
+        nmanager=manager
+        try:
+            nameManager = Responsables.objects.get(name=manager)
+            manager = nameManager
+        except Responsables.DoesNotExist:
+            messages.error(request,"El responsable "+nmanager+" no se encuentra en la base de datos, favor crearlo primero.") 
+            manager = None
+            return redirect('reactivos:registrar_entrada')
+        
+        if name:
+            trademark = request.POST.get('trademark')
+            trademark = Marcas.objects.get(id=trademark)
+            reference = request.POST.get('reference')
+            is_liquid = request.POST.get('is_liquid')
+            weight = request.POST.get('weight')
+            
+            order = request.POST.get('order')
+            
+            
+            
+            observations = request.POST.get('observations')
+            unit=request.POST.get('unit')
+
+
+            
+
+            salida = Entradas.objects.create(
+                date=date,
+                name=name,
+                trademark=trademark,
+                reference=reference,
+                is_liquid=is_liquid,
+                weight=weight,
+                location=location,
+                order=order,
+                manager=manager,
+                observations=observations,
+                )       
+            messages.success(request, 'Se ha registrado de manera exitosa la salida del insumo: '+nReactivo+', cantidad '+weight+' '+unit)
+            return redirect('reactivos:registrar_entrada')       
+           
+
+    context = {
+        'reactivos': Reactivos.objects.all(),
+        'responsables': Responsables.objects.all(),
+         'marcas': Marcas.objects.all(),
+        'ubicaiones': Ubicaciones.objects.all()
+    }
+    return render(request, 'reactivos/registrar_entrada.html', context)
 
 
 

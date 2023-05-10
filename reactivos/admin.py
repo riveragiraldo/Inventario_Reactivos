@@ -50,3 +50,12 @@ class Salidaadmin(admin.ModelAdmin):
     search_fields=('date','name',)
     list_per_page=10
     ordering=('id',)
+
+@admin.register(Entradas)
+class Salidaadmin(admin.ModelAdmin):
+    list_display=('id','date','name','trademark','reference','weight','is_liquid','order','manager','observations','location')
+    list_filter=('date','name',)
+    search_fields=('date','name',)
+    list_per_page=10
+    ordering=('id',)
+

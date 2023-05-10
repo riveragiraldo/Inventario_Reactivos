@@ -109,3 +109,26 @@ class Salidas(models.Model):
     class Meta:
         verbose_name_plural='Salidas'
         verbose_name='Salida'
+
+class Entradas(models.Model):
+    date=models.DateTimeField(verbose_name='Fecha')
+    name=models.ForeignKey(Reactivos, on_delete=models.CASCADE, related_name='name_reactivo', verbose_name='Nombre Reactivo')
+    trademark=models.ForeignKey(Marcas, on_delete=models.CASCADE, related_name='name_marca', verbose_name='Marca')
+    reference=models.CharField(max_length=255, verbose_name='Referencia')
+    weight=models.DecimalField(max_digits=10, decimal_places=4, verbose_name='Peso Reactivo')
+    is_liquid=models.CharField(max_length=3, verbose_name='Es líquido')
+    order=models.CharField(max_length=255,  verbose_name='Orden No.')
+    manager=models.ForeignKey(Responsables, on_delete=models.CASCADE, related_name='responsable', verbose_name='Responsable')
+    observations=models.TextField(max_length=1000, verbose_name='Observaciones')
+    location=models.ForeignKey(Ubicaciones, on_delete=models.CASCADE, related_name='Ubicacion', verbose_name='Ubicación')
+
+    def __str__ (self):
+        return self.name
+    
+    @property
+    def unity_name (self):
+        return self.unity.name
+    
+    class Meta:
+        verbose_name_plural='Salidas'
+        verbose_name='Salida'

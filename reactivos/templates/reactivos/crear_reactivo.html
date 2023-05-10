@@ -100,18 +100,42 @@
                     </div>
 
                     <div class="col-md-9">
-                        <input type="submit" value="Crear Ractivo" class="btn btn-primary">
+                        <input type="submit" value="Crear Reactivo" class="btn btn-primary">
                     </div>
 
                 </form>
                 {% if messages %}
                 {% for message in messages %}
                 <script>
-                    window.onload = function () {
-                        alert('{{ message }}');
-                        document.getElementById("reactivo_form").reset();
-                    };
-                </script>
+                    if (window.opener) {
+                        // Si es una ventana emergente, hacer algo y luego cerrar la ventana
+                        window.onload = function () {
+    
+                            alert('{{ message }}');
+    
+                            //Obtener nombre despues del mensaje
+                            mensaje = "{{ message }}";
+                            var name = mensaje.split(": ")[1];
+    
+    
+                            //retardo para que los valores se escriban despues de recargar la página
+                            setTimeout(function () {
+                                window.opener.document.querySelector("#name").value = name;
+                                localStorage.setItem('dataUpdated', true);
+    
+                                window.close();
+    
+                            }, 500);
+                        };
+    
+                    } else {
+                        window.onload = function () {
+    
+                            alert('{{ message }}');
+                            
+                        };
+                    }
+                    </script>
                 {% endfor %}
                 {% endif %}
             </div>

@@ -34,7 +34,7 @@ $(document).ready(function () {
 //Función autocompletar por Ubicación
 $(document).ready(function () {
     $("#location").autocomplete({
-        source: "autocomplete_location", 
+        source: "{% url 'reactivos:autocomplete_location' %}", 
         minLength: 2,
         select: function (event, ui) {
             $("#location").val(ui.item.value);
@@ -46,7 +46,7 @@ $(document).ready(function () {
 //Función autocompletar por Responsable
 $(document).ready(function () {
     $("#manager").autocomplete({
-        source: "autocomplete_manager", 
+        source: "{% url 'reactivos:autocomplete_manager' %}", 
         minLength: 2,
         select: function (event, ui) {
             $("#manager").val(ui.item.value);
@@ -56,35 +56,36 @@ $(document).ready(function () {
 });
 
 
-//Actualiza campos código, cas, is_liquid, unidades    
-$(document).ready(function () {
-    var updateFields = function () {
-        var valueSelected = $('#name').val();
-        $.ajax({
-            url: '/get-value/',
-            data: {
-                'value_selected': valueSelected
-            },
-            dataType: 'json',
-            success: function (data) {
-                var label = document.querySelector('.form-label[for="weight"]'); // selecciona la etiqueta con el id "weight"
-                if (data.liquid === 'SI') {
-                    label.innerHTML = 'Volumen:'; // actualiza el texto a "Volumen"
-                }
-                else if (data.liquid === 'NO') {
-                    label.innerHTML = 'Masa:'; // actualiza el texto a "Masa"
-                }
-                else {
-                    label.innerHTML = 'Cantidad:'; // actualiza el texto a "Masa"
-                }
-                $('#cas').val(data.cas);
-                $('#code').val(data.codigo);
-                $('#is_liquid').val(data.liquid);
-                $('#unit').val(data.nombre_unit);
+function updateFields() {
+    var valueSelected = $('#name').val();
+    $.ajax({
+        url: '/get-value/',
+        data: {
+            'value_selected': valueSelected
+        },
+        dataType: 'json',
+        success: function (data) {
+            var label = document.querySelector('.form-label[for="weight"]');
+            if (data.liquid === 'SI') {
+                label.innerHTML = 'Volumen:';
             }
-        });
-    };
+            else if (data.liquid === 'NO') {
+                label.innerHTML = 'Masa:';
+            }
+            else {
+                label.innerHTML = 'Cantidad:';
+            }
+            $('#cas').val(data.cas);
+            $('#code').val(data.codigo);
+            $('#is_liquid').val(data.liquid);
+            $('#unit').val(data.nombre_unit);
+        }
+    });
+};
 
+
+
+$(document).ready(function () {
     $('#name').autocomplete({
         source: '/autocomplete/',
         select: function (event, ui) {
@@ -94,4 +95,15 @@ $(document).ready(function () {
         },
         minLength: 3
     });
+
+    $('#name').on('input', function() {
+        setTimeout(function(){
+            updateFields();
+        }, 10000;
+    });
 });
+
+  
+
+
+

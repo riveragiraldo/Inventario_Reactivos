@@ -16,9 +16,12 @@ urlpatterns=[
     path('ubicaciones/creacion/', crear_ubicaciones, name='crear_ubicaciones'),
     path('responsables/crear/', crear_responsable, name='crear_responsable'),
     path('reactivos/registrar_salida/', registrar_salida, name='registrar_salida'),
+    path('reactivos/registrar_entrada/', registrar_entrada, name='registrar_entrada'),
     path('get-value/', get_value, name='get_value'),
     path('autocomplete/', autocomplete, name='autocomplete'),
-    path('reactivos/autocomplete_location/', autocomplete_location, name='autocomplete_location'),
-    path('reactivos/autocomplete_manager/', autocomplete_manager, name='autocomplete_manager'),
+    path('reactivos/registrar_salida/autocomplete_location/', autocomplete_location, name='autocomplete_location'),
+    path('reactivos/registrar_salida/autocomplete_manager/', autocomplete_manager, name='autocomplete_manager'),
+    path('reactivos/registrar_entrada/autocomplete_manager/', autocomplete_manager, name='autocomplete_manager'),
+     path('reactivos/registrar_entrada/autocomplete_location/', autocomplete_location, name='autocomplete_location'),
     
 ]
