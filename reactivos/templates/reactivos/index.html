@@ -26,6 +26,11 @@
 <h2>Registrar salida de sustancia química</h2>
 <a href="/reactivos/registrar_salida/" target="_blank">Ver más...</a>
 
+<br>
+<h2>Registrar entrada de sustancia química</h2>
+<a href="/reactivos/registrar_entrada/" target="_blank">Ver más...</a>
+
+<br><br><br><br><br><br><br><br><br><br>
 {% for reactivo in reactivos %}
 <h2>{{reactivo.name}}</h2>
 <a href="{% url 'reactivos:detalle_reactivo' reactivo.id %}">Ver más...</a>

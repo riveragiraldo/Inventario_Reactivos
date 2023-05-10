@@ -34,7 +34,7 @@ $(document).ready(function () {
 //Función autocompletar por Ubicación
 $(document).ready(function () {
     $("#location").autocomplete({
-        source: "{% url 'reactivos:autocomplete_location' %}", 
+        source: "autocomplete_location/", 
         minLength: 2,
         select: function (event, ui) {
             $("#location").val(ui.item.value);
@@ -46,7 +46,7 @@ $(document).ready(function () {
 //Función autocompletar por Responsable
 $(document).ready(function () {
     $("#manager").autocomplete({
-        source: "{% url 'reactivos:autocomplete_manager' %}", 
+        source: "autocomplete_manager/", 
         minLength: 2,
         select: function (event, ui) {
             $("#manager").val(ui.item.value);
@@ -55,6 +55,8 @@ $(document).ready(function () {
     });
 });
 
+
+//Actualizar campos
 
 function updateFields() {
     var valueSelected = $('#name').val();
@@ -99,11 +101,6 @@ $(document).ready(function () {
     $('#name').on('input', function() {
         setTimeout(function(){
             updateFields();
-        }, 10000;
+        }, 100);
     });
 });
-
-  
-
-
-

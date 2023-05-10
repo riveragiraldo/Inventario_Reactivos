@@ -46,15 +46,21 @@ def crear_reactivo(request):
         
         # Verifica si ya existe un registro con el mismo nombre, código o número CAS
         if Reactivos.objects.filter(name=name).exists():
-            messages.error(request, 'Ya existe un reactivo con nombre '+name)
+            reactivo=Reactivos.objects.get(name=name)
+            reactivo_name=reactivo.name
+            messages.error(request, 'Ya existe un reactivo con el nombre registrado: '+reactivo_name)
             return redirect('reactivos:crear_reactivo')
 
         if Reactivos.objects.filter(code=code).exists():
-            messages.error(request, 'Ya existe un reactivo con código '+code)
+            reactivo=Reactivos.objects.get(code=code)
+            reactivo_name=reactivo.name
+            messages.error(request, 'Ya existe un reactivo con el código registrado: '+reactivo_name)
             return redirect('reactivos:crear_reactivo')
 
         if Reactivos.objects.filter(cas=cas).exists():
-            messages.error(request, 'Ya existe un reactivo con  CAS '+cas)
+            reactivo=Reactivos.objects.get(cas=cas)
+            reactivo_name=reactivo.name
+            messages.error(request, 'Ya existe un reactivo con el CAS registrado: '+reactivo_name)
             return redirect('reactivos:crear_reactivo')
 
         reactivo = Reactivos.objects.create(
@@ -464,7 +470,7 @@ def registrar_entrada(request):
                 manager=manager,
                 observations=observations,
                 )       
-            messages.success(request, 'Se ha registrado de manera exitosa la salida del insumo: '+nReactivo+', cantidad '+weight+' '+unit)
+            messages.success(request, 'Se ha registrado de manera exitosa el ingreso del insumo del insumo: '+nReactivo+', cantidad '+weight+' '+unit)
             return redirect('reactivos:registrar_entrada')       
            
 

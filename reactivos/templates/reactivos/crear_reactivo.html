@@ -49,11 +49,13 @@
                     </div>
                     <div class="col-md-3">
                         <label class="form-label">Código CAS:</label>
-                        <input type="text" step="any" class="form-control" placeholder="Código CAS" name="cas" required id="cas">
+                        <input type="text" step="any" class="form-control" placeholder="Código CAS" name="cas" required
+                            id="cas">
                     </div>
                     <div class="col-md-4">
                         <label class="form-label">Nombre del reactivo:</label>
-                        <input type="text" class="form-control" placeholder="Nombre de reactivo" name="name" required id="name">
+                        <input type="text" class="form-control" placeholder="Nombre de reactivo" name="name" required
+                            id="name">
                     </div>
                     <div class="col-md-2">
                         <label class="form-label">Es líquido:</label>
@@ -82,21 +84,22 @@
                     </div>
                     <script>
                         function openPopupWindow() {
-                          var w = 450; // ancho de la ventana emergente
-                          var h = 400; // altura de la ventana emergente
-                          var left = (screen.width / 2) - (w / 2);
-                          var top = (screen.height / 2) - (h / 2);
-                          window.open("{% url 'reactivos:crear_unidades' %}", "popup", "width=" + w + ",height=" + h + ",left=" + left + ",top=" + top);
+                            var w = 450; // ancho de la ventana emergente
+                            var h = 400; // altura de la ventana emergente
+                            var left = (screen.width / 2) - (w / 2);
+                            var top = (screen.height / 2) - (h / 2);
+                            window.open("{% url 'reactivos:crear_unidades' %}", "popup", "width=" + w + ",height=" + h + ",left=" + left + ",top=" + top);
                         }
                         var addUnitBtn = document.getElementById("add_unit_btn");
                         addUnitBtn.addEventListener("click", openPopupWindow);
-                    
+
 
                     </script>
 
                     <div class="col-md-3">
                         <label class="form-label">Ubicación en Almacén:</label>
-                        <input type="text" step="any" class="form-control" placeholder="Ubicación" name="wlocation" id="wlocation">
+                        <input type="text" step="any" class="form-control" placeholder="Ubicación" name="wlocation"
+                            id="wlocation">
                     </div>
 
                     <div class="col-md-9">
@@ -110,32 +113,36 @@
                     if (window.opener) {
                         // Si es una ventana emergente, hacer algo y luego cerrar la ventana
                         window.onload = function () {
-    
+
                             alert('{{ message }}');
-    
+
                             //Obtener nombre despues del mensaje
                             mensaje = "{{ message }}";
                             var name = mensaje.split(": ")[1];
-    
-    
+
+
                             //retardo para que los valores se escriban despues de recargar la página
                             setTimeout(function () {
                                 window.opener.document.querySelector("#name").value = name;
-                                localStorage.setItem('dataUpdated', true);
-    
+                                if (window.opener && typeof window.opener.updateFields === "function") {
+                                    window.opener.updateFields();
+                                } else {
+                                    console.error("La función updateFields() no está definida en la ventana padre");
+                                }
+
                                 window.close();
-    
+
                             }, 500);
                         };
-    
+
                     } else {
                         window.onload = function () {
-    
+
                             alert('{{ message }}');
-                            
+
                         };
                     }
-                    </script>
+                </script>
                 {% endfor %}
                 {% endif %}
             </div>
