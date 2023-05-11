@@ -17,6 +17,7 @@ urlpatterns=[
     path('responsables/crear/', crear_responsable, name='crear_responsable'),
     path('reactivos/registrar_salida/', registrar_salida, name='registrar_salida'),
     path('reactivos/registrar_entrada/', registrar_entrada, name='registrar_entrada'),
+    path('reactivos/registrar_entrada_confirm/', registrar_entrada_confirm, name='registrar_entrada_confirm'),
     path('get-value/', get_value, name='get_value'),
     path('autocomplete/', autocomplete, name='autocomplete'),
     path('reactivos/registrar_salida/autocomplete_location/', autocomplete_location, name='autocomplete_location'),

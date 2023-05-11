@@ -1,3 +1,24 @@
+function limpiarCampos() {
+    document.getElementById("salida_form").reset();
+    $(document).ready(function () {
+        var now = new Date();
+        var year = now.getFullYear();
+        var month = now.getMonth() + 1;
+        var day = now.getDate();
+        var hours = now.getHours();
+        var minutes = now.getMinutes();
+        var seconds = now.getSeconds();
+        var formattedDate = year + '-' + padNumber(month) + '-' + padNumber(day) + ' ' + padNumber(hours) + ':' + padNumber(minutes) + ':' + padNumber(seconds);
+        $('#date').val(formattedDate);
+    });
+    
+    function padNumber(num) {
+        return num < 10 ? '0' + num : num;
+    }
+
+    document.getElementById("date").value = $('#date')
+}
+
 //Fecha actual
 
 $(document).ready(function () {
@@ -15,6 +36,7 @@ $(document).ready(function () {
 function padNumber(num) {
     return num < 10 ? '0' + num : num;
 }
+
 
 
 //autocompletar por nombre o código

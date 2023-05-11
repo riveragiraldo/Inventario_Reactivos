@@ -362,13 +362,15 @@ def registrar_salida(request):
             manager = None
             return redirect('reactivos:registrar_salida')
         
+        
+        
         if name:
-            trademark = request.POST.get('trademark')
-            trademark = Marcas.objects.get(id=trademark)
+            
+
             reference = request.POST.get('reference')
             is_liquid = request.POST.get('is_liquid')
             weight = request.POST.get('weight')
-            
+            trademark=request.POST.get('trademark')
             destination = request.POST.get('destination')
             destination = Destinos.objects.get(id=destination)
             
@@ -406,8 +408,18 @@ def registrar_salida(request):
     }
     return render(request, 'reactivos/registrar_salida.html', context)
 
-
 def registrar_entrada(request):
+    
+    context = {
+        'reactivos': Reactivos.objects.all(),
+        'responsables': Responsables.objects.all(),
+        'marcas': Marcas.objects.all(),
+        'ubicaiones': Ubicaciones.objects.all()
+    }
+    return render(request, 'reactivos/registrar_entrada.html', context)
+
+
+def registrar_entrada_confirm(request):
     
     if request.method == 'POST':
         date = request.POST.get('date')
@@ -419,7 +431,7 @@ def registrar_entrada(request):
         except Reactivos.DoesNotExist:
             messages.error(request,"El reactivo "+nReactivo+" no se encuentra en la base de datos, favor crearlo primero.") 
             name = None
-            return redirect('reactivos:registrar_entrada')
+            return redirect('reactivos:registrar_entrada_confirm')
         
         location = request.POST.get('location')
         nlocation=location
@@ -429,7 +441,7 @@ def registrar_entrada(request):
         except Ubicaciones.DoesNotExist:
             messages.error(request,"La ubicación "+nlocation+" no se encuentra en la base de datos, favor crearlo primero.") 
             location = None
-            return redirect('reactivos:registrar_entrada')
+            return redirect('reactivos:registrar_entrada_confirm')
         
         manager = request.POST.get('manager')
         nmanager=manager
@@ -439,11 +451,21 @@ def registrar_entrada(request):
         except Responsables.DoesNotExist:
             messages.error(request,"El responsable "+nmanager+" no se encuentra en la base de datos, favor crearlo primero.") 
             manager = None
-            return redirect('reactivos:registrar_entrada')
+            return redirect('reactivos:registrar_entrada_confirm')
+        
+        trademark = request.POST.get('trademark')
+        nMarca=trademark
+        
+        try:
+            nameMarca = Marcas.objects.get(name=trademark)
+            trademark = nameMarca
+        except Marcas.DoesNotExist:
+            messages.error(request,"La marca "+nMarca+" no se encuentra en la base de datos, favor crearlo primero.") 
+            trademark = None
+            return redirect('reactivos:registrar_entrada_confirm')
         
         if name:
-            trademark = request.POST.get('trademark')
-            trademark = Marcas.objects.get(id=trademark)
+            
             reference = request.POST.get('reference')
             is_liquid = request.POST.get('is_liquid')
             weight = request.POST.get('weight')
@@ -471,7 +493,7 @@ def registrar_entrada(request):
                 observations=observations,
                 )       
             messages.success(request, 'Se ha registrado de manera exitosa el ingreso del insumo del insumo: '+nReactivo+', cantidad '+weight+' '+unit)
-            return redirect('reactivos:registrar_entrada')       
+            return redirect('reactivos:registrar_entrada_confirm')       
            
 
     context = {
@@ -480,7 +502,7 @@ def registrar_entrada(request):
          'marcas': Marcas.objects.all(),
         'ubicaiones': Ubicaciones.objects.all()
     }
-    return render(request, 'reactivos/registrar_entrada.html', context)
+    return render(request, 'reactivos/registrar_entrada_confirm.html', context)
 
 
 
