@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Registrar creación de reactivos</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.13.0/jquery-ui.min.js"></script>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.0/themes/smoothness/jquery-ui.css">
+    <style>
+        .input-group-text,
+        .form-control {
+            border: none;
+            outline: none;
+        }
+    </style>
+
+
+    {% load static %}
+
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+
+</head>
+
+<body>
+
+    <div class="container mt-1">
+        <h1>Confirmación</h1>
+        <h5>Favor verificar el registro:</h5>
+        <div class="col-12">
+
+            <form method="post" class="row" id="salida_form" name="form">
+                {% csrf_token %}
+                
+                <div class="col-md-7">
+                    <div class="input-group input-group-sm mb-0">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="inputGroup-sizing-sm">Color: </span>
+                        </div>
+                        <input type="text" class="form-control" aria-label="Small"
+                            aria-describedby="inputGroup-sizing-sm" name="color" id="color" placeholder="Código Interno"
+                            readonly>
+                    </div>
+                </div>
+
+                <div class="col-md-7">
+                    <div class="input-group input-group-sm mb-0">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="inputGroup-sizing-sm">Número: </span>
+                        </div>
+                        <input type="text" class="form-control" aria-label="Small"
+                            aria-describedby="inputGroup-sizing-sm" name="number" id="number" placeholder="Número"
+                            readonly>
+                    </div>
+                </div>
+
+                <div class="col-md-7">
+                    <div class="input-group input-group-sm mb-0">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="inputGroup-sizing-sm">Sub-número: </span>
+                        </div>
+                        <input type="text" class="form-control" aria-label="Small"
+                            aria-describedby="inputGroup-sizing-sm" name="subnumber" id="subnumber" placeholder="Sub-Número"
+                            readonly>
+                    </div>
+                </div>
+
+                <div class="col-md-7">
+                    <div class="input-group input-group-sm mb-0">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="inputGroup-sizing-sm">Código Interno:</span>
+                        </div>
+                        <input type="text" class="form-control" aria-label="Small"
+                            aria-describedby="inputGroup-sizing-sm" name="code" id="code"
+                            placeholder="Código Interno" readonly>
+                    </div>
+                </div>
+
+                <div class="col-md-7">
+                    <div class="input-group input-group-sm mb-0">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="inputGroup-sizing-sm">CAS: </span>
+                        </div>
+                        <input type="text" class="form-control" aria-label="Small"
+                            aria-describedby="inputGroup-sizing-sm" name="cas" id="cas"
+                            placeholder="CAS" readonly>
+                    </div>
+                </div>
+
+
+                <div class="col-md-7">
+
+                    <div class="input-group input-group-sm mb-0">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="inputGroup-sizing-sm">Nombre Reactivo:</span>
+                        </div>
+                        <input type="text" class="form-control" aria-label="Small"
+                            aria-describedby="inputGroup-sizing-sm" name="name" id="name"
+                            placeholder="Nombre de reactivo" readonly>
+                    </div>
+
+                </div>
+
+                <div class="col-md-7">
+
+                    <div class="input-group input-group-sm mb-0">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="inputGroup-sizing-sm">Es líquido: </span>
+                        </div>
+                        <input type="text" class="form-control" aria-label="Small"
+                            aria-describedby="inputGroup-sizing-sm" name="is_liquid" id="is_liquid" placeholder="is_liquid" readonly>
+                    </div>
+
+                </div>
+
+                <div class="col-md-7">
+
+                    <div class="input-group input-group-sm mb-0">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="inputGroup-sizing-sm">Unidades: </span>
+                        </div>
+                        <input type="text" class="form-control" aria-label="Small"
+                            aria-describedby="inputGroup-sizing-sm" name="unit" id="unit"
+                            placeholder="Unidades" readonly>
+                    </div>
+
+                </div>
+
+                <div class="col-md-12">
+                    <div class="col-md-7">
+
+                        <div class="input-group input-group-sm mb-0">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" id="inputGroup-sizing-sm">Ubicación en Almacén: </span>
+                            </div>
+                            <input type="text" class="form-control" aria-label="Small"
+                                aria-describedby="inputGroup-sizing-sm" name="wlocation" id="wlocation" placeholder="Ubicación en Almacén"
+                                readonly>
+                        </div>
+    
+                    </div>
+                </div>
+
+                <br><br><br>
+
+                
+                    <div class="col-md-2 mt-1">
+                        <input type="submit" value="Confirmar Registro" class="btn btn-primary">
+                    </div>
+                    <div class="col-md-2 mt-1">
+                        <button type="button" onclick="Volver()" class="btn btn-primary" id="Cancelar">Cancelar</button>
+                    </div>
+                
+
+            </form>
+            <script>
+
+                // Obtiene la ventana padre
+                var parentWindow = window.opener;
+
+                // Obtiene los valores de los campos del formulario padre
+                var color = parentWindow.document.querySelector('#color').value;
+                var number = parentWindow.document.querySelector('#number').value;
+                var subnumber = parentWindow.document.querySelector('#subnumber').value;
+                var code = parentWindow.document.querySelector('#code').value;
+                var cas = parentWindow.document.querySelector('#cas').value;
+                var name = parentWindow.document.querySelector('#name').value;
+
+                var is_liquido = parentWindow.document.querySelector('#is_liquid');
+                const selectedOptionis_liquid = is_liquido.options[is_liquido.selectedIndex].text;
+                console.log(is_liquido)
+                
+                var unit = parentWindow.document.querySelector('#selectUnidades');
+                const selectedOptionunit = unit.options[unit.selectedIndex].text;
+                
+                var wlocation = parentWindow.document.querySelector('#wlocation').value;
+
+                // Rellena los campos del formulario de la ventana emergente
+                document.querySelector('#color').value = color;
+                document.querySelector('#number').value = number;
+                document.querySelector('#subnumber').value = subnumber;
+                document.querySelector('#code').value = code;
+                document.querySelector('#cas').value = cas;
+                document.querySelector('#name').value = name;
+                document.querySelector('#wlocation').value = wlocation;
+                document.querySelector('#is_liquid').value = selectedOptionis_liquid;
+                document.querySelector('#unit').value = selectedOptionunit;
+                
+                
+
+                // Agrega un evento al botón Cancelar
+                document.querySelector('#Cancelar').addEventListener('click', function () {
+                    // Cierra la ventana emergente
+                    window.close();
+                });
+            </script>
+
+
+
+            {% if messages %}
+            {% for message in messages %}
+            <script>
+                window.onload = function () {
+                    var outForm = window.opener.document.getElementById("reactivo_form");
+                    if (outForm) {
+                        window.opener.location.reload();
+                        console.log('Se supone que acá resetea el form')
+                    }
+                    else{console.log('No encontró el form')}
+                    alert('{{ message }}');
+                    
+                    window.close()
+                    };
+            </script>
+            {% endfor %}
+            {% endif %}
+        </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe"
+            crossorigin="anonymous"></script>
+</body>
+
+</html>
