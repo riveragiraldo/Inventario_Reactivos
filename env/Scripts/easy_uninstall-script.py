@@ -1,4 +1,4 @@
-#!C:\xampp\htdocs\Inventario_Reactivos\env\Scripts\python.exe
+#!C:\Inventario_Reactivos\env\Scripts\python.exe
 # EASY-INSTALL-ENTRY-SCRIPT: 'pi==0.1.2','console_scripts','easy_uninstall'
 import re
 import sys

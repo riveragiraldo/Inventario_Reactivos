@@ -3,6 +3,7 @@ from django.db import models
 
 class Unidades(models.Model):
     name=models.CharField(max_length=20, verbose_name="Unidad")
+    fecha_registro = models.DateTimeField(auto_now_add=True)
 
     def __str__ (self):
         return self.name
@@ -23,6 +24,7 @@ class Reactivos(models.Model):
     is_liquid=models.CharField(max_length=3, verbose_name="Es líquido")
     is_active=models.BooleanField(default=True)
     wlocation=models.CharField(max_length=255, verbose_name="Ubicación Almacén")
+    fecha_registro = models.DateTimeField(auto_now_add=True)
 
     def __str__ (self):
         return self.name
@@ -37,6 +39,7 @@ class Reactivos(models.Model):
 
 class Marcas(models.Model):
     name=models.CharField(max_length=30, verbose_name="Marca")
+    fecha_registro = models.DateTimeField(auto_now_add=True)
 
     def __str__ (self):
         return self.name
@@ -47,6 +50,7 @@ class Marcas(models.Model):
 
 class Destinos(models.Model):
     name=models.CharField(max_length=30, verbose_name="Destino")
+    fecha_registro = models.DateTimeField(auto_now_add=True)
 
     def __str__ (self):
         return self.name
@@ -56,20 +60,15 @@ class Destinos(models.Model):
         verbose_name='Destino'
 
 
-
-
-
-
-
 class Responsables(models.Model):
     name=models.CharField(max_length=255, verbose_name="Nombre Responsable")
     mail=models.EmailField(max_length=255, verbose_name="Email")
     phone=models.BigIntegerField(verbose_name="Teléfono")
     is_active=models.BooleanField(default=True)
+    fecha_registro = models.DateTimeField(auto_now_add=True)
 
     def __str__ (self):
-        return self.name
-    
+        return self.name    
    
     
     class Meta:
@@ -78,6 +77,7 @@ class Responsables(models.Model):
 
 class Ubicaciones(models.Model):
     name=models.CharField(max_length=100, verbose_name="Ubicación/Asignaturas")
+    fecha_registro = models.DateTimeField(auto_now_add=True)
 
     def __str__ (self):
         return self.name
@@ -132,3 +132,14 @@ class Entradas(models.Model):
     class Meta:
         verbose_name_plural='Salidas'
         verbose_name='Salida'
+
+class Inventarios(models.Model):
+    reactivo = models.ForeignKey('Reactivos', on_delete=models.CASCADE)
+    marca = models.ForeignKey('Marcas', on_delete=models.CASCADE)
+    cantidad = models.IntegerField()
+
+    class Meta:
+        verbose_name_plural = "Inventarios"
+
+    def __str__(self):
+        return f"{self.reactivo.nombre} ({self.marca.nombre}): {self.cantidad}"
