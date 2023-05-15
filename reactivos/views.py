@@ -1,9 +1,12 @@
 from django.shortcuts import render
 from django.shortcuts import get_object_or_404, redirect
-from django.http import JsonResponse, HttpResponseBadRequest, HttpResponse
+from django.http import JsonResponse, HttpResponseBadRequest
 from .models import *
 from django.db.models import Q
 from django.contrib import messages
+from decimal import Decimal
+from django.views.generic import ListView
+from django.db.models import F
 
 
 def index(request):
@@ -413,6 +416,28 @@ def registrar_salida_confirm(request):
             destination = None
             return redirect('reactivos:registrar_salida_confirm')
         
+         # Verificar si el reactivo ya existe en la tabla de inventarios
+        try:
+            inventario_existente = Inventarios.objects.filter(name=name, trademark=trademark).first()
+            
+            if inventario_existente:
+                weight = request.POST.get('weight')
+                weight = Decimal(weight)
+                if inventario_existente.weight>=weight:
+                    # Si el reactivo ya existe y además hay en el inventario, sumar el peso obtenido del formulario al peso existente
+                    weight = request.POST.get('weight')
+                    inventario_existente.weight -= int(weight)
+                    inventario_existente.save()
+                else:
+                    messages.error(request,"La cantidad que está tratando de registrar salida supera el stock mínimo en inventario") 
+                    return redirect('reactivos:registrar_salida_confirm')
+            else:
+                messages.error(request,"EL reactivo con nombre y marca registradas en el formulario no está en el inventario existente, por favor verifique") 
+                return redirect('reactivos:registrar_salida_confirm')
+                
+        except Inventarios.DoesNotExist:
+            
+                weight = request.POST.get('weight')     
         
         
         if name:
@@ -465,6 +490,8 @@ def registrar_entrada(request):
     return render(request, 'reactivos/registrar_entrada.html', context)
 
 
+
+
 def registrar_entrada_confirm(request):
     
     if request.method == 'POST':
@@ -510,6 +537,42 @@ def registrar_entrada_confirm(request):
             trademark = None
             return redirect('reactivos:registrar_entrada_confirm')
         
+        # Verificar si el reactivo ya existe en la tabla de inventarios
+        try:
+            inventario_existente = Inventarios.objects.filter(name=name, trademark=trademark).first()
+
+            if inventario_existente:
+                # Si el reactivo ya existe, sumar el peso obtenido del formulario al peso existente
+                weight = request.POST.get('weight')
+                inventario_existente.weight += int(weight)
+                inventario_existente.save()
+            else:
+                # Si el reactivo no existe, crear un nuevo registro en la tabla de inventarios
+                weight = request.POST.get('weight')
+
+                trademark = request.POST.get('trademark')
+                nameMarca = Marcas.objects.get(name=trademark)
+                trademark = nameMarca
+
+                name = request.POST.get('name')
+                nameReactivo = Reactivos.objects.get(name=name)
+                name = nameReactivo
+
+                unit = request.POST.get('unit')
+                nameUnidad = Unidades.objects.get(name=unit)
+                unit = nameUnidad
+
+                inventario = Inventarios.objects.create(
+                    name=name,
+                    trademark=trademark,
+                    weight=weight,
+                    unit=unit,
+                )
+                
+        except Inventarios.DoesNotExist:
+            
+                weight = request.POST.get('weight')
+        
         if name:
             
             reference = request.POST.get('reference')
@@ -522,11 +585,8 @@ def registrar_entrada_confirm(request):
             
             observations = request.POST.get('observations')
             unit=request.POST.get('unit')
-
-
             
-
-            salida = Entradas.objects.create(
+            entrada = Entradas.objects.create(
                 date=date,
                 name=name,
                 trademark=trademark,
@@ -537,18 +597,62 @@ def registrar_entrada_confirm(request):
                 order=order,
                 manager=manager,
                 observations=observations,
-                )       
+                )
+            
             messages.success(request, 'Se ha registrado de manera exitosa el ingreso del insumo del insumo: '+nReactivo+', cantidad '+weight+' '+unit)
-            return redirect('reactivos:registrar_entrada_confirm')       
+            return redirect('reactivos:registrar_entrada_confirm')   
            
 
     context = {
         'reactivos': Reactivos.objects.all(),
         'responsables': Responsables.objects.all(),
-         'marcas': Marcas.objects.all(),
+        'marcas': Marcas.objects.all(),
         'ubicaiones': Ubicaciones.objects.all()
     }
     return render(request, 'reactivos/registrar_entrada_confirm.html', context)
+
+
+class InventarioListView(ListView):
+    model = Inventarios
+    template_name = "reactivos/inventario.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        unique_names_ids = Inventarios.objects.values('name').distinct()
+        unique_names = Reactivos.objects.filter(id__in=unique_names_ids)
+
+    
+
+        unique_trademarks_ids = Inventarios.objects.values('trademark').distinct()
+        unique_trademarks = Marcas.objects.filter(id__in=unique_trademarks_ids)
+
+        context['unique_names'] = unique_names
+        context['unique_trademarks'] = unique_trademarks
+
+        return context
+
+    def get_queryset(self):
+        name = self.request.GET.get('name')
+        trademark = self.request.GET.get('trademark')
+
+        qs = super().get_queryset()
+
+        if name and trademark:
+            qs = qs.filter(name=name, trademark=trademark)
+        elif name:
+            qs = qs.filter(name=name)
+        elif trademark:
+            qs = qs.filter(trademark=trademark)
+
+        qs = qs.values('name__name', 'trademark__name', 'weight', 'unit__name')
+        return qs
+
+
+
+
+
+
 
 
 

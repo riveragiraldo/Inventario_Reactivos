@@ -134,9 +134,10 @@ class Entradas(models.Model):
         verbose_name='Salida'
 
 class Inventarios(models.Model):
-    reactivo = models.ForeignKey('Reactivos', on_delete=models.CASCADE)
-    marca = models.ForeignKey('Marcas', on_delete=models.CASCADE)
-    cantidad = models.IntegerField()
+    name = models.ForeignKey('Reactivos', on_delete=models.CASCADE)
+    trademark = models.ForeignKey('Marcas', on_delete=models.CASCADE)
+    weight=models.DecimalField(max_digits=10, decimal_places=4, verbose_name='Peso Reactivo')
+    unit=models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name='unidad', verbose_name="Unidades")
 
     class Meta:
         verbose_name_plural = "Inventarios"
