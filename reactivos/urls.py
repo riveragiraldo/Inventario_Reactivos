@@ -1,5 +1,6 @@
 from django.urls import path
 from .views import *
+from . import views
 app_name='reactivos'
 
 urlpatterns=[
@@ -26,6 +27,8 @@ urlpatterns=[
     path('reactivos/registrar_salida/autocomplete_location/', autocomplete_location, name='autocomplete_location'),
     path('reactivos/registrar_salida/autocomplete_manager/', autocomplete_manager, name='autocomplete_manager'),
     path('reactivos/registrar_entrada/autocomplete_manager/', autocomplete_manager, name='autocomplete_manager'),
-     path('reactivos/registrar_entrada/autocomplete_location/', autocomplete_location, name='autocomplete_location'),
+    path('reactivos/registrar_entrada/autocomplete_location/', autocomplete_location, name='autocomplete_location'),
+    path('api/trademarks/', TrademarksAPI.as_view(), name='trademarks_api'),
+    path('exportar-excel/', views.export_to_excel, name='export_to_excel'),
     
 ]

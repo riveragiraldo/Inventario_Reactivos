@@ -860,6 +860,7 @@ fr4r9hnh5z61muhkxfj2ssvr1ei9chh7	.eJxVjMsOwiAQRf-FtSEgb5fu_QYyMINUDSSlXRn_3TbpQr
 nynwywgc9ddrfkwfxrf99drat9fioc2s	.eJxVjMsOwiAQRf-FtSEgb5fu_QYyMINUDSSlXRn_3TbpQrfnnHvfLMK61LgOmuOE7MIkO_2yBPlJbRf4gHbvPPe2zFPie8IPO_itI72uR_t3UGHUbX12NuXgXSoa0ErltEnKe2kFOPIUjLA6Z7MhEokUqGBdsQgZnS5oNPt8AdGBN78:1pprWR:SB_OCJUdCDq1XfvbEmYf6QA02N0qMyJbCdkPPIKTrsQ	2023-05-05 09:13:59.304309-05
 bvqmhtx477pch1xrc5cpz80otbvo10oy	.eJxVjMsOwiAQRf-FtSEgb5fu_QYyMINUDSSlXRn_3TbpQrfnnHvfLMK61LgOmuOE7MIkO_2yBPlJbRf4gHbvPPe2zFPie8IPO_itI72uR_t3UGHUbX12NuXgXSoa0ErltEnKe2kFOPIUjLA6Z7MhEokUqGBdsQgZnS5oNPt8AdGBN78:1prfpF:4tcC9dCqMCyHU6T0sSyhbpQld2p_w7fb0e-uy7d7JeE	2023-05-10 09:08:53.280173-05
 l8dihmd738pk187mz5rzr9u1gallog0c	.eJxVjMsOwiAQRf-FtSEgb5fu_QYyMINUDSSlXRn_3TbpQrfnnHvfLMK61LgOmuOE7MIkO_2yBPlJbRf4gHbvPPe2zFPie8IPO_itI72uR_t3UGHUbX12NuXgXSoa0ErltEnKe2kFOPIUjLA6Z7MhEokUqGBdsQgZnS5oNPt8AdGBN78:1pxCvm:XRv7MUazgHh2c9U6mkcpeOP-9HhYUmdK7YDMkCP1eYs	2023-05-25 15:30:30.607357-05
+555lahm3r5v8f9nk0l9kaylymz6kk2ru	.eJyrVkrLzClJLUpNic9LzE1VssorzcnRQQiWFCWmpOYmFmVDZGoBvDoSTw:1pz2hz:NAfd-0AgPisE6CS1uuss7SB-QuozEQgPHUcDX-u8ADQ	2023-05-30 16:59:51.723128-05
 \.
 
 
@@ -905,6 +906,15 @@ COPY public.reactivos_entradas (id, date, reference, weight, is_liquid, observat
 46	2023-05-15 12:38:33-05		50000.0000	NO		22	26	103		34
 47	2023-05-15 13:52:25-05		10000.0000	NO		21	26	102	303.2323	33
 48	2023-05-15 13:56:51-05		5000.0000	NO		22	29	102	1500	33
+49	2023-05-15 13:57:31-05		100000.0000	NO		21	26	102		38
+50	2023-05-16 08:19:45-05		5000.0000	NO		21	27	102		38
+51	2023-05-16 08:21:50-05		100000.0000	NO		21	26	102		40
+52	2023-05-16 11:10:00-05		110000.0000	NO		21	29	106	1500	33
+53	2023-05-16 11:10:26-05		50000.0000	NO		23	30	108	5000	33
+54	2023-05-16 11:10:48-05		50000.0000	NO		23	27	107	500000	33
+55	2023-05-16 11:11:27-05		789232.0000	NO		21	28	104		33
+56	2023-05-16 11:12:14-05		70000.0000	NO		21	29	104		39
+57	2023-05-16 11:12:48-05		20000.0000	NO		21	29	104	5000	40
 \.
 
 
@@ -917,6 +927,14 @@ COPY public.reactivos_inventarios (id, trademark_id, name_id, weight, unit_id) F
 11	33	103	50000.0000	202
 12	34	103	50000.0000	202
 9	33	102	0.0000	202
+13	38	102	105000.0000	202
+14	40	102	100000.0000	202
+15	33	106	110000.0000	202
+16	33	108	50000.0000	202
+17	33	107	50000.0000	202
+18	33	104	789232.0000	202
+19	39	104	70000.0000	202
+20	40	104	20000.0000	202
 \.
 
 
@@ -1074,14 +1092,14 @@ SELECT pg_catalog.setval('public.reactivos_destinos_id_seq', 20, true);
 -- Name: reactivos_entradas_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.reactivos_entradas_id_seq', 48, true);
+SELECT pg_catalog.setval('public.reactivos_entradas_id_seq', 57, true);
 
 
 --
 -- Name: reactivos_inventarios_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.reactivos_inventarios_id_seq', 12, true);
+SELECT pg_catalog.setval('public.reactivos_inventarios_id_seq', 20, true);
 
 
 --

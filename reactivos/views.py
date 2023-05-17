@@ -1,12 +1,23 @@
+
 from django.shortcuts import render
 from django.shortcuts import get_object_or_404, redirect
-from django.http import JsonResponse, HttpResponseBadRequest
+from django.http import JsonResponse, HttpResponseBadRequest, HttpResponse
 from .models import *
 from django.db.models import Q
 from django.contrib import messages
 from decimal import Decimal
 from django.views.generic import ListView
 from django.db.models import F
+from django.views import View
+import json
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from openpyxl import Workbook
+import openpyxl
+from openpyxl.styles import Alignment, Font, PatternFill
+from datetime import datetime
+
+
+
 
 
 def index(request):
@@ -612,41 +623,174 @@ def registrar_entrada_confirm(request):
     return render(request, 'reactivos/registrar_entrada_confirm.html', context)
 
 
+
+
+
 class InventarioListView(ListView):
     model = Inventarios
     template_name = "reactivos/inventario.html"
+    paginate_by=10#Número de registros por página
+    
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
+        # context['paginate_by'] = self.paginate_by
+        
         unique_names_ids = Inventarios.objects.values('name').distinct()
         unique_names = Reactivos.objects.filter(id__in=unique_names_ids)
-
-    
 
         unique_trademarks_ids = Inventarios.objects.values('trademark').distinct()
         unique_trademarks = Marcas.objects.filter(id__in=unique_trademarks_ids)
 
         context['unique_names'] = unique_names
         context['unique_trademarks'] = unique_trademarks
+        
+
+        # Obtener la lista completa de registros
+        queryset = self.get_queryset().order_by('name')  # Ordenar por 'nombre' u otro campo
+        paginate_by = self.request.GET.get('paginate_by')
+        # if paginate_by:
+        #     try:
+        #         self.paginate_by = int(paginate_by)
+        #     except ValueError:
+        #         pass
+
+        # Crear un objeto Paginator y obtener la página actual
+        paginator = Paginator(queryset, self.paginate_by)
+        page = self.request.GET.get('page')
+
+        try:
+            page_obj = paginator.get_page(page)
+        except PageNotAnInteger:
+            page_obj = paginator.get_page(1)
+        except EmptyPage:
+            page_obj = paginator.get_page(paginator.num_pages)
+
+        context['page_obj'] = page_obj
 
         return context
 
     def get_queryset(self):
+        queryset = super().get_queryset()
+
         name = self.request.GET.get('name')
         trademark = self.request.GET.get('trademark')
 
-        qs = super().get_queryset()
-
         if name and trademark:
-            qs = qs.filter(name=name, trademark=trademark)
+            queryset = queryset.filter(name=name, trademark=trademark)
         elif name:
-            qs = qs.filter(name=name)
+            queryset = queryset.filter(name=name)
         elif trademark:
-            qs = qs.filter(trademark=trademark)
+            queryset = queryset.filter(trademark=trademark)
 
-        qs = qs.values('name__name', 'trademark__name', 'weight', 'unit__name')
-        return qs
+        # Almacena los valores filtrados en la sesión del usuario
+        self.request.session['filtered_name'] = name
+        self.request.session['filtered_trademark'] = trademark
+
+
+        return queryset
+    
+
+
+
+
+
+
+
+    
+    
+class TrademarksAPI(View):
+    def get(self, request):
+        reactive_id = request.GET.get('reactive_id')
+        print(reactive_id)
+
+        if reactive_id:
+            unique_trademarks = Inventarios.objects.filter(name=reactive_id).values('trademark__id', 'trademark__name').distinct()
+        else:
+            unique_trademarks = Inventarios.objects.values('trademark__id', 'trademark__name').distinct()
+
+        trademarks_list = list(unique_trademarks)
+        print(trademarks_list)
+
+        return JsonResponse(trademarks_list, safe=False)
+    
+
+def export_to_excel(request):
+    # Obtener los valores filtrados almacenados en la sesión del usuario
+    name = request.session.get('filtered_name')
+    trademark = request.session.get('filtered_trademark')
+
+    # Elimina los valores filtrados de la sesión del usuario
+    #del request.session['filtered_name']
+    #del request.session['filtered_trademark']
+
+    queryset = Inventarios.objects.all()
+
+    if name and trademark:
+        queryset = queryset.filter(name=name, trademark=trademark)
+    elif name:
+            queryset = queryset.filter(name=name)
+    elif trademark:
+        queryset = queryset.filter(trademark=trademark)
+
+
+    workbook = openpyxl.Workbook()
+    sheet = workbook.active
+
+    # Obtener la fecha actual
+    fecha_creacion = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    # Unificar las celdas A1, B1, C1 y D1
+    sheet.merge_cells('A1:D1')
+    
+
+    sheet['A1'] = 'Inventario de insumos'
+    sheet['A2'] = 'Fecha de Creación'
+    sheet['B2'] = fecha_creacion
+    sheet['A4'] = 'Reactivo'
+    sheet['B4'] = 'Marca'
+    sheet['C4'] = 'Cantidad'
+    sheet['D4'] = 'Unidad'
+
+    # Establecer estilo de celda para A1
+    sheet['A1'].alignment = Alignment(horizontal='center')
+    cell_A1 = sheet['A1']
+    cell_A1.font = Font(bold=True, size=16)
+
+   # Establecer el estilo de las celdas A2:D3
+    bold_font = Font(bold=True)
+    sheet['A2'].font = bold_font
+    sheet['A4'].font = bold_font
+    sheet['B4'].font = bold_font
+    sheet['C4'].font = bold_font
+    sheet['D4'].font = bold_font 
+
+    # Establecer el ancho de la columna A a 25
+    sheet.column_dimensions['A'].width = 25
+
+    # Establecer el ancho de la columna B a 10
+    sheet.column_dimensions['B'].width = 10
+
+    # Establecer el ancho de la columna C a 10
+    sheet.column_dimensions['C'].width = 10
+
+     # Establecer el ancho de la columna D a 8
+    sheet.column_dimensions['D'].width = 8
+
+    row = 5
+    for item in queryset:
+        sheet.cell(row=row, column=1).value = item.name.name
+        sheet.cell(row=row, column=2).value = item.trademark.name
+        sheet.cell(row=row, column=3).value = item.weight
+        sheet.cell(row=row, column=4).value = item.unit.name
+        row += 1
+
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename=inventario_insumos.xlsx'
+
+    workbook.save(response)
+
+    return response
 
 
 

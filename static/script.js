@@ -11,7 +11,7 @@ function limpiarCamposout() {
         var formattedDate = year + '-' + padNumber(month) + '-' + padNumber(day) + ' ' + padNumber(hours) + ':' + padNumber(minutes) + ':' + padNumber(seconds);
         $('#date').val(formattedDate);
     });
-    
+
     function padNumber(num) {
         return num < 10 ? '0' + num : num;
     }
@@ -32,7 +32,7 @@ function limpiarCamposin() {
         var formattedDate = year + '-' + padNumber(month) + '-' + padNumber(day) + ' ' + padNumber(hours) + ':' + padNumber(minutes) + ':' + padNumber(seconds);
         $('#date').val(formattedDate);
     });
-    
+
     function padNumber(num) {
         return num < 10 ? '0' + num : num;
     }
@@ -63,7 +63,7 @@ function padNumber(num) {
 //autocompletar por nombre o código
 
 $(document).ready(function () {
-    
+
     $("#name").autocomplete({
         source: "{% url 'reactivos:autocomplete' %}",
         minLength: 2,
@@ -77,7 +77,7 @@ $(document).ready(function () {
 //Función autocompletar por Ubicación
 $(document).ready(function () {
     $("#location").autocomplete({
-        source: "autocomplete_location/", 
+        source: "autocomplete_location/",
         minLength: 2,
         select: function (event, ui) {
             $("#location").val(ui.item.value);
@@ -89,7 +89,7 @@ $(document).ready(function () {
 //Función autocompletar por Responsable
 $(document).ready(function () {
     $("#manager").autocomplete({
-        source: "autocomplete_manager/", 
+        source: "autocomplete_manager/",
         minLength: 2,
         select: function (event, ui) {
             $("#manager").val(ui.item.value);
@@ -134,16 +134,17 @@ $(document).ready(function () {
     $('#name').autocomplete({
         source: '/autocomplete/',
         select: function (event, ui) {
-            setTimeout(function(){
+            setTimeout(function () {
                 updateFields();
             }, 100);
         },
         minLength: 3
     });
 
-    $('#name').on('input', function() {
-        setTimeout(function(){
+    $('#name').on('input', function () {
+        setTimeout(function () {
             updateFields();
         }, 100);
     });
 });
+

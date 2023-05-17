@@ -14,12 +14,15 @@
     <div class="row">
         <div class="col-md-7 mx-auto">
             <h1>Inventario Reactivos</h1>
+            <br>
 
-            <form method="GET" action="{% url 'reactivos:inventario' %}">
+            <form method="get" onsubmit="guardarValoresSelect()">
+
+
                 <div class="row justify-content-between">
                     <div class="col-md-4 d-flex flex-column align-items-left">
                         <label for="name">Nombre:</label>
-                        <select name="name" id="name" class="form-control">
+                        <select id="name" name="name" class="form-control">
                             <option value="">Todos</option>
                             {% for item in unique_names %}
                             <option value="{{ item.id }}">{{ item.name }}</option>
@@ -29,26 +32,95 @@
 
                     <div class="col-md-4 d-flex flex-column align-items-left">
                         <label for="trademark">Marca:</label>
-                        <select name="trademark" id="trademark" class="form-control">
+                        <select id="trademark" name="trademark" class="form-control">
                             <option value="">Todas</option>
-                            {% for item in unique_trademarks %}
-                            <option value="{{ item.id }}">{{ item.name }}</option>
-                            {% endfor %}
                         </select>
                     </div>
 
+
                     <div class="col-md-4 d-flex align-items-end">
-                        <button type="submit" class="btn btn-primary">Buscar</button>
+                        <button id="boton-buscar" type="submit" class="btn btn-primary">Buscar</button>
                     </div>
                 </div>
             </form>
+
+
+            <script>
+                //Actualizar el segundo select
+                
+                    // Obtener los elementos del DOM
+                    const nameSelect = document.getElementById('name');
+                    const trademarkSelect = document.getElementById('trademark');
+
+                    // Manejar el evento de cambio en el primer select
+                    nameSelect.addEventListener('change', function () {
+                        // Obtener el valor seleccionado en el primer select
+                        const selectedNameId = nameSelect.value;
+
+
+                        // Limpiar las opciones del segundo select
+                        trademarkSelect.innerHTML = '<option value="">Todas</option>';
+
+                        // Realizar una solicitud AJAX para obtener las marcas correspondientes al reactivo seleccionado
+                        const xhr = new XMLHttpRequest();
+                        xhr.open('GET', `/api/trademarks?reactive_id=${selectedNameId}`);
+                        xhr.onload = function () {
+                            if (xhr.status === 200) {
+                                const response = JSON.parse(xhr.responseText);
+
+                                // Iterar sobre la respuesta JSON (lista de marcas)
+                                response.forEach(function (trademark) {
+                                    const option = document.createElement('option');
+                                    option.value = trademark.trademark__id; // Acceder a la propiedad "trademark__id"
+                                    option.textContent = trademark.trademark__name; // Acceder a la propiedad "trademark__name"
+                                    trademarkSelect.appendChild(option);
+                                });
+                            }
+                        };
+                        xhr.send();
+                    });
+
+            </script>
+
+
+
+
+
         </div>
     </div>
     <br>
+    <!-- Agrega la clase "mx-auto" para centrar el contenido horizontalmente -->
 
-    <div class="col-md-7 mx-auto"> <!-- Agrega la clase "mx-auto" para centrar el contenido horizontalmente -->
+
+    <div class="col-md-7 mx-auto">
+
+
+        <!-- <label for="records-per-page">Ver </label>
+        <select name="records-per-page" id="select-registros">
+            <option value="5">5</option>
+            <option value="10">10</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+        </select> registros por página
+
+        <br>
+
+        <script>
+            // Obtener el elemento del select
+            const selectRegistros = document.getElementById('select-registros');
+
+            // Manejar el evento de cambio en el select
+            selectRegistros.addEventListener('change', function () {
+                // Obtener el valor seleccionado
+                const registrosPorPagina = selectRegistros.value;
+
+                // Redirigir a la vista con el nuevo valor de paginate_by
+                window.location.href = `?paginate_by=${registrosPorPagina}`;
+            });
+        </script> -->
+
         <div class="table-responsive">
-            <table class="table">
+            <table class="table" id="tabla-inventario">
                 <thead>
                     <tr>
                         <th>Reactivo</th>
@@ -60,22 +132,60 @@
                 <tbody>
                     {% for item in object_list %}
                     <tr>
-                        <td>{{ item.name__name }}</td>
-                        <td>{{ item.trademark__name }}</td>
+                        <td>{{ item.name }}</td>
+                        <td>{{ item.trademark }}</td>
                         <td>{{ item.weight|floatformat:1 }}</td>
-                        <td>{{ item.unit__name }}</td>
+                        <td>{{ item.unit }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
+            <br>
+            <div class="d-flex justify-content-between">
+                <!-- Controles de navegación de página -->
+                <div class="pagination">
+                    <span class="step-links">
+                        {% if page_obj.has_previous %}
+                        <a href="?page=1">&laquo; Primera</a>
+                        <a href="?page={{ page_obj.previous_page_number }}">Anterior</a>
+                        {% endif %}
+
+                        <span class="current-page">Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+
+                        {% if page_obj.has_next %}
+                        <a href="?page={{ page_obj.next_page_number }}">Siguiente</a>
+                        <a href="?page={{ page_obj.paginator.num_pages }}">Última &raquo;</a>
+                        {% endif %}
+                    </span>
+                </div>
+
+                <!-- Información de paginación -->
+                <div class="pagination-info">
+                    Mostrando {{ page_obj.start_index }} - {{ page_obj.end_index }} de {{ paginator.count }} registros
+                </div>
+            </div>
+            <br>
+            <a href="{% url 'reactivos:export_to_excel' %}" class="btn btn-primary">Exportar a Excel</a>
+
+
+
+
         </div>
+
     </div>
+
+
 
 
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe"
         crossorigin="anonymous"></script>
+
+
+
+
+
 </body>
 
 </html>
