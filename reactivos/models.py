@@ -130,8 +130,8 @@ class Entradas(models.Model):
         return self.unity.name
     
     class Meta:
-        verbose_name_plural='Salidas'
-        verbose_name='Salida'
+        verbose_name_plural='Entradas'
+        verbose_name='Entrada'
 
 class Inventarios(models.Model):
     name = models.ForeignKey('Reactivos', on_delete=models.CASCADE)

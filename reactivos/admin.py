@@ -52,10 +52,18 @@ class Salidaadmin(admin.ModelAdmin):
     ordering=('id',)
 
 @admin.register(Entradas)
-class Salidaadmin(admin.ModelAdmin):
+class Entradaadmin(admin.ModelAdmin):
     list_display=('id','date','name','trademark','reference','weight','is_liquid','order','manager','observations','location')
     list_filter=('date','name',)
     search_fields=('date','name',)
+    list_per_page=10
+    ordering=('id',)
+
+@admin.register(Inventarios)
+class Inventarioadmin(admin.ModelAdmin):
+    list_display=('id','name','trademark','weight','unit')
+    list_filter=('trademark','name',)
+    search_fields=('trademark','name',)
     list_per_page=10
     ordering=('id',)
 

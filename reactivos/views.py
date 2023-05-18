@@ -11,10 +11,20 @@ from django.db.models import F
 from django.views import View
 import json
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from openpyxl import Workbook
 import openpyxl
-from openpyxl.styles import Alignment, Font, PatternFill
+from openpyxl.styles import Alignment, Font, Border, Side,PatternFill
+from openpyxl.styles.colors import WHITE
+from openpyxl.utils import get_column_letter
+from openpyxl.drawing.image import Image as ExcelImage
 from datetime import datetime
+from django.template.loader import get_template
+from io import BytesIO
+from reportlab.pdfgen import canvas
+from reportlab.lib import  utils
+from reportlab.lib.pagesizes import letter
+from reportlab.platypus import Image
+from django.contrib.staticfiles import finders
+from PIL import Image as PILImage
 
 
 
@@ -629,7 +639,7 @@ def registrar_entrada_confirm(request):
 class InventarioListView(ListView):
     model = Inventarios
     template_name = "reactivos/inventario.html"
-    paginate_by=10#Número de registros por página
+    paginate_by=20   #Número de registros por página
     
 
     def get_context_data(self, **kwargs):
@@ -647,8 +657,8 @@ class InventarioListView(ListView):
         
 
         # Obtener la lista completa de registros
-        queryset = self.get_queryset().order_by('name')  # Ordenar por 'nombre' u otro campo
-        paginate_by = self.request.GET.get('paginate_by')
+        queryset = self.get_queryset().order_by('trademark')  # Ordenar por 'nombre' u otro campo
+        #paginate_by = self.request.GET.get('paginate_by')
         # if paginate_by:
         #     try:
         #         self.paginate_by = int(paginate_by)
@@ -683,7 +693,7 @@ class InventarioListView(ListView):
         elif trademark:
             queryset = queryset.filter(trademark=trademark)
 
-        # Almacena los valores filtrados en la sesión del usuario
+        # Almacena los valores filtrados en la sesión del usuario para cuando se pida la exportación
         self.request.session['filtered_name'] = name
         self.request.session['filtered_trademark'] = trademark
 
@@ -715,6 +725,8 @@ class TrademarksAPI(View):
         return JsonResponse(trademarks_list, safe=False)
     
 
+    
+
 def export_to_excel(request):
     # Obtener los valores filtrados almacenados en la sesión del usuario
     name = request.session.get('filtered_name')
@@ -737,53 +749,125 @@ def export_to_excel(request):
     workbook = openpyxl.Workbook()
     sheet = workbook.active
 
-    # Obtener la fecha actual
-    fecha_creacion = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    # Ruta al archivo de imagen del logotipo
+    
+    logo_path = finders.find('Images/escudoUnal_black.png')
 
-    # Unificar las celdas A1, B1, C1 y D1
-    sheet.merge_cells('A1:D1')
+    # Cargar la imagen y procesarla con pillow
+    pil_image = PILImage.open(logo_path)
+    print(pil_image)
+
     
 
-    sheet['A1'] = 'Inventario de insumos'
-    sheet['A2'] = 'Fecha de Creación'
-    sheet['B2'] = fecha_creacion
-    sheet['A4'] = 'Reactivo'
-    sheet['B4'] = 'Marca'
-    sheet['C4'] = 'Cantidad'
-    sheet['D4'] = 'Unidad'
+
+    # Crear un objeto Image de openpyxl a partir de la imagen procesada
+    image = ExcelImage(pil_image)
+
+    # Anclar la imagen a la celda A1
+    sheet.add_image(image, 'A1')
+
+
+    
+
+
+    # Obtener la fecha actual
+    fecha_creacion = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+
+    # Unificar las celdas A1, B1, C1 y D1
+    sheet.merge_cells('C1:F1')
+    
+
+    sheet['C1'] = 'Inventario de insumos'
+    sheet['C2'] = 'Fecha de Creación: '+fecha_creacion
+    sheet['A4'] = 'Código'
+    sheet['B4'] = 'CAS'
+    sheet['C4'] = 'Reactivo'
+    sheet['D4'] = 'Marca'
+    sheet['E4'] = 'Cantidad'
+    sheet['F4'] = 'Unidad'
+
+    # Establecer la altura de la fila 1 y 2 a 30
+    sheet.row_dimensions[1].height = 30
+    sheet.row_dimensions[2].height = 30
 
     # Establecer estilo de celda para A1
-    sheet['A1'].alignment = Alignment(horizontal='center')
-    cell_A1 = sheet['A1']
+    
+    cell_A1 = sheet['C1']
     cell_A1.font = Font(bold=True, size=16)
 
-   # Establecer el estilo de las celdas A2:D3
-    bold_font = Font(bold=True)
-    sheet['A2'].font = bold_font
-    sheet['A4'].font = bold_font
-    sheet['B4'].font = bold_font
-    sheet['C4'].font = bold_font
-    sheet['D4'].font = bold_font 
+        # Configurar los estilos de borde
+    thin_border = Border(left=Side(style='thin'), right=Side(style='thin'), top=Side(style='thin'), bottom=Side(style='thin'))
 
-    # Establecer el ancho de la columna A a 25
-    sheet.column_dimensions['A'].width = 25
+    # Establecer el estilo de las celdas A2:D3
+    bold_font = Font(bold=True)
+    
+    # Establecer el ancho de la columna A a 16
+    sheet.column_dimensions['A'].width = 16
 
     # Establecer el ancho de la columna B a 10
     sheet.column_dimensions['B'].width = 10
 
-    # Establecer el ancho de la columna C a 10
-    sheet.column_dimensions['C'].width = 10
+    # Establecer el ancho de la columna C a 36
+    sheet.column_dimensions['C'].width = 36
 
-     # Establecer el ancho de la columna D a 8
-    sheet.column_dimensions['D'].width = 8
+    # Establecer el ancho de la columna D a 11
+    sheet.column_dimensions['D'].width = 11
+
+    # Establecer el ancho de la columna E a 10
+    sheet.column_dimensions['E'].width = 10
+
+    # Establecer el ancho de la columna F a 10
+    sheet.column_dimensions['F'].width = 10
+
+    row = 4
+    # Aplicar el estilo de borde a las celdas de la fila actual
+    for col in range(1, 7):
+        sheet.cell(row=row, column=col).border = thin_border
+        sheet.cell(row=row, column=col).font = bold_font    
 
     row = 5
     for item in queryset:
-        sheet.cell(row=row, column=1).value = item.name.name
-        sheet.cell(row=row, column=2).value = item.trademark.name
-        sheet.cell(row=row, column=3).value = item.weight
-        sheet.cell(row=row, column=4).value = item.unit.name
+        sheet.cell(row=row, column=1).value = item.name.code
+        sheet.cell(row=row, column=2).value = item.name.cas
+        sheet.cell(row=row, column=3).value = item.name.name
+        sheet.cell(row=row, column=4).value = item.trademark.name
+        sheet.cell(row=row, column=5).value = item.weight
+        sheet.cell(row=row, column=6).value = item.unit.name
+
+        # Aplicar el estilo de borde a las celdas de la fila actual
+        for col in range(1, 7):
+            sheet.cell(row=row, column=col).border = thin_border
+
         row += 1
+
+    # Obtén el rango de las columnas de la tabla
+    start_column = 1
+    end_column = 6
+    start_row = 4
+    end_row = row - 1
+
+    # Convertir los números de las columnas en letras de columna
+    start_column_letter = get_column_letter(start_column)
+    end_column_letter = get_column_letter(end_column)
+
+    # Rango de la tabla con el formato "A4:F{n}", donde n es el número de filas en la tabla
+    table_range = f"{start_column_letter}{start_row}:{end_column_letter}{end_row}"
+
+    # Agregar filtros solo a las columnas de la tabla
+    sheet.auto_filter.ref = table_range
+
+    # Establecer fondo blanco desde la celda A1 hasta el final de la tabla
+    
+    fill = PatternFill(fill_type="solid", fgColor=WHITE)
+    start_cell = sheet['A1']
+    end_column_letter = get_column_letter(end_column+1)
+    end_row = row+1
+    end_cell = sheet[end_column_letter + str(end_row)]
+    table_range = start_cell.coordinate + ':' + end_cell.coordinate
+
+    for row in sheet[table_range]:
+        for cell in row:
+            cell.fill = fill
 
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     response['Content-Disposition'] = 'attachment; filename=inventario_insumos.xlsx'
@@ -794,7 +878,133 @@ def export_to_excel(request):
 
 
 
+def export_to_pdf(request):
+    # Obtener los valores filtrados almacenados en la sesión del usuario
+    name = request.session.get('filtered_name')
+    trademark = request.session.get('filtered_trademark')
 
+    queryset = Inventarios.objects.all()
+
+    if name and trademark:
+        queryset = queryset.filter(name=name, trademark=trademark)
+    elif name:
+        queryset = queryset.filter(name=name)
+    elif trademark:
+        queryset = queryset.filter(trademark=trademark)
+    context = {
+        'object_list': queryset
+    }
+
+    template = get_template('reactivos/inventario.html')
+    context = {
+        'object_list': queryset
+    }
+
+    html = template.render(context)
+    buffer = BytesIO()
+
+    # Crear el archivo PDF
+    p = canvas.Canvas(buffer, pagesize=letter)
+
+    # Establecer el tamaño y posición del encabezado
+    header_width = 550
+    header_height = 40
+    header_x = 30
+    header_y = 770
+
+    # Cargar la imagen del logotipo
+    logo_path = finders.find('Images/escudoUnal_black.png')
+    
+    # Cargar la imagen del logotipo y redimensionarla
+    # Cargar la imagen del logotipo
+    p.drawInlineImage(logo_path, header_x + 10, header_y - 50, width=120, height=70)
+    
+    # Dibujar el título del informe con la fecha
+    fecha_creacion = datetime.now().strftime("%d/%m/%Y %H:%M")
+    title_text = f"Inventario de Insumos almacén central de Química\n{fecha_creacion}"
+    p.setFont("Helvetica-Bold", 14)
+
+    # Dividir el texto del título en líneas más cortas
+    lines = title_text.split('\n')
+    
+    # Calcular la altura total del texto del título
+    title_height = len(lines) * 5
+    
+    # Calcular la posición vertical inicial del título
+    title_y = header_y  - title_height
+    
+    # Dibujar cada línea del texto del título justificada
+    for line in lines:
+        p.drawRightString(header_x -50+ header_width, title_y, line)
+        title_y -= 20
+
+    # Establecer el tamaño y posición de la tabla
+    
+    table_x = header_x
+    table_y = header_y - header_height - 30
+
+    # Dibujar la tabla en el PDF
+    p.setFont("Helvetica-Bold", 12)  # Configurar la fuente en negrita
+    
+    # Ajustar el espaciado inferior de la línea o el espaciado superior del texto para los encabezados
+    line_space_bottom_header = 6  # Espaciado adicional entre la línea y el texto inferior de los encabezados
+
+    # Dibujar línea debajo de los encabezados
+    p.setStrokeColorRGB(0.8, 0.8, 0.8)  # Establecer el color de la línea (más tenue)
+    p.setLineWidth(0.5)  # Establecer el grosor de la línea (más delgada)
+    p.line(table_x, table_y - line_space_bottom_header, table_x + 500, table_y - line_space_bottom_header)  # Dibujar línea
+    
+    p.drawString(table_x, table_y, "Código")
+    p.drawString(table_x + 58, table_y, "CAS")
+    p.drawString(table_x + 110, table_y, "Reactivo")
+    p.drawString(table_x + 330, table_y, "Marca")
+    p.drawString(table_x + 400, table_y, "Cantidad")
+    p.drawString(table_x + 460, table_y, "Unidad")
+
+    p.setFont("Helvetica", 12)  # Restaurar la configuración de la fuente
+
+    row_height = 20
+    row_y = table_y - row_height
+
+    for item in queryset:
+        # Ajustar el espaciado inferior de la línea o el espaciado superior del texto
+        line_space_bottom = 12  # Espaciado adicional entre la línea y el texto inferior
+        text_space_top = 6  # Espaciado adicional entre el texto superior y la línea
+
+        # Dibujar línea debajo de la fila
+        p.setStrokeColorRGB(0.8, 0.8, 0.8)  # Establecer el color de la línea (más tenue)
+        p.setLineWidth(0.5)  # Establecer el grosor de la línea (más delgada)
+        p.line(table_x, row_y - line_space_bottom, table_x + 500, row_y - line_space_bottom)  # Dibujar línea
+
+        # Ajustar la posición del texto
+        row_y -= text_space_top
+
+        # Dibujar los contenidos de texto
+        p.setFont("Helvetica", 12)
+        p.drawString(table_x, row_y, str(item.name.code))
+        p.drawString(table_x + 58, row_y, str(item.name.cas))
+        p.drawString(table_x + 110, row_y, str(item.name.name))
+        p.drawString(table_x + 330, row_y, str(item.trademark.name))
+        p.drawString(table_x + 400, row_y, "{:.1f}".format(item.weight))  # Formatear a 1 posición decimal
+        p.drawString(table_x + 460, row_y, str(item.unit.name))
+        row_y -= row_height
+
+        
+        
+    p.showPage()
+    p.save()
+
+    # Obtener el contenido del archivo PDF generado
+    pdf_file = buffer.getvalue()
+    buffer.close()
+
+    # Enviar el archivo PDF como respuesta al navegador
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="Inventario de Reactivos.pdf"'
+
+    response.write(pdf_file)
+
+    return response
 
 
 
@@ -833,8 +1043,16 @@ def get_value(request):
     else:
         # Si la solicitud no es una solicitud AJAX, devolver una respuesta HTTP 400 Bad Request
         return HttpResponseBadRequest()
+    
+
+
+
+
 
     
+
+
+
 
     
 def autocomplete(request):

@@ -123,6 +123,8 @@
             <table class="table" id="tabla-inventario">
                 <thead>
                     <tr>
+                        <th>Código</th>
+                        <th>CAS</th>
                         <th>Reactivo</th>
                         <th>Marca</th>
                         <th>Cantidad</th>
@@ -132,6 +134,8 @@
                 <tbody>
                     {% for item in object_list %}
                     <tr>
+                        <td>{{ item.name.code }}</td>
+                        <td>{{ item.name.cas }}</td>
                         <td>{{ item.name }}</td>
                         <td>{{ item.trademark }}</td>
                         <td>{{ item.weight|floatformat:1 }}</td>
@@ -166,6 +170,7 @@
             </div>
             <br>
             <a href="{% url 'reactivos:export_to_excel' %}" class="btn btn-primary">Exportar a Excel</a>
+            <a href="{% url 'reactivos:export_to_pdf' %}" class="btn btn-primary">Exportar a PDF</a>
 
 
 
