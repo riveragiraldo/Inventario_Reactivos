@@ -591,8 +591,7 @@ def registrar_entrada_confirm(request):
                 )
                 
         except Inventarios.DoesNotExist:
-            
-                weight = request.POST.get('weight')
+            weight = request.POST.get('weight')
         
         if name:
             
@@ -632,6 +631,12 @@ def registrar_entrada_confirm(request):
     }
     return render(request, 'reactivos/registrar_entrada_confirm.html', context)
 
+class GuardarPerPageView(View):
+    def get(self, request, *args, **kwargs):
+        per_page = kwargs.get('per_page')
+        request.session['per_page'] = per_page
+        return  redirect("reactivos:inventario")
+
 
 
 
@@ -639,12 +644,14 @@ def registrar_entrada_confirm(request):
 class InventarioListView(ListView):
     model = Inventarios
     template_name = "reactivos/inventario.html"
-    paginate_by=20   #Número de registros por página
+    per_page=1
+    paginate_by=per_page
     
-
+    
+    
+    
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # context['paginate_by'] = self.paginate_by
         
         unique_names_ids = Inventarios.objects.values('name').distinct()
         unique_names = Reactivos.objects.filter(id__in=unique_names_ids)
@@ -654,18 +661,16 @@ class InventarioListView(ListView):
 
         context['unique_names'] = unique_names
         context['unique_trademarks'] = unique_trademarks
+
         
 
-        # Obtener la lista completa de registros
-        queryset = self.get_queryset().order_by('trademark')  # Ordenar por 'nombre' u otro campo
-        #paginate_by = self.request.GET.get('paginate_by')
-        # if paginate_by:
-        #     try:
-        #         self.paginate_by = int(paginate_by)
-        #     except ValueError:
-        #         pass
+        # Obtener el número de registros por página de la sesión del usuario
+        self.per_page = self.request.session.get('per_page')
 
-        # Crear un objeto Paginator y obtener la página actual
+        queryset = self.get_queryset().order_by('trademark')  # Ordenar por 'nombre' u otro campo
+        
+        
+
         paginator = Paginator(queryset, self.paginate_by)
         page = self.request.GET.get('page')
 
@@ -677,8 +682,8 @@ class InventarioListView(ListView):
             page_obj = paginator.get_page(paginator.num_pages)
 
         context['page_obj'] = page_obj
-
         return context
+
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -696,9 +701,8 @@ class InventarioListView(ListView):
         # Almacena los valores filtrados en la sesión del usuario para cuando se pida la exportación
         self.request.session['filtered_name'] = name
         self.request.session['filtered_trademark'] = trademark
-
-
-        return queryset
+        
+        return queryset 
     
 
 

@@ -666,7 +666,7 @@ COPY public.auth_permission (id, name, content_type_id, codename) FROM stdin;
 --
 
 COPY public.auth_user (id, password, last_login, is_superuser, username, first_name, last_name, email, is_staff, is_active, date_joined) FROM stdin;
-1	pbkdf2_sha256$600000$4wsQH1Ro9M4uhCq8v47hO6$Ty6XZV/j178VpwfFICIpv/bDIXyzr9IZJs04amV0z/4=	2023-05-11 15:30:30.604768-05	t	superadmin	Andrés	Rivera	mriveragi@unal.edu.co	t	t	2023-04-11 13:19:36-05
+1	pbkdf2_sha256$600000$4wsQH1Ro9M4uhCq8v47hO6$Ty6XZV/j178VpwfFICIpv/bDIXyzr9IZJs04amV0z/4=	2023-05-17 14:52:00.840468-05	t	superadmin	Andrés	Rivera	mriveragi@unal.edu.co	t	t	2023-04-11 13:19:36-05
 \.
 
 
@@ -861,6 +861,7 @@ nynwywgc9ddrfkwfxrf99drat9fioc2s	.eJxVjMsOwiAQRf-FtSEgb5fu_QYyMINUDSSlXRn_3TbpQr
 bvqmhtx477pch1xrc5cpz80otbvo10oy	.eJxVjMsOwiAQRf-FtSEgb5fu_QYyMINUDSSlXRn_3TbpQrfnnHvfLMK61LgOmuOE7MIkO_2yBPlJbRf4gHbvPPe2zFPie8IPO_itI72uR_t3UGHUbX12NuXgXSoa0ErltEnKe2kFOPIUjLA6Z7MhEokUqGBdsQgZnS5oNPt8AdGBN78:1prfpF:4tcC9dCqMCyHU6T0sSyhbpQld2p_w7fb0e-uy7d7JeE	2023-05-10 09:08:53.280173-05
 l8dihmd738pk187mz5rzr9u1gallog0c	.eJxVjMsOwiAQRf-FtSEgb5fu_QYyMINUDSSlXRn_3TbpQrfnnHvfLMK61LgOmuOE7MIkO_2yBPlJbRf4gHbvPPe2zFPie8IPO_itI72uR_t3UGHUbX12NuXgXSoa0ErltEnKe2kFOPIUjLA6Z7MhEokUqGBdsQgZnS5oNPt8AdGBN78:1pxCvm:XRv7MUazgHh2c9U6mkcpeOP-9HhYUmdK7YDMkCP1eYs	2023-05-25 15:30:30.607357-05
 555lahm3r5v8f9nk0l9kaylymz6kk2ru	.eJyrVkrLzClJLUpNic9LzE1VssorzcnRQQiWFCWmpOYmFmVDZGoBvDoSTw:1pz2hz:NAfd-0AgPisE6CS1uuss7SB-QuozEQgPHUcDX-u8ADQ	2023-05-30 16:59:51.723128-05
+dwe8phyygrun606iti6p6eirm67ummi9	.eJxVj80KgzAQBt8l5yJa86fH3vsMYZPdqFWjxHgqffdGsBSvM98O7Jv5YUoUCU2AmVgb9mm6_WGKgDRDHH_GwJ56s28UzYCsZRW7MAtupHAIfEHolsItIcXBFsekOO1WPBek6XFuL4Eetj5f35W0rtHKeg4oq1pxYWutK1mCIk2NKCV3TmREpaUa6kYqLxEcKu5R8Bxdc22FLv_EP18B4U1i:1pzlPQ:EVT_0FUFYT75CfcCTb2sBOqfMxsvz_3EwOYS9h0QQpE	2023-06-01 16:43:40.89117-05
 \.
 
 
@@ -915,6 +916,7 @@ COPY public.reactivos_entradas (id, date, reference, weight, is_liquid, observat
 55	2023-05-16 11:11:27-05		789232.0000	NO		21	28	104		33
 56	2023-05-16 11:12:14-05		70000.0000	NO		21	29	104		39
 57	2023-05-16 11:12:48-05		20000.0000	NO		21	29	104	5000	40
+58	2023-05-17 15:03:06-05	hghjfdgjmfhg	10.0000	NO		21	28	109	odc 23/2010	33
 \.
 
 
@@ -927,7 +929,6 @@ COPY public.reactivos_inventarios (id, trademark_id, name_id, weight, unit_id) F
 11	33	103	50000.0000	202
 12	34	103	50000.0000	202
 9	33	102	0.0000	202
-13	38	102	105000.0000	202
 14	40	102	100000.0000	202
 15	33	106	110000.0000	202
 16	33	108	50000.0000	202
@@ -935,6 +936,8 @@ COPY public.reactivos_inventarios (id, trademark_id, name_id, weight, unit_id) F
 18	33	104	789232.0000	202
 19	39	104	70000.0000	202
 20	40	104	20000.0000	202
+13	38	102	5000.0000	202
+21	33	109	2.0000	207
 \.
 
 
@@ -966,6 +969,7 @@ COPY public.reactivos_reactivos (id, color, number, subnumber, code, unit_id, na
 106	1	004	0	1-004	202	Acido bórico	t	1-004	NO	Lateral izquierdo	2023-05-12 14:12:21.664256-05
 107	1	005	0	1-005	202	Acido cármico o cochinilla	t	1-005	NO	Parte media	2023-05-12 14:12:47.753439-05
 108	1	006	0	1-006	202	Acido cítrico	t	1-006	NO	Parte media	2023-05-12 14:13:04.532351-05
+109	6	008	XX	6-008-XX	207	Naftol	t	333333	NO	Lateral izquierdo	2023-05-17 15:00:13.6457-05
 \.
 
 
@@ -979,6 +983,7 @@ COPY public.reactivos_responsables (id, name, mail, phone, is_active, fecha_regi
 28	Camilo Salgado	csalgado@unal.edu.co	3217826339	t	2023-05-12 13:51:42.939426-05
 29	Belarmino Segura	bsegurag@unal.edu.co	3217019926	t	2023-05-12 13:51:57.147621-05
 30	Edinson Rubian Benavides	erbenavides@unal.edu.co	3187280298	t	2023-05-12 13:52:13.717481-05
+31	Oswaldo Olarte	oolarte@unal.edu.co	334645454	t	2023-05-17 15:45:52.572433-05
 \.
 
 
@@ -990,6 +995,8 @@ COPY public.reactivos_salidas (id, date, reference, weight, is_liquid, observati
 174	2023-05-15 12:41:51-05		10000.0000	NO		18	26	102	33	21
 175	2023-05-15 13:41:05-05		10000.0000	NO		18	29	102	33	21
 176	2023-05-15 14:02:10-05		15000.0000	NO		20	26	102	33	23
+177	2023-05-17 12:12:48-05	12121	100000.0000	NO		19	29	102	38	21
+178	2023-05-17 15:40:33-05		8.0000	NO	jhdjhfjdhf	18	29	109	33	21
 \.
 
 
@@ -1015,6 +1022,7 @@ COPY public.reactivos_unidades (id, name, fecha_registro) FROM stdin;
 204	ml	2023-05-12 13:42:00.257297-05
 205	l	2023-05-12 13:42:03.007883-05
 206	Ampollas	2023-05-12 13:42:10.159594-05
+207	Toneladas	2023-05-17 14:59:06.187749-05
 \.
 
 
@@ -1092,14 +1100,14 @@ SELECT pg_catalog.setval('public.reactivos_destinos_id_seq', 20, true);
 -- Name: reactivos_entradas_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.reactivos_entradas_id_seq', 57, true);
+SELECT pg_catalog.setval('public.reactivos_entradas_id_seq', 58, true);
 
 
 --
 -- Name: reactivos_inventarios_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.reactivos_inventarios_id_seq', 20, true);
+SELECT pg_catalog.setval('public.reactivos_inventarios_id_seq', 21, true);
 
 
 --
@@ -1113,21 +1121,21 @@ SELECT pg_catalog.setval('public.reactivos_marcas_id_seq', 40, true);
 -- Name: reactivos_reactivo_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.reactivos_reactivo_id_seq', 108, true);
+SELECT pg_catalog.setval('public.reactivos_reactivo_id_seq', 109, true);
 
 
 --
 -- Name: reactivos_responsables_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.reactivos_responsables_id_seq', 30, true);
+SELECT pg_catalog.setval('public.reactivos_responsables_id_seq', 31, true);
 
 
 --
 -- Name: reactivos_salidas_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.reactivos_salidas_id_seq', 176, true);
+SELECT pg_catalog.setval('public.reactivos_salidas_id_seq', 178, true);
 
 
 --
@@ -1141,7 +1149,7 @@ SELECT pg_catalog.setval('public.reactivos_ubicaciones_id_seq', 24, true);
 -- Name: reactivos_unity_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.reactivos_unity_id_seq', 206, true);
+SELECT pg_catalog.setval('public.reactivos_unity_id_seq', 207, true);
 
 
 --
