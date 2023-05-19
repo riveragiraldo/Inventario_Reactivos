@@ -6,7 +6,7 @@ from .models import *
 from django.db.models import Q
 from django.contrib import messages
 from decimal import Decimal
-from django.views.generic import ListView
+from django.views.generic import ListView, View
 from django.db.models import F
 from django.views import View
 import json
@@ -25,7 +25,8 @@ from reportlab.lib.pagesizes import letter
 from reportlab.platypus import Image
 from django.contrib.staticfiles import finders
 from PIL import Image as PILImage
-
+from django.urls import reverse
+from django.utils.http import urlencode
 
 
 
@@ -631,36 +632,34 @@ def registrar_entrada_confirm(request):
     }
     return render(request, 'reactivos/registrar_entrada_confirm.html', context)
 
-class GuardarPerPageView(View):
-    def get(self, request, *args, **kwargs):
-        per_page = kwargs.get('per_page')
-        request.session['per_page'] = per_page
-        return  redirect("reactivos:inventario")
-
-
-
 
 
 class InventarioListView(ListView):
     model = Inventarios
     template_name = "reactivos/inventario.html"
-    
-    paginate_by=10
-    
+    paginate_by = 10
 
-    def dispatch(self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
         # Obtener el número de registros por página de la sesión del usuario
         per_page = request.session.get('per_page')
         if per_page:
             self.paginate_by = int(per_page)
         else:
             self.paginate_by = 10  # Valor predeterminado si no hay variable de sesión
-        return super().dispatch(request, *args, **kwargs)
-    
-    
+
+        # Obtener los parámetros de filtrado
+        name = request.GET.get('name')
+        trademark = request.GET.get('trademark')
+
+        # Guardar los valores de filtrado en la sesión
+        request.session['filtered_name'] = name
+        request.session['filtered_trademark'] = trademark
+
+        return super().get(request, *args, **kwargs)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        
+
         unique_names_ids = Inventarios.objects.values('name').distinct()
         unique_names = Reactivos.objects.filter(id__in=unique_names_ids)
 
@@ -670,28 +669,7 @@ class InventarioListView(ListView):
         context['unique_names'] = unique_names
         context['unique_trademarks'] = unique_trademarks
 
-        
-
-        # Obtener el número de registros por página de la sesión del usuario
-       
-
-        queryset = self.get_queryset().order_by('trademark')  # Ordenar por 'nombre' u otro campo
-        
-        
-
-        paginator = Paginator(queryset, self.paginate_by)
-        page = self.request.GET.get('page')
-
-        try:
-            page_obj = paginator.get_page(page)
-        except PageNotAnInteger:
-            page_obj = paginator.get_page(1)
-        except EmptyPage:
-            page_obj = paginator.get_page(paginator.num_pages)
-
-        context['page_obj'] = page_obj
         return context
-
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -706,11 +684,28 @@ class InventarioListView(ListView):
         elif trademark:
             queryset = queryset.filter(trademark=trademark)
 
-        # Almacena los valores filtrados en la sesión del usuario para cuando se pida la exportación
-        self.request.session['filtered_name'] = name
-        self.request.session['filtered_trademark'] = trademark
-        
-        return queryset 
+        return queryset
+
+
+class GuardarPerPageView(View):
+    def get(self, request, *args, **kwargs):
+        per_page = kwargs.get('per_page')
+        request.session['per_page'] = per_page
+
+        # Redirigir a la página de inventario con los parámetros de filtrado actuales
+        filtered_name = request.session.get('filtered_name')
+        filtered_trademark = request.session.get('filtered_trademark')
+        url = reverse('reactivos:inventario')
+        params = {}
+        if filtered_name:
+            params['name'] = filtered_name
+        if filtered_trademark:
+            params['trademark'] = filtered_trademark
+        if params:
+            url += '?' + urlencode(params)
+
+        return redirect(url)
+
     
 
 

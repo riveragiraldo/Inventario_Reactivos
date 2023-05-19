@@ -9,7 +9,7 @@
         integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
         <style>
             .btn-secondary {
-                padding: 0.10rem 0.10rem;
+                padding: 0.03rem 0.5rem;
                 /* Ajusta los valores de padding según tu preferencia */
                 font-size: 0.1  rem;
                 /* Ajusta el tamaño de fuente según tu preferencia */
@@ -103,9 +103,60 @@
     <div class="col-md-7 mx-auto">
 
 
-        Ver <a href="{% url 'reactivos:GuardarPerPage' per_page=3 %}" class="btn btn-secondary btn-sm">3</a>
-        <a href="{% url 'reactivos:GuardarPerPage' per_page=6 %}" class="btn btn-secondary btn-sm">6</a>
-        <a href="{% url 'reactivos:GuardarPerPage' per_page=9 %}" class="btn btn-secondary btn-sm">9</a> Registros por página
+        Ver 
+        <div class="btn-group btn-group-toggle" data-toggle="buttons">
+            <a href="{% url 'reactivos:GuardarPerPage' per_page=3 %}" class="btn btn-secondary btn-sm" id="per-page-3">3</a>
+            <a href="{% url 'reactivos:GuardarPerPage' per_page=6 %}" class="btn btn-secondary btn-sm" id="per-page-6">6</a>
+            <a href="{% url 'reactivos:GuardarPerPage' per_page=9 %}" class="btn btn-secondary btn-sm" id="per-page-9">9</a>
+          </div>
+
+          <script>
+            // Obtener los enlaces de paginación
+const perPageLinks = document.querySelectorAll('.btn-group-toggle a');
+
+// Función para resaltar el enlace seleccionado
+function resaltarEnlaceSeleccionado() {
+  // Recorrer los enlaces y eliminar la clase 'active'
+  perPageLinks.forEach(link => {
+    link.classList.remove('active');
+  });
+
+  // Obtener el valor guardado del enlace seleccionado
+  const perPageValue = localStorage.getItem('perPageValue');
+
+  // Si hay un valor guardado, resaltar el enlace correspondiente
+  if (perPageValue) {
+    const selectedLink = document.getElementById(`per-page-${perPageValue}`);
+    if (selectedLink) {
+      selectedLink.classList.add('active');
+    }
+  }
+}
+
+// Función para manejar el clic en los enlaces de paginación
+function handleClick(event) {
+  const perPageValue = event.target.textContent;
+
+  // Guardar el valor del enlace seleccionado en el almacenamiento local
+  localStorage.setItem('perPageValue', perPageValue);
+
+  // Resaltar el enlace seleccionado
+  resaltarEnlaceSeleccionado();
+}
+
+// Agregar el evento 'click' a cada enlace de paginación
+perPageLinks.forEach(link => {
+  link.addEventListener('click', handleClick);
+});
+
+// Resaltar el enlace seleccionado al cargar la página
+resaltarEnlaceSeleccionado();
+
+          </script>
+          
+              
+        
+        Registros por página
 
         <div class="table-responsive">
             <table class="table" id="tabla-inventario">
