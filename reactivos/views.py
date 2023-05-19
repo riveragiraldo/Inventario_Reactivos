@@ -644,10 +644,18 @@ class GuardarPerPageView(View):
 class InventarioListView(ListView):
     model = Inventarios
     template_name = "reactivos/inventario.html"
-    per_page=1
-    paginate_by=per_page
     
+    paginate_by=10
     
+
+    def dispatch(self, request, *args, **kwargs):
+        # Obtener el número de registros por página de la sesión del usuario
+        per_page = request.session.get('per_page')
+        if per_page:
+            self.paginate_by = int(per_page)
+        else:
+            self.paginate_by = 10  # Valor predeterminado si no hay variable de sesión
+        return super().dispatch(request, *args, **kwargs)
     
     
     def get_context_data(self, **kwargs):
@@ -665,7 +673,7 @@ class InventarioListView(ListView):
         
 
         # Obtener el número de registros por página de la sesión del usuario
-        self.per_page = self.request.session.get('per_page')
+       
 
         queryset = self.get_queryset().order_by('trademark')  # Ordenar por 'nombre' u otro campo
         
