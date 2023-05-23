@@ -55,23 +55,111 @@
             </form>
 
             <script>
+
+                function guardarValoresSelect() {
+
+                    // Obtener los valores y opciones seleccionadas para el select "Marca"
+                    const selectTrademark = document.getElementById('trademark');
+                    const selectedTrademarkOption = selectTrademark.value;
+                    const trademarkOptions = Array.from(selectTrademark.options).map(option => option.value);
+
+
+                    // Obtener los valores y opciones seleccionadas para el select "Nombre"
+                    const selectName = document.getElementById('name');
+                    const selectedNameOption = selectName.value;
+                    const nameOptions = Array.from(selectName.options).map(option => option.value);
+
+
+
+                    // Guardar los valores en el almacenamiento local para el select "Nombre"
+                    localStorage.setItem('selectedNameOption', selectedNameOption);
+                    localStorage.setItem('nameOptions', JSON.stringify(nameOptions));
+
+                    // Guardar los valores en el almacenamiento local para el select "Marca"
+                    localStorage.setItem('selectedTrademarkOption', selectedTrademarkOption);
+                    localStorage.setItem('trademarkOptions', JSON.stringify(trademarkOptions));
+                }
+
+                document.addEventListener('DOMContentLoaded', function () {
+
+                    // Verificar si hay valores almacenados en el almacenamiento local para el select "Nombre"
+                    const selectedNameOption = localStorage.getItem('selectedNameOption');
+
+                    const nameOptions = JSON.parse(localStorage.getItem('nameOptions'));
+
+                    // Verificar si hay valores almacenados en el almacenamiento local para el select "Marca"
+                    const selectedTrademarkOption = localStorage.getItem('selectedTrademarkOption');
+
+                    const trademarkOptions = JSON.parse(localStorage.getItem('trademarkOptions'));
+
+                    // Configurar el select "Marca" con los valores almacenados
+
+                    const selectTrademark = document.getElementById('trademark');
+                    trademarkOptions.forEach(function (option) {
+                        if (option && option.id && option.name) {
+                            const optionElement = document.createElement('option');
+                            optionElement.value = option
+                            optionElement.textContent = option
+                            selectTrademark.appendChild(optionElement);
+                        }
+                    });
+
+
+                    // Configurar el select "Nombre" con los valores almacenados
+                    const selectName = document.getElementById('name');
+
+                    nameOptions.forEach(function (option) {
+                        if (option && option.id && option.name) {
+                            const optionElement = document.createElement('option');
+                            optionElement.value = option.id;
+                            optionElement.textContent = option.name;
+                            selectName.appendChild(optionElement);
+                        }
+                    });
+
+                    // Establecer el valor seleccionado para el select "Nombre"
+                    selectName.value = selectedNameOption;
+
+                    // Establecer el valor seleccionado para el select "Marca"
+                    selectTrademark.value = selectedTrademarkOption;
+
+                    // Limpiar los valores almacenados en el almacenamiento local para el select "Marca"
+                    localStorage.removeItem('selectedTrademarkOption');
+                    localStorage.removeItem('trademarkOptions');
+
+                    // Limpiar los valores almacenados en el almacenamiento local para el select "Nombre"
+                    localStorage.removeItem('selectedNameOption');
+                    localStorage.removeItem('nameOptions');
+                });
+
+
+                document.addEventListener('DOMContentLoaded', function () {
+                    // Obtener los enlaces por su ID
+                    const perPage3Link = document.getElementById('per-page-3');
+                    const perPage6Link = document.getElementById('per-page-6');
+                    const perPage9Link = document.getElementById('per-page-9');
+
+                    // Agregar event listener a cada enlace
+                    perPage3Link.addEventListener('click', guardarValoresSelect);
+                    perPage6Link.addEventListener('click', guardarValoresSelect);
+                    perPage9Link.addEventListener('click', guardarValoresSelect);
+                });
+
+
+                //Actualizar el segundo select
+
                 // Obtener los elementos del DOM
                 const nameSelect = document.getElementById('name');
                 const trademarkSelect = document.getElementById('trademark');
 
-                // Función para actualizar el segundo select
-                function actualizarSegundoSelect() {
+                // Manejar el evento de cambio en el primer select
+                nameSelect.addEventListener('change', function () {
+                    // Obtener el valor seleccionado en el primer select
                     const selectedNameId = nameSelect.value;
 
-                    // Obtener la opción previamente seleccionada en el segundo select
-                    const selectedTrademarkOption = trademarkSelect.value;
 
                     // Limpiar las opciones del segundo select
-                    trademarkSelect.innerHTML = '';
-
-                    // Agregar la opción "Todas" al principio del segundo select
-                    trademarkSelect.insertAdjacentHTML('beforeend', '<option value="">Todas</option>');
-
+                    trademarkSelect.innerHTML = '<option value="">Todas</option>';
 
                     // Realizar una solicitud AJAX para obtener las marcas correspondientes al reactivo seleccionado
                     const xhr = new XMLHttpRequest();
@@ -87,31 +175,11 @@
                                 option.textContent = trademark.trademark__name; // Acceder a la propiedad "trademark__name"
                                 trademarkSelect.appendChild(option);
                             });
-
-                            // Restaurar la opción previamente seleccionada en el segundo select
-                            trademarkSelect.value = selectedTrademarkOption;
                         }
                     };
                     xhr.send();
-                }
-
-                // Manejar el evento de cambio en el primer select
-                nameSelect.addEventListener('change', function () {
-                    // Guardar el valor seleccionado en el almacenamiento local
-                    localStorage.setItem('selectedNameOption', nameSelect.value);
-
-                    // Actualizar el segundo select
-                    actualizarSegundoSelect();
                 });
 
-                // Cargar los valores almacenados en el primer select
-                const selectedNameOption = localStorage.getItem('selectedNameOption');
-                if (selectedNameOption) {
-                    nameSelect.value = selectedNameOption;
-                }
-
-                // Cargar las opciones del segundo select al cargar la página
-                actualizarSegundoSelect();
             </script>
 
 
