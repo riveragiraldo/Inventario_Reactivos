@@ -719,15 +719,14 @@ class GuardarPerPageView(View):
 class TrademarksAPI(View):
     def get(self, request):
         reactive_id = request.GET.get('reactive_id')
-        print(reactive_id)
-
+        
         if reactive_id:
             unique_trademarks = Inventarios.objects.filter(name=reactive_id).values('trademark__id', 'trademark__name').distinct()
         else:
             unique_trademarks = Inventarios.objects.values('trademark__id', 'trademark__name').distinct()
 
         trademarks_list = list(unique_trademarks)
-        print(trademarks_list)
+        
 
         return JsonResponse(trademarks_list, safe=False)
     
@@ -761,10 +760,7 @@ def export_to_excel(request):
     logo_path = finders.find('Images/escudoUnal_black.png')
 
     # Cargar la imagen y procesarla con pillow
-    pil_image = PILImage.open(logo_path)
-    print(pil_image)
-
-    
+    pil_image = PILImage.open(logo_path)    
 
 
     # Crear un objeto Image de openpyxl a partir de la imagen procesada
