@@ -54,6 +54,7 @@ def crear_reactivo(request):
     
     context = {
         'unidades': Unidades.objects.all(),
+        'estados':Estados.objects.all()
         
     }
     return render(request, 'reactivos/crear_reactivo.html', context)
@@ -75,9 +76,18 @@ def crear_reactivo_confirm(request):
         cas = request.POST.get('cas')
         wlocation = request.POST.get('wlocation')
         is_liquid = request.POST.get('is_liquid')
+        nstate=is_liquid
 
         unit = request.POST.get('unit')
         nUnit=unit
+
+        try:
+            nameState = Estados.objects.get(name=is_liquid)
+            state = nameState
+        except Estados.DoesNotExist:
+            messages.error(request,"La presentación "+nstate+" no se encuentra en la base de datos, favor crearlo primero.") 
+            unit = None
+            return redirect('reactivos:crear_reactivo_confirm')
         
         try:
             nameUnit = Unidades.objects.get(name=unit)
@@ -115,14 +125,15 @@ def crear_reactivo_confirm(request):
             unit = unit,
             cas = cas,
             wlocation=wlocation,
-            is_liquid=is_liquid,
+            state=state,
         )
 
         messages.success(request, 'Se ha creado exitosamente el reactivo: '+name)
         return redirect('reactivos:crear_reactivo_confirm')
 
     context={
-        'unidades':Unidades.objects.all()
+        'unidades':Unidades.objects.all(),
+        'estados':Estados.objects.all()
     }
     return render(request, 'reactivos/crear_reactivo_confirm.html', context)
 
@@ -230,6 +241,34 @@ def crear_marcas(request):
         
     }
     return render(request, 'reactivos/crear_marcas.html', context)
+
+def crear_estado(request):
+    if request.method=='POST':
+        name = request.POST.get('name')
+        
+        # Verifica si ya existe un registro con el mismo nombre del estado
+        if Estados.objects.filter(name=name).exists():
+            estado=Estados.objects.get(name=name)
+            estado_id=estado.id
+            estado_name=estado.name
+            messages.error(request, 'Ya existe un estado con nombre '+estado_name+' id: '+str(estado_id))
+            return redirect('reactivos:crear_estado')
+
+        estado = Estados.objects.create(
+            
+            name = name,
+            
+        )
+        estado_id=estado.id
+        estado_name=estado.name
+        
+        messages.success(request, 'Se ha creado exitosamente la marca con nombre '+estado_name+' id: '+str(estado_id))
+        return redirect('reactivos:crear_estado')
+
+    context={
+        
+    }
+    return render(request, 'reactivos/crear_estado.html', context)
 
 
 
@@ -466,7 +505,6 @@ def registrar_salida_confirm(request):
             
 
             reference = request.POST.get('reference')
-            is_liquid = request.POST.get('is_liquid')
             weight = request.POST.get('weight')
             observations = request.POST.get('observations')
             unit=request.POST.get('unit')
@@ -479,7 +517,6 @@ def registrar_salida_confirm(request):
                 name=name,
                 trademark=trademark,
                 reference=reference,
-                is_liquid=is_liquid,
                 weight=weight,
                 location=location,
                 destination=destination,
@@ -597,7 +634,7 @@ def registrar_entrada_confirm(request):
         if name:
             
             reference = request.POST.get('reference')
-            is_liquid = request.POST.get('is_liquid')
+            
             weight = request.POST.get('weight')
             
             order = request.POST.get('order')
@@ -612,7 +649,6 @@ def registrar_entrada_confirm(request):
                 name=name,
                 trademark=trademark,
                 reference=reference,
-                is_liquid=is_liquid,
                 weight=weight,
                 location=location,
                 order=order,
@@ -1028,7 +1064,7 @@ def get_value(request):
             reactivo = Reactivos.objects.get(name=value_selected)
             cas = reactivo.cas
             codigo = reactivo.code
-            liquid = reactivo.is_liquid
+            liquid = reactivo.state.name
             nombre_unit = reactivo.unit.name  # Obtener el nombre de la unidad
         except Reactivos.DoesNotExist:
             # Si el reactivo no existe, devolver un valor por defecto
@@ -1058,14 +1094,27 @@ def get_value(request):
 
 
     
+
+
+
 def autocomplete(request):
     term = request.GET.get('term', '')
     reactivos = Reactivos.objects.filter(Q(name__icontains=term) | Q(code__icontains=term) | Q(cas__icontains=term))[:10]
     results = []
     for reactivo in reactivos:
-        results.append({'id': reactivo.id, 'value': reactivo.name})
+        result = {
+            'id': reactivo.id,
+            'name': reactivo.name,
+            'code': reactivo.code,
+            'cas': reactivo.cas
+        }
+        results.append(result)
 
     return JsonResponse(results, safe=False)
+
+
+
+
 
 def autocomplete_location(request):
     term = request.GET.get('term', '')

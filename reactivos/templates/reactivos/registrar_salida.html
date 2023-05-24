@@ -28,7 +28,7 @@
         <h1>Registrar salida de insumos</h1>
         <div class="col-6">
 
-            <form method="post" class="row g-3" id="salida_form" name="form">
+            <form method="post" class="row g-3" id="in_form" name="form">
                 {% csrf_token %}
                 <div class="col-md-4">
                     <label class="form-label">Fecha:</label>
@@ -36,7 +36,7 @@
                         value="<script>#date</script>" />
                 </div>
                 <div class="col-md-12">
-                    <label class="form-label">Nombre reactivo:</label>
+                    <label class="form-label">Nombre reactivo: "Código - Nombre - CAS"</label>
                     <input type="text" class="form-control" name="name" id="name" placeholder="Nombre, CI o CAS"
                         title="Se puede filtrar por nombre, CI o CAS" required />
                 </div>
@@ -213,7 +213,7 @@
                         id="open_confirm_out">
                 </div>
                 <div class="col-md-6 mt-3">
-                    <button type="button" onclick="limpiarCamposout()" class="btn btn-primary">Limpiar campos</button>
+                    <button type="button" onclick="limpiarCamposin()" id="limpiarCampos" class="btn btn-primary">Limpiar campos</button>
                 </div>
 
             </form>

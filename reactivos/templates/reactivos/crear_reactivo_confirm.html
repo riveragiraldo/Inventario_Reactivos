@@ -41,7 +41,7 @@
                 <div class="col-md-7">
                     <div class="input-group input-group-sm mb-0">
                         <div class="input-group-prepend">
-                            <span class="input-group-text" id="inputGroup-sizing-sm">Color: </span>
+                            <span class="input-group-text" id="inputGroup-sizing-sm">Color/CSGA: </span>
                         </div>
                         <input type="text" class="form-control" aria-label="Small"
                             aria-describedby="inputGroup-sizing-sm" name="color" id="color" placeholder="Código Interno"
@@ -172,9 +172,10 @@
                 var cas = parentWindow.document.querySelector('#cas').value;
                 var name = parentWindow.document.querySelector('#name').value;
 
-                var is_liquido = parentWindow.document.querySelector('#is_liquid');
-                const selectedOptionis_liquid = is_liquido.options[is_liquido.selectedIndex].text;
+                var is_liquido = parentWindow.document.querySelector('#selectState');
                 console.log(is_liquido)
+                const selectedOptionis_liquid = is_liquido.options[is_liquido.selectedIndex].text;
+                
                 
                 var unit = parentWindow.document.querySelector('#selectUnidades');
                 const selectedOptionunit = unit.options[unit.selectedIndex].text;

@@ -52,20 +52,42 @@
                         <input type="text" step="any" class="form-control" placeholder="Código CAS" name="cas" required
                             id="cas">
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <label class="form-label">Nombre del reactivo:</label>
                         <input type="text" class="form-control" placeholder="Nombre de reactivo" name="name" required
                             id="name">
                     </div>
                     <div class="col-md-2">
-                        <label class="form-label">Es líquido:</label>
-                        <select name="is_liquid" class="form-select" required id="is_liquid">
+                        <label class="form-label">Presentación:</label>
+                        <select name="state" class="form-select" required id="selectState">
 
-                            <option value="NO">NO</option>
-                            <option value="SI">SI</option>
+                            {% for estado in estados %}
+                            <option value="{{ estado.id }}">{{ estado.name }}</option>
+                            {% endfor %}
 
                         </select>
+                        
                     </div>
+
+                    <div class="col-md-1">
+                        <label class="form-label" style="color: transparent;">Add</label>
+                        <button type="button" id="add_state_btn" class="btn btn-secondary"
+                            title="Agregar Estado">+</button>
+                    </div>
+                    <script>
+                        function openPopupWindow() {
+                            var w = 450; // ancho de la ventana emergente
+                            var h = 400; // altura de la ventana emergente
+                            var left = (screen.width / 2) - (w / 2);
+                            var top = (screen.height / 2) - (h / 2);
+                            window.open("{% url 'reactivos:crear_estado' %}", "popup", "width=" + w + ",height=" + h + ",left=" + left + ",top=" + top);
+                        }
+                        var addUnitBtn = document.getElementById("add_state_btn");
+                        addUnitBtn.addEventListener("click", openPopupWindow);
+
+
+                    </script>
+
                     <div class="col-md-2">
                         <label class="form-label">Unidades:</label>
                         <select name="unit" class="form-select" required id="selectUnidades">

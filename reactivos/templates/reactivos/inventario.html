@@ -134,14 +134,14 @@
 
                 document.addEventListener('DOMContentLoaded', function () {
                     // Obtener los enlaces por su ID
-                    const perPage3Link = document.getElementById('per-page-3');
-                    const perPage6Link = document.getElementById('per-page-6');
-                    const perPage9Link = document.getElementById('per-page-9');
+                    const perPage10Link = document.getElementById('per-page-10');
+                    const perPage20Link = document.getElementById('per-page-20');
+                    const perPage50Link = document.getElementById('per-page-50');
 
                     // Agregar event listener a cada enlace
-                    perPage3Link.addEventListener('click', guardarValoresSelect);
-                    perPage6Link.addEventListener('click', guardarValoresSelect);
-                    perPage9Link.addEventListener('click', guardarValoresSelect);
+                    perPage10Link.addEventListener('click', guardarValoresSelect);
+                    perPage20Link.addEventListener('click', guardarValoresSelect);
+                    perPage50Link.addEventListener('click', guardarValoresSelect);
                 });
                 
                 
@@ -198,12 +198,12 @@
 
         Ver
         <div class="btn-group btn-group-toggle" data-toggle="buttons">
-            <a href="{% url 'reactivos:GuardarPerPage' per_page=3 %}" class="btn btn-secondary btn-sm"
-                id="per-page-3">3</a>
-            <a href="{% url 'reactivos:GuardarPerPage' per_page=6 %}" class="btn btn-secondary btn-sm"
-                id="per-page-6">6</a>
-            <a href="{% url 'reactivos:GuardarPerPage' per_page=9 %}" class="btn btn-secondary btn-sm"
-                id="per-page-9">9</a>
+            <a href="{% url 'reactivos:GuardarPerPage' per_page=10 %}" class="btn btn-secondary btn-sm"
+                id="per-page-10">10</a>
+            <a href="{% url 'reactivos:GuardarPerPage' per_page=20 %}" class="btn btn-secondary btn-sm"
+                id="per-page-20">20</a>
+            <a href="{% url 'reactivos:GuardarPerPage' per_page=50 %}" class="btn btn-secondary btn-sm"
+                id="per-page-50">50</a>
         </div>
 
         <script>
