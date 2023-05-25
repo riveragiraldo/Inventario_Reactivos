@@ -1,26 +1,15 @@
-function limpiarCamposout() {
-    document.getElementById("salida_form").reset();
-    $(document).ready(function () {
-        var now = new Date();
-        var year = now.getFullYear();
-        var month = now.getMonth() + 1;
-        var day = now.getDate();
-        var hours = now.getHours();
-        var minutes = now.getMinutes();
-        var seconds = now.getSeconds();
-        var formattedDate = year + '-' + padNumber(month) + '-' + padNumber(day) + ' ' + padNumber(hours) + ':' + padNumber(minutes) + ':' + padNumber(seconds);
-        $('#date').val(formattedDate);
-    });
+//Fecha actual
 
-    function padNumber(num) {
-        return num < 10 ? '0' + num : num;
-    }
+document.addEventListener('DOMContentLoaded', function() {
+    limpiarCamposin();
+});
 
-    document.getElementById("date").value = $('#date')
-}
+
 
 function limpiarCamposin() {
     document.getElementById("in_form").reset();
+    
+    
     $(document).ready(function () {
         var now = new Date();
         var year = now.getFullYear();
@@ -39,40 +28,46 @@ function limpiarCamposin() {
 
     document.getElementById("date").value = $('#date')
 }
-
-//Fecha actual
-
-$(document).ready(function () {
-    var now = new Date();
-    var year = now.getFullYear();
-    var month = now.getMonth() + 1;
-    var day = now.getDate();
-    var hours = now.getHours();
-    var minutes = now.getMinutes();
-    var seconds = now.getSeconds();
-    var formattedDate = year + '-' + padNumber(month) + '-' + padNumber(day) + ' ' + padNumber(hours) + ':' + padNumber(minutes) + ':' + padNumber(seconds);
-    $('#date').val(formattedDate);
-});
-
-function padNumber(num) {
-    return num < 10 ? '0' + num : num;
-}
-
-
 
 //autocompletar por nombre o código
 
 $(document).ready(function () {
-
     $("#name").autocomplete({
         source: "{% url 'reactivos:autocomplete' %}",
         minLength: 2,
         select: function (event, ui) {
-            $("#name").val(ui.item.value);
+            // Obtener el código, nombre y CAS del objeto seleccionado
+            var code = ui.item.code;
+            var name = ui.item.name;
+            var cas = ui.item.cas;
+
+            // Concatenar el código, nombre y CAS en un formato deseado
+            var optionLabel = code + " - " + name + " - " + cas;
+
+            // Establecer el valor y la etiqueta del campo de entrada
+            $("#name").val(optionLabel);
+
             return false;
+        },
+        focus: function (event, ui) {
+            // Prevenir la actualización del valor del campo de entrada al enfocar una opción
+            event.preventDefault();
+        },
+        response: function (event, ui) {
+            // Manipular la respuesta antes de mostrar las opciones
+            ui.content.forEach(function (item) {
+                // Agregar el código, nombre y CAS al objeto de la opción
+                item.label = item.code + " - " + item.name + " - " + item.cas;
+                item.value = item.name;  // Establecer el valor de la opción como el nombre
+            });
         }
     });
 });
+
+
+
+
+
 
 //Función autocompletar por Ubicación
 $(document).ready(function () {
@@ -110,16 +105,6 @@ function updateFields() {
         },
         dataType: 'json',
         success: function (data) {
-            var label = document.querySelector('.form-label[for="weight"]');
-            if (data.liquid === 'SI') {
-                label.innerHTML = 'Volumen:';
-            }
-            else if (data.liquid === 'NO') {
-                label.innerHTML = 'Masa:';
-            }
-            else {
-                label.innerHTML = 'Cantidad:';
-            }
             $('#cas').val(data.cas);
             $('#code').val(data.codigo);
             $('#is_liquid').val(data.liquid);

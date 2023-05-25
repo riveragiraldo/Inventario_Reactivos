@@ -13,6 +13,41 @@ class Unidades(models.Model):
         verbose_name='Unidad'
 
 
+
+
+class Marcas(models.Model):
+    name=models.CharField(max_length=30, verbose_name="Marca")
+    fecha_registro = models.DateTimeField(auto_now_add=True)
+
+    def __str__ (self):
+        return self.name
+
+    class Meta:
+        verbose_name_plural='Marcas'
+        verbose_name='Marca'
+
+class Estados(models.Model):
+    name=models.CharField(max_length=30, verbose_name="Estado")
+    fecha_registro = models.DateTimeField(auto_now_add=True)
+
+    def __str__ (self):
+        return self.name
+
+    class Meta:
+        verbose_name_plural='Estados'
+        verbose_name='Estado'
+
+class Destinos(models.Model):
+    name=models.CharField(max_length=30, verbose_name="Destino")
+    fecha_registro = models.DateTimeField(auto_now_add=True)
+
+    def __str__ (self):
+        return self.name
+
+    class Meta:
+        verbose_name_plural='Destinos'
+        verbose_name='Destino'
+
 class Reactivos(models.Model):
     color=models.PositiveIntegerField( verbose_name="Color CGA")
     number=models.CharField(max_length=5, verbose_name="Número")
@@ -21,8 +56,7 @@ class Reactivos(models.Model):
     name=models.CharField(max_length=255, verbose_name="Nombre")
     unit=models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name='reactive', verbose_name="Unidad")
     cas=models.CharField(max_length=20, verbose_name="Código CAS")
-    is_liquid=models.CharField(max_length=3, verbose_name="Es líquido")
-    is_active=models.BooleanField(default=True)
+    state=models.ForeignKey(Estados, on_delete=models.CASCADE, related_name='state', verbose_name="Presentación")
     wlocation=models.CharField(max_length=255, verbose_name="Ubicación Almacén")
     fecha_registro = models.DateTimeField(auto_now_add=True)
 
@@ -36,28 +70,6 @@ class Reactivos(models.Model):
     class Meta:
         verbose_name_plural='Reactivos'
         verbose_name='Reactivo'
-
-class Marcas(models.Model):
-    name=models.CharField(max_length=30, verbose_name="Marca")
-    fecha_registro = models.DateTimeField(auto_now_add=True)
-
-    def __str__ (self):
-        return self.name
-
-    class Meta:
-        verbose_name_plural='Marcas'
-        verbose_name='Marca'
-
-class Destinos(models.Model):
-    name=models.CharField(max_length=30, verbose_name="Destino")
-    fecha_registro = models.DateTimeField(auto_now_add=True)
-
-    def __str__ (self):
-        return self.name
-
-    class Meta:
-        verbose_name_plural='Destinos'
-        verbose_name='Destino'
 
 
 class Responsables(models.Model):
@@ -75,9 +87,24 @@ class Responsables(models.Model):
         verbose_name_plural='Responsables'
         verbose_name='Responsable'
 
+
+
+class Facultades(models.Model):
+    name=models.CharField(max_length=100, verbose_name="Nombre Facultad")
+    fecha_registro = models.DateTimeField(auto_now_add=True)
+    
+
+    def __str__ (self):
+        return self.name
+
+    class Meta:
+        verbose_name_plural='Facultades'
+        verbose_name='Facultad'
+
 class Ubicaciones(models.Model):
     name=models.CharField(max_length=100, verbose_name="Ubicación/Asignaturas")
     fecha_registro = models.DateTimeField(auto_now_add=True)
+    facultad=models.ForeignKey(Facultades, on_delete=models.CASCADE, related_name='facultad', verbose_name='Facultad')
 
     def __str__ (self):
         return self.name
@@ -93,7 +120,6 @@ class Salidas(models.Model):
     trademark=models.ForeignKey(Marcas, on_delete=models.CASCADE, related_name='name_trademark', verbose_name='Marca')
     reference=models.CharField(max_length=255, verbose_name='Referencia')
     weight=models.DecimalField(max_digits=10, decimal_places=4, verbose_name='Peso Reactivo')
-    is_liquid=models.CharField(max_length=3, verbose_name='Es líquido')
     destination=models.ForeignKey(Destinos, on_delete=models.CASCADE, related_name='destination', verbose_name='Destino')
     manager=models.ForeignKey(Responsables, on_delete=models.CASCADE, related_name='manager', verbose_name='Responsable')
     observations=models.TextField(max_length=1000, verbose_name='Observaciones')
@@ -116,7 +142,6 @@ class Entradas(models.Model):
     trademark=models.ForeignKey(Marcas, on_delete=models.CASCADE, related_name='name_marca', verbose_name='Marca')
     reference=models.CharField(max_length=255, verbose_name='Referencia')
     weight=models.DecimalField(max_digits=10, decimal_places=4, verbose_name='Peso Reactivo')
-    is_liquid=models.CharField(max_length=3, verbose_name='Es líquido')
     order=models.CharField(max_length=255,  verbose_name='Orden No.')
     manager=models.ForeignKey(Responsables, on_delete=models.CASCADE, related_name='responsable', verbose_name='Responsable')
     observations=models.TextField(max_length=1000, verbose_name='Observaciones')
