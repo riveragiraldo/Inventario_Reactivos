@@ -21,7 +21,7 @@
         <form method="post" class="row g-3" id="ubicacion_form" name="form">
           {% csrf_token %}
           
-          <div class="col-md-12">
+          <div class="col-md-9">
             <label for="name" class="form-label">Nombre de la ubicación:</label>
             <input type="text" class="form-control input-width" id="name" name="name" placeholder="Nombre de la Ubicación" required>
           </div>
@@ -39,6 +39,17 @@
             <label class="form-label" style="visibility: hidden;">Add</label>
             <button type="button" id="add_facultad_btn" class="btn btn-secondary" title="Agregar Facultad">+</button>
           </div>
+          <script>
+            function openPopupWindow() {
+                var w = 450; // ancho de la ventana emergente
+                var h = 400; // altura de la ventana emergente
+                var left = (screen.width / 2) - (w / 2);
+                var top = (screen.height / 2) - (h / 2);
+                window.open("{% url 'reactivos:crear_facultad' %}", "popup", "width=" + w + ",height=" + h + ",left=" + left + ",top=" + top);
+            }
+            var addUnitBtn = document.getElementById("add_facultad_btn");
+            addUnitBtn.addEventListener("click", openPopupWindow);
+        </script>
           
           <div class="col-md-12">
             <button type="submit" class="btn btn-primary">Crear Ubicación</button>
