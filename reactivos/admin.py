@@ -14,10 +14,9 @@ class Marcasadmin(admin.ModelAdmin):
 
 @admin.register(Reactivos)
 class Reactivosadmin(admin.ModelAdmin):
-    list_display=('id','code','cas','name','is_liquid','unit','is_active','wlocation')
+    list_display=('id','code','cas','name','state','unit','wlocation')
     list_filter=('code','name',)
     search_fields=('code','name',)
-    list_editable=('is_active',)
     list_per_page=10
     ordering=('id',)
 
@@ -27,11 +26,20 @@ class Destinoadmin(admin.ModelAdmin):
     list_display=('id','name',)
     ordering=('id',)
 
+@admin.register(Estados)
+class Estadoadmin(admin.ModelAdmin):
+    list_display=('id','name',)
+    ordering=('id',)
 
 
 
 @admin.register(Ubicaciones)
 class Ubicacionadmin(admin.ModelAdmin):
+    list_display=('id','name','facultad')
+    ordering=('id',)
+
+@admin.register(Facultades)
+class Facultadadmin(admin.ModelAdmin):
     list_display=('id','name',)
     ordering=('id',)
 
@@ -45,7 +53,7 @@ class Responsableadmin(admin.ModelAdmin):
 
 @admin.register(Salidas)
 class Salidaadmin(admin.ModelAdmin):
-    list_display=('id','date','name','trademark','reference','weight','is_liquid','destination','manager','observations','location')
+    list_display=('id','date','name','trademark','reference','weight','destination','manager','observations','location')
     list_filter=('date','name',)
     search_fields=('date','name',)
     list_per_page=10
@@ -53,7 +61,7 @@ class Salidaadmin(admin.ModelAdmin):
 
 @admin.register(Entradas)
 class Entradaadmin(admin.ModelAdmin):
-    list_display=('id','date','name','trademark','reference','weight','is_liquid','order','manager','observations','location')
+    list_display=('id','date','name','trademark','reference','weight','order','manager','observations','location')
     list_filter=('date','name',)
     search_fields=('date','name',)
     list_per_page=10

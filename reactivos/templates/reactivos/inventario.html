@@ -55,7 +55,10 @@
             </form>
 
             <script>
+<<<<<<< HEAD
 
+=======
+>>>>>>> 2273d7b0823c3c7b82eb16616cabb2050550a5be
                 function guardarValoresSelect() {
 
                     // Obtener los valores y opciones seleccionadas para el select "Marca"
@@ -116,7 +119,11 @@
                             selectName.appendChild(optionElement);
                         }
                     });
+<<<<<<< HEAD
 
+=======
+                    
+>>>>>>> 2273d7b0823c3c7b82eb16616cabb2050550a5be
                     // Establecer el valor seleccionado para el select "Nombre"
                     selectName.value = selectedNameOption;
 
@@ -135,6 +142,7 @@
 
                 document.addEventListener('DOMContentLoaded', function () {
                     // Obtener los enlaces por su ID
+<<<<<<< HEAD
                     const perPage3Link = document.getElementById('per-page-3');
                     const perPage6Link = document.getElementById('per-page-6');
                     const perPage9Link = document.getElementById('per-page-9');
@@ -146,6 +154,19 @@
                 });
 
 
+=======
+                    const perPage10Link = document.getElementById('per-page-10');
+                    const perPage20Link = document.getElementById('per-page-20');
+                    const perPage50Link = document.getElementById('per-page-50');
+
+                    // Agregar event listener a cada enlace
+                    perPage10Link.addEventListener('click', guardarValoresSelect);
+                    perPage20Link.addEventListener('click', guardarValoresSelect);
+                    perPage50Link.addEventListener('click', guardarValoresSelect);
+                });
+                
+                
+>>>>>>> 2273d7b0823c3c7b82eb16616cabb2050550a5be
                 //Actualizar el segundo select
 
                 // Obtener los elementos del DOM
@@ -180,6 +201,10 @@
                     xhr.send();
                 });
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 2273d7b0823c3c7b82eb16616cabb2050550a5be
             </script>
 
 
@@ -198,12 +223,12 @@
 
         Ver
         <div class="btn-group btn-group-toggle" data-toggle="buttons">
-            <a href="{% url 'reactivos:GuardarPerPage' per_page=3 %}" class="btn btn-secondary btn-sm"
-                id="per-page-3">3</a>
-            <a href="{% url 'reactivos:GuardarPerPage' per_page=6 %}" class="btn btn-secondary btn-sm"
-                id="per-page-6">6</a>
-            <a href="{% url 'reactivos:GuardarPerPage' per_page=9 %}" class="btn btn-secondary btn-sm"
-                id="per-page-9">9</a>
+            <a href="{% url 'reactivos:GuardarPerPage' per_page=10 %}" class="btn btn-secondary btn-sm"
+                id="per-page-10">10</a>
+            <a href="{% url 'reactivos:GuardarPerPage' per_page=20 %}" class="btn btn-secondary btn-sm"
+                id="per-page-20">20</a>
+            <a href="{% url 'reactivos:GuardarPerPage' per_page=50 %}" class="btn btn-secondary btn-sm"
+                id="per-page-50">50</a>
         </div>
 
         <script>
