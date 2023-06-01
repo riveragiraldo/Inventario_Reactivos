@@ -726,7 +726,7 @@ COPY public.auth_permission (id, name, content_type_id, codename) FROM stdin;
 --
 
 COPY public.auth_user (id, password, last_login, is_superuser, username, first_name, last_name, email, is_staff, is_active, date_joined) FROM stdin;
-1	pbkdf2_sha256$600000$4wsQH1Ro9M4uhCq8v47hO6$Ty6XZV/j178VpwfFICIpv/bDIXyzr9IZJs04amV0z/4=	2023-05-24 10:58:16.714019-05	t	superadmin	Andrés	Rivera	mriveragi@unal.edu.co	t	t	2023-04-11 13:19:36-05
+1	pbkdf2_sha256$600000$4wsQH1Ro9M4uhCq8v47hO6$Ty6XZV/j178VpwfFICIpv/bDIXyzr9IZJs04amV0z/4=	2023-06-01 11:59:51.322262-05	t	superadmin	Andrés	Rivera	mriveragi@unal.edu.co	t	t	2023-04-11 13:19:36-05
 \.
 
 
@@ -942,7 +942,8 @@ l8dihmd738pk187mz5rzr9u1gallog0c	.eJxVjMsOwiAQRf-FtSEgb5fu_QYyMINUDSSlXRn_3TbpQr
 3ixfus815ga39quofrpak2xlm3jdwqeh	.eJyrVkrLzClJLUpNic9LzE1VslIyNDBX0kGIlhQlpqTmJhZlA6WMjZVqAaVuEF8:1q04Su:NhBTOEMWmSxqcaXeUmC7j8FwXv8TjlheJaUPKbOMuAw	2023-06-02 13:04:32.332641-05
 555lahm3r5v8f9nk0l9kaylymz6kk2ru	.eJyrVkrLzClJLUpNic9LzE1VssorzcnRQQiWFCWmpOYmFmVDZGoBvDoSTw:1pz2hz:NAfd-0AgPisE6CS1uuss7SB-QuozEQgPHUcDX-u8ADQ	2023-05-30 16:59:51.723128-05
 dwe8phyygrun606iti6p6eirm67ummi9	.eJxVj80KgzAQBt8l5yKm5k-PvfcZwia7UatGiXoqffdGsBSvM98O7JuFftwoEdoIE7Em7uN4-8MtAdIEafgZC_vW2X2lZHtkDePswhz4geIh8AWxnQs_xy31rjgmxWnX4jkjjY9zewl0sHb5-q6V87XRLghAxSstpKuM4aoETYZqWSrhvcyISkcVVLXSQSF41CKgFDm65NoCbf6Jl58vTx1Njw:1q1oXB:wEeZ0-SnJx6BkVCIodHseDUi9Zasyw9qsij75dgnt6s	2023-06-07 08:28:09.331511-05
-mhtdmm8tc41tzphu200eptpqu66h8nfs	.eJxVjMsOwiAQRf-FtSEgb5fu_QYyMINUDSSlXRn_3TbpQrfnnHvfLMK61LgOmuOE7MIkO_2yBPlJbRf4gHbvPPe2zFPie8IPO_itI72uR_t3UGHUbX12NuXgXSoa0ErltEnKe2kFOPIUjLA6Z7MhEokUqGBdsQgZnS5oNPt8AdGBN78:1q1qsS:-m2nkOWvvpROO80-zFZcqgQtr2zJN99YT1FuplXvESM	2023-06-07 10:58:16.716017-05
+mhtdmm8tc41tzphu200eptpqu66h8nfs	.eJxVjDsOgzAQBe_iOrIg_pIyPWew1t51IICRjKmi3D1GoiDtzHvzYQ72Mrh9o-xGZA_WstuVeQgTpUPgG9Jr5WFNJY-eHxN-2o33K9L8PLd_gQG2ob7vRvvQWeOjBNStMFJ5YW2rGzBkqVONliGoiqjxJEB02kSNENDIiErWaBznQpnQJVioJq-oZEBaIE8H__4AbWpGUw:1q44fU:hQ5fNMVkD6OSMwwsHWTc8m15g-bOo2jNdd0dzVPYopA	2023-06-13 14:06:04.00057-05
+qr27muh3te605flxdhw0vv7gx7x5r6yq	.eJxVjMsOwiAQRf-FtSEgb5fu_QYyMINUDSSlXRn_3TbpQrfnnHvfLMK61LgOmuOE7MIkO_2yBPlJbRf4gHbvPPe2zFPie8IPO_itI72uR_t3UGHUbX12NuXgXSoa0ErltEnKe2kFOPIUjLA6Z7MhEokUqGBdsQgZnS5oNPt8AdGBN78:1q4leR:R713DywP8m7rZR1u1-1NqwsCIf_ypCdBktqyDHnAwLA	2023-06-15 11:59:51.327557-05
 \.
 
 
@@ -954,6 +955,9 @@ COPY public.reactivos_destinos (id, name, fecha_registro) FROM stdin;
 18	Docencia	2023-05-12 13:47:37.431413-05
 19	Investigación	2023-05-12 13:47:43.141461-05
 20	Extensión	2023-05-12 13:47:53.720959-05
+21	Otra	2023-05-30 12:56:26.212529-05
+22	Nuevo destino	2023-05-30 13:52:35.312963-05
+23	Un nuevo destino	2023-05-30 13:53:58.664963-05
 \.
 
 
@@ -980,6 +984,9 @@ COPY public.reactivos_estados (id, name, fecha_registro) FROM stdin;
 --
 
 COPY public.reactivos_facultades (id, name, fecha_registro) FROM stdin;
+4	Facultad de administración	2023-05-30 10:45:18.223763-05
+5	Facultad de ingeniería y arquitectura	2023-05-30 10:47:57.459415-05
+6	Facultad de ciencias exactas y naturales	2023-05-30 11:19:38.910211-05
 \.
 
 
@@ -1004,6 +1011,7 @@ COPY public.reactivos_marcas (id, name, fecha_registro) FROM stdin;
 38	J T Baker	2023-05-12 13:46:34.184265-05
 39	Merck	2023-05-12 13:46:41.703481-05
 40	Mallinkrodt	2023-05-12 13:46:51.495752-05
+41	Carlo Erbo	2023-05-29 12:20:59.657323-05
 \.
 
 
@@ -1012,6 +1020,21 @@ COPY public.reactivos_marcas (id, name, fecha_registro) FROM stdin;
 --
 
 COPY public.reactivos_reactivos (id, color, number, subnumber, code, unit_id, name, cas, wlocation, fecha_registro, state_id) FROM stdin;
+113	1	004	0	1-004	202	Acido bórico	11111	Parte Alta	2023-05-30 14:12:13.560291-05	20
+114	12	033	92	12-033-92	202	Acido L-ascórbico	1500	Parte Alta	2023-06-01 16:08:43.12384-05	19
+115	22	055	D	22-055-D	202	Acetaldehído	7000	Parte Alta	2023-06-01 16:12:07.915653-05	19
+116	22	058	22	22-058-22	202	Acido borico	125	Parte Alta	2023-06-01 16:16:41.139749-05	19
+117	33	055	88	33-055-88	202	Acido ascórbico	126	Parte Alta	2023-06-01 16:17:57.708678-05	19
+118	8	099	55	8-099-55	202	HAcetaldehído	1790	Parte Alta	2023-06-01 16:23:46.592458-05	19
+119	9	098	55	9-098-55	202	HAsetaldehído	1791	Parte Alta	2023-06-01 16:24:35.857576-05	19
+120	6	020	0	6-020	202	Acetil chloruroamónico	22222	Parte Alta	2023-06-01 16:26:03.021806-05	19
+121	22	022	22	22-022-22	202	Acido yódico	17000	Parte Alta	2023-06-01 16:28:34.263333-05	19
+122	66	066	0	66-066	202	Acidos Malticos	66666	Parte Alta	2023-06-01 16:30:02.014902-05	19
+123	26	044	0	26-044	202	Ácido Pentico	1645	Parte Alta	2023-06-01 16:31:43.13719-05	19
+124	27	044	0	27-044	202	Ácido Pentíco	1644	Parte Alta	2023-06-01 16:33:04.099637-05	19
+125	3	006	0	3-006	202	Gaseoso	66	Parte Alta	2023-06-01 16:37:20.579932-05	19
+126	23	022	22	23-022-22	202	Soda Caustica	2121212	Parte Alta	2023-06-01 16:42:32.573108-05	19
+127	18	022	22	18-022-22	202	Soda Caustical	2120212	Parte Alta	2023-06-01 16:43:30.328007-05	19
 \.
 
 
@@ -1042,6 +1065,7 @@ COPY public.reactivos_salidas (id, date, reference, weight, observations, destin
 --
 
 COPY public.reactivos_ubicaciones (id, name, fecha_registro, facultad_id) FROM stdin;
+33	Procesos Productivos	2023-06-01 16:07:11.983662-05	5
 \.
 
 
@@ -1128,14 +1152,14 @@ SELECT pg_catalog.setval('public.django_migrations_id_seq', 63, true);
 -- Name: reactivos_destinos_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.reactivos_destinos_id_seq', 20, true);
+SELECT pg_catalog.setval('public.reactivos_destinos_id_seq', 23, true);
 
 
 --
 -- Name: reactivos_entradas_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.reactivos_entradas_id_seq', 58, true);
+SELECT pg_catalog.setval('public.reactivos_entradas_id_seq', 59, true);
 
 
 --
@@ -1149,28 +1173,28 @@ SELECT pg_catalog.setval('public.reactivos_estados_id_seq', 21, true);
 -- Name: reactivos_facultades_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.reactivos_facultades_id_seq', 2, true);
+SELECT pg_catalog.setval('public.reactivos_facultades_id_seq', 7, true);
 
 
 --
 -- Name: reactivos_inventarios_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.reactivos_inventarios_id_seq', 21, true);
+SELECT pg_catalog.setval('public.reactivos_inventarios_id_seq', 22, true);
 
 
 --
 -- Name: reactivos_marcas_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.reactivos_marcas_id_seq', 40, true);
+SELECT pg_catalog.setval('public.reactivos_marcas_id_seq', 41, true);
 
 
 --
 -- Name: reactivos_reactivo_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.reactivos_reactivo_id_seq', 110, true);
+SELECT pg_catalog.setval('public.reactivos_reactivo_id_seq', 127, true);
 
 
 --
@@ -1184,14 +1208,14 @@ SELECT pg_catalog.setval('public.reactivos_responsables_id_seq', 31, true);
 -- Name: reactivos_salidas_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.reactivos_salidas_id_seq', 178, true);
+SELECT pg_catalog.setval('public.reactivos_salidas_id_seq', 179, true);
 
 
 --
 -- Name: reactivos_ubicaciones_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.reactivos_ubicaciones_id_seq', 24, true);
+SELECT pg_catalog.setval('public.reactivos_ubicaciones_id_seq', 33, true);
 
 
 --

@@ -27,6 +27,7 @@ from django.contrib.staticfiles import finders
 from PIL import Image as PILImage
 from django.urls import reverse
 from django.utils.http import urlencode
+import time
 
 
 
@@ -50,71 +51,46 @@ def detalle_reactivo(request, pk):
     }
     return render(request, 'reactivos/detalle_reactivo.html', context)
 
-def crear_reactivo(request):
-    
-    context = {
-        'unidades': Unidades.objects.all(),
-        'estados':Estados.objects.all()
-        
-    }
-    return render(request, 'reactivos/crear_reactivo.html', context)
 
-def crear_reactivo_confirm(request):
+
+def crear_reactivo(request):
     if request.method=='POST':
         color = request.POST.get('color')
         number = request.POST.get('number')
         number = str(number).zfill(3)
         subnumber=request.POST.get('subnumber')
-
         if subnumber=='':
             subnumber = '0'
 
         code = request.POST.get('code')
         name = request.POST.get('name')
-        
-        
         cas = request.POST.get('cas')
         wlocation = request.POST.get('wlocation')
-        is_liquid = request.POST.get('is_liquid')
-        nstate=is_liquid
+        
+        state = request.POST.get('state')
+        state = get_object_or_404(Estados, id=state)
+          
 
         unit = request.POST.get('unit')
-        nUnit=unit
-
-        try:
-            nameState = Estados.objects.get(name=is_liquid)
-            state = nameState
-        except Estados.DoesNotExist:
-            messages.error(request,"La presentación "+nstate+" no se encuentra en la base de datos, favor crearlo primero.") 
-            unit = None
-            return redirect('reactivos:crear_reactivo_confirm')
+        unit = get_object_or_404(Unidades, id=unit)
         
-        try:
-            nameUnit = Unidades.objects.get(name=unit)
-            unit = nameUnit
-        except Unidades.DoesNotExist:
-            messages.error(request,"La Unidad "+nUnit+" no se encuentra en la base de datos, favor crearlo primero.") 
-            unit = None
-            return redirect('reactivos:crear_reactivo_confirm')
-        
-        # Verifica si ya existe un registro con el mismo nombre, código o número CAS
         if Reactivos.objects.filter(name=name).exists():
             reactivo=Reactivos.objects.get(name=name)
             reactivo_name=reactivo.name
             messages.error(request, 'Ya existe un reactivo con el nombre registrado: '+reactivo_name)
-            return redirect('reactivos:crear_reactivo_confirm')
+            return redirect('reactivos:crear_reactivo')
 
         if Reactivos.objects.filter(code=code).exists():
             reactivo=Reactivos.objects.get(code=code)
             reactivo_name=reactivo.name
             messages.error(request, 'Ya existe un reactivo con el código registrado: '+reactivo_name)
-            return redirect('reactivos:crear_reactivo_confirm')
+            return redirect('reactivos:crear_reactivo')
 
         if Reactivos.objects.filter(cas=cas).exists():
             reactivo=Reactivos.objects.get(cas=cas)
             reactivo_name=reactivo.name
             messages.error(request, 'Ya existe un reactivo con el CAS registrado: '+reactivo_name)
-            return redirect('reactivos:crear_reactivo_confirm')
+            return redirect('reactivos:crear_reactivo')
 
         reactivo = Reactivos.objects.create(
             color = color,
@@ -127,15 +103,19 @@ def crear_reactivo_confirm(request):
             wlocation=wlocation,
             state=state,
         )
+        # Esperar 500 ms antes de enviar el mensaje
+        time.sleep(2)
+
+        
 
         messages.success(request, 'Se ha creado exitosamente el reactivo: '+name)
-        return redirect('reactivos:crear_reactivo_confirm')
+        return redirect('reactivos:crear_reactivo')
 
     context={
         'unidades':Unidades.objects.all(),
         'estados':Estados.objects.all()
     }
-    return render(request, 'reactivos/crear_reactivo_confirm.html', context)
+    return render(request, 'reactivos/crear_reactivo.html', context)
 
 
 
@@ -306,33 +286,10 @@ def crear_destino(request):
 
         # Verifica si ya existe un registro con el mismo nombre del destino
         if Destinos.objects.filter(name=name).exists():
-            messages.error(request, 'Ya existe un destino con nombre: '+name)
-            return redirect('reactivos:crear_destino')
-
-
-        destino = Destinos.objects.create(
-            
-            name = name,
-            
-        )
-        messages.success(request, 'Se ha creado exitosamente el destino con nombre: '+name+'.')
-        return redirect('reactivos:crear_destino')
-
-    context={
-        
-    }
-    return render(request, 'reactivos/crear_destino.html', context)
-
-def crear_destinos(request):
-    if request.method=='POST':
-        name = request.POST.get('name')
-
-        # Verifica si ya existe un registro con el mismo nombre del destino
-        if Destinos.objects.filter(name=name).exists():
             destino=Destinos.objects.get(name=name)
             destino_id=destino.id
             messages.error(request, 'Ya existe un destino llamado '+name+' con id: '+str(destino_id))
-            return redirect('reactivos:crear_destinos')
+            return redirect('reactivos:crear_destino')
 
 
         destino = Destinos.objects.create(
@@ -342,17 +299,19 @@ def crear_destinos(request):
         )
         destino_id=destino.id
         messages.success(request, 'Se ha creado exitosamente el destino con nombre '+name+' con id: '+str(destino_id))
-        return redirect('reactivos:crear_destinos')
+        return redirect('reactivos:crear_destino')
 
     context={
         
     }
-    return render(request, 'reactivos/crear_destinos.html', context)
-
+    return render(request, 'reactivos/crear_destino.html', context)
 
 def crear_ubicacion(request):
     if request.method=='POST':
         name = request.POST.get('name')
+        facultad = request.POST.get('facultad')
+        # Obtiene la instancia de la facultad
+        facultad = get_object_or_404(Facultades, id=facultad)
 
         # Verifica si ya existe un registro con el mismo nombre de la asignatura
         if Ubicaciones.objects.filter(name=name).exists():
@@ -363,6 +322,7 @@ def crear_ubicacion(request):
         asignatura = Ubicaciones.objects.create(
             
             name = name,
+            facultad=facultad,
             
         )
         messages.success(request, 'Se ha creado exitosamente la ubicación con nombre: '+name+'.')
@@ -373,28 +333,6 @@ def crear_ubicacion(request):
     }
     return render(request, 'reactivos/crear_ubicacion.html', context)
 
-def crear_ubicaciones(request):
-    if request.method=='POST':
-        name = request.POST.get('name')
-
-        # Verifica si ya existe un registro con el mismo nombre de la asignatura
-        if Ubicaciones.objects.filter(name=name).exists():
-            messages.error(request, 'Ya existe una ubicación con nombre: '+name)
-            return redirect('reactivos:crear_ubicaciones')
-
-        ubicacion = Ubicaciones.objects.create(
-            
-            name = name,
-            
-        )
-        
-        messages.success(request, 'Se ha creado exitosamente la ubicación: '+name)
-        return redirect('reactivos:crear_ubicaciones')
-    context={
-        'facultades': Facultades.objects.all()
-        
-    }
-    return render(request, 'reactivos/crear_ubicaciones.html', context)
 
 
 def crear_responsable(request):
@@ -568,20 +506,20 @@ def registrar_salida_confirm(request):
     }
     return render(request, 'reactivos/registrar_salida_confirm.html', context)
 
-def registrar_entrada(request):
+# def registrar_entrada(request):
     
-    context = {
-        'reactivos': Reactivos.objects.all(),
-        'responsables': Responsables.objects.all(),
-        'marcas': Marcas.objects.all(),
-        'ubicaiones': Ubicaciones.objects.all()
-    }
-    return render(request, 'reactivos/registrar_entrada.html', context)
+#     context = {
+#         'reactivos': Reactivos.objects.all(),
+#         'responsables': Responsables.objects.all(),
+#         'marcas': Marcas.objects.all(),
+#         'ubicaiones': Ubicaciones.objects.all()
+#     }
+#     return render(request, 'reactivos/registrar_entrada.html', context)
 
 
 
 
-def registrar_entrada_confirm(request):
+def registrar_entrada(request):
     
     if request.method == 'POST':
         date = request.POST.get('date')
@@ -593,7 +531,7 @@ def registrar_entrada_confirm(request):
         except Reactivos.DoesNotExist:
             messages.error(request,"El reactivo "+nReactivo+" no se encuentra en la base de datos, favor crearlo primero.") 
             name = None
-            return redirect('reactivos:registrar_entrada_confirm')
+            return redirect('reactivos:registrar_entrada')
         
         location = request.POST.get('location')
         nlocation=location
@@ -603,7 +541,7 @@ def registrar_entrada_confirm(request):
         except Ubicaciones.DoesNotExist:
             messages.error(request,"La ubicación "+nlocation+" no se encuentra en la base de datos, favor crearlo primero.") 
             location = None
-            return redirect('reactivos:registrar_entrada_confirm')
+            return redirect('reactivos:registrar_entrada')
         
         manager = request.POST.get('manager')
         nmanager=manager
@@ -613,7 +551,7 @@ def registrar_entrada_confirm(request):
         except Responsables.DoesNotExist:
             messages.error(request,"El responsable "+nmanager+" no se encuentra en la base de datos, favor crearlo primero.") 
             manager = None
-            return redirect('reactivos:registrar_entrada_confirm')
+            return redirect('reactivos:registrar_entrada')
         
         trademark = request.POST.get('trademark')
         nMarca=trademark
@@ -624,7 +562,7 @@ def registrar_entrada_confirm(request):
         except Marcas.DoesNotExist:
             messages.error(request,"La marca "+nMarca+" no se encuentra en la base de datos, favor crearlo primero.") 
             trademark = None
-            return redirect('reactivos:registrar_entrada_confirm')
+            return redirect('reactivos:registrar_entrada')
         
         # Verificar si el reactivo ya existe en la tabla de inventarios
         try:
@@ -687,7 +625,7 @@ def registrar_entrada_confirm(request):
                 )
             
             messages.success(request, 'Se ha registrado de manera exitosa el ingreso del insumo del insumo: '+nReactivo+', cantidad '+weight+' '+unit)
-            return redirect('reactivos:registrar_entrada_confirm')   
+            return redirect('reactivos:registrar_entrada')   
            
 
     context = {
@@ -696,7 +634,7 @@ def registrar_entrada_confirm(request):
         'marcas': Marcas.objects.all(),
         'ubicaiones': Ubicaciones.objects.all()
     }
-    return render(request, 'reactivos/registrar_entrada_confirm.html', context)
+    return render(request, 'reactivos/registrar_entrada.html', context)
 
 
 

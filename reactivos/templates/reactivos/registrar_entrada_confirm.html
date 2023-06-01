@@ -31,7 +31,7 @@
 <body>
 
     <div class="container mt-1">
-        <h1>Confirmación</h1>
+        <h1>Confirmación de entrada de inventario</h1>
         <h5>Favor verificar el registro:</h5>
         <div class="col-12">
 
@@ -101,11 +101,11 @@
                 <div class="col-md-5">
                     <div class="input-group input-group-sm mb-0">
                         <div class="input-group-prepend">
-                            <span class="input-group-text" id="inputGroup-sizing-sm">Es líquido:</span>
+                            <span class="input-group-text" id="inputGroup-sizing-sm">Presentación:</span>
                         </div>
                         <input type="text" class="form-control" aria-label="Small"
                             aria-describedby="inputGroup-sizing-sm" name="is_liquid" id="is_liquid"
-                            placeholder="Es líquido?" readonly>
+                            placeholder="Presentación" readonly>
                     </div>
                 </div>
 
@@ -221,7 +221,7 @@
                 var manager = parentWindow.document.querySelector('#manager').value;
                 var observations = parentWindow.document.querySelector('#observations');
                 observations_text = observations.value;
-                console.log(observations_text);
+                
 
                 // Rellena los campos del formulario de la ventana emergente
                 document.querySelector('#date').value = date;

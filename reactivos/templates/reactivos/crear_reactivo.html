@@ -22,7 +22,7 @@
         <div class="row">
             <div class="col-md-8">
 
-                <form method="post" class="row g-3" id="reactivo_form" name="form">
+                <form method="post" class="row g-3" id="form" name="form">
                     {% csrf_token %}
 
                     <div class="col-md-2">
@@ -66,7 +66,7 @@
                             {% endfor %}
 
                         </select>
-                        
+
                     </div>
 
                     <div class="col-md-1">
@@ -112,19 +112,16 @@
                         }
                         var addUnitBtn = document.getElementById("add_unit_btn");
                         addUnitBtn.addEventListener("click", openPopupWindow);
-
-
                     </script>
 
                     <div class="col-md-3">
                         <label class="form-label">Ubicación en Almacén:</label>
-                        <input type="text" step="any" class="form-control" placeholder="Ubicación" name="wlocation"
-                            id="wlocation">
+                        <input type="text" class="form-control" placeholder="Ubicación" name="wlocation"
+                            id="warehouselocation">
                     </div>
 
                     <div class="col-md-3 mt-3">
-                        <input type="button" value="Crear Reactivo" class="btn btn-primary"
-                        id="open_confirm_rcreate">
+                        <input type="button" value="Crear Reactivo" class="btn btn-primary" id="open_confirm_rcreate">
                     </div>
                     <div class="col-md-3 mt-3">
                         <input type="reset" value="Limpiar Campos" class="btn btn-primary">
@@ -134,42 +131,53 @@
                 {% if messages %}
                 {% for message in messages %}
                 <script>
-                    if (window.opener) {
-                        // Si es una ventana emergente, hacer algo y luego cerrar la ventana
-                        window.onload = function () {
+                    window.onload = function () {
+                alert('{{ message }}');
+                print("Hello")
+                // Recargar la página actual para actualizar los datos del formulario
+                window.location.reload();
+            };
 
-                            alert('{{ message }}');
+                    // if (window.opener) {
+                    //     // Si es una ventana emergente, hacer algo y luego cerrar la ventana
+                    //     window.onload = function () {
 
-                            //Obtener nombre despues del mensaje
-                            mensaje = "{{ message }}";
-                            var name = mensaje.split(": ")[1];
+                    //         alert('{{ message }}');
+
+                    //         //Obtener nombre despues del mensaje
+                    //         mensaje = "{{ message }}";
+                    //         var name = mensaje.split(": ")[1];
 
 
-                            //retardo para que los valores se escriban despues de recargar la página
-                            setTimeout(function () {
-                                window.opener.document.querySelector("#name").value = name;
-                                if (window.opener && typeof window.opener.updateFields === "function") {
-                                    window.opener.updateFields();
-                                } else {
-                                    console.error("La función updateFields() no está definida en la ventana padre");
-                                }
+                    //         //retardo para que los valores se escriban despues de recargar la página
+                    //         setTimeout(function () {
+                    //             window.opener.document.querySelector("#name").value = name;
+                    //             if (window.opener && typeof window.opener.updateFields === "function") {
+                    //                 window.opener.updateFields();
+                    //             } else {
+                    //                 console.error("La función updateFields() no está definida en la ventana padre");
+                    //             }
 
-                                window.close();
+                    //             window.close();
 
-                            }, 500);
-                        };
+                    //         }, 500);
+                    //     };
 
-                    } else {
-                        window.onload = function () {
+                    // } else {
 
-                            alert('{{ message }}');
+                    //     window.onload = function () {
 
-                        };
-                    }
+                            
+                    //         alert('{{ message }}');
+
+                    //     };
+                    // }
                 </script>
                 {% endfor %}
                 {% endif %}
                 <script>
+
+
                     function validarCampos() {
                         var campos = document.querySelectorAll("form input[required], form select[required], form textarea[required]");
                         for (var i = 0; i < campos.length; i++) {
@@ -180,20 +188,118 @@
                         }
                         return true;
                     }
-    
-                    function openPopupWindow() {
+
+                    function openPopupWindowConfirm() {
                         if (validarCampos()) {
-                            var w = 450;
-                            var h = 570;
-                            var left = (screen.width / 2) - (w / 2);
-                            var top = (screen.height / 2) - (h / 2);
-                            window.open("{% url 'reactivos:crear_reactivo_confirm' %}", "popup", "width=" + w + ",height=" + h + ",left=" + left + ",top=" + top);
+                            var formData = obtenerDatosFormulario();
+                            var mensaje = "Los datos registrados son:\n\n" + formData;
+
+                            if (confirm(mensaje)) {
+                                var csrfToken = obtenerCSRFToken();  // Obtener el valor del token CSRF
+                                var formData = obtenerDatosFormularioenviar();
+                                enviarInformacion(formData, csrfToken);
+                            }
                         }
                     }
-    
+
+                    function enviarInformacion(formData, csrfToken) {
+                        fetch('', {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRFToken': csrfToken
+                            },
+                            body: formData
+                        })
+                            .then(response => {
+                                if (response.ok) {
+                                    // La solicitud se realizó con éxito
+                                    console.log('Datos enviados correctamente');
+                                    
+
+                                        
+                                       
+
+                                    
+                                    // Realiza cualquier acción adicional que desees después de enviar los datos
+                                } else {
+                                    // La solicitud falló
+                                    console.error('Error al enviar los datos');
+                                }
+                            })
+                            .catch(error => {
+                                // Ocurrió un error al realizar la solicitud
+                                console.error('Error de red:', error);
+                            });
+                    }
+
+                    function obtenerDatosFormulario() {
+                        var campos = document.querySelectorAll("form input, form select, form textarea");
+                        var formData = "";
+
+                        for (var i = 0; i < campos.length; i++) {
+                            var campo = campos[i];
+                            var etiquetaAsociada = obtenerEtiquetaAsociada(campo);
+                            var valorCampo = obtenerValorCampo(campo);
+
+                            // Filtrar botones y token CSRF
+                            if (campo.tagName.toLowerCase() === 'button' || campo.tagName.toLowerCase() === 'input' && (campo.type === 'button' || campo.type === 'reset') || campo.name === 'csrfmiddlewaretoken') {
+                                continue;
+                            }
+
+
+                            formData += etiquetaAsociada + " " + valorCampo + "\n";
+                        }
+
+                        return formData;
+                    }
+
+                    function obtenerDatosFormularioenviar() {
+                        var campos = document.querySelectorAll("form input, form select, form textarea");
+                        var formData = new FormData();
+
+                        for (var i = 0; i < campos.length; i++) {
+                            var nombreCampo = campos[i].name;
+                            var valorCampo = campos[i].value;
+                            formData.append(nombreCampo, valorCampo);
+                        }
+
+                        return formData;
+                    }
+
+                    function obtenerEtiquetaAsociada(campo) {
+                        var etiqueta = campo.previousElementSibling;
+                        if (etiqueta) {
+                            return etiqueta.textContent.trim();
+                        }
+
+                        return campo.name;
+                    }
+
+                    function obtenerValorCampo(campo) {
+                        if (campo.tagName.toLowerCase() === "select") {
+                            var opcionSeleccionada = campo.options[campo.selectedIndex];
+                            return opcionSeleccionada.textContent;
+                        }
+
+                        return campo.value;
+                    }
+
+                    function obtenerCSRFToken() {
+                        var csrfInput = document.querySelector('input[name="csrfmiddlewaretoken"]');
+                        if (csrfInput) {
+                            return csrfInput.value;
+                        }
+                        return null;
+                    }
+
+
+
                     var addUnitBtn = document.getElementById("open_confirm_rcreate");
-                    addUnitBtn.addEventListener("click", openPopupWindow);
-    
+                    addUnitBtn.addEventListener("click", openPopupWindowConfirm);
+
+
+
+
                 </script>
             </div>
         </div>
