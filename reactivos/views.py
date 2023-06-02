@@ -78,19 +78,20 @@ def crear_reactivo(request):
             reactivo=Reactivos.objects.get(name=name)
             reactivo_name=reactivo.name
             messages.error(request, 'Ya existe un reactivo con el nombre registrado: '+reactivo_name)
-            return redirect('reactivos:crear_reactivo')
+            return HttpResponse('Ya existe un reactivo con el nombre registrado: ' + reactivo_name, status=400)
 
         if Reactivos.objects.filter(code=code).exists():
             reactivo=Reactivos.objects.get(code=code)
             reactivo_name=reactivo.name
             messages.error(request, 'Ya existe un reactivo con el código registrado: '+reactivo_name)
-            return redirect('reactivos:crear_reactivo')
+            return HttpResponse('Ya existe un reactivo con el código registrado: ' + reactivo_name, status=400)
 
         if Reactivos.objects.filter(cas=cas).exists():
             reactivo=Reactivos.objects.get(cas=cas)
             reactivo_name=reactivo.name
             messages.error(request, 'Ya existe un reactivo con el CAS registrado: '+reactivo_name)
-            return redirect('reactivos:crear_reactivo')
+            return HttpResponse('Ya existe un reactivo con el nombre registrado: ' + reactivo_name, status=400)
+            # return redirect('reactivos:crear_reactivo')
 
         reactivo = Reactivos.objects.create(
             color = color,
@@ -103,13 +104,10 @@ def crear_reactivo(request):
             wlocation=wlocation,
             state=state,
         )
-        # Esperar 500 ms antes de enviar el mensaje
-        time.sleep(2)
-
         
-
         messages.success(request, 'Se ha creado exitosamente el reactivo: '+name)
-        return redirect('reactivos:crear_reactivo')
+        return HttpResponse('Reactivo creado correctamente: '+name, status=200)
+        # return redirect('reactivos:crear_reactivo')
 
     context={
         'unidades':Unidades.objects.all(),
@@ -506,20 +504,20 @@ def registrar_salida_confirm(request):
     }
     return render(request, 'reactivos/registrar_salida_confirm.html', context)
 
-# def registrar_entrada(request):
-    
-#     context = {
-#         'reactivos': Reactivos.objects.all(),
-#         'responsables': Responsables.objects.all(),
-#         'marcas': Marcas.objects.all(),
-#         'ubicaiones': Ubicaciones.objects.all()
-#     }
-#     return render(request, 'reactivos/registrar_entrada.html', context)
-
-
-
-
 def registrar_entrada(request):
+    
+    context = {
+        'reactivos': Reactivos.objects.all(),
+        'responsables': Responsables.objects.all(),
+        'marcas': Marcas.objects.all(),
+        'ubicaiones': Ubicaciones.objects.all()
+    }
+    return render(request, 'reactivos/registrar_entrada.html', context)
+
+
+
+
+def registrar_entrada_confirm(request):
     
     if request.method == 'POST':
         date = request.POST.get('date')
