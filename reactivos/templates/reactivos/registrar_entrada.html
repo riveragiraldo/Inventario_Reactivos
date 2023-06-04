@@ -15,9 +15,11 @@
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.0/themes/smoothness/jquery-ui.css">
 
     {% load static %}
+    <script src="{% static 'UpdateDate.js' %}"></script>
     <script src="{% static 'script.js' %}"></script>
     <script src="{% static 'clearFds.js' %}"></script>
     <script src="{% static 'UpdateFields.js' %}"></script>
+
     <link rel="stylesheet" href="{% static 'styles.css' %}">
 
 </head>
@@ -33,11 +35,11 @@
 
             <form method="post" class="row g-3" id="in_form" name="form">
                 {% csrf_token %}
-                <div class="col-md-4">
-                    <label class="form-label">Fecha:</label>
-                    <input type="text" class="form-control" readonly name="date" id="date"
-                        value='<script>#date</script>'>
+                <div class="col-md-12">
+                    <label class="form-label">Fecha: </label>
+                    <span id="currentDate"></span>
                 </div>
+
                 <div class="col-md-11">
                     <label class="form-label">Nombre reactivo: "Código - Nombre - CAS"</label>
                     <input type="text" class="form-control" name="name" id="name" placeholder="Nombre, CI o CAS"
@@ -188,7 +190,7 @@
                         id="open_confirm_in">
                 </div>
                 <div class="col-md-6">
-                    <button type="button" onclick="limpiarCamposin()" class="btn btn-primary" id="limpiarCampos">Limpiar
+                    <button type="reset" class="btn btn-primary" id="limpiarCampos">Limpiar
                         campos</button>
                 </div>
 
@@ -207,22 +209,22 @@
                 }
 
                 function openPopupWindowConfirm() {
-  if (validarCampos()) {
-    var w = 450;
-    var h = 700;
-    var left = (screen.width / 2) - (w / 2);
-    var top = (screen.height / 2) - (h / 2);
+                    if (validarCampos()) {
+                        var w = 450;
+                        var h = 700;
+                        var left = (screen.width / 2) - (w / 2);
+                        var top = (screen.height / 2) - (h / 2);
 
-    if (window.opener && window.opener !== window) {
-      // Si la ventana actual es una ventana emergente
-      window.opener.location.href = "{% url 'reactivos:registrar_entrada_confirm' %}";
-      window.close();
-    } else {
-      // Si la ventana actual es la ventana principal
-      window.open("{% url 'reactivos:registrar_entrada_confirm' %}", "popup", "width=" + w + ",height=" + h + ",left=" + left + ",top=" + top);
-    }
-  }
-}
+                        if (window.opener && window.opener !== window) {
+                            // Si la ventana actual es una ventana emergente
+                            window.opener.location.href = "{% url 'reactivos:registrar_entrada_confirm' %}";
+                            window.close();
+                        } else {
+                            // Si la ventana actual es la ventana principal
+                            window.open("{% url 'reactivos:registrar_entrada_confirm' %}", "popup", "width=" + w + ",height=" + h + ",left=" + left + ",top=" + top);
+                        }
+                    }
+                }
 
 
                 var addUnitBtn = document.getElementById("open_confirm_in");

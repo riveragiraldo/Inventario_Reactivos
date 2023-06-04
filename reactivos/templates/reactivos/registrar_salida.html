@@ -16,6 +16,7 @@
 
     {% load static %}
     <script src="{% static 'script.js' %}"></script>
+    <script src="{% static 'UpdateDate.js' %}"></script>
 
     <script src="{% static 'clearFds.js' %}"></script>
     <link rel="stylesheet" href="{% static 'styles.css' %}">
@@ -30,10 +31,9 @@
 
             <form method="post" class="row g-3" id="in_form" name="form">
                 {% csrf_token %}
-                <div class="col-md-4">
-                    <label class="form-label">Fecha:</label>
-                    <input type="text" class="form-control" readonly name="date" id="date"
-                        value="<script>#date</script>" />
+                <div class="col-md-12">
+                    <label class="form-label">Fecha: </label>
+                    <span id="currentDate"></span>
                 </div>
                 <div class="col-md-12">
                     <label class="form-label">Nombre reactivo: "Código - Nombre - CAS"</label>
@@ -55,7 +55,9 @@
                 <div class="col-md-3">
                     <label class="form-label">Marca reactivo:</label>
                     <select id="trademark" name="trademark" class="form-control">
-                        <option value="">Todas</option>
+                        {% for trademark in marcas %}
+                        <option value="{{ trademark.id }}">{{ trademark.name }}</option>
+                        {% endfor %}
                     </select>
                 </div>
                 <script>
@@ -69,7 +71,7 @@
                         const selectedName = nameInput.value;
 
                         // Limpiar el valor del segundo input
-    trademarkInput.innerHTML = '';
+                        trademarkInput.innerHTML = '';
 
                         // Realizar una solicitud AJAX para obtener el ID correspondiente al nombre seleccionado
                         fetch(`/autocomplete?term=${selectedName}`)
@@ -78,27 +80,27 @@
                                 if (data.length > 0) {
                                     const reactiveId = data[0].id;
 
-                        // Realizar una solicitud AJAX para obtener las marcas correspondientes al reactivo seleccionado
-                fetch(`/api/trademarks?reactive_id=${reactiveId}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        // Iterar sobre la respuesta JSON (lista de marcas)
-                        data.forEach(function (trademark) {
-                            const option = document.createElement('option');
-                            option.value = trademark.trademark__id; // Acceder a la propiedad "trademark__id"
-                            option.textContent = trademark.trademark__name; // Acceder a la propiedad "trademark__name"
-                            trademarkInput.appendChild(option);
-                        });
-                    })
-                    .catch(error => {
-                        console.log('Error:', error);
+                                    // Realizar una solicitud AJAX para obtener las marcas correspondientes al reactivo seleccionado
+                                    fetch(`/api/trademarks?reactive_id=${reactiveId}`)
+                                        .then(response => response.json())
+                                        .then(data => {
+                                            // Iterar sobre la respuesta JSON (lista de marcas)
+                                            data.forEach(function (trademark) {
+                                                const option = document.createElement('option');
+                                                option.value = trademark.trademark__id; // Acceder a la propiedad "trademark__id"
+                                                option.textContent = trademark.trademark__name; // Acceder a la propiedad "trademark__name"
+                                                trademarkInput.appendChild(option);
+                                            });
+                                        })
+                                        .catch(error => {
+                                            console.log('Error:', error);
+                                        });
+                                }
+                            })
+                            .catch(error => {
+                                console.log('Error:', error);
+                            });
                     });
-            }
-        })
-        .catch(error => {
-            console.log('Error:', error);
-        });
-});
 
                 </script>
                 <div class="col-md-3">
@@ -141,7 +143,7 @@
                         var h = 400; // altura de la ventana emergente
                         var left = (screen.width / 2) - (w / 2);
                         var top = (screen.height / 2) - (h / 2);
-                        window.open("{% url 'reactivos:crear_ubicaciones' %}", "popup", "width=" + w + ",height=" + h + ",left=" + left + ",top=" + top);
+                        window.open("{% url 'reactivos:crear_ubicacion' %}", "popup", "width=" + w + ",height=" + h + ",left=" + left + ",top=" + top);
                     }
                     var addUnitBtn = document.getElementById("add_location_btn");
                     addUnitBtn.addEventListener("click", openPopupWindow);
@@ -213,7 +215,8 @@
                         id="open_confirm_out">
                 </div>
                 <div class="col-md-6 mt-3">
-                    <button type="button" onclick="limpiarCamposin()" id="limpiarCampos" class="btn btn-primary">Limpiar campos</button>
+                    <button type="reset" id="limpiarCampos" class="btn btn-primary">Limpiar
+                        campos</button>
                 </div>
 
             </form>

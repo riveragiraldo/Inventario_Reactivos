@@ -155,8 +155,8 @@
                             <span class="input-group-text" id="inputGroup-sizing-sm">Destino: </span>
                         </div>
                         <input type="text" class="form-control" aria-label="Small"
-                            aria-describedby="inputGroup-sizing-sm" name="destination" id="destination" placeholder="Destino"
-                            readonly>
+                            aria-describedby="inputGroup-sizing-sm" name="destination" id="destination"
+                            placeholder="Destino" readonly>
                     </div>
 
                 </div>
@@ -203,20 +203,20 @@
                 var parentWindow = window.opener;
 
                 // Obtiene los valores de los campos del formulario padre
-                var date = parentWindow.document.querySelector('#date').value;
+                var date = parentWindow.document.querySelector('#currentDate').textContent;
                 var name = parentWindow.document.querySelector('#name').value;
                 var code = parentWindow.document.querySelector('#code').value;
                 var cas = parentWindow.document.querySelector('#cas').value;
-                
+
                 var trademark = parentWindow.document.querySelector('#trademark');
                 const selectedOption = trademark.options[trademark.selectedIndex].text;
-                
+
                 var reference = parentWindow.document.querySelector('#reference').value;
                 var is_liquid = parentWindow.document.querySelector('#is_liquid').value;
                 var weight = parentWindow.document.querySelector('#weight').value;
                 var unit = parentWindow.document.querySelector('#unit').value;
                 var loc = parentWindow.document.querySelector('#location').value;
-                
+
                 var destination = parentWindow.document.querySelector('#destination');
                 const selectedDestination = destination.options[destination.selectedIndex].text;
 
@@ -259,11 +259,11 @@
                         window.opener.location.reload();
                         console.log('Se supone que acá resetea el form')
                     }
-                    else{console.log('No encontró el form')}
+                    else { console.log('No encontró el form') }
                     alert('{{ message }}');
-                    
+
                     window.close()
-                    };
+                };
             </script>
             {% endfor %}
             {% endif %}

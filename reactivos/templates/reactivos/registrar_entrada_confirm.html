@@ -203,7 +203,7 @@
                 var parentWindow = window.opener;
 
                 // Obtiene los valores de los campos del formulario padre
-                var date = parentWindow.document.querySelector('#date').value;
+                var date = parentWindow.document.querySelector('#currentDate').textContent;
                 var name = parentWindow.document.querySelector('#name').value;
                 var code = parentWindow.document.querySelector('#code').value;
                 var cas = parentWindow.document.querySelector('#cas').value;
@@ -221,7 +221,7 @@
                 var manager = parentWindow.document.querySelector('#manager').value;
                 var observations = parentWindow.document.querySelector('#observations');
                 observations_text = observations.value;
-                
+
 
                 // Rellena los campos del formulario de la ventana emergente
                 document.querySelector('#date').value = date;
@@ -258,7 +258,7 @@
                         window.opener.location.reload();
                     }
                     window.close()
-                    };
+                };
             </script>
             {% endfor %}
             {% endif %}
