@@ -116,30 +116,6 @@ def crear_reactivo(request):
     return render(request, 'reactivos/crear_reactivo.html', context)
 
 
-def crear_unidad(request):
-    if request.method == 'POST':
-        name = request.POST.get('name')
-
-        # Verifica si ya existe un registro con el mismo nombre de la unidad
-        if Unidades.objects.filter(name=name).exists():
-            messages.error(request, 'Ya existe una unidad con nombre: '+name)
-            return redirect('reactivos:crear_unidad')
-
-        unidad = Unidades.objects.create(
-
-            name=name,
-
-        )
-        messages.success(
-            request, 'Se ha creado exitosamente la unidad con nombre: '+name+'.')
-        return redirect('reactivos:crear_unidad')
-
-    context = {
-
-    }
-    return render(request, 'reactivos/crear_unidad.html', context)
-
-
 def crear_unidades(request):
     if request.method == 'POST':
         name = request.POST.get('name')
@@ -170,30 +146,30 @@ def crear_unidades(request):
     return render(request, 'reactivos/crear_unidades.html', context)
 
 
+# def crear_marca(request):
+#     if request.method == 'POST':
+#         name = request.POST.get('name')
+#         # Verifica si ya existe un registro con el mismo nombre de la marca
+#         if Marcas.objects.filter(name=name).exists():
+#             messages.error(request, 'Ya existe una marca con nombre: '+name)
+#             return redirect('reactivos:crear_marca')
+
+#         marca = Marcas.objects.create(
+
+#             name=name,
+
+#         )
+#         messages.success(
+#             request, 'Se ha creado exitosamente la marca con nombre: '+name+'.')
+#         return redirect('reactivos:crear_marca')
+
+#     context = {
+
+#     }
+#     return render(request, 'reactivos/crear_marca.html', context)
+
+
 def crear_marca(request):
-    if request.method == 'POST':
-        name = request.POST.get('name')
-        # Verifica si ya existe un registro con el mismo nombre de la marca
-        if Marcas.objects.filter(name=name).exists():
-            messages.error(request, 'Ya existe una marca con nombre: '+name)
-            return redirect('reactivos:crear_marca')
-
-        marca = Marcas.objects.create(
-
-            name=name,
-
-        )
-        messages.success(
-            request, 'Se ha creado exitosamente la marca con nombre: '+name+'.')
-        return redirect('reactivos:crear_marca')
-
-    context = {
-
-    }
-    return render(request, 'reactivos/crear_marca.html', context)
-
-
-def crear_marcas(request):
     if request.method == 'POST':
         name = request.POST.get('name')
 
@@ -203,7 +179,7 @@ def crear_marcas(request):
             marca_id = marca.id
             messages.error(
                 request, 'Ya existe una marca con nombre '+name+' id: '+str(marca_id))
-            return redirect('reactivos:crear_marcas')
+            return redirect('reactivos:crear_marca')
 
         marca = Marcas.objects.create(
 
@@ -213,12 +189,12 @@ def crear_marcas(request):
         marca_id = marca.id
         messages.success(
             request, 'Se ha creado exitosamente la marca con nombre '+name+' id: '+str(marca_id))
-        return redirect('reactivos:crear_marcas')
+        return redirect('reactivos:crear_marca')
 
     context = {
 
     }
-    return render(request, 'reactivos/crear_marcas.html', context)
+    return render(request, 'reactivos/crear_marca.html', context)
 
 
 def crear_estado(request):
@@ -332,7 +308,7 @@ def crear_ubicacion(request):
 
         )
         messages.success(
-            request, 'Se ha creado exitosamente la ubicación con nombre: '+name+'.')
+            request, 'Se ha creado exitosamente la ubicación con nombre: '+name)
         return redirect('reactivos:crear_ubicacion')
     context = {
         'facultades': Facultades.objects.all()
@@ -401,7 +377,7 @@ def registrar_salida(request):
 def registrar_salida_confirm(request):
 
     if request.method == 'POST':
-        date = request.POST.get('date')
+
         name = request.POST.get('name')
         nReactivo = name
         try:
@@ -493,7 +469,6 @@ def registrar_salida_confirm(request):
             unit = request.POST.get('unit')
 
             salida = Salidas.objects.create(
-                date=date,
                 name=name,
                 trademark=trademark,
                 reference=reference,
@@ -534,6 +509,7 @@ def registrar_entrada_confirm(request):
 
         name = request.POST.get('name')
         nReactivo = name
+
         try:
             nameReactivo = Reactivos.objects.get(name=name)
             name = nameReactivo
@@ -545,9 +521,11 @@ def registrar_entrada_confirm(request):
 
         location = request.POST.get('location')
         nlocation = location
+
         try:
             nameLocation = Ubicaciones.objects.get(name=location)
             location = nameLocation
+
         except Ubicaciones.DoesNotExist:
             messages.error(request, "La ubicación "+nlocation +
                            " no se encuentra en la base de datos, favor crearlo primero.")
@@ -556,6 +534,7 @@ def registrar_entrada_confirm(request):
 
         manager = request.POST.get('manager')
         nmanager = manager
+
         try:
             nameManager = Responsables.objects.get(name=manager)
             manager = nameManager
@@ -1054,6 +1033,23 @@ def autocomplete(request):
             'name': reactivo.name,
             'code': reactivo.code,
             'cas': reactivo.cas
+        }
+        results.append(result)
+
+    return JsonResponse(results, safe=False)
+
+
+def autocomplete_out(request):
+    term = request.GET.get('term', '')
+    inventarios = Inventarios.objects.filter(
+        Q(name__name__icontains=term) | Q(name__code__icontains=term) | Q(name__cas__icontains=term))[:10]
+    results = []
+    for inventario in inventarios:
+        result = {
+            'id': inventario.name.id,
+            'name': inventario.name.name,
+            'code': inventario.name.code,
+            'cas': inventario.name.cas,
         }
         results.append(result)
 

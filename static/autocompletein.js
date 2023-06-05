@@ -1,3 +1,38 @@
+//autocompletar por nombre o código
+
+$(document).ready(function () {
+    $("#name").autocomplete({
+        source: "{% url 'reactivos:autocomplete' %}",
+        minLength: 2,
+        select: function (event, ui) {
+            // Obtener el código, nombre y CAS del objeto seleccionado
+            var code = ui.item.code;
+            var name = ui.item.name;
+            var cas = ui.item.cas;
+
+            // Concatenar el código, nombre y CAS en un formato deseado
+            var optionLabel = code + " - " + name + " - " + cas;
+
+            // Establecer el valor y la etiqueta del campo de entrada
+            $("#name").val(optionLabel);
+
+            return false;
+        },
+        focus: function (event, ui) {
+            // Prevenir la actualización del valor del campo de entrada al enfocar una opción
+            event.preventDefault();
+        },
+        response: function (event, ui) {
+            // Manipular la respuesta antes de mostrar las opciones
+            ui.content.forEach(function (item) {
+                // Agregar el código, nombre y CAS al objeto de la opción
+                item.label = item.code + " - " + item.name + " - " + item.cas;
+                item.value = item.name;  // Establecer el valor de la opción como el nombre
+            });
+        }
+    });
+});
+
 //Función autocompletar por Ubicación
 $(document).ready(function () {
     $("#location").autocomplete({
@@ -61,4 +96,3 @@ $(document).ready(function () {
         }, 100);
     });
 });
-

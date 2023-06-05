@@ -14,7 +14,7 @@
 
 <body>
 
-    <h1>Crear Unidades Emergente</h1>
+    <h1>Crear Unidades </h1>
 
     <div class="container mt-5">
         <div class="row">
@@ -44,55 +44,69 @@
             {% if messages %}
             {% for message in messages %}
             <script>
-                window.onload = function () {
-                    
-                    mensaje = "{{ message }}";
-                    console.log(mensaje)
-                    var unidad = mensaje.split(": ")[1];
-                    console.log(unidad);
-                    
-                    alert('{{ message }}');
-                    
-                    // Obtener los valores de los elementos necesarios de la ventana padre
-                    var color = window.opener.document.getElementById("color").value;
-                    var number = window.opener.document.getElementById("number").value;
-                    var subnumber = window.opener.document.getElementById("subnumber").value;
-                    var code = window.opener.document.getElementById("code").value;
-                    var cas = window.opener.document.getElementById("cas").value;
-                    var name_father = window.opener.document.getElementById("name").value;
-                    var isLiquid = window.opener.document.getElementById("is_liquid").value;
-                    var wlocation = window.opener.document.getElementById("wlocation").value;
 
-                    // Recargar la página padre
-                    window.opener.location.replace(window.opener.location.href);
+                if (window.opener) {
 
-                    setTimeout(function () {
-                        // Acceder a la ventana padre y actualizar los valores
+                    window.onload = function () {
 
-                        window.opener.document.querySelector("#color").value = color;
-                        window.opener.document.querySelector("#number").value = number;
-                        window.opener.document.querySelector("#subnumber").value = subnumber;
-                        window.opener.document.querySelector("#code").value = code;
-                        window.opener.document.querySelector("#cas").value = cas;
-                        window.opener.document.querySelector("#name").value = name_father;
-                        window.opener.document.querySelector("#wlocation").value = wlocation;
+                        mensaje = "{{ message }}";
 
-                        //Actualiza Select is_liquid
-                        var is_liquid_new = window.opener.document.querySelector("#is_liquid");
-                        is_liquid_new.value = isLiquid;
-                        console.log(is_liquid_new.value);
-                        is_liquid_new.setAttribute("selected", true);
+                        var unidad = mensaje.split(": ")[1];
 
-                        //Actualiza Select selectunidades
-                        var unidad_new = window.opener.document.querySelector("#selectUnidades");
-                        unidad_new.value = unidad;
-                        console.log(unidad_new.value);
-                        unidad_new.setAttribute("selected", true);
+                        alert('{{ message }}');
 
-                        window.close();
+                        // Obtener los valores de los elementos necesarios de la ventana padre
+                        var color = window.opener.document.getElementById("color").value;
+                        var number = window.opener.document.getElementById("number").value;
+                        var subnumber = window.opener.document.getElementById("subnumber").value;
+                        var code = window.opener.document.getElementById("code").value;
+                        var cas = window.opener.document.getElementById("cas").value;
+                        var name_father = window.opener.document.getElementById("name").value;
+                        var estado = window.opener.document.getElementById("selectState").value;
+                        var wlocation = window.opener.document.getElementById("warehouselocation").value;
 
-                    }, 500);
-                };
+
+                        // Recargar la página padre
+                        window.opener.location.replace(window.opener.location.href);
+
+                        setTimeout(function () {
+                            // Acceder a la ventana padre y actualizar los valores
+
+                            window.opener.document.querySelector("#color").value = color;
+                            window.opener.document.querySelector("#number").value = number;
+                            window.opener.document.querySelector("#subnumber").value = subnumber;
+                            window.opener.document.querySelector("#code").value = code;
+                            window.opener.document.querySelector("#cas").value = cas;
+                            window.opener.document.querySelector("#name").value = name_father;
+                            window.opener.document.querySelector("#warehouselocation").value = wlocation;
+
+                            //Actualiza Select state
+                            console.log(estado);
+                            var state_new = window.opener.document.querySelector("#selectState");
+                            state_new.value = estado;
+
+                            state_new.setAttribute("selected", true);
+
+                            //Actualiza Select selectunidades
+                            var unidad_new = window.opener.document.querySelector("#selectUnidades");
+                            unidad_new.value = unidad;
+                            unidad_new.setAttribute("selected", true);
+
+                            window.close();
+
+                        }, 500);
+                    };
+
+
+                }
+
+                else {
+                    window.onload = function () {
+
+                        alert('{{ message }}');
+
+                    };
+                }
             </script>
             {% endfor %}
             {% endif %}

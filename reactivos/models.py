@@ -119,7 +119,7 @@ class Ubicaciones(models.Model):
 
 
 class Salidas(models.Model):
-    date = models.DateTimeField(verbose_name='Fecha')
+    date = models.DateTimeField(auto_now_add=True, verbose_name='Fecha')
     name = models.ForeignKey(Reactivos, on_delete=models.CASCADE,
                              related_name='name_react', verbose_name='Nombre Reactivo')
     trademark = models.ForeignKey(
