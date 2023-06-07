@@ -79,7 +79,7 @@ class Reactivos(models.Model):
 class Responsables(models.Model):
     name = models.CharField(max_length=255, verbose_name="Nombre Responsable")
     mail = models.EmailField(max_length=255, verbose_name="Email")
-    phone = models.BigIntegerField(verbose_name="Teléfono")
+    phone = models.CharField(max_length=15, verbose_name="Teléfono")
     is_active = models.BooleanField(default=True)
     fecha_registro = models.DateTimeField(auto_now_add=True)
 

@@ -41,8 +41,8 @@
                     <span id="currentDate"></span>
                 </div>
 
-                <div class="col-md-11">
-                    <label class="form-label">Nombre reactivo: "Código - Nombre - CAS"</label>
+                <div class="col-md-5">
+                    <label class="form-label">Reactivo: "Código - Nombre - CAS"</label>
                     <input type="text" class="form-control" name="name" id="name" placeholder="Nombre, CI o CAS"
                         title="Se puede filtrar por nombre, CI o CAS" required />
                 </div>
@@ -63,7 +63,7 @@
                     addUnitBtn.addEventListener("click", openPopupWindowName);
 
                 </script>
-                <div class="col-md-2">
+                <div class="col-md-3">
                     <label class="form-label">Código:</label>
                     <input type="text" name="code" class="form-control" value="" id="code" readonly
                         placeholder="Cód. Interno">
@@ -74,6 +74,14 @@
                     <input type="text" name="cas" class="form-control" value="" id="cas" readonly
                         placeholder="Cód. CAS">
                 </div>
+                <div class="col-md-4">
+                    <label class="form-label">Valor:</label>
+                    <div class="input-group">
+                      <span class="input-group-text">$</span>
+                      <input type="number" class="form-control" placeholder="Valor" name="price" id="price" min="0" step="0.01" required
+                        pattern="^\d+(\.\d{1,2})?$" title="Ingresa un valor positivo en pesos colombianos">
+                    </div>
+                  </div>
                 <div class="col-md-3">
                     <label class="form-label">Marca reactivo:</label>
                     <select name="trademark" id="trademark" class="form-select" required>
@@ -101,12 +109,17 @@
 
 
                 </script>
+                <div class="col-md-4">
+                    <label class="form-label">Vencimiento:</label>
+                    <input type="date" class="form-control" name="edate" id="edate" value="{{ date.today|date:'Y-m-d' }}" required>
+
+                </div>
                 <div class="col-md-3">
                     <label class="form-label">Referencia:</label>
                     <input type="text" class="form-control" placeholder="Ref. reactivo" name="reference" id="reference">
                 </div>
 
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <label class="form-label">Presentación:</label>
                     <input type="text" name="is_liquid" class="form-control" value="" id="is_liquid" readonly
                         placeholder="Presentación">
@@ -118,12 +131,22 @@
                         name="weight" min="0" required>
                 </div>
 
-                <div class="col-md-4">
+                <div class="col-md-2">
                     <label class="form-label">Unidades:</label>
                     <input type="text" name="unit" class="form-control" value="" id="unit" readonly>
                 </div>
 
 
+                
+
+                <div class="col-md-6">
+                    <label class="form-label">Orden:</label>
+                    <input type="text" name="order" class="form-control" id="order" placeholder="Orden Número">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Número de proyecto:</label>
+                    <input type="text" name="nproject" class="form-control" id="nproject" placeholder="Proyecto Número">
+                </div>
                 <div class="col-md-5">
                     <label class="form-label">Asignatura/Ubicación:</label>
                     <input type="text" name="location" class="form-control" id="location" required
@@ -149,11 +172,32 @@
 
 
                 </script>
-
-                <div class="col-md-6">
-                    <label class="form-label">Orden:</label>
-                    <input type="text" name="order" class="form-control" id="order" placeholder="Orden  Número">
+                <div class="col-md-5">
+                    <label class="form-label">Destino:</label>
+                    <select name="destination" id="destination" class="form-select" required>
+                        {% for destino in destinos %}
+                        <option value="{{ destino.id }}">{{ destino.name }}</option>
+                        {% endfor %}
+                    </select>
                 </div>
+                <div class="col-md-1">
+                    <label class="form-label" style="color: transparent;">Add</label>
+                    <button type="button" id="add_destination_btn" class="btn btn-secondary" title="Agregar Destino">+
+                        </Address></button>
+                </div>
+                <script>
+                    function openPopupWindow() {
+                        var w = 450; // ancho de la ventana emergente
+                        var h = 400; // altura de la ventana emergente
+                        var left = (screen.width / 2) - (w / 2);
+                        var top = (screen.height / 2) - (h / 2);
+                        window.open("{% url 'reactivos:crear_destino' %}", "popup", "width=" + w + ",height=" + h + ",left=" + left + ",top=" + top);
+                    }
+                    var addUnitBtn = document.getElementById("add_destination_btn");
+                    addUnitBtn.addEventListener("click", openPopupWindow);
+
+
+                </script>
 
                 <div class="col-md-11">
                     <label class="form-label">Responsable:</label>
@@ -179,6 +223,7 @@
 
 
                 </script>
+                
 
                 <div class="col-md-12">
                     <label class="form-label">Observaciones:</label>

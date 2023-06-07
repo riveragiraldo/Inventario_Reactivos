@@ -321,6 +321,15 @@ def crear_responsable(request):
     if request.method == 'POST':
         name = request.POST.get('name')
         phone = request.POST.get('phone')
+        prefix = request.POST.get('prefix')
+
+        # Añadir la secuencia de escape "\+" al prefijo
+        if prefix.startswith("+"):
+            prefix = "\\" + prefix
+        # Eliminar los caracteres de escape
+        prefix = prefix.strip("\\")
+
+        phone = prefix + phone
         mail = request.POST.get('mail')
 
         # Verifica si ya existe un registro con el mismo nombre, telefono o email de la marca
