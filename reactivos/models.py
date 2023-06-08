@@ -165,6 +165,10 @@ class Entradas(models.Model):
         max_length=1000, verbose_name='Observaciones')
     location = models.ForeignKey(
         Ubicaciones, on_delete=models.CASCADE, related_name='Ubicacion', verbose_name='Ubicación')
+    price=models.IntegerField(verbose_name="Valor")
+    edate=models.DateField(verbose_name="Fecha de vencimiento")
+    nproject=models.CharField(max_length=15, verbose_name='Número de proyecto')
+    destination=models.ForeignKey(Destinos, on_delete=models.CASCADE, verbose_name='Destino')
 
     def __str__(self):
         return self.name
@@ -179,12 +183,13 @@ class Entradas(models.Model):
 
 
 class Inventarios(models.Model):
-    name = models.ForeignKey('Reactivos', on_delete=models.CASCADE)
-    trademark = models.ForeignKey('Marcas', on_delete=models.CASCADE)
+    name = models.ForeignKey('Reactivos', on_delete=models.CASCADE, verbose_name="Nombre del reactivo")
+    trademark = models.ForeignKey('Marcas', on_delete=models.CASCADE, verbose_name="Marca")
     weight = models.DecimalField(
         max_digits=10, decimal_places=4, verbose_name='Peso Reactivo')
     unit = models.ForeignKey(Unidades, on_delete=models.CASCADE,
                              related_name='unidad', verbose_name="Unidades")
+    fecha_registro = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         verbose_name_plural = "Inventarios"

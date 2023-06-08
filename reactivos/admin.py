@@ -61,7 +61,7 @@ class Salidaadmin(admin.ModelAdmin):
 
 @admin.register(Entradas)
 class Entradaadmin(admin.ModelAdmin):
-    list_display=('id','date','name','trademark','reference','weight','order','manager','observations','location')
+    list_display=('id','date','name','trademark','reference','weight','order','manager','observations','location','price','edate','nproject','destination')
     list_filter=('date','name',)
     search_fields=('date','name',)
     list_per_page=10

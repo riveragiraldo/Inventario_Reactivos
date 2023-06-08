@@ -29,11 +29,7 @@
     .input-with-icon .input-icon {
       margin-right: 8px;
     }
-
-
-
-
-
+  
   </style>
 </head>
 
@@ -50,7 +46,10 @@
           <div class="col-md-12">
             <label class="form-label">Nombres y apellidos:</label>
             <input type="text" class="form-control" placeholder="Nombre y apellidos" name="name" required id="name"
-              title="Mínimo dos palabras">
+    pattern="[^\s]+( [\wáéíóúÁÉÍÓÚ]+)*"
+    title="Ingrese nombre y apellidos">
+
+
           </div>
 
 

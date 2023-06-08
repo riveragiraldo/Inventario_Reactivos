@@ -501,22 +501,23 @@ def registrar_salida_confirm(request):
     return render(request, 'reactivos/registrar_salida_confirm.html', context)
 
 
+# def registrar_entrada(request):
+
+#     context = {
+#         'reactivos': Reactivos.objects.all(),
+#         'responsables': Responsables.objects.all(),
+#         'marcas': Marcas.objects.all(),
+#         'ubicaiones': Ubicaciones.objects.all()
+#     }
+#     return render(request, 'reactivos/registrar_entrada.html', context)
+
+
 def registrar_entrada(request):
-
-    context = {
-        'reactivos': Reactivos.objects.all(),
-        'responsables': Responsables.objects.all(),
-        'marcas': Marcas.objects.all(),
-        'ubicaiones': Ubicaciones.objects.all()
-    }
-    return render(request, 'reactivos/registrar_entrada.html', context)
-
-
-def registrar_entrada_confirm(request):
 
     if request.method == 'POST':
 
         name = request.POST.get('name')
+        print(name)
         nReactivo = name
 
         try:
@@ -526,10 +527,11 @@ def registrar_entrada_confirm(request):
             messages.error(request, "El reactivo "+nReactivo +
                            " no se encuentra en la base de datos, favor crearlo primero.")
             name = None
-            return redirect('reactivos:registrar_entrada_confirm')
+            return redirect('reactivos:registrar_entrada')
 
         location = request.POST.get('location')
         nlocation = location
+        print(location)
 
         try:
             nameLocation = Ubicaciones.objects.get(name=location)
@@ -539,10 +541,11 @@ def registrar_entrada_confirm(request):
             messages.error(request, "La ubicación "+nlocation +
                            " no se encuentra en la base de datos, favor crearlo primero.")
             location = None
-            return redirect('reactivos:registrar_entrada_confirm')
+            return redirect('reactivos:registrar_entrada')
 
         manager = request.POST.get('manager')
         nmanager = manager
+        print(manager)
 
         try:
             nameManager = Responsables.objects.get(name=manager)
@@ -551,7 +554,7 @@ def registrar_entrada_confirm(request):
             messages.error(request, "El responsable "+nmanager +
                            " no se encuentra en la base de datos, favor crearlo primero.")
             manager = None
-            return redirect('reactivos:registrar_entrada_confirm')
+            return redirect('reactivos:registrar_entrada')
 
         trademark = request.POST.get('trademark')
         nMarca = trademark
@@ -563,7 +566,22 @@ def registrar_entrada_confirm(request):
             messages.error(request, "La marca "+nMarca +
                            " no se encuentra en la base de datos, favor crearlo primero.")
             trademark = None
-            return redirect('reactivos:registrar_entrada_confirm')
+            return redirect('reactivos:registrar_entrada')
+        
+        destination = request.POST.get('destination')
+        nDestino = destination
+
+        try:
+            nameDestino = Destinos.objects.get(name=destination)
+            destination = nameDestino
+        except Destinos.DoesNotExist:
+            messages.error(request, "El destino "+nDestino +
+                           " no se encuentra en la base de datos, favor crearlo primero.")
+            destination = None
+            return redirect('reactivos:registrar_entrada')
+        
+
+        
 
         # Verificar si el reactivo ya existe en la tabla de inventarios
         try:
@@ -611,6 +629,10 @@ def registrar_entrada_confirm(request):
 
             observations = request.POST.get('observations')
             unit = request.POST.get('unit')
+            edate = request.POST.get('edate')
+            nproject = request.POST.get('nproject')
+            price = request.POST.get('price')
+            
 
             entrada = Entradas.objects.create(
                 name=name,
@@ -621,19 +643,24 @@ def registrar_entrada_confirm(request):
                 order=order,
                 manager=manager,
                 observations=observations,
+                edate=edate,
+                nproject=nproject,
+                price=price,
+                destination=destination,
             )
 
             messages.success(request, 'Se ha registrado de manera exitosa el ingreso del insumo del insumo: ' +
                              nReactivo+', cantidad '+weight+' '+unit)
-            return redirect('reactivos:registrar_entrada_confirm')
+            return redirect('reactivos:registrar_entrada')
 
     context = {
         'reactivos': Reactivos.objects.all(),
         'responsables': Responsables.objects.all(),
         'marcas': Marcas.objects.all(),
-        'ubicaiones': Ubicaciones.objects.all()
+        'ubicaiones': Ubicaciones.objects.all(),
+        'destinos':Destinos.objects.all(),
     }
-    return render(request, 'reactivos/registrar_entrada_confirm.html', context)
+    return render(request, 'reactivos/registrar_entrada.html', context)
 
 
 class InventarioListView(ListView):
