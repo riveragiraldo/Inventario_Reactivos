@@ -86,6 +86,7 @@ function obtenerDatosFormularioEnviar() {
         var valorCampo = campos[i].value;
         formData.append(nombreCampo, valorCampo);
     }
+    console.log(formData)
 
     return formData;
 }
