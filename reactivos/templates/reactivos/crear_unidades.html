@@ -63,7 +63,8 @@
                         var cas = window.opener.document.getElementById("cas").value;
                         var name_father = window.opener.document.getElementById("name").value;
                         var estado = window.opener.document.getElementById("selectState").value;
-                        var wlocation = window.opener.document.getElementById("warehouselocation").value;
+                        var respel = window.opener.document.getElementById("respel").value;
+                        var sga = window.opener.document.getElementById("sga").value;
 
 
                         // Recargar la página padre
@@ -78,14 +79,25 @@
                             window.opener.document.querySelector("#code").value = code;
                             window.opener.document.querySelector("#cas").value = cas;
                             window.opener.document.querySelector("#name").value = name_father;
-                            window.opener.document.querySelector("#warehouselocation").value = wlocation;
+                            
 
                             //Actualiza Select state
-                            console.log(estado);
+                            
                             var state_new = window.opener.document.querySelector("#selectState");
                             state_new.value = estado;
-
                             state_new.setAttribute("selected", true);
+
+                            //Actualiza Select respel
+                            
+                            var respel_new = window.opener.document.querySelector("#respel");
+                            respel_new.value = respel;
+                            respel_new.setAttribute("selected", true);
+
+                            //Actualiza Select respel
+                            
+                            var sga_new = window.opener.document.querySelector("#sga");
+                            sga_new.value = sga;
+                            sga_new.setAttribute("selected", true);
 
                             //Actualiza Select selectunidades
                             var unidad_new = window.opener.document.querySelector("#selectUnidades");

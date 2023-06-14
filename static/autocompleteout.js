@@ -1,4 +1,4 @@
-//autocompletar por nombre o código
+// //autocompletar por nombre o código
 
 $(document).ready(function () {
     $("#name").autocomplete({
@@ -32,6 +32,56 @@ $(document).ready(function () {
         }
     });
 });
+
+
+
+$(document).ready(function () {
+    $('#name').autocomplete({
+        source: function (request, response) {
+            var term = request.term;
+            var lab = $('#lab').val();
+            console.log(lab)
+
+            $.getJSON('/autocomplete_out/', { term: term, lab: lab })
+                .done(function (data) {
+                    response(data);
+                });
+        },
+        select: function (event, ui) {
+            // Obtener el código, nombre y CAS del objeto seleccionado
+            var code = ui.item.code;
+            var name = ui.item.name;
+            var cas = ui.item.cas;
+
+            // Concatenar el código, nombre y CAS en un formato deseado
+            var optionLabel = code + " - " + name + " - " + cas;
+
+            // Establecer el valor y la etiqueta del campo de entrada
+            $("#name").val(optionLabel);
+
+
+            setTimeout(function () {
+                updateFields();
+            }, 100);
+        },
+        minLength: 2
+    });
+});
+
+
+
+
+
+
+
+
+
+$('#name').on('input', function () {
+    setTimeout(function () {
+        updateFields();
+    }, 100);
+});
+
 
 //Función autocompletar por Ubicación
 $(document).ready(function () {
@@ -79,20 +129,3 @@ function updateFields() {
 
 
 
-$(document).ready(function () {
-    $('#name').autocomplete({
-        source: '/autocomplete_out/',
-        select: function (event, ui) {
-            setTimeout(function () {
-                updateFields();
-            }, 100);
-        },
-        minLength: 2
-    });
-
-    $('#name').on('input', function () {
-        setTimeout(function () {
-            updateFields();
-        }, 100);
-    });
-});

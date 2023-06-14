@@ -46,16 +46,18 @@
             var name = window.opener.document.getElementById("name").value;
             var code = window.opener.document.getElementById("code").value;
             var cas = window.opener.document.getElementById("cas").value;
+            var edate = window.opener.document.getElementById("edate").value;
             var reference = window.opener.document.getElementById("reference").value;
             var is_liquid = window.opener.document.getElementById("is_liquid").value;
             var weight = window.opener.document.getElementById("weight").value;
             var unit = window.opener.document.getElementById("unit").value;
+            var price = window.opener.document.getElementById("price").value;
             var location = window.opener.document.getElementById("location").value;
+            var nproject = window.opener.document.getElementById("nproject").value;
             var order = window.opener.document.getElementById("order").value;
             var manager = window.opener.document.getElementById("manager").value;
+            var destination = window.opener.document.getElementById("destination").value;
             var observations = window.opener.document.getElementById("observations").value;
-            var cantidad = window.opener.document.querySelector('label[for="weight"]');
-            cantidad = cantidad.textContent
 
             // Recargar la página padre
             window.opener.location.replace(window.opener.location.href);
@@ -67,20 +69,22 @@
               window.opener.document.querySelector("#name").value = name;
               window.opener.document.querySelector("#code").value = code;
               window.opener.document.querySelector("#cas").value = cas;
+              window.opener.document.querySelector("#edate").value = edate;
               window.opener.document.querySelector("#reference").value = reference;
               window.opener.document.querySelector("#is_liquid").value = is_liquid;
               window.opener.document.querySelector("#weight").value = weight;
               window.opener.document.querySelector("#unit").value = unit;
+              window.opener.document.querySelector("#price").value = price;
               window.opener.document.querySelector("#location").value = location;
+              window.opener.document.querySelector("#nproject").value = nproject;
               window.opener.document.querySelector("#order").value = order;
               window.opener.document.querySelector("#manager").value = manager;
               window.opener.document.querySelector("#observations").innerHTML = observations;
 
-              //Actualizar Etiqueta Cantidad
-              var label = window.opener.document.querySelector('.form-label[for="weight"]'); // selecciona la etiqueta con el id "weight"
-              label.innerHTML = cantidad;
-
-
+              //Actualiza Select destination
+              var destination_new = window.opener.document.querySelector("#destination");
+              destination_new.value = destination;
+              destination_new.setAttribute("selected", true);
 
               //Actualiza Select trademark
               var marca_new = window.opener.document.querySelector("#trademark");

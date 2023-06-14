@@ -67,9 +67,18 @@ function obtenerDatosFormulario() {
         var valorCampo = obtenerValorCampo(campo);
 
         // Filtrar botones y token CSRF
-        if (campo.tagName.toLowerCase() === 'button' || campo.tagName.toLowerCase() === 'input' && (campo.type === 'button' || campo.type === 'reset') || campo.name === 'csrfmiddlewaretoken') {
+        if (
+            campo.tagName.toLowerCase() === 'button' ||
+            (campo.tagName.toLowerCase() === 'input' && (campo.type === 'button' || campo.type === 'reset')) ||
+            campo.name === 'csrfmiddlewaretoken' ||
+            campo.id === 'wf' ||
+            campo.id === 'lab' ||
+            campo.id === 'stock'
+
+        ) {
             continue;
         }
+
 
         formData += etiquetaAsociada + " " + valorCampo + "\n";
     }

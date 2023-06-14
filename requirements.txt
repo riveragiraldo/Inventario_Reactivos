@@ -3,4 +3,6 @@ reportlab
 openpyxl 
 psycopg
 psycopg2
+
 gunicorn
+pillow

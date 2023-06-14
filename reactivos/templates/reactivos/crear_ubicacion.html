@@ -36,7 +36,7 @@
             </select>
           </div>
 
-          <div class="col-md-1">
+          <div class="col-md-1" id="addFacultadCont">
             <label class="form-label" style="visibility: hidden;">Add</label>
             <button type="button" id="add_facultad_btn" class="btn btn-secondary" title="Agregar Facultad">+</button>
           </div>
@@ -51,24 +51,7 @@
             var addUnitBtn = document.getElementById("add_facultad_btn");
             addUnitBtn.addEventListener("click", openPopupWindow);
           </script>
-          <script>
-            // Función para verificar si la ventana actual es una ventana emergente
-            function isPopupWindow() {
-              return window.opener != null;
-            }
-
-            // Función para ocultar los botones de agregar si es una ventana emergente
-            function hideAddButtonsIfPopup() {
-              var addFacultadBtn = document.getElementById("add_facultad_btn");
-
-              if (isPopupWindow()) {
-                addFacultadBtn.style.display = "none";
-              }
-            }
-
-            // Ejecutar la función al cargar la página
-            hideAddButtonsIfPopup();
-          </script>
+         
 
           <div class="col-md-12">
             <button type="submit" class="btn btn-primary">Crear Ubicación</button>
@@ -111,6 +94,24 @@
       </div>
     </div>
   </div>
+  <script>
+    // Función para verificar si la ventana actual es una ventana emergente
+    function isPopupWindow() {
+      return window.opener != null;
+    }
+
+    // Función para ocultar los botones de agregar si es una ventana emergente
+    function hideAddButtonsIfPopup() {
+      var addFacultadCont = document.getElementById("addFacultadCont");
+
+      if (isPopupWindow()) {
+        addFacultadCont.style.display = "none";
+      }
+    }
+
+    // Ejecutar la función al cargar la página
+    hideAddButtonsIfPopup();
+  </script>
 
 </body>
 

@@ -10,194 +10,258 @@
     {% load static %}
     <script src="{% static 'codeconst.js' %}" defer></script>
     <script src="{% static 'clearFds.js' %}"></script>
-    
+
 
 </head>
 
 <body>
 
+    <div class="col-md-6 mx-auto">
 
+        <h1>Crear reactivo</h1>
+        <div class="container mt-5">
+            <div class="row">
+                <div class="col-md-12">
 
-    <h1>Crear reactivo</h1>
-    <div class="container mt-5">
-        <div class="row">
-            <div class="col-md-8">
+                    <form method="post" class="row g-3" id="form" name="form">
+                        {% csrf_token %}
 
-                <form method="post" class="row g-3" id="form" name="form">
-                    {% csrf_token %}
+                        <div class="col-md-3">
+                            <label class="form-label">Color:</label>
+                            <input type="number" class="form-control" placeholder="Núm. Color (o SGA)" id="color"
+                                name="color" required min="0">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Número:</label>
+                            <input type="number" class="form-control" placeholder="Núm. reactivo" id="number"
+                                name="number" required min="0">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Sub - Número:</label>
+                            <input type="text" class="form-control" placeholder="Sub-Número reactivo" id="subnumber"
+                                name="subnumber" pattern="[A-Z0-9]*|[1-9][0-9]*"
+                                title="Ingrese números positivos o letras mayúsculas">
 
-                    <div class="col-md-2">
-                        <label class="form-label">Color (o SGA):</label>
-                        <input type="number" class="form-control" placeholder="Núm. Color (o SGA)" id="color"
-                            name="color" required min="0">
-                    </div>
-                    <div class="col-md-2">
-                        <label class="form-label">Número:</label>
-                        <input type="number" class="form-control" placeholder="Núm. reactivo" id="number" name="number"
-                            required min="0">
-                    </div>
-                    <div class="col-md-2">
-                        <label class="form-label">Sub - Número:</label>
-                        <input type="text" class="form-control" placeholder="Sub-Número reactivo" id="subnumber"
-                            name="subnumber" pattern="[A-Z0-9]*|[1-9][0-9]*"
-                            title="Ingrese números positivos o letras mayúsculas">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Código interno:</label>
+                            <input type="text" class="form-control" name="code" id="code" placeholder="Código interno"
+                                title="Código interno" readonly>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Código CAS:</label>
+                            <input type="text" step="any" class="form-control" placeholder="Código CAS" name="cas"
+                                required id="cas">
+                        </div>
 
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label">Código interno:</label>
-                        <input type="text" class="form-control" name="code" id="code" placeholder="Código interno"
-                            title="Código interno" readonly>
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label">Código CAS:</label>
-                        <input type="text" step="any" class="form-control" placeholder="Código CAS" name="cas" required
-                            id="cas">
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label">Nombre del reactivo:</label>
-                        <input type="text" class="form-control" placeholder="Nombre de reactivo" name="name" required
-                            id="name">
-                    </div>
-                    <div class="col-md-2">
-                        <label class="form-label">Presentación:</label>
-                        <select name="state" class="form-select" required id="selectState">
+                        <div class="col-md-3">
+                            <label class="form-label">Clasificación Respel:</label>
 
-                            {% for estado in estados %}
-                            <option value="{{ estado.id }}">{{ estado.name }}</option>
-                            {% endfor %}
-
-                        </select>
-
-                    </div>
-
-                    <div class="col-md-1">
-                        <label class="form-label" style="color: transparent;">Add</label>
-                        <button type="button" id="add_state_btn" class="btn btn-secondary"
-                            title="Agregar Presentación">+</button>
-                    </div>
-                    <script>
-                        function openPopupWindow() {
-                            var w = 450; // ancho de la ventana emergente
-                            var h = 400; // altura de la ventana emergente
-                            var left = (screen.width / 2) - (w / 2);
-                            var top = (screen.height / 2) - (h / 2);
-                            window.open("{% url 'reactivos:crear_estado' %}", "popup", "width=" + w + ",height=" + h + ",left=" + left + ",top=" + top);
-                        }
-                        var addUnitBtn = document.getElementById("add_state_btn");
-                        addUnitBtn.addEventListener("click", openPopupWindow);
-                    </script>
-
-                    <div class="col-md-2">
-                        <label class="form-label">Unidades:</label>
-                        <select name="unit" class="form-select" required id="selectUnidades">
-                            {% for unidad in unidades %}
-                            <option value="{{ unidad.id }}">{{ unidad.name }}</option>
-                            {% endfor %}
-                        </select>
-
-                    </div>
-
-
-                    <div class="col-md-1">
-                        <label class="form-label" style="color: transparent;">Add</label>
-                        <button type="button" id="add_unit_btn" class="btn btn-secondary"
-                            title="Agregar Unidad">+</button>
-                    </div>
-                    <script>
-                        function openPopupWindow() {
-                            var w = 450; // ancho de la ventana emergente
-                            var h = 400; // altura de la ventana emergente
-                            var left = (screen.width / 2) - (w / 2);
-                            var top = (screen.height / 2) - (h / 2);
-                            window.open("{% url 'reactivos:crear_unidades' %}", "popup", "width=" + w + ",height=" + h + ",left=" + left + ",top=" + top);
-                        }
-                        var addUnitBtn = document.getElementById("add_unit_btn");
-                        addUnitBtn.addEventListener("click", openPopupWindow);
-                    </script>
-
-                    <script>
-                        // Función para verificar si la ventana actual es una ventana emergente
-                        function isPopupWindow() {
-                            return window.opener != null;
-                        }
-
-                        // Función para ocultar los botones de agregar si es una ventana emergente
-                        function hideAddButtonsIfPopup() {
-                            var addStateBtn = document.getElementById("add_state_btn");
-                            var addUnitBtn = document.getElementById("add_unit_btn");
-
-                            if (isPopupWindow()) {
-                                addStateBtn.style.display = "none";
-                                addUnitBtn.style.display = "none";
+                            <select name="respel" id="respel" class="form-select" required>
+                                <option value="">Seleccione</option>
+                                {% for respel in respels %}
+                                <option value="{{ respel.id }}">{{ respel.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-1" id="addRespelCont">
+                            <label class="form-label" style="color: transparent; visibility: hidden;">Add</label>
+                            <button type="button" id="add_respel_btn" class="btn btn-secondary"
+                                title="Agregar Clasisifcación Respel">+</button>
+                        </div>
+                        <script>
+                            function openPopupWindowRespel() {
+                                var w = 450; // ancho de la ventana emergente
+                                var h = 400; // altura de la ventana emergente
+                                var left = (screen.width / 2) - (w / 2);
+                                var top = (screen.height / 2) - (h / 2);
+                                window.open("{% url 'reactivos:crear_respel' %}", "popup", "width=" + w + ",height=" + h + ",left=" + left + ",top=" + top);
                             }
+                            var addUnitBtn = document.getElementById("add_respel_btn");
+                            addUnitBtn.addEventListener("click", openPopupWindowRespel);
+                        </script>
+                        <div class="col-md-3">
+                            <label class="form-label">Códificación SGA:</label>
+
+                            <select name="sga" id="sga" class="form-select" required>
+                                <option value="">Seleccione</option>
+                                {% for sga in sgas %}
+                                <option value="{{ sga.id }}">{{ sga.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-1" id="addSgaCont">
+                            <label class="form-label" style="color: transparent; visibility: hidden;">Add</label>
+                            <button type="button" id="add_sga_btn" class="btn btn-secondary"
+                                title="Agregar Códificación SGA">+</button>
+                        </div>
+                        <script>
+                            function openPopupWindowSga() {
+                                var w = 450; // ancho de la ventana emergente
+                                var h = 400; // altura de la ventana emergente
+                                var left = (screen.width / 2) - (w / 2);
+                                var top = (screen.height / 2) - (h / 2);
+                                window.open("{% url 'reactivos:crear_sga' %}", "popup", "width=" + w + ",height=" + h + ",left=" + left + ",top=" + top);
+                            }
+                            var addUnitBtn = document.getElementById("add_sga_btn");
+                            addUnitBtn.addEventListener("click", openPopupWindowSga);
+                        </script>
+                        <div class="col-md-4">
+                            <label class="form-label">Nombre del reactivo:</label>
+                            <input type="text" class="form-control" placeholder="Nombre de reactivo" name="name"
+                                required id="name">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Estado:</label>
+                            <select name="state" class="form-select" required id="selectState">
+                                <option value="">Seleccione</option>
+
+                                {% for estado in estados %}
+                                <option value="{{ estado.id }}">{{ estado.name }}</option>
+                                {% endfor %}
+
+                            </select>
+
+                        </div>
+
+                        <div class="col-md-1" id="addStateCont">
+                            <label class="form-label" style="color: transparent; visibility: hidden;">Add</label>
+                            <button type="button" id="add_state_btn" class="btn btn-secondary"
+                                title="Agregar Estado">+</button>
+                        </div>
+                        <script>
+                            function openPopupWindow() {
+                                var w = 450; // ancho de la ventana emergente
+                                var h = 400; // altura de la ventana emergente
+                                var left = (screen.width / 2) - (w / 2);
+                                var top = (screen.height / 2) - (h / 2);
+                                window.open("{% url 'reactivos:crear_estado' %}", "popup", "width=" + w + ",height=" + h + ",left=" + left + ",top=" + top);
+                            }
+                            var addUnitBtn = document.getElementById("add_state_btn");
+                            addUnitBtn.addEventListener("click", openPopupWindow);
+                        </script>
+
+                        <div class="col-md-3">
+                            <label class="form-label">Unidades:</label>
+                            <select name="unit" class="form-select" required id="selectUnidades">
+                                <option value="">Seleccione</option>
+                                {% for unidad in unidades %}
+                                <option value="{{ unidad.id }}">{{ unidad.name }}</option>
+                                {% endfor %}
+                            </select>
+
+                        </div>
+
+
+                        <div class="col-md-1" id="addUnitCont">
+                            <label class="form-label" style="color: transparent;" >Add</label>
+                            <button type="button" id="add_unit_btn" class="btn btn-secondary"
+                                title="Agregar Unidad">+</button>
+                        </div>
+                        <script>
+                            function openPopupWindow() {
+                                var w = 450; // ancho de la ventana emergente
+                                var h = 400; // altura de la ventana emergente
+                                var left = (screen.width / 2) - (w / 2);
+                                var top = (screen.height / 2) - (h / 2);
+                                window.open("{% url 'reactivos:crear_unidades' %}", "popup", "width=" + w + ",height=" + h + ",left=" + left + ",top=" + top);
+                            }
+                            var addUnitBtn = document.getElementById("add_unit_btn");
+                            addUnitBtn.addEventListener("click", openPopupWindow);
+                        </script>
+
+
+
+
+
+
+
+                        <div class="col-md-3 mt-3">
+                            <input type="button" value="Crear Reactivo" class="btn btn-primary"
+                                id="open_confirm_rcreate">
+                        </div>
+                        <div class="col-md-3 mt-3">
+                            <input type="reset" value="Limpiar Campos" class="btn btn-primary">
+                        </div>
+
+                    </form>
+                    {% if messages %}
+                    {% for message in messages %}
+                    <script>
+                        if (window.opener) {
+
+                            window.onload = function () {
+
+                                alert('{{ message }}');
+
+                                //Obtener nombre despues del mensaje
+                                mensaje = "{{ message }}";
+                                var name = mensaje.split(": ")[1];
+
+
+                                //retardo para que los valores se escriban despues de recargar la página
+                                setTimeout(function () {
+                                    window.opener.document.querySelector("#name").value = name;
+                                    if (window.opener && typeof window.opener.updateFields === "function") {
+                                        window.opener.updateFields();
+                                    } else {
+                                        console.error("La función updateFields() no está definida en la ventana padre");
+                                    }
+
+                                    window.close();
+
+                                }, 500);
+                            };
                         }
 
-                        // Ejecutar la función al cargar la página
-                        hideAddButtonsIfPopup();
+                        else {
+                            window.onload = function () {
+
+                                alert('{{ message }}');
+
+                            };
+                        }
+
+
                     </script>
+                    {% endfor %}
+                    {% endif %}
 
-                    <div class="col-md-3">
-                        <label class="form-label">Ubicación en Almacén:</label>
-                        <input type="text" class="form-control" placeholder="Ubicación" name="wlocation"
-                            id="warehouselocation">
-                    </div>
-
-                    <div class="col-md-3 mt-3">
-                        <input type="button" value="Crear Reactivo" class="btn btn-primary" id="open_confirm_rcreate">
-                    </div>
-                    <div class="col-md-3 mt-3">
-                        <input type="reset" value="Limpiar Campos" class="btn btn-primary">
-                    </div>
-
-                </form>
-                {% if messages %}
-                {% for message in messages %}
-                <script>
-                    if (window.opener) {
-
-                        window.onload = function () {
-
-                            alert('{{ message }}');
-
-                            //Obtener nombre despues del mensaje
-                            mensaje = "{{ message }}";
-                            var name = mensaje.split(": ")[1];
-
-
-                            //retardo para que los valores se escriban despues de recargar la página
-                            setTimeout(function () {
-                                window.opener.document.querySelector("#name").value = name;
-                                if (window.opener && typeof window.opener.updateFields === "function") {
-                                    window.opener.updateFields();
-                                } else {
-                                    console.error("La función updateFields() no está definida en la ventana padre");
-                                }
-
-                                window.close();
-
-                            }, 500);
-                        };
-                    }
-
-                    else {
-                        window.onload = function () {
-
-                            alert('{{ message }}');
-
-                        };
-                    }
-
-
-                </script>
-                {% endfor %}
-                {% endif %}
-                
+                </div>
             </div>
-        </div>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"
-            integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe"
-            crossorigin="anonymous"></script>
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"
+                integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe"
+                crossorigin="anonymous"></script>
             <script src="{% static 'sendInfocreate.js' %}"></script>
+            <script>
+                // Función para verificar si la ventana actual es una ventana emergente
+                function isPopupWindow() {
+                    return window.opener != null;
+                }
+
+                // Función para ocultar los botones de agregar si es una ventana emergente
+                function hideAddButtonsIfPopup() {
+                   
+                    var addUnitCont = document.getElementById("addUnitCont");
+                    var addStateCont = document.getElementById("addStateCont");
+                    var addSgaCont = document.getElementById("addSgaCont");
+                    var addRespelCont = document.getElementById("addRespelCont");
+                    
+
+                    if (isPopupWindow()) {
+                        
+                        addUnitCont.style.display = "none";
+                        addStateCont.style.display = "none";
+                        addSgaCont.style.display = "none";
+                        addRespelCont.style.display = "none";
+                        
+                    }
+                }
+
+                // Ejecutar la función al cargar la página
+                hideAddButtonsIfPopup();
+            </script>
+        </div>
 
 </body>
 
