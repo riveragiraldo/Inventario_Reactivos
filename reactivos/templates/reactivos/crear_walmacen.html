@@ -9,6 +9,7 @@
         integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
     {% load static %}
     <script src="{% static 'clearFds.js' %}"></script>
+    
 </head>
 
 <body>
@@ -31,8 +32,7 @@
 
                     <div class="col-md-12">
                         <label class="form-label">Nombre de la ubicación:</label>
-                        <input type="text" class="form-control" placeholder="Ubicación" name="name" required
-                            id="name">
+                        <input type="text" class="form-control" placeholder="Ubicación" name="name" required id="name">
                     </div>
                     <div class="col-md-12">
                         <label class="form-label">Descripción:</label>
@@ -124,9 +124,50 @@
                 {% endif %}
             </div>
         </div>
+        
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"
             integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe"
             crossorigin="anonymous"></script>
+
+            <script>
+                // Función para verificar si la ventana actual es una ventana emergente
+                function isPopupWindow() {
+                    return window.opener != null;
+                }
+        
+                // Función para ocultar los botones de agregar si es una ventana emergente
+                function updateLabIfPopup() {
+        
+        
+        
+                    if (isPopupWindow()) {
+
+                        var labSelect = document.getElementById('lab');
+                        var selectedOption = labSelect.options[labSelect.selectedIndex];
+                        console.log(selectedOption.textContent);
+                        console.log(selectedOption.value);
+        
+                        var lab = window.opener.document.getElementById("lab").value;
+                        console.log(lab)
+                        //Actualiza Select lab
+        
+                        var lab_new = document.getElementById('lab');
+                        console.log(lab_new.value)
+                        lab_new.value = lab;
+                        console.log(lab_new.value)
+                        lab_new.setAttribute("selected", true);
+                        
+                        var labSelect = document.getElementById('lab');
+                        var selectedOption = labSelect.options[labSelect.selectedIndex];
+                        console.log(selectedOption.textContent);
+        
+        
+                    }
+                }
+        
+                // Ejecutar la función al cargar la página
+                updateLabIfPopup();
+            </script>
 </body>
 
 </html>

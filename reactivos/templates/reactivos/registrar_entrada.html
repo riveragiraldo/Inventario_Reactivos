@@ -20,6 +20,7 @@
     <script src="{% static 'script.js' %}"></script>
     <script src="{% static 'clearFds.js' %}"></script>
     <script src="{% static 'UpdateFields.js' %}"></script>
+    
 
     <link rel="stylesheet" href="{% static 'styles.css' %}">
 
@@ -208,7 +209,7 @@
 
                 </script>
 
-                <div class="col-md-11">
+                <div class="col-md-5">
                     <label class="form-label">Responsable:</label>
                     <input type="text" name="manager" class="form-control" id="manager" required
                         placeholder="Responsable del insumo">
@@ -229,6 +230,35 @@
                     }
                     var addUnitBtn = document.getElementById("add_manager_btn");
                     addUnitBtn.addEventListener("click", openPopupWindowManager);
+
+
+                </script>
+
+                <div class="col-md-5">
+                    <label class="form-label">Ubicación en almacén:</label>
+                    <select name="wlocation" id="wlocation" class="form-select" required>
+                        <option value="">Seleccione</option>
+                        {% for wubicacion in wubicaciones %}
+                        <option value="{{ wubicacion.id }}">{{ wubicacion.name }}</option>
+                        {% endfor %}
+                    </select>
+
+                </div>
+                <div class="col-md-1">
+                    <label class="form-label" style="color: transparent;">Add</label>
+                    <button type="button" id="add_wlocation_btn" class="btn btn-secondary" title="Agregar ubicación en Almacén">+
+                        </Address></button>
+                </div>
+                <script>
+                    function openPopupWindowWlocation() {
+                        var w = 450; // ancho de la ventana emergente
+                        var h = 400; // altura de la ventana emergente
+                        var left = (screen.width / 2) - (w / 2);
+                        var top = (screen.height / 2) - (h / 2);
+                        window.open("{% url 'reactivos:crear_walmacen' %}", "popup", "width=" + w + ",height=" + h + ",left=" + left + ",top=" + top);
+                    }
+                    var addUnitBtn = document.getElementById("add_wlocation_btn");
+                    addUnitBtn.addEventListener("click", openPopupWindowWlocation);
 
 
                 </script>
@@ -269,6 +299,7 @@
             integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe"
             crossorigin="anonymous"></script>
         <script src="{% static 'sendInfoin.js' %}"></script>
+        <script src="{% static 'updateWlocation.js' %}"></script>
 
 </body>
 

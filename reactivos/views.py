@@ -248,10 +248,10 @@ def crear_walmacen(request):
     if request.method == 'POST':
         name = request.POST.get('name')
         description = request.POST.get('description')
-
+        
         lab = request.POST.get('lab')
         nlab = lab
-        
+
         try:
             namelab = Laboratorios.objects.get(name=lab)
             lab = namelab
@@ -259,23 +259,23 @@ def crear_walmacen(request):
             messages.error(request, "El Laboratorio "+nlab +
                            " no se encuentra en la base de datos, favor crearlo primero.")
             lab = None
-            return HttpResponse("El responsable "+nlab +
+            return HttpResponse("El laboratorio "+nlab +
                            " no se encuentra en la base de datos, favor crearlo primero.", status=400)
 
-        # Verifica si ya existe un registro con el mismo nombre de la ubicación
-        if Almacenamiento.objects.filter(name=name).exists():
-            w_location = Almacenamiento.objects.get(name=name)
+       # Verifica si ya existe un registro con el mismo nombre y laboratorio
+        if Almacenamiento.objects.filter(name=name, lab=lab).exists():
+            w_location = Almacenamiento.objects.get(name=name, lab=lab)
             wlocation_id = w_location.id
-            messages.error(
-                request, 'Ya existe una ubicación en almacén '+name+' id: '+str(wlocation_id))
+            messages.error(request, f"Ya existe una ubicación en almacén con nombre {name} id: {wlocation_id}")
             return redirect('reactivos:crear_walmacen')
 
-        wubicaciones = Almacenamiento.objects.create(
 
+            
+
+        wubicaciones = Almacenamiento.objects.create(
             name=name,
             description=description,
             lab=lab,
-
         )
         wubicacion_id = wubicaciones.id
         messages.success(
@@ -283,10 +283,10 @@ def crear_walmacen(request):
         return redirect('reactivos:crear_walmacen')
 
     context = {
-        'laboratorios':Laboratorios.objects.all()
-
+        'laboratorios': Laboratorios.objects.all()
     }
     return render(request, 'reactivos/crear_walmacen.html', context)
+
 
 
 def crear_estado(request):
@@ -780,6 +780,7 @@ def registrar_entrada(request):
                 'ubicaiones': Ubicaciones.objects.all(),
                 'destinos':Destinos.objects.all(),
                 'laboratorios':Laboratorios.objects.all(),
+                'wubicaciones':Almacenamiento.objects.all(),
             }
         
     return render(request, 'reactivos/registrar_entrada.html', context)
@@ -1037,6 +1038,20 @@ class ReferencesAPI(View):
         references_list = list(unique_references)
 
         return JsonResponse(references_list, safe=False)
+    
+
+class WlocationsAPI(View):
+    def get(self, request):
+        lab = request.GET.get('lab')
+        
+
+        if lab:
+            almacenamiento = Almacenamiento.objects.filter(lab__name=lab)
+            wlocation_list = almacenamiento.values('id','name').distinct()
+            return JsonResponse(list(wlocation_list), safe=False)
+
+        return JsonResponse([], safe=False)
+
 
 
 
