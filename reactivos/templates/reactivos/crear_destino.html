@@ -33,98 +33,120 @@
       {% for message in messages %}
       <script>
         if (window.opener) {
-
           window.onload = function () {
-
             alert('{{ message }}');
 
-            //Obtener Id despues del mensaje
-            mensaje = "{{ message }}";
+            // Obtener el valor de la ventana padre
+            var ventanaPadre = window.opener.document.getElementById("wf").value;
+            console.log(ventanaPadre)
+
+            // Obtener Id después del mensaje
+            var mensaje = "{{ message }}";
             var destination = mensaje.split(": ")[1];
 
-            // Obtener los valores de los elementos necesarios de la ventana padre
-            var lab = window.opener.document.getElementById("lab").value;
-            var name = window.opener.document.getElementById("name").value;
-            var code = window.opener.document.getElementById("code").value;
-            var cas = window.opener.document.getElementById("cas").value;
-            var price = window.opener.document.getElementById("price").value;
-            var trademark = window.opener.document.getElementById("trademark").value;
-            var edate = window.opener.document.getElementById("edate").value;
-            var reference = window.opener.document.getElementById("reference").value;
-            var is_liquid = window.opener.document.getElementById("is_liquid").value;
-            var weight = window.opener.document.getElementById("weight").value;
-            var unit = window.opener.document.getElementById("unit").value;
-            var order = window.opener.document.getElementById("order").value;
-            var nproject = window.opener.document.getElementById("nproject").value;
-            var location = window.opener.document.getElementById("location").value;
-            var manager = window.opener.document.getElementById("manager").value;
-            var wlocation = window.opener.document.getElementById("wlocation").value;
-            var observations = window.opener.document.getElementById("observations").value;
+            // Lógica para determinar la ventana padre y actuar en consecuencia
+            if (ventanaPadre === 'salida') {
+              // Obtener los valores de los elementos necesarios de la ventana padre
+              var name = window.opener.document.getElementById("name").value;
+              var code = window.opener.document.getElementById("code").value;
+              var cas = window.opener.document.getElementById("cas").value;
+              var reference_id = window.opener.document.getElementById("reference").value;
+              var is_liquid = window.opener.document.getElementById("is_liquid").value;
+              var weight = window.opener.document.getElementById("weight").value;
+              var unit = window.opener.document.getElementById("unit").value;
+              var location = window.opener.document.getElementById("location").value;
+              var marca_id = window.opener.document.getElementById("trademark").value;
+              var manager = window.opener.document.getElementById("manager").value;
+              var stock = window.opener.document.getElementById("stock").value;
+              var observations = window.opener.document.getElementById("observations").value;
 
-            // Recargar la página padre
-            window.opener.location.replace(window.opener.location.href);
+              // Recargar la página padre
+              window.opener.location.replace(window.opener.location.href);
 
-            //retardo para que los valores se escriban despues de recargar la página
-            setTimeout(function () {
-              // Acceder a la ventana padre y actualizar los valores
-
-              //Actualiza Select lab
-              var lab_new = window.opener.document.querySelector("#lab");
-              lab_new.value = lab;
-              lab_new.setAttribute("selected", true);
-
-              //Ejecuta función de actualizar opciones del select ubicacoines en el almacén
-              window.opener.updateWlocationOptions();
-
-              window.opener.document.querySelector("#name").value = name;
-              window.opener.document.querySelector("#code").value = code;
-              window.opener.document.querySelector("#cas").value = cas;
-              window.opener.document.querySelector("#price").value = price;
-
-              //Actualiza Select trademark
-              var marca_new = window.opener.document.querySelector("#trademark");
-              marca_new.value = trademark;
-              marca_new.setAttribute("selected", true);
-
-              window.opener.document.querySelector("#edate").value = edate;
-              window.opener.document.querySelector("#reference").value = reference;
-              window.opener.document.querySelector("#is_liquid").value = is_liquid;
-              window.opener.document.querySelector("#weight").value = weight;
-              window.opener.document.querySelector("#unit").value = unit;
-              window.opener.document.querySelector("#order").value = order;
-              window.opener.document.querySelector("#nproject").value = nproject;
-              window.opener.document.querySelector("#location").value = location;
-
-              //Actualiza Select destination
-              var destination_new = window.opener.document.querySelector("#destination");
-              destination_new.value = destination;
-              destination_new.setAttribute("selected", true);
-
-              window.opener.document.querySelector("#manager").value = manager;
-              window.opener.document.querySelector("#observations").innerHTML = observations;
-
+              // Retardo para que los valores se escriban después de recargar la página
               setTimeout(function () {
+                // Acceder a la ventana padre y actualizar los valores
+                window.opener.document.querySelector("#name").value = name;
+                window.opener.document.querySelector("#code").value = code;
+                window.opener.document.querySelector("#cas").value = cas;
+                window.opener.document.querySelector("#is_liquid").value = is_liquid;
+                window.opener.document.querySelector("#weight").value = weight;
+                window.opener.document.querySelector("#unit").value = unit;
+                window.opener.document.querySelector("#location").value = location;
+                window.opener.document.querySelector("#manager").value = manager;
+                window.opener.document.querySelector("#stock").value = stock;
+                window.opener.document.querySelector("#observations").innerHTML = observations;
 
-                //Actualiza Select wlocation
-                var wlocation_new = window.opener.document.querySelector("#wlocation");
-                wlocation_new.value = wlocation;
-                wlocation_new.setAttribute("selected", true);
-                console.log('Hello World')
+                // Actualiza Select reference
+                var referencia_new = window.opener.document.querySelector("#reference");
+                referencia_new.value = reference_id;
+                referencia_new.setAttribute("selected", true);
 
-                var wlocation_2 = window.opener.document.querySelector("#wlocation");
-                wlocation_2.value = wlocation;
-                var selectedOption = wlocation_2.options[wlocation_2.selectedIndex];
-                console.log(wlocation)
-                console.log(selectedOption)
+                // Actualiza Select destination
+                var destination_new = window.opener.document.querySelector("#destination");
+                destination_new.value = destination;
+                destination_new.setAttribute("selected", true);
+
+                // Actualiza Select trademark
+                var marca_new = window.opener.document.querySelector("#trademark");
+                marca_new.value = marca_id;
+                marca_new.setAttribute("selected", true);
+
                 window.close();
-              }, 300)
+              }, 500);
+            }
+            else if (ventanaPadre === 'entrada') {
+              // Obtener los valores de los elementos necesarios de la ventana padre
+              var name = window.opener.document.getElementById("name").value;
+              var code = window.opener.document.getElementById("code").value;
+              var cas = window.opener.document.getElementById("cas").value;
+              var edate = window.opener.document.getElementById("edate").value;
+              var reference = window.opener.document.getElementById("reference").value;
+              var is_liquid = window.opener.document.getElementById("is_liquid").value;
+              var weight = window.opener.document.getElementById("weight").value;
+              var order = window.opener.document.getElementById("order").value;
+              var unit = window.opener.document.getElementById("unit").value;
+              var price = window.opener.document.getElementById("price").value;
+              var location = window.opener.document.getElementById("location").value;
+              var nproject = window.opener.document.getElementById("nproject").value;
+              var marca_id = window.opener.document.getElementById("trademark").value;
+              var manager = window.opener.document.getElementById("manager").value;
+              var observations = window.opener.document.getElementById("observations").value;
 
+              // Recargar la página padre
+              window.opener.location.replace(window.opener.location.href);
 
-            }, 700);
+              // Retardo para que los valores se escriban después de recargar la página
+              setTimeout(function () {
+                // Acceder a la ventana padre y actualizar los valores
+                window.opener.document.querySelector("#name").value = name;
+                window.opener.document.querySelector("#code").value = code;
+                window.opener.document.querySelector("#cas").value = cas;
+                window.opener.document.querySelector("#edate").value = edate;
+                window.opener.document.querySelector("#reference").value = reference;
+                window.opener.document.querySelector("#is_liquid").value = is_liquid;
+                window.opener.document.querySelector("#weight").value = weight;
+                window.opener.document.querySelector("#unit").value = unit;
+                window.opener.document.querySelector("#price").value = price;
+                window.opener.document.querySelector("#location").value = location;
+                window.opener.document.querySelector("#nproject").value = nproject;
+                window.opener.document.querySelector("#manager").value = manager;
+                window.opener.document.querySelector("#observations").innerHTML = observations;
+                window.opener.document.querySelector("#order").value = order;
 
+                // Actualiza Select destination
+                var destination_new = window.opener.document.querySelector("#destination");
+                destination_new.value = destination;
+                destination_new.setAttribute("selected", true);
 
+                // Actualiza Select trademark
+                var marca_new = window.opener.document.querySelector("#trademark");
+                marca_new.value = marca_id;
+                marca_new.setAttribute("selected", true);
 
-
+                window.close();
+              }, 500);
+            }
           };
         }
 
@@ -135,7 +157,10 @@
 
           };
         }
+
       </script>
+
+
       {% endfor %}
       {% endif %}
     </div>

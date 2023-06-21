@@ -79,7 +79,7 @@ class Reactivosadmin(admin.ModelAdmin):
 
 @admin.register(Entradas)
 class Entradaadmin(admin.ModelAdmin):
-    list_display=('id','date','name','trademark','reference','weight','order','manager','observations','location','price','edate','nproject','destination','lab','wlocation',)
+    list_display=('id','date','name','trademark','reference','weight','order','manager','observations','location','price','edate','nproject','destination','lab',)
     list_filter=('date','name','lab',)
     search_fields=('date','name','lab',)
     list_per_page=10

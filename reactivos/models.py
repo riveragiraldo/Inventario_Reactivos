@@ -1,7 +1,6 @@
 from django.db import models
 
-
-
+# Modelo para tabla Unidades en base de datos Reactivos
 class Unidades(models.Model):
     name = models.CharField(max_length=20, verbose_name="Unidad")
     fecha_registro = models.DateTimeField(auto_now_add=True)
@@ -13,7 +12,7 @@ class Unidades(models.Model):
         verbose_name_plural = 'Unidades'
         verbose_name = 'Unidad'
 
-
+# Modelo para tabla Marcas en base de datos Reactivos
 class Marcas(models.Model):
     name = models.CharField(max_length=30, verbose_name="Marca")
     fecha_registro = models.DateTimeField(auto_now_add=True)
@@ -25,7 +24,7 @@ class Marcas(models.Model):
         verbose_name_plural = 'Marcas'
         verbose_name = 'Marca'
 
-
+# Modelo para tabla Estados en base de datos Reactivos
 class Estados(models.Model):
     name = models.CharField(max_length=30, verbose_name="Estado")
     fecha_registro = models.DateTimeField(auto_now_add=True)
@@ -37,7 +36,7 @@ class Estados(models.Model):
         verbose_name_plural = 'Estados'
         verbose_name = 'Estado'
 
-
+# Modelo para tabla Destinos en base de datos Reactivos
 class Destinos(models.Model):
     name = models.CharField(max_length=30, verbose_name="Destino")
     fecha_registro = models.DateTimeField(auto_now_add=True)
@@ -49,18 +48,13 @@ class Destinos(models.Model):
         verbose_name_plural = 'Destinos'
         verbose_name = 'Destino'
 
-
-
-
-
+# Modelo para tabla Responsables en base de datos Reactivos
 class Responsables(models.Model):
     name = models.CharField(max_length=255, verbose_name="Nombre Responsable")
     mail = models.EmailField(max_length=255, verbose_name="Email")
     phone = models.CharField(max_length=15, verbose_name="Teléfono")
     is_active = models.BooleanField(default=True)
-    fecha_registro = models.DateTimeField(auto_now_add=True)
-
-     
+    fecha_registro = models.DateTimeField(auto_now_add=True)     
 
     def __str__(self):
         return self.name
@@ -69,8 +63,7 @@ class Responsables(models.Model):
         verbose_name_plural = 'Responsables'
         verbose_name = 'Responsable'
 
-
-
+# Modelo para tabla Facultades en base de datos Reactivos
 class Facultades(models.Model):
     name = models.CharField(max_length=100, verbose_name="Nombre Facultad")
     fecha_registro = models.DateTimeField(auto_now_add=True)
@@ -82,6 +75,7 @@ class Facultades(models.Model):
         verbose_name_plural = 'Facultades'
         verbose_name = 'Facultad'
 
+# Modelo para tabla Laboratorios en base de datos Reactivos
 class Laboratorios(models.Model):
     name = models.CharField(max_length=100, verbose_name="Nombre Laboratorio")
     fecha_registro = models.DateTimeField(auto_now_add=True)
@@ -93,7 +87,7 @@ class Laboratorios(models.Model):
         verbose_name_plural = 'Laboratorios'
         verbose_name = 'Laboratorio'
 
-
+# Modelo para tabla RespelC en base de datos Reactivos
 class RespelC(models.Model):
     name = models.CharField(max_length=100, verbose_name="Clasificación Respel")
     description=models.TextField(max_length=1000, verbose_name="Descripción")
@@ -106,6 +100,7 @@ class RespelC(models.Model):
         verbose_name_plural = 'Clasificación Respel'
         verbose_name = 'Clasificación Respel'
 
+# Modelo para tabla SGA en base de datos Reactivos
 class SGA(models.Model):
     name = models.CharField(max_length=100, verbose_name="Codificiación SGA")
     description=models.TextField(max_length=1000, verbose_name="Descripción")
@@ -118,6 +113,7 @@ class SGA(models.Model):
         verbose_name_plural = 'Codificiación SGA'
         verbose_name = 'Codificiación SGA'
 
+# Modelo para tabla Ubicaciones en base de datos Reactivos
 class Ubicaciones(models.Model):
     name = models.CharField(
         max_length=100, verbose_name="Ubicación/Asignaturas")
@@ -132,6 +128,7 @@ class Ubicaciones(models.Model):
         verbose_name_plural = 'Ubicaciones/Asignaturas'
         verbose_name = 'Ubicación/Asignaturas'
 
+# Modelo para tabla Almacenamiento (Ubicaciones en almacén) en base de datos Reactivos
 class Almacenamiento(models.Model):
     fecha_registro = models.DateTimeField(auto_now_add=True)
     name = models.CharField(
@@ -146,6 +143,7 @@ class Almacenamiento(models.Model):
         verbose_name_plural = 'Ubicación en Almacén'
         verbose_name = 'Ubicación en Almacén'
 
+# Modelo para tabla Reactivos en base de datos Reactivos
 class Reactivos(models.Model):
     color = models.PositiveIntegerField(verbose_name="Color CGA")
     number = models.CharField(max_length=5, verbose_name="Número")
@@ -174,7 +172,7 @@ class Reactivos(models.Model):
         verbose_name_plural = 'Reactivos'
         verbose_name = 'Reactivo'
 
-
+# Modelo para tabla Entradas en base de datos Reactivos
 class Entradas(models.Model):
 
     date = models.DateTimeField(auto_now_add=True, verbose_name='Fecha')
@@ -197,8 +195,7 @@ class Entradas(models.Model):
     nproject=models.CharField(max_length=15, verbose_name='Número de proyecto')
     destination=models.ForeignKey(Destinos, on_delete=models.CASCADE, verbose_name='Destino')
     lab=models.ForeignKey(Laboratorios, on_delete=models.CASCADE, related_name='labs', verbose_name='Laboratorio')
-    wlocation=models.ForeignKey(Almacenamiento, on_delete=models.CASCADE, related_name='wlocation', verbose_name='Ubicación en Almacén')
-
+    
     def __str__(self):
         return self.name
 
@@ -211,8 +208,7 @@ class Entradas(models.Model):
         verbose_name = 'Entrada'
 
 
-
-
+# Modelo para tabla Salidas en base de datos Reactivos
 class Salidas(models.Model):
     date = models.DateTimeField(auto_now_add=True, verbose_name='Fecha')
     name = models.ForeignKey(Reactivos, on_delete=models.CASCADE,
@@ -244,10 +240,7 @@ class Salidas(models.Model):
         verbose_name_plural = 'Salidas'
         verbose_name = 'Salida'
 
-
-
-
-
+# Modelo para tabla Inventarios en base de datos Reactivos
 class Inventarios(models.Model):
     name = models.ForeignKey('Reactivos', on_delete=models.CASCADE, verbose_name="Nombre del reactivo")
     trademark = models.ForeignKey('Marcas', on_delete=models.CASCADE, verbose_name="Marca")

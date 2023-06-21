@@ -1,4 +1,7 @@
-//autocompletar por nombre o código
+//Función "autocomplete" se utiliza para autocompletar el campo "name" basándose en el valor ingresado en dicho campo.
+//El valor escrito se envía a la vista "autocomplete", la cual devuelve una lista de valores de "code", "cas" y "name".
+//Estos valores se concatenan y se presentan en un menú desplegable. Al seleccionar uno de ellos, se establece el valor 
+//de "name" en el campo correspondiente.
 
 $(document).ready(function () {
     $("#name").autocomplete({
@@ -33,51 +36,6 @@ $(document).ready(function () {
     });
 });
 
-//Función autocompletar por Ubicación
-$(document).ready(function () {
-    $("#location").autocomplete({
-        source: "autocomplete_location/",
-        minLength: 2,
-        select: function (event, ui) {
-            $("#location").val(ui.item.value);
-            return false;
-        }
-    });
-});
-
-//Función autocompletar por Responsable
-$(document).ready(function () {
-    $("#manager").autocomplete({
-        source: "autocomplete_manager/",
-        minLength: 2,
-        select: function (event, ui) {
-            $("#manager").val(ui.item.value);
-            return false;
-        }
-    });
-});
-
-
-//Actualizar campos
-
-function updateFields() {
-    var valueSelected = $('#name').val();
-    $.ajax({
-        url: '/get-value/',
-        data: {
-            'value_selected': valueSelected
-        },
-        dataType: 'json',
-        success: function (data) {
-            $('#cas').val(data.cas);
-            $('#code').val(data.codigo);
-            $('#is_liquid').val(data.liquid);
-            $('#unit').val(data.nombre_unit);
-        }
-    });
-};
-
-
 
 $(document).ready(function () {
     $('#name').autocomplete({
@@ -96,3 +54,54 @@ $(document).ready(function () {
         }, 100);
     });
 });
+
+//Función "autocomplete_location" se encarga de autocompletar el campo "location" basándose en el valor ingresado en 
+//dicho campo. Se envía este valor a la vista "autocomplete_location", la cual devuelve una lista de nombres de 
+//ubicaciones asociadas. Estos nombres se presentan en un menú desplegable y, al seleccionar uno de ellos, se establece 
+//dicho valor de ubicación en el campo "location".
+$(document).ready(function () {
+    $("#location").autocomplete({
+        source: "autocomplete_location/",
+        minLength: 2,
+        select: function (event, ui) {
+            $("#location").val(ui.item.value);
+            return false;
+        }
+    });
+});
+
+//Función "autocomplete_manager" se encarga de autocompletar el campo "manager" basándose en el valor ingresado en el 
+//campo "location".Utiliza una vista llamada "autocomplete_manager" que devuelve los nombres de los responsables 
+//correspondientes.Estos nombres se muestran en una lista desplegable y, al seleccionar uno, se establece el nombre 
+//del responsable en el campo "manager".
+    $(document).ready(function () {
+        $("#manager").autocomplete({
+            source: "autocomplete_manager/",
+            minLength: 2,
+            select: function (event, ui) {
+                $("#manager").val(ui.item.value);
+                return false;
+            }
+        });
+    });
+
+
+//Actualizar campos: segun la entrada en el campo name envía valor a la vista def get_value(request) y este devuelve 
+//valor de cas, ceode, is_liquid y unit y los actualiza en los campos correspondientes
+
+function updateFields() {
+    var valueSelected = $('#name').val();
+    $.ajax({
+        url: '/get-value/',
+        data: {
+            'value_selected': valueSelected
+        },
+        dataType: 'json',
+        success: function (data) {
+            $('#cas').val(data.cas);
+            $('#code').val(data.codigo);
+            $('#is_liquid').val(data.liquid);
+            $('#unit').val(data.nombre_unit);
+        }
+    });
+};

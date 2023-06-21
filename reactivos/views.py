@@ -658,7 +658,6 @@ def registrar_entrada(request):
                 price=price,
                 destination=destination,
                 lab=lab,
-                wlocation=wlocation,
             )
 
             messages.success(request, 'Se ha registrado de manera exitosa el ingreso del insumo: ' +
