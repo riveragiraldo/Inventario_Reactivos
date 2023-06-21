@@ -661,7 +661,7 @@ def registrar_entrada(request):
                 wlocation=wlocation,
             )
 
-            messages.success(request, 'Se ha registrado de manera exitosa el ingreso del insumo del insumo: ' +
+            messages.success(request, 'Se ha registrado de manera exitosa el ingreso del insumo: ' +
                              nReactivo+', cantidad '+weight+' '+unit)
             return HttpResponse('Se ha registrado de manera exitosa el ingreso del: ' +
                              nReactivo+', cantidad '+weight+' '+unit, status=200)

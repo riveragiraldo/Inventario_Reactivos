@@ -22,7 +22,8 @@
 
                 <div class="col-md-5">
                     <label class="form-label">Nombre de la facultad:</label>
-                    <input type="text" class="form-control" placeholder="Nombre facultad" name="name" required id="name">
+                    <input type="text" class="form-control" placeholder="Nombre facultad" name="name" required
+                        id="name">
                 </div>
 
                 <div class="col-md-9">
@@ -37,33 +38,26 @@
                     window.onload = function () {
 
                         mensaje = "{{ message }}";
-                        
+
                         var facultad = mensaje.split(": ")[1];
-                                             
 
                         alert('{{ message }}');
 
                         // Obtener los valores de los elementos necesarios de la ventana padre
                         var name = window.opener.document.getElementById("name").value;
-                        
-                        
 
                         // Recargar la página padre
                         window.opener.location.replace(window.opener.location.href);
 
                         setTimeout(function () {
                             // Acceder a la ventana padre y actualizar los valores
-
                             window.opener.document.querySelector("#name").value = name;
-                            
 
                             //Actualiza Select Facultad
                             console.log(facultad);
                             var facultad_new = window.opener.document.querySelector("#selectFacultad");
                             facultad_new.value = facultad;
-                            
                             facultad_new.setAttribute("selected", true);
-                            
                             window.close();
 
                         }, 1000);
@@ -76,10 +70,8 @@
                     window.onload = function () {
 
                         alert('{{ message }}');
-
                     };
                 }
-
 
             </script>
             {% endfor %}
