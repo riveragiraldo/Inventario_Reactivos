@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="es">
 
 <head>
   <meta charset="utf-8">
@@ -8,29 +8,20 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet"
     integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
   {% load static %}
-  <script src="{% static 'clearFds.js' %}"></script>
+
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/css/intlTelInput.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/css/intlTelInput.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/intlTelInput.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/intlTelInput.min.js"></script>
-  <style>
-    .input-icon-img {
-      width: 26px;
-      /* Tamaño personalizado */
-      height: 26px;
-      /* Tamaño personalizado */
-    }
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe" crossorigin="anonymous"
+    defer></script>
+  <link rel="stylesheet" href="{% static 'stylesIcon.css' %}"><!-- Estilos para organizar íconos -->
 
-    .input-with-icon {
-      display: flex;
-      align-items: center;
-    }
-
-    .input-with-icon .input-icon {
-      margin-right: 8px;
-    }
-  
-  </style>
+  <script src="{% static 'clearFds.js' %}"></script>
+  <!-- Llama Script que borra los campos del formulario cuando se ejecuta cualquier acción -->
+  <script src="{% static 'pushPrefix.js' %}" defer></script>
+  <!-- Llama Script que inserta banderas y prefijos -->
 </head>
 
 <body>
@@ -43,17 +34,13 @@
         {% csrf_token %}
 
         <div class="col-md-3">
+
           <div class="col-md-12">
             <label class="form-label">Nombres y apellidos:</label>
             <input type="text" class="form-control" placeholder="Nombre y apellidos" name="name" required id="name"
-    pattern="[^\s]+( [\wáéíóúÁÉÍÓÚ]+)*"
-    title="Ingrese nombre y apellidos">
-
-
+              pattern="[^\s]+( [\wáéíóúÁÉÍÓÚ]+)*"
+              title="Ingrese nombre y apellidos"><!-- formatea campo para que sean mínimo 2 palabras o más -->
           </div>
-
-
-          
 
           <div class="col-md-12">
             <label class="form-label"><br>Teléfono:</label>
@@ -65,87 +52,70 @@
                 minlength="7" maxlength="12" title="Ingresa un número de teléfono válido entre 7 y 12 dígitos">
             </div>
           </div>
-        
 
+          <input type="hidden" id="prefix"
+            name="prefix"><!-- prefifx oculto, lo toma automaticamente para ser concatenado e insertado en la db con el +57 -->
 
-
-        <input type="hidden" id="prefix" name="prefix">
-
-
-
-
-        <div class="col-md-12">
-          <label class="form-label"><br>Correo Electrónico:</label>
-          <div class="input-with-icon">
-            <span class="input-icon">
-              <img src="{% static 'Images/email.png' %}" alt="Icono de correo electrónico" class="input-icon-img">
-            </span>
-            <input type="email" class="form-control" placeholder="Email" name="mail" required id="mail">
+          <div class="col-md-12">
+            <label class="form-label"><br>Correo Electrónico:</label>
+            <div class="input-with-icon">
+              <span class="input-icon">
+                <img src="{% static 'Images/email.png' %}" alt="Icono de correo electrónico" class="input-icon-img">
+              </span>
+              <input type="email" class="form-control" placeholder="Email" name="mail" required id="mail">
+            </div>
           </div>
         </div>
+
+        <div class="col-md-12">
+          <input type="submit" value="Crear Responsable" class="btn btn-primary">
+        </div>
+
+      </form>
+      {% if messages %}
+      {% for message in messages %}
+      <!-- Este script no puede ser invocado como un archivo externo. Después de recibir una respuesta del servidor, se
+    verifica si la ventana actual es emergente. En caso afirmativo, se muestra una alerta de confirmación o de
+    error,se obtienen los valores de los campos de la ventana principal, se recarga la página para actualizar la
+    selección y se vuelven a escribir o seleccionar los valores previamente ingresados. Si se agregó un nuevo
+    registro de RESPONSABLE en la base de datos o si este ya existe, se insertará en el campo de selección
+    correspondiente. Luego, la ventana emergente se cerrará. Si la ventana no es emergente, se mostrará una alerta
+    de éxito o error según corresponda. -->
+
+      <script>
+        if (window.opener) {
+
+          // Si es una ventana emergente, hacer algo y luego cerrar la ventana
+          window.onload = function () {
+
+            alert('{{ message }}');
+
+            //Obtener nombre despues del mensaje
+            mensaje = "{{ message }}";
+            var manager = mensaje.split(": ")[1];
+
+            //retardo para que los valores se escriban despues de recargar la página
+            setTimeout(function () {
+
+              window.opener.document.querySelector("#manager").value = manager;
+              window.close();
+
+            }, 500);
+          };
+
+        }
+        else {
+          window.onload = function () {
+
+            alert('{{ message }}');
+          };
+        }
+
+      </script>
+      {% endfor %}
+      {% endif %}
     </div>
 
-    <div class="col-md-12">
-      <input type="submit" value="Crear Responsable" class="btn btn-primary">
-    </div>
-    </form>
-    {% if messages %}
-    {% for message in messages %}
-    <script>
-      if (window.opener) {
-        // Si es una ventana emergente, hacer algo y luego cerrar la ventana
-        window.onload = function () {
-
-          alert('{{ message }}');
-
-          //Obtener nombre despues del mensaje
-          mensaje = "{{ message }}";
-          var manager = mensaje.split(": ")[1];
-
-
-          //retardo para que los valores se escriban despues de recargar la página
-          setTimeout(function () {
-            window.opener.document.querySelector("#manager").value = manager;
-
-            window.close();
-
-          }, 500);
-        };
-
-      } else {
-        window.onload = function () {
-
-          alert('{{ message }}');
-
-        };
-      }
-
-
-    </script>
-    {% endfor %}
-    {% endif %}
-  </div>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"
-    integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe"
-    crossorigin="anonymous"></script>
-  <script>
-    const input = document.querySelector("#phone");
-    const prefixInput = document.querySelector('input[name="prefix"]');
-
-    const iti = window.intlTelInput(input, {
-      preferredCountries: ["co"],
-      separateDialCode: true,
-      utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js"
-    });
-
-    // Evento change para actualizar el valor de la input prefix
-    input.addEventListener("change", function () {
-      const selectedCountryData = iti.getSelectedCountryData();
-      Prefijo = selectedCountryData.dialCode;
-      Prefijo = "+" + Prefijo
-      prefixInput.value = Prefijo;
-    });
-  </script>
 </body>
 
 </html>

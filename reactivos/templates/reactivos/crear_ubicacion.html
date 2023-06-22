@@ -9,7 +9,11 @@
     integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
   {% load static %}
   <script src="{% static 'clearFds.js' %}"></script>
-
+    <!-- Llama Script que borra los campos del formulario cuando se ejecuta cualquier acción -->
+    <script src="{% static 'callPopUp.js' %}" defer></script>
+    <!-- Llama Script al final abre ventanas emergentes -->
+    <script src="{% static 'hideButtonsLocation.js' %}" defer></script>
+    <!-- Llama Script al final oculta botones "+" -->
 </head>
 
 <body>
@@ -41,17 +45,10 @@
             <button type="button" id="add_facultad_btn" class="btn btn-secondary" title="Agregar Facultad">+</button>
           </div>
           <script>
-            function openPopupWindow() {
-              var w = 450; // ancho de la ventana emergente
-              var h = 400; // altura de la ventana emergente
-              var left = (screen.width / 2) - (w / 2);
-              var top = (screen.height / 2) - (h / 2);
-              window.open("{% url 'reactivos:crear_facultad' %}", "popup", "width=" + w + ",height=" + h + ",left=" + left + ",top=" + top);
-            }
-            var addUnitBtn = document.getElementById("add_facultad_btn");
-            addUnitBtn.addEventListener("click", openPopupWindow);
+            
           </script>
-         
+         <input type="hidden" name="wf" class="form-control" value="ubicacion" id="wf">
+         <!-- identificador para saber que tipo de ventana es -->
 
           <div class="col-md-12">
             <button type="submit" class="btn btn-primary">Crear Ubicación</button>
@@ -60,9 +57,16 @@
 
         {% if messages %}
         {% for message in messages %}
+        <!-- Este script no puede ser invocado como un archivo externo. Después de recibir una respuesta del servidor, se
+        verifica si la ventana actual es emergente. En caso afirmativo, se muestra una alerta de confirmación o de
+        error,se obtienen los valores de los campos de la ventana principal, se recarga la página para actualizar la
+        selección y se vuelven a escribir o seleccionar los valores previamente ingresados. Si se agregó un nuevo
+        registro de UBICACIÓN en la base de datos o si este ya existe, se insertará en el campo de selección
+        correspondiente. Luego, la ventana emergente se cerrará. Si la ventana no es emergente, se mostrará una alerta
+        de éxito o error según corresponda. -->
         <script>
           if (window.opener) {
-            // Si es una ventana emergente, hacer algo y luego cerrar la ventana
+            // Verifique si la ventana es emergente
             window.onload = function () {
 
               alert('{{ message }}');
@@ -94,24 +98,7 @@
       </div>
     </div>
   </div>
-  <script>
-    // Función para verificar si la ventana actual es una ventana emergente
-    function isPopupWindow() {
-      return window.opener != null;
-    }
-
-    // Función para ocultar los botones de agregar si es una ventana emergente
-    function hideAddButtonsIfPopup() {
-      var addFacultadCont = document.getElementById("addFacultadCont");
-
-      if (isPopupWindow()) {
-        addFacultadCont.style.display = "none";
-      }
-    }
-
-    // Ejecutar la función al cargar la página
-    hideAddButtonsIfPopup();
-  </script>
+ 
 
 </body>
 

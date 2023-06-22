@@ -153,7 +153,7 @@
                         </Address></button>
                 </div>
 
-                <div class="col-md-5">
+                <div class="col-md-6">
                     <label class="form-label">*Destino:</label>
                     <select name="destination" id="destination" class="form-select" required>
                         {% for destino in destinos %}
@@ -161,11 +161,7 @@
                         {% endfor %}
                     </select>
                 </div>
-                <div class="col-md-1">
-                    <label class="form-label" style="color: transparent;">Add</label>
-                    <button type="button" id="add_destination_btn" class="btn btn-secondary" title="Agregar Destino">+
-                        </Address></button>
-                </div>
+                
 
                 <div class="col-md-5">
                     <label class="form-label">*Responsable:</label>
@@ -202,6 +198,7 @@
                 </div>
 
                 <input type="hidden" name="wf" class="form-control" value="entrada" id="wf">
+                <!-- identificador para saber que tipo de ventana es -->
 
                 <div class="col-md-6">
                     <input type="button" value="Registrar entrada Reactivo" class="btn btn-primary"

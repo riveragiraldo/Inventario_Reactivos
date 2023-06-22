@@ -63,15 +63,6 @@ function openPopupWindowLocation() {
     window.open("/ubicaciones/crear", "popup", "width=" + w + ",height=" + h + ",left=" + left + ",top=" + top);
 }
 
-//Llama PopUp Crear Destinos
-function openPopupWindowDestination() {
-    var w = 450; // ancho de la ventana emergente
-    var h = 400; // altura de la ventana emergente
-    var left = (screen.width / 2) - (w / 2);
-    var top = (screen.height / 2) - (h / 2);
-    window.open("/destinos/crear", "popup", "width=" + w + ",height=" + h + ",left=" + left + ",top=" + top);
-}
-
 //Llama PopUp Crear Responsables
 function openPopupWindowManager() {
     var w = 450; // ancho de la ventana emergente
@@ -90,6 +81,14 @@ function openPopupWindowWlocation() {
     window.open("/ubicaciones_almacen/crear", "popup", "width=" + w + ",height=" + h + ",left=" + left + ",top=" + top);
 }
 
+//Llama PopUp Crear Facultades
+function openPopupWindowFacultades() {
+    var w = 450; // ancho de la ventana emergente
+    var h = 400; // altura de la ventana emergente
+    var left = (screen.width / 2) - (w / 2);
+    var top = (screen.height / 2) - (h / 2);
+    window.open("/facultades/crear/", "popup", "width=" + w + ",height=" + h + ",left=" + left + ",top=" + top);
+}
 
 //Lee que formulario es de acuerdo con entrada oculta "wf"
 var wf = document.getElementById("wf").value;
@@ -117,7 +116,6 @@ else if (wf == "entrada") {
     var addReagentBtn = document.getElementById("add_reagent_btn");
     var addTrademarkBtn = document.getElementById("add_trademark_btn");
     var addLocationBtn = document.getElementById("add_location_btn");
-    var addDestinationBtn = document.getElementById("add_destination_btn");
     var addManagerBtn = document.getElementById("add_manager_btn");
     var addWlocationBtn = document.getElementById("add_wlocation_btn");
 
@@ -125,9 +123,17 @@ else if (wf == "entrada") {
     addReagentBtn.addEventListener("click", openPopupWindowReagent);
     addTrademarkBtn.addEventListener("click", openPopupWindowTrademark);
     addLocationBtn.addEventListener("click", openPopupWindowLocation);
-    addDestinationBtn.addEventListener("click", openPopupWindowDestination);
     addManagerBtn.addEventListener("click", openPopupWindowManager);
     addWlocationBtn.addEventListener("click", openPopupWindowWlocation);
+}
+
+else if (wf == "ubicacion") {
+    console.log(wf)
+    //Leer Valores
+    var addFaculBtn = document.getElementById("add_facultad_btn");
+
+    // Escucha el clic en add y llamar función 
+    addFaculBtn.addEventListener("click", openPopupWindowFacultades);
 }
 
 else if (wf == "salida") {

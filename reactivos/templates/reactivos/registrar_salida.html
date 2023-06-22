@@ -129,7 +129,7 @@
 
                 </script>
 
-                <div class="col-md-5">
+                <div class="col-md-6">
                     <label class="form-label">Destino:</label>
                     <select name="destination" id="destination" class="form-select" required>
                         {% for destino in destinos %}
@@ -137,24 +137,7 @@
                         {% endfor %}
                     </select>
                 </div>
-                <div class="col-md-1">
-                    <label class="form-label" style="color: transparent;">Add</label>
-                    <button type="button" id="add_destination_btn" class="btn btn-secondary" title="Agregar Destino">+
-                        </Address></button>
-                </div>
-                <script>
-                    function openPopupWindow() {
-                        var w = 450; // ancho de la ventana emergente
-                        var h = 400; // altura de la ventana emergente
-                        var left = (screen.width / 2) - (w / 2);
-                        var top = (screen.height / 2) - (h / 2);
-                        window.open("{% url 'reactivos:crear_destino' %}", "popup", "width=" + w + ",height=" + h + ",left=" + left + ",top=" + top);
-                    }
-                    var addUnitBtn = document.getElementById("add_destination_btn");
-                    addUnitBtn.addEventListener("click", openPopupWindow);
-
-
-                </script>
+                
 
 
                 <div class="col-md-11">
