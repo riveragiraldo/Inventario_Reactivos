@@ -30,17 +30,16 @@ from django.utils.http import urlencode
 import time
 from django.core.exceptions import ObjectDoesNotExist
 
-
+# Vista para la creación del index, aun no se define contexto dependiendo de los enlaces a mostrar
 def index(request):
     unidades = Unidades.objects.all()
     reactivos = Reactivos.objects.all()
     context = {
-        'unidades': unidades,
-        'reactivos': reactivos
+        
     }
     return render(request, 'reactivos/index.html', context)
 
-
+# Vista para la creación del detalle del reactivo, hasta el momento solo tiene contexto el reactivo, pero se le puede poner lo necesario
 def detalle_reactivo(request, pk):
 
     reactivo = get_object_or_404(Reactivos, pk=pk)
