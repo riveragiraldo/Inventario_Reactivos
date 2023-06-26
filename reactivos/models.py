@@ -1,3 +1,4 @@
+#Este archivo configuera los modelos para realizar la gestión de la base de datos, tanto en el motor como en el admin
 from django.db import models
 
 # Modelo para tabla Unidades en base de datos Reactivos

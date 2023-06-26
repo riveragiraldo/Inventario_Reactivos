@@ -10,8 +10,7 @@
   {% load static %}
   <script src="{% static 'clearFds.js' %}"></script>
     <!-- Llama Script que borra los campos del formulario cuando se ejecuta cualquier acción -->
-    <script src="{% static 'callPopUp.js' %}" defer></script>
-    <!-- Llama Script al final abre ventanas emergentes -->
+    
     <script src="{% static 'hideButtonsLocation.js' %}" defer></script>
     <!-- Llama Script al final oculta botones "+" -->
 </head>
@@ -31,7 +30,7 @@
               placeholder="Nombre de la Ubicación" required>
           </div>
 
-          <div class="col-md-8">
+          <div class="col-md-9">
             <label for="selectFacultad" class="form-label">Facultad:</label>
             <select name="facultad" class="form-select" id="selectFacultad" required>
               {% for facultad in facultades %}
@@ -40,13 +39,6 @@
             </select>
           </div>
 
-          <div class="col-md-1" id="addFacultadCont">
-            <label class="form-label" style="visibility: hidden;">Add</label>
-            <button type="button" id="add_facultad_btn" class="btn btn-secondary" title="Agregar Facultad">+</button>
-          </div>
-          <script>
-            
-          </script>
          <input type="hidden" name="wf" class="form-control" value="ubicacion" id="wf">
          <!-- identificador para saber que tipo de ventana es -->
 

@@ -13,12 +13,23 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://code.jquery.com/ui/1.13.0/jquery-ui.min.js"></script>
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.0/themes/smoothness/jquery-ui.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe" crossorigin="anonymous"
+        defer></script>
 
     {% load static %}
     <script src="{% static 'autocompleteout.js' %}"></script>
+    <!-- Llama Script Autocompleta campo nombre, responsable y ubicacion -->
     <script src="{% static 'UpdateDate.js' %}"></script>
+    <!-- Llama Script  coloca fecha y hora actual -->
     <script src="{% static 'clearFds.js' %}"></script>
-
+    <!-- Llama Script  borrar campos despues de una transacción -->
+    <script src="{% static 'callPopUp.js' %}" defer></script>
+    <!-- Llama Script al final abre ventanas emergentes -->
+    <script src="{% static 'sendInfoin.js' %}" defer></script>
+    <!-- Llama Script al final crea alerta informativa y envía datos -->
+    <script src="{% static 'updateOptions.js' %}" defer></script>
+    <!-- Llama Script al final actualiza select Marca, Referencia  -->
     <link rel="stylesheet" href="{% static 'styles.css' %}">
 
 </head>
@@ -35,6 +46,7 @@
                     <label class="form-label">Fecha: </label>
                     <span id="currentDate"></span>
                 </div>
+
                 <div class="col-md-12">
                     <label class="form-label">Laboratorio:</label>
                     <select name="lab" id="lab" class="form-select" required>
@@ -43,11 +55,13 @@
                         {% endfor %}
                     </select>
                 </div>
+
                 <div class="col-md-6">
                     <label class="form-label">Reactivo: Código - Nombre - CAS</label>
                     <input type="text" class="form-control" name="name" id="name" placeholder="Nombre, CI o CAS"
                         title="Se puede filtrar por nombre, CI o CAS" required />
                 </div>
+
                 <div class="col-md-3">
                     <label class="form-label">Código:</label>
                     <input type="text" name="code" class="form-control" value="" id="code" readonly
@@ -59,6 +73,7 @@
                     <input type="text" name="cas" class="form-control" value="" id="cas" readonly
                         placeholder="Cód. CAS">
                 </div>
+
                 <div class="col-md-4">
                     <label class="form-label">Estado:</label>
                     <input type="text" name="is_liquid" class="form-control" value="" id="is_liquid" readonly
@@ -74,6 +89,7 @@
                     <label class="form-label">Unidades:</label>
                     <input type="text" name="unit" class="form-control" value="" id="unit" readonly>
                 </div>
+
                 <div class="col-md-6">
                     <label class="form-label">Marca reactivo:</label>
                     <select id="trademark" name="trademark" class="form-control">
@@ -94,40 +110,16 @@
                     </select>
                 </div>
 
-
-                <!-- <div class="col-md-4">
-                    <label class="form-label">Cantidad en inventario</label>
-                    <input type="text" class="form-control" name="stock" id="stock" placeholder="Stock"
-                        title="Inventario Actual" />
-                </div> -->
-
-
-
-
                 <div class="col-md-5">
                     <label class="form-label">Asignatura/Ubicación:</label>
                     <input type="text" name="location" class="form-control" id="location" required
                         placeholder="Asignatura/Ubicación Destino">
                 </div>
-
                 <div class="col-md-1">
                     <label class="form-label" style="color: transparent;">Add</label>
                     <button type="button" id="add_location_btn" class="btn btn-secondary" title="Agregar Responsable">+
                         </Address></button>
                 </div>
-                <script>
-                    function openPopupWindow() {
-                        var w = 450; // ancho de la ventana emergente
-                        var h = 400; // altura de la ventana emergente
-                        var left = (screen.width / 2) - (w / 2);
-                        var top = (screen.height / 2) - (h / 2);
-                        window.open("{% url 'reactivos:crear_ubicacion' %}", "popup", "width=" + w + ",height=" + h + ",left=" + left + ",top=" + top);
-                    }
-                    var addUnitBtn = document.getElementById("add_location_btn");
-                    addUnitBtn.addEventListener("click", openPopupWindow);
-
-
-                </script>
 
                 <div class="col-md-6">
                     <label class="form-label">Destino:</label>
@@ -137,8 +129,6 @@
                         {% endfor %}
                     </select>
                 </div>
-                
-
 
                 <div class="col-md-11">
                     <label class="form-label">Responsable:</label>
@@ -146,25 +136,12 @@
                         placeholder="Responsable del insumo">
 
                 </div>
-                <input type="hidden" name="wf" id="wf" value="salida">
                 <div class="col-md-1">
                     <label class="form-label" style="color: transparent;">Add</label>
                     <button type="button" id="add_manager_btn" class="btn btn-secondary" title="Agregar Responsable">+
                         </Address></button>
                 </div>
-                <script>
-                    function openPopupWindow() {
-                        var w = 450; // ancho de la ventana emergente
-                        var h = 400; // altura de la ventana emergente
-                        var left = (screen.width / 2) - (w / 2);
-                        var top = (screen.height / 2) - (h / 2);
-                        window.open("{% url 'reactivos:crear_responsable' %}", "popup", "width=" + w + ",height=" + h + ",left=" + left + ",top=" + top);
-                    }
-                    var addUnitBtn = document.getElementById("add_manager_btn");
-                    addUnitBtn.addEventListener("click", openPopupWindow);
-
-
-                </script>
+                <input type="hidden" name="wf" id="wf" value="salida">
 
                 <div class="col-md-12">
                     <label class="form-label">Observaciones:</label>
@@ -181,25 +158,20 @@
                 </div>
 
             </form>
+            <!-- Este script no puede ser invocado como un archivo externo, mostrará una alerta de éxito o error según
+            corresponda. -->
             {% if messages %}
             {% for message in messages %}
             <script>
                 window.onload = function () {
                     alert('{{ message }}');
-
                 };
             </script>
             {% endfor %}
             {% endif %}
 
-
         </div>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"
-            integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe"
-            crossorigin="anonymous"></script>
-        <script src="{% static 'sendInfoin.js' %}"></script>
 
-        <script src="{% static 'updateOptions.js' %}"></script>
 </body>
 
 </html>

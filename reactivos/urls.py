@@ -1,3 +1,5 @@
+#Archivo para definición de urls de las diferentes vistas o apis que interactuan el front con el back
+
 from django.urls import path
 from .views import *
 from . import views

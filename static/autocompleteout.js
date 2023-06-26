@@ -69,13 +69,6 @@ $(document).ready(function () {
 });
 
 
-
-
-
-
-
-
-
 $('#name').on('input', function () {
     setTimeout(function () {
         updateFields();

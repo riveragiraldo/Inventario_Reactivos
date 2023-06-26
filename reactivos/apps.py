@@ -1,3 +1,4 @@
+#Configuración de la App reactivos
 from django.apps import AppConfig
 
 

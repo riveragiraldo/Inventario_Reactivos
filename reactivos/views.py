@@ -1,3 +1,4 @@
+#Diferentes vistas y/o APIS que interactuan el front con back
 
 from django.shortcuts import render
 from django.shortcuts import get_object_or_404, redirect
@@ -49,8 +50,12 @@ def detalle_reactivo(request, pk):
     }
     return render(request, 'reactivos/detalle_reactivo.html', context)
 
-
+# La vista "crear_reactivo" se encarga de gestionar la creación de un reactivo. Esta vista toma los datos del formulario 
+# existente en el template "crear_reactivo.html" y realiza las operaciones necesarias en la base de datos para almacenar 
+# la información del reactivo. Esto puede incluir la validación de los datos ingresados, la creación de un nuevo registro 
+# en la tabla correspondiente y cualquier otra gestión requerida para asegurar la integridad de los datos en la base de datos.
 def crear_reactivo(request):
+    
     if request.method == 'POST':
         color = request.POST.get('color')
         number = request.POST.get('number')
@@ -95,8 +100,7 @@ def crear_reactivo(request):
             messages.error(
                 request, 'Ya existe un reactivo con el CAS registrado: '+reactivo_name)
             return HttpResponse('Ya existe un reactivo con el nombre registrado: ' + reactivo_name, status=400)
-            # return redirect('reactivos:crear_reactivo')
-
+            
         reactivo = Reactivos.objects.create(
             color=color,
             number=number,
@@ -109,12 +113,10 @@ def crear_reactivo(request):
             sga=sga,
             respel=respel,
         )
-
-        messages.success(
-            request, 'Se ha creado exitosamente el reactivo: '+name)
-        return HttpResponse('Reactivo creado correctamente: '+name, status=200)
         
-
+        messages.success(request, 'Se ha creado exitosamente el reactivo: '+name)
+        return HttpResponse('Reactivo creado correctamente: '+name, status=200)
+    
     context = {
         'unidades': Unidades.objects.all(),
         'estados': Estados.objects.all(),
@@ -124,6 +126,12 @@ def crear_reactivo(request):
     
     return render(request, 'reactivos/crear_reactivo.html', context)
 
+# La vista "crear_unidades" se encarga de gestionar la creación de unidades. Esta vista toma los datos del formulario 
+# existente en el template "crear_unidades.html" y realiza las operaciones necesarias en la base de datos utilizando 
+# el modelo "Unidades". El objetivo es garantizar la unicidad de los registros, lo que implica verificar si la unidad
+# ya existe en la base de datos antes de crearla. Si la unidad es única, se crea un nuevo registro en la tabla 
+# correspondiente utilizando el modelo "Unidades". Si la unidad ya existe, se muestra un mensaje de error o se toma la 
+# acción apropiada según los requisitos del sistema.
 
 def crear_unidades(request):
     if request.method == 'POST':
@@ -154,7 +162,12 @@ def crear_unidades(request):
     }
     return render(request, 'reactivos/crear_unidades.html', context)
 
-
+# La vista "crear_respel" se encarga de gestionar la creación de clasificación respel. Esta vista toma los datos del formulario 
+# existente en el template "crear_respel.html" y realiza las operaciones necesarias en la base de datos utilizando 
+# el modelo "RespelC". El objetivo es garantizar la unicidad de los registros, lo que implica verificar si la clasifciación respel
+# ya existe en la base de datos antes de crearla. Si la clasificación es única, se crea un nuevo registro en la tabla 
+# correspondiente utilizando el modelo "RespelC". Si la clasificación ya existe, se muestra un mensaje de error o se toma la 
+# acción apropiada según los requisitos del sistema.
 def crear_respel(request):
     if request.method == 'POST':
         name = request.POST.get('name')
@@ -185,7 +198,12 @@ def crear_respel(request):
     return render(request, 'reactivos/crear_respel.html', context)
 
 
-
+# La vista "crear_sga" se encarga de gestionar la creación de codificación SGA. Esta vista toma los datos del formulario 
+# existente en el template "crear_sga.html" y realiza las operaciones necesarias en la base de datos utilizando 
+# el modelo "SGA". El objetivo es garantizar la unicidad de los registros, lo que implica verificar si la codificación SGA
+# ya existe en la base de datos antes de crearla. Si la codificación es única, se crea un nuevo registro en la tabla 
+# correspondiente utilizando el modelo "SGA". Si la codificación ya existe, se muestra un mensaje de error o se toma la 
+# acción apropiada según los requisitos del sistema.
 def crear_sga(request):
     if request.method == 'POST':
         name = request.POST.get('name')
@@ -215,7 +233,12 @@ def crear_sga(request):
     }
     return render(request, 'reactivos/crear_sga.html', context)
 
-
+# La vista "crear_marca" se encarga de gestionar la creación de marcas en la db. Esta vista toma los datos del formulario 
+# existente en el template "crear_marca.html" y realiza las operaciones necesarias en la base de datos utilizando 
+# el modelo "Marcas". El objetivo es garantizar la unicidad de los registros, lo que implica verificar si la marca
+# ya existe en la base de datos antes de crearla. Si la marca es única, se crea un nuevo registro en la tabla 
+# correspondiente utilizando el modelo "Marcas". Si la marca ya existe, se muestra un mensaje de error o se toma la 
+# acción apropiada según los requisitos del sistema.
 def crear_marca(request):
     if request.method == 'POST':
         name = request.POST.get('name')
@@ -243,6 +266,13 @@ def crear_marca(request):
     }
     return render(request, 'reactivos/crear_marca.html', context)
 
+# La vista "crear_walmacen" es responsable de la creación de ubicaciones en el almacén dentro de la base de datos. Los 
+# datos se obtienen del formulario presente en el template "crear_walmacen.html", y se realizan las operaciones necesarias 
+# en la base de datos utilizando el modelo "Almacenamiento". El objetivo es asegurar la unicidad de los registros, lo cual 
+# implica verificar si la ubicación en el almacén ya existe antes de crearla, considerando la clave foránea "lab". Si la 
+# ubicación es única para un laboratorio específico, se crea un nuevo registro en la tabla correspondiente utilizando el 
+# modelo "Almacenamiento". En caso de que la ubicación ya exista dentro del laboratorio, se muestra un mensaje de error o 
+# se toma la acción apropiada según los requisitos del sistema.
 def crear_walmacen(request):
     if request.method == 'POST':
         name = request.POST.get('name')
@@ -267,15 +297,13 @@ def crear_walmacen(request):
             wlocation_id = w_location.id
             messages.error(request, "Ya existe una ubicación en almacén con nombre "+name+' id: '+str(wlocation_id))
             return redirect('reactivos:crear_walmacen')
-
-
-            
-
+        
         wubicaciones = Almacenamiento.objects.create(
             name=name,
             description=description,
             lab=lab,
         )
+
         wubicacion_id = wubicaciones.id
         messages.success(
             request, 'Se ha creado exitosamente la ubicacion en almacén con nombre '+name+' id: '+str(wubicacion_id))
@@ -287,6 +315,12 @@ def crear_walmacen(request):
     return render(request, 'reactivos/crear_walmacen.html', context)
 
 
+# La vista "crear_estado" se encarga de gestionar la creación de estados en la db. Esta vista toma los datos del formulario 
+# existente en el template "crear_estado.html" y realiza las operaciones necesarias en la base de datos utilizando 
+# el modelo "Estados". El objetivo es garantizar la unicidad de los registros, lo que implica verificar si el estado
+# ya existe en la base de datos antes de crearlo. Si el estado es única, se crea un nuevo registro en la tabla 
+# correspondiente utilizando el modelo "Estados". Si el estado ya existe, se muestra un mensaje de error o se toma la 
+# acción apropiada según los requisitos del sistema.
 
 def crear_estado(request):
     if request.method == 'POST':
@@ -318,6 +352,12 @@ def crear_estado(request):
     }
     return render(request, 'reactivos/crear_estado.html', context)
 
+# La vista "crear_laboratorio" se encarga de gestionar la creación de estados en la db. Esta vista toma los datos del formulario 
+# existente en el template "crear_laboratorio.html" y realiza las operaciones necesarias en la base de datos utilizando 
+# el modelo "Laboratorios". El objetivo es garantizar la unicidad de los registros, lo que implica verificar si el laboratorio
+# ya existe en la base de datos antes de crearlo. Si el laboratorio es único, se crea un nuevo registro en la tabla 
+# correspondiente utilizando el modelo "Laboratorios". Si el estado ya existe, se muestra un mensaje de error o se toma la 
+# acción apropiada según los requisitos del sistema.
 def crear_laboratorio(request):
     if request.method == 'POST':
         name = request.POST.get('name')
@@ -349,7 +389,12 @@ def crear_laboratorio(request):
     return render(request, 'reactivos/crear_laboratorio.html', context)
 
 
-
+# La vista "crear_facultad" se encarga de gestionar la creación de estados en la db. Esta vista toma los datos del formulario 
+# existente en el template "crear_facultad.html" y realiza las operaciones necesarias en la base de datos utilizando 
+# el modelo "Facultades". El objetivo es garantizar la unicidad de los registros, lo que implica verificar si la facultad
+# ya existe en la base de datos antes de crearlo. Si la facultad es único, se crea un nuevo registro en la tabla 
+# correspondiente utilizando el modelo "Facultades". Si la facultad ya existe, se muestra un mensaje de error o se toma la 
+# acción apropiada según los requisitos del sistema.
 def crear_facultad(request):
     if request.method == 'POST':
         name = request.POST.get('name')
@@ -380,11 +425,12 @@ def crear_facultad(request):
     }
     return render(request, 'reactivos/crear_facultad.html', context)
 
-
-
-
-
-
+# La vista "crear_destino" se encarga de gestionar la creación de destinos en la db. Esta vista toma los datos del formulario 
+# existente en el template "crear_destino.html" y realiza las operaciones necesarias en la base de datos utilizando 
+# el modelo "Destinos". El objetivo es garantizar la unicidad de los registros, lo que implica verificar si el destino
+# ya existe en la base de datos antes de crearlo. Si este es único, se crea un nuevo registro en la tabla 
+# correspondiente utilizando el modelo "Destinos". Si el destino ya existe, se muestra un mensaje de error o se toma la 
+# acción apropiada según los requisitos del sistema.
 def crear_destino(request):
     if request.method == 'POST':
         name = request.POST.get('name')
@@ -412,7 +458,12 @@ def crear_destino(request):
     }
     return render(request, 'reactivos/crear_destino.html', context)
 
-
+# La vista "crear_destino" se encarga de gestionar la creación de ubicaciones en la db. Esta vista toma los datos del formulario 
+# existente en el template "crear_ubicaciones.html" y realiza las operaciones necesarias en la base de datos utilizando 
+# el modelo "Ubicaciones". El objetivo es garantizar la unicidad de los registros, lo que implica verificar si la ubicación
+# ya existe en la base de datos antes de crearlo. Si este es único, se crea un nuevo registro en la tabla 
+# correspondiente utilizando el modelo "Ubicaciones". Si la ubicación ya existe, se muestra un mensaje de error o se toma la 
+# acción apropiada según los requisitos del sistema.
 def crear_ubicacion(request):
     if request.method == 'POST':
         name = request.POST.get('name')
@@ -442,7 +493,12 @@ def crear_ubicacion(request):
     }
     return render(request, 'reactivos/crear_ubicacion.html', context)
 
-
+#La vista "crear_responsable" se encarga de gestionar la creación de responsables en la db. Esta vista toma los datos del formulario 
+# existente en el template "crear_responsables.html" y realiza las operaciones necesarias en la base de datos utilizando el modelo 
+# "Responsables". El objetivo es garantizar la unicidad de los registros, lo que implica verificar si la el responsable ya existe en la 
+# base de datos antes de crearlo, para ello, realiza verificación por nombre, correo electrónico y teléfono. Si este es único, se crea 
+# un nuevo registro en la tabla correspondiente utilizando el modelo "Responsables". Si el responsable ya existe, se muestra un mensaje 
+# de error o se toma la acción apropiada según los requisitos del sistema.
 def crear_responsable(request):
     if request.method == 'POST':
         name = request.POST.get('name')
@@ -496,14 +552,20 @@ def crear_responsable(request):
     }
     return render(request, 'reactivos/crear_responsable.html', context)
 
-
+# La vista "registrar_entrada" se encarga de gestionar el registro de transacciones de entrada en el aplicativo de insumos en la base de 
+# datos. Los datos se obtienen del formulario presente en el template "registrar_entrada.html". Utilizando el modelo "Entradas", se 
+# realizan las operaciones necesarias. La vista verifica la existencia de los campos de entrada que son foráneos en la base de datos. 
+# Si alguno de estos campos es tomado como un nombre o un ID, se convierten en una instancia del modelo foráneo correspondiente. 
+# Luego, se verifica en la tabla "Inventarios" si existe algún registro que coincida con los campos "lab", "name", "trademark" y 
+# "reference". Si hay una coincidencia, se suma el valor del campo "weight" del registro existente. En caso contrario, se crea un nuevo 
+# registro con los valores correspondientes.Finalmente, se realiza la creación del registro de entrada en la base de datos utilizando 
+# el modelo "Entradas".
 def registrar_entrada(request):
 
     if request.method == 'POST':
         
         name = request.POST.get('name')
         nReactivo = name
-
         try:
             nameReactivo = Reactivos.objects.get(name=name)
             name = nameReactivo
@@ -515,8 +577,6 @@ def registrar_entrada(request):
 
         location = request.POST.get('location')
         nlocation = location
-        
-
         try:
             nameLocation = Ubicaciones.objects.get(name=location)
             location = nameLocation
@@ -528,9 +588,7 @@ def registrar_entrada(request):
             return HttpResponse("La ubicación "+nlocation +" no se encuentra en la base de datos, favor crearlo primero.", status=400)
         
         manager = request.POST.get('manager')
-        nmanager = manager    
-        
-
+        nmanager = manager
         try:
             nameManager = Responsables.objects.get(name=manager)
             manager = nameManager
@@ -540,7 +598,7 @@ def registrar_entrada(request):
             manager = None
             return HttpResponse("El responsable "+nmanager +
                            " no se encuentra en la base de datos, favor crearlo primero.", status=400)
-        
+                
         trademark_id = request.POST.get('trademark')
         try:
             nameMarca = Marcas.objects.get(id=trademark_id)
@@ -549,16 +607,15 @@ def registrar_entrada(request):
             trademark = None
             return redirect('reactivos:registrar_entrada')
         
+        
         wlocation_id = request.POST.get('wlocation')
         try:
             nameWlocation = Almacenamiento.objects.get(id=wlocation_id)
             wlocation = nameWlocation
         except ObjectDoesNotExist:
             wlocation = None
-            return redirect('reactivos:registrar_entrada')
+            return redirect('reactivos:registrar_entrada')        
         
-        
-
         destination_id = request.POST.get('destination')
         try:
             namedestino = Destinos.objects.get(id=destination_id)
@@ -569,7 +626,6 @@ def registrar_entrada(request):
         
         lab = request.POST.get('lab')
         nlab = lab
-        
         try:
             namelab = Laboratorios.objects.get(name=lab)
             lab = namelab
@@ -676,7 +732,18 @@ def registrar_entrada(request):
     return render(request, 'reactivos/registrar_entrada.html', context)
 
 
-
+# La vista "registrar_salida" se encarga de gestionar el registro de transacciones de salida en el aplicativo de insumos de la base de 
+# datos. Los datos se obtienen del formulario presente en el template "registrar_salida.html" y se utilizan el modelo "Salidas" para 
+# realizar las operaciones correspondientes de inserción de registros.
+# En esta vista se verifica la existencia de los campos de entrada que son foráneos en la base de datos. En caso de que alguno de estos 
+# campos sea tomado como un nombre o un ID, se convierten en una instancia del modelo foráneo correspondiente. Luego, se realiza una 
+# verificación en la tabla "Inventarios" para comprobar si existe algún registro que coincida con los campos "lab", "name", "trademark" 
+# y "reference".
+#Si se encuentra una coincidencia en "Inventarios", se resta el valor del campo "weight" del registro existente. Si no hay una 
+# coincidencia, se impide el registro tanto en la tabla "Inventarios" como en la tabla "Salidas". Además, se verifica que el campo 
+# "weight" sea mayor o igual para permitir la transacción. En caso contrario, se muestra un mensaje de error. Adicionalmente, si el 
+# campo "weight" llega a cero después de realizar el registro, se muestra un mensaje indicando que el insumo ha alcanzado el valor de cero.
+#Finalmente, se realiza la creación del registro de salida en la base de datos utilizando el modelo "Salidas".
 def registrar_salida(request):
 
     if request.method == 'POST': 
@@ -684,7 +751,6 @@ def registrar_salida(request):
         
         name = request.POST.get('name')
         nReactivo = name
-
         try:
             nameReactivo = Reactivos.objects.get(name=name)
             name = nameReactivo
@@ -696,12 +762,9 @@ def registrar_salida(request):
 
         location = request.POST.get('location')
         nlocation = location
-        
-
         try:
             nameLocation = Ubicaciones.objects.get(name=location)
             location = nameLocation
-
         except Ubicaciones.DoesNotExist:
             messages.error(request, "La ubicación "+nlocation +
                            " no se encuentra en la base de datos, favor crearlo primero.")
@@ -710,9 +773,6 @@ def registrar_salida(request):
         
         manager = request.POST.get('manager')
         nmanager = manager
-        
-        
-
         try:
             nameManager = Responsables.objects.get(name=manager)
             manager = nameManager
@@ -741,7 +801,6 @@ def registrar_salida(request):
         
         lab = request.POST.get('lab')
         nlab = lab
-        
         try:
             namelab = Laboratorios.objects.get(name=lab)
             lab = namelab
@@ -764,9 +823,12 @@ def registrar_salida(request):
                 weight = request.POST.get('weight')
                 weight=Decimal(weight)
                 unit = request.POST.get('unit')
+                #Verificar si la cantidad actual sea mayor o igual a cantidad registrada
                 if inventario_existente.weight>=weight:
                     inventario_existente.weight -= int(weight)
                     inventario_existente.save()
+                    #Verificación después de restar en la tabla llegue a cero y ponga en warning la alerta que 
+                    # posteriormente se enviará al usuario informando
                     if inventario_existente.weight == 0:
                         warning=", pero el inventario actual ha llegado a 0. Favor informar al coordinador de laboratorio."
                 else:
@@ -816,10 +878,14 @@ def registrar_salida(request):
             }
         
     return render(request, 'reactivos/registrar_salida.html', context)
-        
-        
-        
 
+# La vista "inventario" se encarga de obtener los valores de la tabla del modelo "Inventario" y los envía al template "inventario.html"
+# Además, recibe los valores filtrados desde el template, especificando qué elementos se desean mostrar en la lista. Estos valores 
+# filtrados, como el nombre y la marca, se guardan en la sesión utilizando los siguientes comandos:
+# request.session['filtered_name'] = name
+# request.session['filtered_trademark'] = trademark
+# Esto permite que los valores de filtrado puedan ser utilizados en otras vistas que realicen la exportación a formatos como Excel o 
+# PDF. De esta manera, se garantiza la consistencia de los datos filtrados al exportarlos a otros formatos.
 
 class InventarioListView(ListView):
     model = Inventarios
@@ -874,7 +940,7 @@ class InventarioListView(ListView):
 
         return queryset
 
-
+# Guarda los datos de filtrados y datos de paginación en el template inventarios.html en los datos de session de usuario
 class GuardarPerPageView(View):
     def get(self, request, *args, **kwargs):
         per_page = kwargs.get('per_page')
@@ -894,7 +960,7 @@ class GuardarPerPageView(View):
 
         return redirect(url)
 
-
+# Devuelve al template los valores únicos de marca según el nombre del reactivo en la tabla del modelo Inventarios
 class TrademarksAPI(View):
     def get(self, request):
         reactive_id = request.GET.get('reactive_id')
@@ -912,6 +978,7 @@ class TrademarksAPI(View):
 
         return JsonResponse(trademarks_list, safe=False)
 
+# Devuelve al template los valores únicos de referencia según el nombre del reactivo en la tabla del modelo Inventarios
 class ReferencesAPI(View):
     def get(self, request):
         reactive_id = request.GET.get('reactive_id')
@@ -929,12 +996,11 @@ class ReferencesAPI(View):
 
         return JsonResponse(references_list, safe=False)
     
-
+# Devuelve al template los valores únicos de wlocation según el nombre del reactivo en la tabla del modelo Almacenamiento
 class WlocationsAPI(View):
     def get(self, request):
         lab = request.GET.get('lab')
         
-
         if lab:
             almacenamiento = Almacenamiento.objects.filter(lab__name=lab)
             wlocation_list = almacenamiento.values('id','name').distinct()
@@ -942,11 +1008,10 @@ class WlocationsAPI(View):
 
         return JsonResponse([], safe=False)
 
-
-
-
-
-
+# Utilizando los valores filtrados en el template inventario.html, y guardados en los datos de sesión, se crea el archivo de Excel 
+# correspondiente e se introducen los valores desde la tabla del modelo Inventarios. Además, se aplican formatos a los encabezados, se 
+# coloca un título, la fecha de creación y el logo. También se ajustan los anchos de columna y las alturas de fila, y se añaden filtros 
+# a los encabezados en caso de que el usuario lo solicite
 
 def export_to_excel(request):
     # Obtener los valores filtrados almacenados en la sesión del usuario
@@ -1086,7 +1151,9 @@ def export_to_excel(request):
 
     return response
 
-
+# Utilizando los valores filtrados en el template inventario.html, y guardados en los datos de sesión, se crea el archivo PDF 
+# correspondiente e se introducen los valores desde la tabla del modelo Inventarios. Además, se aplican formatos a los encabezados, se 
+# coloca un título, la fecha de creación y el logo. También se ajustan los anchos de columna y las alturas de fila
 def export_to_pdf(request):
     # Obtener los valores filtrados almacenados en la sesión del usuario
     name = request.session.get('filtered_name')
@@ -1220,7 +1287,8 @@ def export_to_pdf(request):
 
     return response
 
-
+# Toma los valores enviados desde el template registrar_entrada.html o registrar_salida.html, consulta en la tabla reactivos y devuelve
+# los valores de code, cas, state, y unit, para que se actualicen en los campos de entrada de los formualrios correspondientes
 def get_value(request):
     if request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest':
         # Si la solicitud es una solicitud AJAX, procesar la solicitud y devolver una respuesta JSON
@@ -1249,7 +1317,8 @@ def get_value(request):
         # Si la solicitud no es una solicitud AJAX, devolver una respuesta HTTP 400 Bad Request
         return HttpResponseBadRequest()
 
-
+# Devuelve los valores de la tabla Reactivos según lo escrito en el campo name del formulario registrar_salida.html en forma de una 
+# lista de autocompletado
 def autocomplete(request):
     term = request.GET.get('term', '')
     reactivos = Reactivos.objects.filter(Q(name__icontains=term) | Q(
@@ -1267,27 +1336,8 @@ def autocomplete(request):
     return JsonResponse(results, safe=False)
 
 
-
-# class AutocompleteOutAPI(View):
-#     def get(self, request):
-#         term = request.GET.get('term', '')
-
-#         inventarios = Inventarios.objects.filter(
-#             Q(name__name__icontains=term) | Q(name__code__icontains=term) | Q(name__cas__icontains=term)
-#         ).order_by('name').distinct('name')[:10]
-
-#         results = []
-#         for inventario in inventarios:
-#             result = {
-#                 'id': inventario.name.id,
-#                 'name': inventario.name.name,
-#                 'code': inventario.name.code,
-#                 'cas': inventario.name.cas,
-#             }
-#             results.append(result)
-
-#         return JsonResponse(results, safe=False)
-
+# Devuelve los valores de la tabla Inventarios según lo escrito en el campo name del formulario registrar_salida.html en forma de una 
+# lista de autocompletado
 class AutocompleteOutAPI(View):
     def get(self, request):
         term = request.GET.get('term', '')
@@ -1311,9 +1361,8 @@ class AutocompleteOutAPI(View):
 
         return JsonResponse(results, safe=False)
 
-
-
-
+# Devuelve los valores de la tabla Ubicaciones según lo escrito en el campo name del formulario registrar_salida.html en forma de 
+# una lista de autocompletado
 def autocomplete_location(request):
     term = request.GET.get('term', '')
     ubicaciones = Ubicaciones.objects.filter(Q(name__icontains=term))[:10]
@@ -1324,7 +1373,8 @@ def autocomplete_location(request):
 
     return JsonResponse(results, safe=False)
 
-
+# Devuelve los valores de la tabla Responsables según lo escrito en el campo name del formulario registrar_salida.html en forma de 
+# una lista de autocompletado
 def autocomplete_manager(request):
     term = request.GET.get('term', '')
     responsables = Responsables.objects.filter(Q(name__icontains=term))[:10]
