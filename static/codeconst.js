@@ -1,4 +1,6 @@
-// Concatena los campos color - numbre - subnumber
+// Concatena los campos color - number  - subnumber
+// Toma los valores de los campos color, number y subnumber, el campo de number lo vuelve un string de 3 cifras, los concatena
+// y los escribe en el campo code
 
 document.getElementById("color").addEventListener("input", updateCode);
 document.getElementById("number").addEventListener("input", updateCode);

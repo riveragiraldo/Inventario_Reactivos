@@ -1,4 +1,4 @@
-
+//Actualiza las ubicaciones en almacen dependiendo de laboratorio en que se encuentre
 
 
 // Obtener los elementos del DOM

@@ -23,6 +23,8 @@
     <!-- Llama Script  borrar campos despues de una transacción -->
     <script src="{% static 'UpdateFields.js' %}"></script>
     <!-- Llama Script  actualizar campos según el nombre -->
+    <script src="{% static 'hideMinStock.js' %}"></script>
+    <!-- Llama Script  que oculta el campo stock mínimo -->
     <script src="{% static 'callPopUp.js' %}" defer></script>
     <!-- Llama Script al final abre ventanas emergentes -->
     <script src="{% static 'sendInfoin.js' %}" defer></script>
@@ -56,28 +58,31 @@
                     </select>
                 </div>
 
-                <div class="col-md-5">
+                <div class="col-md-6">
                     <label class="form-label">*Reactivo: "Código - Nombre - CAS"</label>
-                    <input type="text" class="form-control" name="name" id="name" placeholder="Nombre, CI o CAS"
-                        title="Se puede filtrar por nombre, CI o CAS" required />
-                </div>
-                <div class="col-md-1">
-                    <label class="form-label" style="color: transparent;">Add</label>
-                    <button type="button" id="add_reagent_btn" class="btn btn-secondary" title="Agregar Nombre">+
-                        </Address>
-                    </button>
+                    <div class="input-group">
+                        <input type="text" class="form-control" name="name" id="name" placeholder="Nombre, CI o CAS"
+                            title="Se puede filtrar por nombre, CI o CAS" required />
+                        <button type="button" id="add_reagent_btn" class="btn btn-secondary" title="Agregar Nombre">+
+                            </Address>
+                    </div>
                 </div>
 
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <label class="form-label">*Código:</label>
                     <input type="text" name="code" class="form-control" value="" id="code" readonly
                         placeholder="Cód. Interno">
                 </div>
 
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <label class="form-label">*CAS:</label>
                     <input type="text" name="cas" class="form-control" value="" id="cas" readonly
                         placeholder="Cód. CAS">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">*Estado:</label>
+                    <input type="text" name="is_liquid" class="form-control" value="" id="is_liquid" readonly
+                        placeholder="Estado">
                 </div>
 
                 <div class="col-md-4">
@@ -89,18 +94,17 @@
                     </div>
                 </div>
 
-                <div class="col-md-3">
+                <div class="col-md-4">
                     <label class="form-label">*Marca:</label>
-                    <select name="trademark" id="trademark" class="form-select" required>
-                        {% for marca in marcas %}
-                        <option value="{{ marca.id }}">{{ marca.name }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="col-md-1">
-                    <label class="form-label" style="color: transparent;">Add</label>
-                    <button type="button" id="add_trademark_btn" class="btn btn-secondary" title="Agregar Marca">+
-                        </Address></button>
+                    <div class="input-group">
+                        <select name="trademark" id="trademark" class="form-select" required>
+                            {% for marca in marcas %}
+                            <option value="{{ marca.id }}">{{ marca.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <button type="button" id="add_trademark_btn" class="btn btn-secondary" title="Agregar Marca">+
+                            </Address></button>
+                    </div>
                 </div>
 
                 <div class="col-md-4">
@@ -110,25 +114,25 @@
 
                 </div>
 
-                <div class="col-md-3">
+                <div class="col-md-3" id="referenceBlock">
                     <label class="form-label">*Referencia:</label>
                     <input type="text" class="form-control" placeholder="Ref. reactivo" name="reference" id="reference"
                         required>
                 </div>
 
-                <div class="col-md-3">
-                    <label class="form-label">*Estado:</label>
-                    <input type="text" name="is_liquid" class="form-control" value="" id="is_liquid" readonly
-                        placeholder="Estado">
-                </div>
-
-                <div class="col-md-4">
+                <div class="col-md-4" id="weightBlock">
                     <label class="form-label" for="weight">*Cantidad:</label>
                     <input type="number" step="any" class="form-control" placeholder="Cant. reactivo" id="weight"
                         name="weight" min="0" required>
                 </div>
 
-                <div class="col-md-2">
+                <div class="col-md-3" id="minStockBlock">
+                    <label class="form-label" for="minstock">Stock Mínimo:</label>
+                    <input type="number" step="any" class="form-control" placeholder="Stock Mínimo" id="minstock"
+                        name="minstock" min="0">
+                </div>
+
+                <div class="col-md-2" id="unitBlock">
                     <label class="form-label">*Unidades:</label>
                     <input type="text" name="unit" class="form-control" value="" id="unit" readonly>
                 </div>
@@ -137,20 +141,21 @@
                     <label class="form-label">Orden:</label>
                     <input type="text" name="order" class="form-control" id="order" placeholder="Orden Número">
                 </div>
+
                 <div class="col-md-6">
                     <label class="form-label">Número de proyecto:</label>
                     <input type="text" name="nproject" class="form-control" id="nproject" placeholder="Proyecto Número">
                 </div>
-                <div class="col-md-5">
+
+                <div class="col-md-6">
                     <label class="form-label">*Asignatura/Ubicación:</label>
-                    <input type="text" name="location" class="form-control" id="location" required
-                        placeholder="Asignatura/Ubicación Destino">
-                </div>
-                <div class="col-md-1">
-                    <label class="form-label" style="color: transparent;">Add</label>
-                    <button type="button" id="add_location_btn" class="btn btn-secondary"
-                        title="Agregar Asigantura/Ubicación">+
-                        </Address></button>
+                    <div class="input-group">
+                        <input type="text" name="location" class="form-control" id="location" required
+                            placeholder="Asignatura/Ubicación Destino">
+                        <button type="button" id="add_location_btn" class="btn btn-secondary"
+                            title="Agregar Asigantura/Ubicación">+
+                            </Address></button>
+                    </div>
                 </div>
 
                 <div class="col-md-6">
@@ -161,34 +166,31 @@
                         {% endfor %}
                     </select>
                 </div>
-                
 
-                <div class="col-md-5">
+                <div class="col-md-6">
                     <label class="form-label">*Responsable:</label>
-                    <input type="text" name="manager" class="form-control" id="manager" required
-                        placeholder="Responsable del insumo">
-
+                    <div class="input-group">
+                        <input type="text" name="manager" class="form-control" id="manager" required
+                            placeholder="Responsable del insumo">
+                        <button type="button" id="add_manager_btn" class="btn btn-secondary"
+                            title="Agregar Responsable">+
+                            </Address></button>
+                    </div>
                 </div>
-                <div class="col-md-1">
-                    <label class="form-label" style="color: transparent;">Add</label>
-                    <button type="button" id="add_manager_btn" class="btn btn-secondary" title="Agregar Responsable">+
-                        </Address></button>
-                </div>
 
-                <div class="col-md-5">
+                <div class="col-md-6">
                     <label class="form-label">*Ubicación en almacén:</label>
-                    <select name="wlocation" id="wlocation" class="form-select" required>
-                        <option value="">Seleccione</option>
-                        {% for wubicacion in wubicaciones %}
-                        <option value="{{ wubicacion.id }}">{{ wubicacion.name }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="col-md-1">
-                    <label class="form-label" style="color: transparent;">Add</label>
-                    <button type="button" id="add_wlocation_btn" class="btn btn-secondary"
-                        title="Agregar ubicación en Almacén">+
-                        </Address></button>
+                    <div class="input-group">
+                        <select name="wlocation" id="wlocation" class="form-select" required>
+                            <option value="">Seleccione</option>
+                            {% for wubicacion in wubicaciones %}
+                            <option value="{{ wubicacion.id }}">{{ wubicacion.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <button type="button" id="add_wlocation_btn" class="btn btn-secondary"
+                            title="Agregar ubicación en Almacén">+
+                            </Address></button>
+                    </div>
                 </div>
 
                 <div class="col-md-12">

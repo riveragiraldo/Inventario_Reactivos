@@ -7,17 +7,17 @@ function isPopupWindow() {
 // Función para ocultar los botones de agregar si es una ventana emergente
 function hideAddButtonsIfPopup() {
 
-    var addUnitCont = document.getElementById("addUnitCont");
-    var addStateCont = document.getElementById("addStateCont");
-    var addSgaCont = document.getElementById("addSgaCont");
-    var addRespelCont = document.getElementById("addRespelCont");
+    var addUnitCont = document.getElementById("add_unit_btn");
+    
+    var addSgaCont = document.getElementById("add_sga_btn");
+    var addRespelCont = document.getElementById("add_respel_btn");
 
     if (isPopupWindow()) {
 
         addUnitCont.style.display = "none";
-        addStateCont.style.display = "none";
         addSgaCont.style.display = "none";
         addRespelCont.style.display = "none";
+        
 
     }
 }

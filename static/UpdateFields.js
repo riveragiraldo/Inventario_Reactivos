@@ -1,5 +1,6 @@
 //Actualizar campos
-
+//Dependiendo del valor autocompletado  en el campo name envía a la vista get-value, esta devuelve los valores de code cas state y unir
+//y los escribe en los campos correspondientes
 function updateFields() {
     var valueSelected = $('#name').val();
     $.ajax({
@@ -10,15 +11,7 @@ function updateFields() {
         dataType: 'json',
         success: function (data) {
             var label = document.querySelector('.form-label[for="weight"]');
-            if (data.liquid === 'SI') {
-                label.innerHTML = 'Volumen:';
-            }
-            else if (data.liquid === 'NO') {
-                label.innerHTML = 'Masa:';
-            }
-            else {
-                label.innerHTML = 'Cantidad:';
-            }
+            
             $('#cas').val(data.cas);
             $('#code').val(data.codigo);
             $('#is_liquid').val(data.liquid);

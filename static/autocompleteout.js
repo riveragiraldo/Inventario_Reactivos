@@ -1,5 +1,6 @@
-// //autocompletar por nombre o código
-
+//autocompletar por nombre o código
+//Envía valores escritos en el campo name a la vista AutocompleteOutAPI, esta devuelve los valores de code cas y name, se concatenan y 
+//se visualizan en forma de lista desplegable 
 $(document).ready(function () {
     $("#name").autocomplete({
         source: "{% url 'reactivos:autocomplete_out' %}",
@@ -40,7 +41,7 @@ $(document).ready(function () {
         source: function (request, response) {
             var term = request.term;
             var lab = $('#lab').val();
-            console.log(lab)
+            
 
             $.getJSON('/autocomplete_out/', { term: term, lab: lab })
                 .done(function (data) {
@@ -77,6 +78,8 @@ $('#name').on('input', function () {
 
 
 //Función autocompletar por Ubicación
+//Envía valores escritos en el campo location a la vista Autocomplete_location, esta devuelve los valores de location y 
+//se visualizan en forma de lista desplegable 
 $(document).ready(function () {
     $("#location").autocomplete({
         source: "autocomplete_location/",
@@ -88,6 +91,9 @@ $(document).ready(function () {
     });
 });
 
+
+//Envía valores escritos en el campo maneger a la vista Autocomplete_manager, esta devuelve los valores de manager
+//se visualizan en forma de lista desplegable 
 //Función autocompletar por Responsable
 $(document).ready(function () {
     $("#manager").autocomplete({
@@ -102,7 +108,8 @@ $(document).ready(function () {
 
 
 //Actualizar campos
-
+//Dependiendo del valor autocompletado  en el campo name envía a la vista get-value, esta devuelve los valores de code cas state y unir
+//y los escribe en los campos correspondientes
 function updateFields() {
     var valueSelected = $('#name').val();
     $.ajax({

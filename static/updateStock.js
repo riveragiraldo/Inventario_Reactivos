@@ -1,35 +1,59 @@
-document.addEventListener('DOMContentLoaded', function () {
-    // Obtener los elementos del DOM
-    const nameInput = document.getElementById('name');
-    const referenceInput = document.getElementById('reference');
-    const trademarkInput = document.getElementById('trademark');
-    const stockInput = document.getElementById('stock');
+document.addEventListener("DOMContentLoaded", function () {
+    // Función para enviar la solicitud AJAX y actualizar el campo "stock"
+    function obtenerStock() {
+        var lab = document.getElementById("lab").value;
+        var name = document.getElementById("name").value;
+        var trademark = document.getElementById("trademark").value;
+        var reference = document.getElementById("reference").value;
+        console.log(lab);
+        console.log(name);
+        console.log(trademark);
+        console.log(reference);
 
-    // Manejar el evento de cambio en el primer input
-    nameInput.addEventListener('change', function () {
-        // Obtener los valores seleccionados en los inputs
-        const selectedName = nameInput.value;
-        const selectedReference = referenceInput.value;
-        const selectedTrademark = trademarkInput.value;
-        const selectedLab = document.getElementById('lab').value;
+        // Validar que todos los campos tengan un valor
+        if (!lab || !name || !trademark || !reference) {
+            alert("Por favor, complete los campos nombre, marca y referencia");
+            return;
+        }
 
-        // Retraso de 1 segundo antes de enviar la solicitud
-        setTimeout(function () {
-            // Realizar una solicitud AJAX para obtener el valor de weight correspondiente
-            fetch(`/api/weight?name=${selectedName}&reference=${selectedReference}&trademark=${selectedTrademark}&lab=${selectedLab}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.weight) {
-                        // Asignar el valor de weight a la input de stock
-                        stockInput.value = data.weight;
+        // Realizar la solicitud AJAX a la vista "obtener_stock"
+        var xhr = new XMLHttpRequest();
+        xhr.open(
+            "GET",
+            "/obtener_stock/?lab=" +
+            lab +
+            "&name=" +
+            name +
+            "&trademark=" +
+            trademark +
+            "&reference=" +
+            reference,
+            true
+        );
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === XMLHttpRequest.DONE) {
+                if (xhr.status === 200) {
+                    // Obtener el stock devuelto por la vista
+                    var response = JSON.parse(xhr.responseText);
+                    if (response.stock === null || xhr.status === 404) {
+                        // Mostrar alerta cuando se recibe un valor "none" o 404
+                        alert("Los campos no coinciden. Por favor, verifique.");
+                        document.getElementById("stock").value = 0;
                     } else {
-                        // Limpiar el valor de stock si no se encuentra un peso correspondiente
-                        stockInput.value = '';
+                        var stock = Math.floor(response.stock.weight);
+                        // Actualizar el campo "stock" con el valor obtenido
+                        document.getElementById("stock").value = stock;
                     }
-                })
-                .catch(error => {
-                    //console.log('Error:', error);
-                });
-        }, 1000);
+                } else {
+                    console.log("Error:", xhr.statusText);
+                }
+            }
+        };
+        xhr.send();
+    }
+
+    // Asignar un evento al clic en el span "Ver"
+    document.getElementById("stock-view").addEventListener("click", function () {
+        obtenerStock();
     });
 });

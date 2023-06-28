@@ -58,44 +58,44 @@
                                 required id="cas">
                         </div>
 
-                        <div class="col-md-3">
+                        <div class="col-md-4">
                             <label class="form-label">*Clasificación Respel:</label>
-
+                            <div class="input-group">
                             <select name="respel" id="respel" class="form-select" required>
                                 <option value="">Seleccione</option>
                                 {% for respel in respels %}
                                 <option value="{{ respel.id }}">{{ respel.name }}</option>
                                 {% endfor %}
                             </select>
-                        </div>
-                        <div class="col-md-1" id="addRespelCont">
-                            <label class="form-label" style="color: transparent; visibility: hidden;">Add</label>
+                            
                             <button type="button" id="add_respel_btn" class="btn btn-secondary"
-                                title="Agregar Clasisifcación Respel">+</button>
+                                    title="Agregar Clasificación Respel" style="color: white;">+</button>
+                            
+                        </div>
                         </div>
                         
-                        <div class="col-md-3">
+                        
+                        <div class="col-md-4">
                             <label class="form-label">*Códificación SGA:</label>
-
+                            <div class="input-group">
                             <select name="sga" id="sga" class="form-select" required>
                                 <option value="">Seleccione</option>
                                 {% for sga in sgas %}
                                 <option value="{{ sga.id }}">{{ sga.name }}</option>
                                 {% endfor %}
                             </select>
-                        </div>
-                        <div class="col-md-1" id="addSgaCont">
-                            <label class="form-label" style="color: transparent; visibility: hidden;">Add</label>
                             <button type="button" id="add_sga_btn" class="btn btn-secondary"
                                 title="Agregar Códificación SGA">+</button>
+                            </div>
                         </div>
+                        
                         
                         <div class="col-md-4">
                             <label class="form-label">*Nombre del reactivo:</label>
                             <input type="text" class="form-control" placeholder="Nombre de reactivo" name="name"
                                 required id="name">
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-4">
                             <label class="form-label">*Estado:</label>
                             <select name="state" class="form-select" required id="selectState">
                                 <option value="">Seleccione</option>
@@ -107,28 +107,21 @@
                             </select>
 
                         </div>
-
-                        <div class="col-md-1" id="addStateCont">
-                            <label class="form-label" style="color: transparent; visibility: hidden;">Add</label>
-                            <button type="button" id="add_state_btn" class="btn btn-secondary"
-                                title="Agregar Estado">+</button>
-                        </div>
                         
-                        <div class="col-md-3">
+                        <div class="col-md-4">
                             <label class="form-label">*Unidades:</label>
+                            <div class="input-group">
                             <select name="unit" class="form-select" required id="selectUnidades">
                                 <option value="">Seleccione</option>
                                 {% for unidad in unidades %}
                                 <option value="{{ unidad.id }}">{{ unidad.name }}</option>
                                 {% endfor %}
                             </select>
-                        </div>
-
-                        <div class="col-md-1" id="addUnitCont">
-                            <label class="form-label" style="color: transparent;">Add</label>
                             <button type="button" id="add_unit_btn" class="btn btn-secondary"
                                 title="Agregar Unidad">+</button>
+                            </div>
                         </div>
+
                         <input type="hidden" name="wf" class="form-control" value="crear" id="wf">
                         
                         <div class="col-md-3 mt-3">

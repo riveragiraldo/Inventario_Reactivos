@@ -1,3 +1,4 @@
+//Valida que los campos required se hayan diligenciado, antes de sacar alerta informativa y enviarlos al servidor
 function validarCampos() {
     var campos = document.querySelectorAll("form input[required], form select[required], form textarea[required]");
     for (var i = 0; i < campos.length; i++) {
@@ -9,6 +10,7 @@ function validarCampos() {
     return true;
 }
 
+//Función principal que la orden desde el submit
 function openPopupWindowConfirm() {
     if (validarCampos()) {
         var formData = obtenerDatosFormulario();
@@ -22,6 +24,7 @@ function openPopupWindowConfirm() {
     }
 }
 
+//Envía la información al servidor
 function enviarInformacion(formData, csrfToken) {
     fetch('', {
         method: 'POST',
@@ -57,6 +60,8 @@ function enviarInformacion(formData, csrfToken) {
         });
 }
 
+
+//Obtiene los datos del formulario y los organiza para sacar la alerta informativa
 function obtenerDatosFormulario() {
     var campos = document.querySelectorAll("form input, form select, form textarea");
     var formData = "";
@@ -86,6 +91,7 @@ function obtenerDatosFormulario() {
     return formData;
 }
 
+//Obtiene los datos del formulario y los organiza para enviarlos al servidor
 function obtenerDatosFormularioEnviar() {
     var campos = document.querySelectorAll("form input, form select, form textarea");
     var formData = new FormData();
@@ -100,6 +106,8 @@ function obtenerDatosFormularioEnviar() {
     return formData;
 }
 
+//Obtiene las etiquetas asociadas de manera que la alerta no esté asociada al name de la input sino a la etiqueta de manera que se a 
+//más fácil de entender
 function obtenerEtiquetaAsociada(campo) {
     var etiqueta = campo.previousElementSibling;
     if (etiqueta) {
@@ -109,6 +117,7 @@ function obtenerEtiquetaAsociada(campo) {
     return campo.name;
 }
 
+//Obtiene los valores de los select
 function obtenerValorCampo(campo) {
     if (campo.tagName.toLowerCase() === "select") {
         var opcionSeleccionada = campo.options[campo.selectedIndex];
@@ -118,6 +127,7 @@ function obtenerValorCampo(campo) {
     return campo.value;
 }
 
+//Obtiene el CSRFToken para ser enviado al servidor
 function obtenerCSRFToken() {
     var csrfInput = document.querySelector('input[name="csrfmiddlewaretoken"]');
     if (csrfInput) {
@@ -126,6 +136,7 @@ function obtenerCSRFToken() {
     return null;
 }
 
+//Obtiene el clic del submit para ejecutar las funciones
 var addUnitBtn = document.getElementById("open_confirm_in");
 addUnitBtn.addEventListener("click", openPopupWindowConfirm);
 

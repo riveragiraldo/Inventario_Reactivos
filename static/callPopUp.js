@@ -18,14 +18,7 @@ function openPopupWindowSga() {
     window.open("/sga/crear", "popup", "width=" + w + ",height=" + h + ",left=" + left + ",top=" + top);
 }
 
-//Llama PopUp Crear Estado
-function openPopupWindowState() {
-    var w = 450; // ancho de la ventana emergente
-    var h = 400; // altura de la ventana emergente
-    var left = (screen.width / 2) - (w / 2);
-    var top = (screen.height / 2) - (h / 2);
-    window.open("/estados/crear", "popup", "width=" + w + ",height=" + h + ",left=" + left + ",top=" + top);
-}
+
 
 //Llama PopUp Crear Unidades
 function openPopupWindowUnit() {
@@ -84,25 +77,23 @@ function openPopupWindowWlocation() {
 
 //Lee que formulario es de acuerdo con entrada oculta "wf"
 var wf = document.getElementById("wf").value;
-console.log(wf)
+
 
 if (wf == "crear") {
 
     //Leer Valores
     var addSgaBtn = document.getElementById("add_sga_btn");
     var addRespelBtn = document.getElementById("add_respel_btn");
-    var addStateBtn = document.getElementById("add_state_btn");
     var addUnitBtn = document.getElementById("add_unit_btn");
 
     // Escucha el clic en add y llamar función 
     addSgaBtn.addEventListener("click", openPopupWindowSga);
     addRespelBtn.addEventListener("click", openPopupWindowRespel);
-    addStateBtn.addEventListener("click", openPopupWindowState);
     addUnitBtn.addEventListener("click", openPopupWindowUnit);
 }
 
 else if (wf == "entrada") {
-    console.log(wf)
+   
 
     //Leer Valores
     var addReagentBtn = document.getElementById("add_reagent_btn");
@@ -122,7 +113,7 @@ else if (wf == "entrada") {
 
 
 else if (wf == "salida") {
-    console.log(wf)
+    
     //Leer Valores
     var addManagerBtn = document.getElementById("add_manager_btn");
     var addLocationBtn = document.getElementById("add_location_btn");

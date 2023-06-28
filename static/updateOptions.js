@@ -1,4 +1,4 @@
-//Actualiza los select marac y reference dependiendo de la existencia en almacén
+//Actualiza los select marca y reference dependiendo de la existencia en almacén
 // Obtener los elementos del DOM
 
 const nameInput = document.getElementById('name');

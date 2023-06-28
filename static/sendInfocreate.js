@@ -1,6 +1,5 @@
-//Valida campos obligatorios, genera alerta informativa con datos registrados para validar, envía datos al servidor
 
-//Valida que los campos requiredse hayan diligenciado, antes de sacar alerta informativa y enviarlos al servidor
+//Valida que los campos required se hayan diligenciado, antes de sacar alerta informativa y enviarlos al servidor
 function validarCampos() {
     var campos = document.querySelectorAll("form input[required], form select[required], form textarea[required]");
     for (var i = 0; i < campos.length; i++) {
@@ -65,7 +64,7 @@ function enviarInformacion(formData, csrfToken) {
 }
 
 
-//Obtiene los datos sel formulario y los organiza para sacar la alerta informativa
+//Obtiene los datos del formulario y los organiza para sacar la alerta informativa
 function obtenerDatosFormulario() {
     var campos = document.querySelectorAll("form input, form select, form textarea");
     var formData = "";
@@ -86,7 +85,7 @@ function obtenerDatosFormulario() {
     return formData;
 }
 
-//Obtiene los datos sel formulario y los organiza para enviarlos al servidor
+//Obtiene los datos del formulario y los organiza para enviarlos al servidor
 function obtenerDatosFormularioenviar() {
     var campos = document.querySelectorAll("form input, form select, form textarea");
     var formData = new FormData();
@@ -100,7 +99,8 @@ function obtenerDatosFormularioenviar() {
     return formData;
 }
 
-//Obtiene las etiquetas asociadas de manera que la alerta no esté asociada al name de la input sino a la etiqueta de manera que se a más fácil de entender
+//Obtiene las etiquetas asociadas de manera que la alerta no esté asociada al name de la input sino a la etiqueta de manera que se a 
+//más fácil de entender
 function obtenerEtiquetaAsociada(campo) {
     var etiqueta = campo.previousElementSibling;
     if (etiqueta) {

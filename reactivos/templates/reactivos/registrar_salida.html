@@ -20,6 +20,8 @@
     {% load static %}
     <script src="{% static 'autocompleteout.js' %}"></script>
     <!-- Llama Script Autocompleta campo nombre, responsable y ubicacion -->
+    <script src="{% static 'updateStock.js' %}"></script>
+    <!-- Llama Script Actualiza stock actual -->
     <script src="{% static 'UpdateDate.js' %}"></script>
     <!-- Llama Script  coloca fecha y hora actual -->
     <script src="{% static 'clearFds.js' %}"></script>
@@ -75,10 +77,42 @@
                 </div>
 
                 <div class="col-md-4">
+                    <label class="form-label">Marca reactivo:</label>
+                    <select id="trademark" name="trademark" class="form-control">
+                        <option value="">Seleccione</option>
+                        {% for trademark in marcas %}
+                        <option value="{{ trademark.id }}">{{ trademark.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label">Referencia:</label>
+                    <select id="reference" name="reference" class="form-control">
+                        <option value="">Seleccione</option>
+                        {% for referencia in referencias %}
+                        <option value="{{ referencia.reference}}">{{ referencia.reference }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-md-4">
                     <label class="form-label">Estado:</label>
                     <input type="text" name="is_liquid" class="form-control" value="" id="is_liquid" readonly
                         placeholder="Estado">
                 </div>
+
+
+                <div class="col-md-4">
+                    <label class="form-label">Stock Disponible:</label>
+                    <div class="input-group">
+                        <button type="button" id="stock-view" class="btn btn-secondary">Ver</button>
+                        <input type="text" name="stock" class="form-control" value="" id="stock" readonly
+                            placeholder="Stock">
+
+                    </div>
+                </div>
+
                 <div class="col-md-4">
                     <label class="form-label" for="weight">Cantidad:</label>
                     <input type="number" step="any" class="form-control" placeholder="Cant. reactivo" id="weight"
@@ -90,36 +124,20 @@
                     <input type="text" name="unit" class="form-control" value="" id="unit" readonly>
                 </div>
 
-                <div class="col-md-6">
-                    <label class="form-label">Marca reactivo:</label>
-                    <select id="trademark" name="trademark" class="form-control">
-                        <option value="">Seleccione</option>
-                        {% for trademark in marcas %}
-                        <option value="{{ trademark.id }}">{{ trademark.name }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
+
+
 
                 <div class="col-md-6">
-                    <label class="form-label">Referencia:</label>
-                    <select id="reference" name="reference" class="form-control">
-                        <option value="">Seleccione</option>
-                        {% for referencia in referencias %}
-                        <option value="{{ referencia.reference}}">{{ referencia.reference }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-
-                <div class="col-md-5">
                     <label class="form-label">Asignatura/Ubicación:</label>
-                    <input type="text" name="location" class="form-control" id="location" required
-                        placeholder="Asignatura/Ubicación Destino">
+                    <div class="input-group">
+                        <input type="text" name="location" class="form-control" id="location" required
+                            placeholder="Asignatura/Ubicación Destino">
+                        <button type="button" id="add_location_btn" class="btn btn-secondary"
+                            title="Agregar Responsable">+
+                            </Address></button>
+                    </div>
                 </div>
-                <div class="col-md-1">
-                    <label class="form-label" style="color: transparent;">Add</label>
-                    <button type="button" id="add_location_btn" class="btn btn-secondary" title="Agregar Responsable">+
-                        </Address></button>
-                </div>
+
 
                 <div class="col-md-6">
                     <label class="form-label">Destino:</label>
@@ -130,18 +148,20 @@
                     </select>
                 </div>
 
-                <div class="col-md-11">
+                <div class="col-md-12">
                     <label class="form-label">Responsable:</label>
-                    <input type="text" name="manager" class="form-control" id="manager" required
-                        placeholder="Responsable del insumo">
+                    <div class="input-group">
+                        <input type="text" name="manager" class="form-control" id="manager" required
+                            placeholder="Responsable del insumo">
+                        <button type="button" id="add_manager_btn" class="btn btn-secondary"
+                            title="Agregar Responsable">+
+                            </Address></button>
+                    </div>
+                </div>
+                <input type="hidden" name="wf" class="form-control" value="salida" id="wf">
+                <!-- identificador para saber que tipo de ventana es -->
 
-                </div>
-                <div class="col-md-1">
-                    <label class="form-label" style="color: transparent;">Add</label>
-                    <button type="button" id="add_manager_btn" class="btn btn-secondary" title="Agregar Responsable">+
-                        </Address></button>
-                </div>
-                <input type="hidden" name="wf" id="wf" value="salida">
+
 
                 <div class="col-md-12">
                     <label class="form-label">Observaciones:</label>

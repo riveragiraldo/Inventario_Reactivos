@@ -1342,8 +1342,7 @@ class AutocompleteOutAPI(View):
     def get(self, request):
         term = request.GET.get('term', '')
         lab = request.GET.get('lab', '')
-        print(lab)
-
+       
         inventarios = Inventarios.objects.filter(
             Q(name__name__icontains=term) | Q(name__code__icontains=term) | Q(name__cas__icontains=term),
             lab__name__icontains=lab
@@ -1384,3 +1383,27 @@ def autocomplete_manager(request):
     pass
 
     return JsonResponse(results, safe=False)
+
+from django.http import JsonResponse
+
+
+def obtener_stock(request):
+    if request.method == "GET":
+        lab_name = request.GET.get("lab")
+        name = request.GET.get("name")
+        trademark = request.GET.get("trademark")
+        reference = request.GET.get("reference")
+        
+        # Obtener los IDs correspondientes a partir de los nombres
+        lab = get_object_or_404(Laboratorios, name=lab_name)
+        reactivos = get_object_or_404(Reactivos, name=name)
+
+        print(str(lab)+str(reactivos)+str(trademark)+str(reference))
+        
+        # Realizar la lógica para obtener el stock en base a los parámetros recibidos
+
+        # Supongamos que obtienes el stock de la base de datos o de alguna otra fuente de datos
+        stock = Inventarios.objects.filter(lab=lab, name=reactivos, trademark=trademark, reference=reference).values("weight").first()
+        print(stock)
+        # Devolver la respuesta en formato JSON
+        return JsonResponse({"stock": stock})

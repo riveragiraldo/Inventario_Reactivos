@@ -1,3 +1,5 @@
+//Obtiene la fecha actual y la formatea para mejor entendimiento
+
 function mostrarFechaActual() {
     var dateElement = document.getElementById("currentDate");
     var now = new Date();
