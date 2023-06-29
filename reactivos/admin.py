@@ -81,7 +81,7 @@ class Reactivosadmin(admin.ModelAdmin):
 # Inclusión de el modelo ENTRADAS en la consola de administración de Django
 @admin.register(Entradas)
 class Entradaadmin(admin.ModelAdmin):
-    list_display=('id','date','name','trademark','reference','weight','order','manager','observations','location','price','edate','nproject','destination','lab',)
+    list_display=('id','date','name','trademark','reference','weight','order','manager','observations','location','price','nproject','destination','lab',)
     list_filter=('date','name','lab',)
     search_fields=('date','name','lab',)
     list_per_page=10
@@ -99,7 +99,7 @@ class Salidaadmin(admin.ModelAdmin):
 # Inclusión de el modelo INVENTARIOS en la consola de administración de Django
 @admin.register(Inventarios)
 class Inventarioadmin(admin.ModelAdmin):
-    list_display=('id','name','trademark','weight','unit','reference','lab','fecha_registro','wlocation',)
+    list_display=('id','name','trademark','weight','unit','reference','lab','fecha_registro','wlocation','minstock','edate','is_active')
     list_filter=('trademark','name','reference','lab',)
     search_fields=('trademark','name','reference','lab',)
     list_per_page=10

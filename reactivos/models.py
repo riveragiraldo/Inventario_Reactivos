@@ -192,7 +192,7 @@ class Entradas(models.Model):
     location = models.ForeignKey(
         Ubicaciones, on_delete=models.CASCADE, related_name='Ubicacion', verbose_name='Ubicación')
     price=models.IntegerField(verbose_name="Valor")
-    edate=models.DateField(verbose_name="Fecha de vencimiento")
+    
     nproject=models.CharField(max_length=15, verbose_name='Número de proyecto')
     destination=models.ForeignKey(Destinos, on_delete=models.CASCADE, verbose_name='Destino')
     lab=models.ForeignKey(Laboratorios, on_delete=models.CASCADE, related_name='labs', verbose_name='Laboratorio')
@@ -229,6 +229,7 @@ class Salidas(models.Model):
         Ubicaciones, on_delete=models.CASCADE, related_name='location', verbose_name='Ubicación')
     lab=models.ForeignKey(Laboratorios, on_delete=models.CASCADE, related_name='lab', verbose_name='Laboratorio')
     
+    
 
     def __str__(self):
         return self.name
@@ -253,6 +254,16 @@ class Inventarios(models.Model):
     lab=models.ForeignKey(Laboratorios, on_delete=models.CASCADE, related_name='laboratorio', verbose_name='Laboratorio')
     wlocation=models.ForeignKey(Almacenamiento, on_delete=models.CASCADE, related_name='wloc', verbose_name='Ubicación en Almacén')
     fecha_registro = models.DateTimeField(auto_now=True,verbose_name='Últma actualización')
+    edate=models.DateField(verbose_name="Fecha de vencimiento")
+    minstock = models.DecimalField(
+        max_digits=7,
+        decimal_places=2,
+        blank=True,
+        null=True,
+        default=0,
+        help_text="Ingrese el stock mínimo (puede ser nulo)."
+    )
+    is_active = models.BooleanField(default=True, verbose_name='Activo')
 
     class Meta:
         verbose_name_plural = "Inventarios"

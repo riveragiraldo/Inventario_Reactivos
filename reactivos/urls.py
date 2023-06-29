@@ -36,6 +36,7 @@ urlpatterns = [
     path('reactivos/registrar_entrada/autocomplete_location/',
          autocomplete_location, name='autocomplete_location'),
     path('api/trademarks/', TrademarksAPI.as_view(), name='select-trademarks'),
+    path('api/reactives/', ReactivesAPI.as_view(), name='select-reactives'),
     path('api/references/', ReferencesAPI.as_view(), name='select-references'),
     path('api/wlocations/', WlocationsAPI.as_view(), name='select-wlocations'),   
     path('exportar-excel/', views.export_to_excel, name='export_to_excel'),

@@ -633,10 +633,11 @@ def registrar_entrada(request):
             messages.error(request, "El Laboratorio "+nlab +
                            " no se encuentra en la base de datos, favor crearlo primero.")
             lab = None
-            return HttpResponse("El responsable "+nlab +
+            return HttpResponse("El Laboratorio "+nlab +
                            " no se encuentra en la base de datos, favor crearlo primero.", status=400)
         
         reference = request.POST.get('reference')
+        
         
         # Verificar si el reactivo ya existe en la tabla de inventarios
         try:
@@ -644,10 +645,30 @@ def registrar_entrada(request):
                 name=name, trademark=trademark, reference=reference, lab=lab).first()
 
             if inventario_existente:
-                # Si el reactivo ya existe, sumar el peso obtenido del formulario al peso existente
-                weight = request.POST.get('weight')
-                inventario_existente.weight += int(weight)
-                inventario_existente.save()
+                # Si el reactivo ya existe y está activo(cantidad>0), sumar el peso obtenido del formulario al peso existente
+                if inventario_existente.is_active == True:
+                    # Si el reactivo ya existe, sumar el peso obtenido del formulario al peso existente
+                    weight = request.POST.get('weight')
+                    inventario_existente.weight += int(weight)
+                    inventario_existente.edate = request.POST.get('edate')
+                    inventario_existente.wlocation = wlocation
+                    minstock = request.POST.get('minstock')
+                    if minstock=='':
+                        minstock=0
+                    inventario_existente.minstock = minstock
+                    inventario_existente.save()
+                # Si el reactivo ya existe y NO está activo(cantidad00), poner is_active=True y sumar el peso obtenido del formulario al peso existente    
+                else:
+                    inventario_existente.is_active= True
+                    weight = request.POST.get('weight')
+                    inventario_existente.weight += int(weight)
+                    inventario_existente.edate = request.POST.get('edate')
+                    inventario_existente.wlocation = wlocation
+                    minstock = request.POST.get('minstock')
+                    if minstock=='':
+                        minstock=0
+                    inventario_existente.minstock = minstock
+                    inventario_existente.save()
             else:
                 # Si el reactivo no existe, crear un nuevo registro en la tabla de inventarios
                 weight = request.POST.get('weight')
@@ -664,6 +685,10 @@ def registrar_entrada(request):
                 nameReactivo = Reactivos.objects.get(name=name)
                 name = nameReactivo
                 reference = request.POST.get('reference')
+                edate = request.POST.get('edate')
+                minstock = request.POST.get('minstock')
+                if minstock=='':
+                    minstock=0
 
                 unit_id = request.POST.get('unit')
                 try:
@@ -682,6 +707,9 @@ def registrar_entrada(request):
                     reference=reference,
                     lab=lab,
                     wlocation=wlocation,
+                    minstock=minstock,
+                    edate=edate,
+                
                 )
 
         except Inventarios.DoesNotExist:
@@ -694,7 +722,6 @@ def registrar_entrada(request):
             order = request.POST.get('order')
             observations = request.POST.get('observations')
             unit = request.POST.get('unit')
-            edate = request.POST.get('edate')
             nproject = request.POST.get('nproject')
             price = request.POST.get('price')
             
@@ -708,7 +735,6 @@ def registrar_entrada(request):
                 order=order,
                 manager=manager,
                 observations=observations,
-                edate=edate,
                 nproject=nproject,
                 price=price,
                 destination=destination,
@@ -830,6 +856,8 @@ def registrar_salida(request):
                     #Verificación después de restar en la tabla llegue a cero y ponga en warning la alerta que 
                     # posteriormente se enviará al usuario informando
                     if inventario_existente.weight == 0:
+                        inventario_existente.is_active = False  # Asignar False a la columna is_active
+                        inventario_existente.save()
                         warning=", pero el inventario actual ha llegado a 0. Favor informar al coordinador de laboratorio."
                 else:
                     inventario_existente.weight=int(inventario_existente.weight)
@@ -913,30 +941,66 @@ class InventarioListView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
+        unique_labs_ids = Inventarios.objects.values('lab').distinct()
+        unique_labs = Laboratorios.objects.filter(id__in=unique_labs_ids)
+
         unique_names_ids = Inventarios.objects.values('name').distinct()
         unique_names = Reactivos.objects.filter(id__in=unique_names_ids)
 
         unique_trademarks_ids = Inventarios.objects.values(
             'trademark').distinct()
         unique_trademarks = Marcas.objects.filter(id__in=unique_trademarks_ids)
+        
+        unique_references = Inventarios.objects.values(
+            'reference').distinct()
 
+        context['unique_labs'] = unique_labs
         context['unique_names'] = unique_names
         context['unique_trademarks'] = unique_trademarks
+        context['unique_references'] = unique_references
 
         return context
 
     def get_queryset(self):
         queryset = super().get_queryset()
 
+        lab = self.request.GET.get('lab')
         name = self.request.GET.get('name')
         trademark = self.request.GET.get('trademark')
+        reference = self.request.GET.get('reference')
 
-        if name and trademark:
-            queryset = queryset.filter(name=name, trademark=trademark)
+        if lab and name and trademark and reference:
+            queryset = queryset.filter(lab=lab, name=name, trademark=trademark, reference=reference, is_active=True)
+        elif lab and name and trademark:
+            queryset = queryset.filter(lab=lab, name=name, trademark=trademark, is_active=True)
+        elif lab and name and reference:
+            queryset = queryset.filter(lab=lab, name=name, reference=reference, is_active=True)
+        elif lab and reference and trademark:
+            queryset = queryset.filter(lab=lab, reference=reference, trademark=trademark, is_active=True)
+        elif name and reference and trademark:
+            queryset = queryset.filter(name=name, reference=reference, trademark=trademark, is_active=True)
+        elif lab and name:
+            queryset = queryset.filter(lab=lab, name=name, is_active=True)
+        elif lab and trademark:
+            queryset = queryset.filter(lab=lab, trademark=trademark, is_active=True)
+        elif lab and reference:
+            queryset = queryset.filter(lab=lab, reference=reference, is_active=True)
+        elif name and reference:
+            queryset = queryset.filter(name=name, reference=reference, is_active=True)
+        elif name and trademark:
+            queryset = queryset.filter(name=name, trademark=trademark, is_active=True)
+        elif reference and trademark:
+            queryset = queryset.filter(reference=reference, trademark=trademark, is_active=True)
+        elif lab:
+            queryset = queryset.filter(lab=lab, is_active=True)
         elif name:
-            queryset = queryset.filter(name=name)
+            queryset = queryset.filter(name=name, is_active=True)
         elif trademark:
-            queryset = queryset.filter(trademark=trademark)
+            queryset = queryset.filter(trademark=trademark, is_active=True)
+        elif reference:
+            queryset = queryset.filter(reference=reference, is_active=True)
+        else:
+            queryset = queryset.filter(is_active=True)
 
         return queryset
 
@@ -965,6 +1029,7 @@ class TrademarksAPI(View):
     def get(self, request):
         reactive_id = request.GET.get('reactive_id')
         lab = request.GET.get('lab')
+        print(type(lab))
 
         inventarios = Inventarios.objects.all()
         if reactive_id:
@@ -977,6 +1042,28 @@ class TrademarksAPI(View):
         trademarks_list = list(unique_trademarks)
 
         return JsonResponse(trademarks_list, safe=False)
+    
+
+
+# Devuelve al template los nombres de los reactivos según el laboratorio seleccionado en el select lab
+class ReactivesAPI(View):
+    def get(self, request):
+        lab = request.GET.get('lab')
+        print(lab)
+
+        inventarios = Inventarios.objects.all()
+
+        if lab:
+            inventarios = inventarios.filter(lab=lab)
+
+        unique_reactives = inventarios.values('name__name', 'name__id').distinct()
+        reactives_list = list(unique_reactives)
+
+        return JsonResponse(reactives_list, safe=False)
+    
+
+
+
 
 # Devuelve al template los valores únicos de referencia según el nombre del reactivo en la tabla del modelo Inventarios
 class ReferencesAPI(View):

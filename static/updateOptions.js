@@ -48,6 +48,8 @@ nameInput.addEventListener('change', function () {
             console.log('Error:', error);
         });
 
+        
+
     // Realizar una solicitud AJAX para obtener el ID correspondiente al nombre y laboratorio seleccionados
     fetch(`/autocomplete?term=${selectedName}&lab=${selectedLab}`)
         .then(response => response.json())
