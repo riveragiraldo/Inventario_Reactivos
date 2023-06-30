@@ -1029,8 +1029,7 @@ class TrademarksAPI(View):
     def get(self, request):
         reactive_id = request.GET.get('reactive_id')
         lab = request.GET.get('lab')
-        print(type(lab))
-
+        
         inventarios = Inventarios.objects.all()
         if reactive_id:
             inventarios = inventarios.filter(name=reactive_id)
@@ -1043,14 +1042,70 @@ class TrademarksAPI(View):
 
         return JsonResponse(trademarks_list, safe=False)
     
+# Devuelve valores de trademark y reference para ser insertados los select correspondientes en el template Inventarios al modificar 
+# name de reactivo
+class TrademarksandReferencesAPI(View):
+    def get(self, request):
+        lab = request.GET.get('lab')
+        name = request.GET.get('name')
 
+        inventarios = Inventarios.objects.all()
 
-# Devuelve al template los nombres de los reactivos según el laboratorio seleccionado en el select lab
+        if lab:
+            inventarios = inventarios.filter(lab=lab)
+
+        if name:
+            inventarios = inventarios.filter(name=name)
+
+        unique_items = inventarios.values('trademark__id', 'trademark__name', 'reference').distinct()
+        items_list = list(unique_items)
+
+        return JsonResponse(items_list, safe=False)
+
+# Devuelve valores de reference para ser insertados los select correspondientes en el template Inventarios al modificar 
+# trademark de reactivo
+class ReferencesByTrademarkAPI(View):
+    def get(self, request):
+        lab = request.GET.get('lab')
+        name = request.GET.get('name')
+        trademark = request.GET.get('trademark')
+
+        inventarios = Inventarios.objects.all()
+
+        if lab:
+            inventarios = inventarios.filter(lab=lab)
+
+        if name:
+            inventarios = inventarios.filter(name=name)
+
+        if trademark:
+            inventarios = inventarios.filter(trademark=trademark)
+
+        unique_references = inventarios.values('reference').distinct()
+        references_list = list(unique_references)
+
+        return JsonResponse(references_list, safe=False)
+
+    
+class TrademarksByReferenceAPI(View):
+    def get(self, request):
+        reference = request.GET.get('reference')
+
+        inventarios = Inventarios.objects.all()
+
+        if reference:
+            inventarios = inventarios.filter(reference=reference)
+
+        unique_trademarks = inventarios.values('trademark__id', 'trademark__name').distinct()
+        trademarks_list = list(unique_trademarks)
+
+        return JsonResponse(trademarks_list, safe=False)
+  
+# Devuelve al template los nombres de los reactivos según el laboratorio seleccionado en el select lab del template inventarios
 class ReactivesAPI(View):
     def get(self, request):
         lab = request.GET.get('lab')
-        print(lab)
-
+        
         inventarios = Inventarios.objects.all()
 
         if lab:
@@ -1484,13 +1539,11 @@ def obtener_stock(request):
         # Obtener los IDs correspondientes a partir de los nombres
         lab = get_object_or_404(Laboratorios, name=lab_name)
         reactivos = get_object_or_404(Reactivos, name=name)
-
-        print(str(lab)+str(reactivos)+str(trademark)+str(reference))
         
         # Realizar la lógica para obtener el stock en base a los parámetros recibidos
 
         # Supongamos que obtienes el stock de la base de datos o de alguna otra fuente de datos
         stock = Inventarios.objects.filter(lab=lab, name=reactivos, trademark=trademark, reference=reference).values("weight").first()
-        print(stock)
+       
         # Devolver la respuesta en formato JSON
         return JsonResponse({"stock": stock})
