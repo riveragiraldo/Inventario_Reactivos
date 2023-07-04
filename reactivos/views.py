@@ -959,6 +959,22 @@ class InventarioListView(ListView):
         context['unique_trademarks'] = unique_trademarks
         context['unique_references'] = unique_references
 
+        # Obtener la lista de inventarios
+        inventarios = context['object_list']
+
+        # Recorrer los inventarios y cambiar el formato de la fecha
+        for inventario in inventarios:
+            # Obtener la fecha de vencimiento
+            edate = inventario.edate
+
+            # Cambiar el formato de fecha de inglés a formato dd/mm/aaaa
+            edate = edate.strftime('%d/%m/%Y')
+
+            # Actualizar la fecha en el inventario
+            inventario.edate = edate
+
+        context['object_list'] = inventarios
+
         return context
 
     def get_queryset(self):
@@ -1087,7 +1103,21 @@ class ReferencesByTrademarkAPI(View):
         return JsonResponse(references_list, safe=False)
 
     
-class TrademarksByReferenceAPI(View):
+# class TrademarksByReferenceAPI(View):
+#     def get(self, request):
+#         reference = request.GET.get('reference')
+
+#         inventarios = Inventarios.objects.all()
+
+#         if reference:
+#             inventarios = inventarios.filter(reference=reference)
+
+#         unique_trademarks = inventarios.values('trademark__id', 'trademark__name').distinct()
+#         trademarks_list = list(unique_trademarks)
+
+#         return JsonResponse(trademarks_list, safe=False)
+
+class TrademarksAndNamesByReferenceAPI(View):
     def get(self, request):
         reference = request.GET.get('reference')
 
@@ -1096,10 +1126,11 @@ class TrademarksByReferenceAPI(View):
         if reference:
             inventarios = inventarios.filter(reference=reference)
 
-        unique_trademarks = inventarios.values('trademark__id', 'trademark__name').distinct()
-        trademarks_list = list(unique_trademarks)
+        trademarks_and_names = inventarios.values('trademark', 'trademark__name', 'name_id', 'name__name').distinct()
+        trademarks_and_names_list = list(trademarks_and_names)
 
-        return JsonResponse(trademarks_list, safe=False)
+        return JsonResponse(trademarks_and_names_list, safe=False)
+
   
 # Devuelve al template los nombres de los reactivos según el laboratorio seleccionado en el select lab del template inventarios
 class ReactivesAPI(View):
