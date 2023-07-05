@@ -5,11 +5,7 @@ function guardarValoresSelect() {
     const selectedLab = document.getElementById('lab').value;
     const selectedReference = document.getElementById('reference').value;
     const selectedName = document.getElementById('name').value;
-    console.log(selectedLab)
-    console.log(selectedName)
-    console.log(selectedTrade)
-    console.log(selectedReference)
-    console.log('---------------------')
+    
 
 
 
@@ -27,11 +23,6 @@ function configurarSelects() {
     const selectedReference = localStorage.getItem('selectedReference');
     const selectedName = localStorage.getItem('selectedName');
 
-    console.log(selectedLab)
-    console.log(selectedName)
-    console.log(selectedTrade)
-    console.log(selectedReference)
-
     // Configurar el selector "Trademark
     const selectTrade = document.getElementById('trademark');
     selectTrade.value = selectedTrade || '';
@@ -46,11 +37,9 @@ function configurarSelects() {
     const selectReference = document.getElementById('reference');
     selectReference.value = selectedReference || '';
 
-    // Configurar el selector "Name" después de un retraso de 120ms
-    setTimeout(() => {
-        const selectName = document.getElementById('name');
-        selectName.value = selectedName || '';
-    }, 120);
+    // Configurar el selector "Name"
+    const selectName = document.getElementById('name');
+    selectName.value = selectedName || '';
 
 }
 

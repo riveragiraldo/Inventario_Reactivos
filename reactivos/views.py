@@ -929,12 +929,16 @@ class InventarioListView(ListView):
             self.paginate_by = 10  # Valor predeterminado si no hay variable de sesión
 
         # Obtener los parámetros de filtrado
+        lab = request.GET.get('lab')
         name = request.GET.get('name')
         trademark = request.GET.get('trademark')
+        reference = request.GET.get('reference')
 
         # Guardar los valores de filtrado en la sesión
+        request.session['filtered_lab'] = lab
         request.session['filtered_name'] = name
         request.session['filtered_trademark'] = trademark
+        request.session['filtered_reference'] = reference
 
         return super().get(request, *args, **kwargs)
 
@@ -1018,6 +1022,8 @@ class InventarioListView(ListView):
         else:
             queryset = queryset.filter(is_active=True)
 
+        queryset = queryset.order_by('id')
+
         return queryset
 
 # Guarda los datos de filtrados y datos de paginación en el template inventarios.html en los datos de session de usuario
@@ -1027,57 +1033,70 @@ class GuardarPerPageView(View):
         request.session['per_page'] = per_page
 
         # Redirigir a la página de inventario con los parámetros de filtrado actuales
+        filtered_lab = request.session.get('filtered_lab')
         filtered_name = request.session.get('filtered_name')
         filtered_trademark = request.session.get('filtered_trademark')
+        filtered_reference = request.session.get('filtered_reference')
+        
         url = reverse('reactivos:inventario')
         params = {}
+        if filtered_lab:
+            params['lab'] = filtered_lab
         if filtered_name:
             params['name'] = filtered_name
         if filtered_trademark:
             params['trademark'] = filtered_trademark
+        if filtered_reference:
+            params['reference'] = filtered_reference
+        
         if params:
             url += '?' + urlencode(params)
 
         return redirect(url)
 
-# Devuelve al template los valores únicos de marca según el nombre del reactivo en la tabla del modelo Inventarios
-class TrademarksAPI(View):
-    def get(self, request):
-        reactive_id = request.GET.get('reactive_id')
-        lab = request.GET.get('lab')
-        
-        inventarios = Inventarios.objects.all()
-        if reactive_id:
-            inventarios = inventarios.filter(name=reactive_id)
-        
-        if lab:
-            inventarios = inventarios.filter(lab__name=lab)
+# Devuelve valores de name, trademark y reference para ser insertados los select correspondientes en el template Inventarios al modificar 
+# el select name
 
-        unique_trademarks = inventarios.values('trademark__id', 'trademark__name').distinct()
-        trademarks_list = list(unique_trademarks)
-
-        return JsonResponse(trademarks_list, safe=False)
-    
-# Devuelve valores de trademark y reference para ser insertados los select correspondientes en el template Inventarios al modificar 
-# name de reactivo
-class TrademarksandReferencesAPI(View):
+class NamesTrademarksAndReferencesByLabAPI(View):
     def get(self, request):
         lab = request.GET.get('lab')
-        name = request.GET.get('name')
 
         inventarios = Inventarios.objects.all()
 
         if lab:
             inventarios = inventarios.filter(lab=lab)
 
+        names = inventarios.values('name', 'name__name').distinct().order_by('name__name')
+        trademarks = inventarios.values('trademark', 'trademark__name').distinct().order_by('trademark__name')
+        references = inventarios.values('reference').distinct().order_by('reference')
+
+        names_trademarks_and_references_list = {
+            'names': list(names),
+            'trademarks': list(trademarks),
+            'references': list(references)
+        }
+
+        return JsonResponse(names_trademarks_and_references_list, safe=False)
+
+
+    
+# Devuelve valores de trademark y reference para ser insertados los select correspondientes en el template Inventarios al modificar 
+# name de reactivo
+class TrademarksAndReferencesByNameAPI(View):
+    def get(self, request):
+        name = request.GET.get('name')
+        lab = request.GET.get('lab')
+
+        inventarios = Inventarios.objects.all()
+
         if name:
-            inventarios = inventarios.filter(name=name)
+            inventarios = inventarios.filter(name=name, lab=lab)
 
-        unique_items = inventarios.values('trademark__id', 'trademark__name', 'reference').distinct()
-        items_list = list(unique_items)
+        trademarks_and_references = inventarios.values('trademark', 'trademark__name', 'reference').distinct()
+        trademarks_and_references_list = list(trademarks_and_references)
 
-        return JsonResponse(items_list, safe=False)
-
+        return JsonResponse(trademarks_and_references_list, safe=False)
+    
 # Devuelve valores de reference para ser insertados los select correspondientes en el template Inventarios al modificar 
 # trademark de reactivo
 class ReferencesByTrademarkAPI(View):
@@ -1088,86 +1107,16 @@ class ReferencesByTrademarkAPI(View):
 
         inventarios = Inventarios.objects.all()
 
-        if lab:
-            inventarios = inventarios.filter(lab=lab)
-
         if name:
-            inventarios = inventarios.filter(name=name)
+            inventarios = inventarios.filter(name=name, lab=lab, trademark=trademark)
 
-        if trademark:
-            inventarios = inventarios.filter(trademark=trademark)
-
-        unique_references = inventarios.values('reference').distinct()
-        references_list = list(unique_references)
+        references = inventarios.values('reference').distinct()
+        references_list = list(references)
 
         return JsonResponse(references_list, safe=False)
 
-    
-# class TrademarksByReferenceAPI(View):
-#     def get(self, request):
-#         reference = request.GET.get('reference')
-
-#         inventarios = Inventarios.objects.all()
-
-#         if reference:
-#             inventarios = inventarios.filter(reference=reference)
-
-#         unique_trademarks = inventarios.values('trademark__id', 'trademark__name').distinct()
-#         trademarks_list = list(unique_trademarks)
-
-#         return JsonResponse(trademarks_list, safe=False)
-
-class TrademarksAndNamesByReferenceAPI(View):
-    def get(self, request):
-        reference = request.GET.get('reference')
-
-        inventarios = Inventarios.objects.all()
-
-        if reference:
-            inventarios = inventarios.filter(reference=reference)
-
-        trademarks_and_names = inventarios.values('trademark', 'trademark__name', 'name_id', 'name__name').distinct()
-        trademarks_and_names_list = list(trademarks_and_names)
-
-        return JsonResponse(trademarks_and_names_list, safe=False)
-
-  
-# Devuelve al template los nombres de los reactivos según el laboratorio seleccionado en el select lab del template inventarios
-class ReactivesAPI(View):
-    def get(self, request):
-        lab = request.GET.get('lab')
-        
-        inventarios = Inventarios.objects.all()
-
-        if lab:
-            inventarios = inventarios.filter(lab=lab)
-
-        unique_reactives = inventarios.values('name__name', 'name__id').distinct()
-        reactives_list = list(unique_reactives)
-
-        return JsonResponse(reactives_list, safe=False)
-    
 
 
-
-
-# Devuelve al template los valores únicos de referencia según el nombre del reactivo en la tabla del modelo Inventarios
-class ReferencesAPI(View):
-    def get(self, request):
-        reactive_id = request.GET.get('reactive_id')
-        lab = request.GET.get('lab')
-
-        inventarios = Inventarios.objects.all()
-        if reactive_id:
-            inventarios = inventarios.filter(name=reactive_id)
-        
-        if lab:
-            inventarios = inventarios.filter(lab__name=lab)
-
-        unique_references = inventarios.values('reference').distinct()
-        references_list = list(unique_references)
-
-        return JsonResponse(references_list, safe=False)
     
 # Devuelve al template los valores únicos de wlocation según el nombre del reactivo en la tabla del modelo Almacenamiento
 class WlocationsAPI(View):
