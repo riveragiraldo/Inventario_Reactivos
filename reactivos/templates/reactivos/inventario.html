@@ -19,6 +19,10 @@
     <!-- Llama Script que controla los select según el inventario -->
     <script src="{% static 'holdSelect.js' %}" defer></script>
     <!-- Llama Script que controla los select según el inventario -->
+    <script src="{% static 'holdSelect.js' %}" defer></script>
+    <!-- Llama Script que controla los select según el inventario -->
+    <script src="{% static 'highlightPaginationControl.js' %}" defer></script>
+    <!-- Llama Script que resalta los controles de paginación -->
 
 </head>
 
@@ -31,7 +35,7 @@
             <form method="get" onsubmit="guardarValoresSelect()">
 
                 <div class="row justify-content-between">
-                    
+
                     <div class="col-md-3 d-flex flex-column align-items-left">
                         <label for="lab">Laboratorio:</label>
                         <select id="lab" name="lab" class="form-control">
@@ -83,19 +87,66 @@
         </div>
     </div>
     <br>
-    
-    <div class="col-md-11 mx-auto">
-        <!-- Control de paginación -->Ver
-        <div class="btn-group btn-group-toggle" data-toggle="buttons">
-            <a href="{% url 'reactivos:GuardarPerPage' per_page=10 %}" class="btn btn-secondary btn-sm"
-                id="per-page-10">10</a>
-            <a href="{% url 'reactivos:GuardarPerPage' per_page=20 %}" class="btn btn-secondary btn-sm"
-                id="per-page-20">20</a>
-            <a href="{% url 'reactivos:GuardarPerPage' per_page=50 %}" class="btn btn-secondary btn-sm"
-                id="per-page-50">50</a>
-        </div> Registros por página
-        <br><br>
 
+    <div class="col-md-11 mx-auto">
+        <!-- Control de paginación -->
+        <div class="d-flex justify-content-between">
+            <div>
+                Ver&nbsp;
+                <div class="btn-group btn-group-toggle" data-toggle="buttons">
+
+                    <a href="{% url 'reactivos:GuardarPerPage' per_page=10 %}" class="btn btn-secondary btn-sm"
+                        id="per-page-10">10</a>
+                    <a href="{% url 'reactivos:GuardarPerPage' per_page=20 %}" class="btn btn-secondary btn-sm"
+                        id="per-page-20">20</a>
+                    <a href="{% url 'reactivos:GuardarPerPage' per_page=50 %}" class="btn btn-secondary btn-sm"
+                        id="per-page-50">50</a>
+
+                </div>&nbsp;Registros por página
+            </div>
+
+            <div class="pagination">
+                <label for="sort-by">Ordenar por:&nbsp;</label>
+                <select id="sort-by-select" class="form-control-sm" name="sort-by-select">
+                    <option value="code">Código</option>
+                    <option value="cas">CAS</option>
+                    <option value="name">Reactivo</option>
+                    <option value="trademark">Marca</option>
+                    <option value="reference">Referencia</option>
+                    <option value="weight">Cantidad</option>
+                    <option value="unit">Unidad</option>
+                    <option value="wlocation">Ubicación</option>
+                    <option value="lab">Laboratorio</option>
+                    <option value="edate">Vencimiento</option>
+                </select>
+            </div>
+            <script>
+                // Obtener el elemento select
+                const sortBySelect = document.getElementById('sort-by-select');
+            
+                // Agregar un controlador de eventos al cambio de selección
+                sortBySelect.addEventListener('change', () => {
+                    // Obtener el valor seleccionado
+                    const sortBy = sortBySelect.value;
+            
+                    // Generar la URL con el nuevo valor de sort
+                    const url = "{% url 'reactivos:inventario' %}?" + new URLSearchParams({ sort: sortBy });
+            
+                    // Redirigir a la nueva URL
+                    window.location.href = url;
+                });
+            
+                // Obtener el valor seleccionado almacenado en la URL (si existe)
+                const urlParams = new URLSearchParams(window.location.search);
+                const selectedSortBy = urlParams.get('sort');
+            
+                // Establecer el valor seleccionado en el elemento select
+                if (selectedSortBy) {
+                    sortBySelect.value = selectedSortBy;
+                }
+            </script>
+        </div>
+        <br>
         <div class="table-responsive">
             <table class="table" id="tabla-inventario">
                 <thead>
@@ -161,9 +212,7 @@
             <a href="{% url 'reactivos:export_to_pdf' %}" class="btn btn-primary">Exportar a PDF</a>
 
         </div>
-
     </div>
-
 </body>
 
 </html>

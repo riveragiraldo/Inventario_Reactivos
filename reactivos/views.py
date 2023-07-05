@@ -919,6 +919,7 @@ class InventarioListView(ListView):
     model = Inventarios
     template_name = "reactivos/inventario.html"
     paginate_by = 10
+    
 
     def get(self, request, *args, **kwargs):
         # Obtener el número de registros por página de la sesión del usuario
@@ -983,6 +984,9 @@ class InventarioListView(ListView):
 
     def get_queryset(self):
         queryset = super().get_queryset()
+        sort_by = self.request.GET.get('sort')
+        print(sort_by)
+        queryset = queryset.order_by('id')
 
         lab = self.request.GET.get('lab')
         name = self.request.GET.get('name')
@@ -1022,7 +1026,27 @@ class InventarioListView(ListView):
         else:
             queryset = queryset.filter(is_active=True)
 
-        queryset = queryset.order_by('id')
+        if sort_by:
+            if sort_by == 'code':
+                queryset = queryset.order_by('name__code')
+            elif sort_by == 'cas':
+                queryset = queryset.order_by('name__cas')
+            elif sort_by == 'name':
+                queryset = queryset.order_by('name__name')
+            elif sort_by == 'trademark':
+                queryset = queryset.order_by('trademark__name')
+            elif sort_by == 'reference':
+                queryset = queryset.order_by('reference')
+            elif sort_by == 'weight':
+                queryset = queryset.order_by('weight')
+            elif sort_by == 'unit':
+                queryset = queryset.order_by('unit__name')
+            elif sort_by == 'wlocation':
+                queryset = queryset.order_by('wlocation__name')
+            elif sort_by == 'lab':
+                queryset = queryset.order_by('lab__name')
+            elif sort_by == 'edate':
+                queryset = queryset.order_by('edate')
 
         return queryset
 

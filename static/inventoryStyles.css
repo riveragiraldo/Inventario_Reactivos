@@ -5,3 +5,8 @@
     font-size: 0.1 rem;
     /* Ajusta el tamaño de fuente según tu preferencia */
 }
+
+.btn-group-toggle a.active {
+    background-color: #515355;
+    color: #fff;
+}
