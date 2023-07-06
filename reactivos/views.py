@@ -985,7 +985,6 @@ class InventarioListView(ListView):
     def get_queryset(self):
         queryset = super().get_queryset()
         sort_by = self.request.GET.get('sort')
-        print(sort_by)
         queryset = queryset.order_by('id')
 
         lab = self.request.GET.get('lab')
@@ -1161,18 +1160,46 @@ class WlocationsAPI(View):
 
 def export_to_excel(request):
     # Obtener los valores filtrados almacenados en la sesión del usuario
+    lab = request.session.get('filtered_lab')
     name = request.session.get('filtered_name')
     trademark = request.session.get('filtered_trademark')
+    reference = request.session.get('filtered_reference')
 
 
     queryset = Inventarios.objects.all()
 
-    if name and trademark:
-        queryset = queryset.filter(name=name, trademark=trademark)
+    if lab and name and trademark and reference:
+            queryset = queryset.filter(lab=lab, name=name, trademark=trademark, reference=reference, is_active=True)
+    elif lab and name and trademark:
+        queryset = queryset.filter(lab=lab, name=name, trademark=trademark, is_active=True)
+    elif lab and name and reference:
+        queryset = queryset.filter(lab=lab, name=name, reference=reference, is_active=True)
+    elif lab and reference and trademark:
+        queryset = queryset.filter(lab=lab, reference=reference, trademark=trademark, is_active=True)
+    elif name and reference and trademark:
+        queryset = queryset.filter(name=name, reference=reference, trademark=trademark, is_active=True)
+    elif lab and name:
+        queryset = queryset.filter(lab=lab, name=name, is_active=True)
+    elif lab and trademark:
+        queryset = queryset.filter(lab=lab, trademark=trademark, is_active=True)
+    elif lab and reference:
+        queryset = queryset.filter(lab=lab, reference=reference, is_active=True)
+    elif name and reference:
+        queryset = queryset.filter(name=name, reference=reference, is_active=True)
+    elif name and trademark:
+        queryset = queryset.filter(name=name, trademark=trademark, is_active=True)
+    elif reference and trademark:
+        queryset = queryset.filter(reference=reference, trademark=trademark, is_active=True)
+    elif lab:
+        queryset = queryset.filter(lab=lab, is_active=True)
     elif name:
-        queryset = queryset.filter(name=name)
+        queryset = queryset.filter(name=name, is_active=True)
     elif trademark:
-        queryset = queryset.filter(trademark=trademark)
+        queryset = queryset.filter(trademark=trademark, is_active=True)
+    elif reference:
+        queryset = queryset.filter(reference=reference, is_active=True)
+    else:
+        queryset = queryset.filter(is_active=True)
 
     workbook = openpyxl.Workbook()
     sheet = workbook.active
@@ -1203,7 +1230,11 @@ def export_to_excel(request):
     sheet['C4'] = 'Reactivo'
     sheet['D4'] = 'Marca'
     sheet['E4'] = 'Cantidad'
-    sheet['F4'] = 'Unidad'
+    sheet['F4'] = 'Referencia'
+    sheet['G4'] = 'Unidad'
+    sheet['H4'] = 'Ubicación'
+    sheet['I4'] = 'Laboratorio'
+    sheet['J4'] = 'Vencimiento'
 
     # Establecer la altura de la fila 1 y 2 a 30
     sheet.row_dimensions[1].height = 30
@@ -1216,7 +1247,7 @@ def export_to_excel(request):
 
     # Configurar los estilos de borde
     thin_border = Border(left=Side(style='thin'), right=Side(
-        style='thin'), top=Side(style='thin'), bottom=Side(style='thin'))
+    style='thin'), top=Side(style='thin'), bottom=Side(style='thin'))
 
     # Establecer el estilo de las celdas A2:D3
     bold_font = Font(bold=True)
@@ -1239,9 +1270,21 @@ def export_to_excel(request):
     # Establecer el ancho de la columna F a 10
     sheet.column_dimensions['F'].width = 10
 
+    # Establecer el ancho de la columna G a 10
+    sheet.column_dimensions['G'].width = 10
+
+    # Establecer el ancho de la columna H a 12
+    sheet.column_dimensions['H'].width = 12
+
+    # Establecer el ancho de la columna I a 14
+    sheet.column_dimensions['I'].width = 14
+
+    # Establecer el ancho de la columna J a 13
+    sheet.column_dimensions['J'].width = 13
+
     row = 4
     # Aplicar el estilo de borde a las celdas de la fila actual
-    for col in range(1, 7):
+    for col in range(1, 11):
         sheet.cell(row=row, column=col).border = thin_border
         sheet.cell(row=row, column=col).font = bold_font
 
@@ -1251,18 +1294,22 @@ def export_to_excel(request):
         sheet.cell(row=row, column=2).value = item.name.cas
         sheet.cell(row=row, column=3).value = item.name.name
         sheet.cell(row=row, column=4).value = item.trademark.name
-        sheet.cell(row=row, column=5).value = item.weight
-        sheet.cell(row=row, column=6).value = item.unit.name
+        sheet.cell(row=row, column=5).value = item.reference
+        sheet.cell(row=row, column=6).value = item.weight
+        sheet.cell(row=row, column=7).value = item.unit.name
+        sheet.cell(row=row, column=8).value = item.wlocation.name
+        sheet.cell(row=row, column=9).value = item.lab.name
+        sheet.cell(row=row, column=10).value = item.edate
 
         # Aplicar el estilo de borde a las celdas de la fila actual
-        for col in range(1, 7):
+        for col in range(1, 11):
             sheet.cell(row=row, column=col).border = thin_border
 
         row += 1
 
     # Obtén el rango de las columnas de la tabla
     start_column = 1
-    end_column = 6
+    end_column = 10
     start_row = 4
     end_row = row - 1
 
@@ -1270,7 +1317,7 @@ def export_to_excel(request):
     start_column_letter = get_column_letter(start_column)
     end_column_letter = get_column_letter(end_column)
 
-    # Rango de la tabla con el formato "A4:F{n}", donde n es el número de filas en la tabla
+    # Rango de la tabla con el formato "A4:I{n}", donde n es el número de filas en la tabla
     table_range = f"{start_column_letter}{start_row}:{end_column_letter}{end_row}"
 
     # Agregar filtros solo a las columnas de la tabla

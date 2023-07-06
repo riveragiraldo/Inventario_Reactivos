@@ -23,6 +23,9 @@
     <!-- Llama Script que controla los select según el inventario -->
     <script src="{% static 'highlightPaginationControl.js' %}" defer></script>
     <!-- Llama Script que resalta los controles de paginación -->
+    <script>var inventarioUrl = "{% url 'reactivos:inventario' %}";</script>
+    <script src="{% static 'sortByControl.js' %}" defer></script>
+    <!-- Llama Script que envía datos de ordenamiento de registros -->
 
 </head>
 
@@ -120,31 +123,7 @@
                     <option value="edate">Vencimiento</option>
                 </select>
             </div>
-            <script>
-                // Obtener el elemento select
-                const sortBySelect = document.getElementById('sort-by-select');
-            
-                // Agregar un controlador de eventos al cambio de selección
-                sortBySelect.addEventListener('change', () => {
-                    // Obtener el valor seleccionado
-                    const sortBy = sortBySelect.value;
-            
-                    // Generar la URL con el nuevo valor de sort
-                    const url = "{% url 'reactivos:inventario' %}?" + new URLSearchParams({ sort: sortBy });
-            
-                    // Redirigir a la nueva URL
-                    window.location.href = url;
-                });
-            
-                // Obtener el valor seleccionado almacenado en la URL (si existe)
-                const urlParams = new URLSearchParams(window.location.search);
-                const selectedSortBy = urlParams.get('sort');
-            
-                // Establecer el valor seleccionado en el elemento select
-                if (selectedSortBy) {
-                    sortBySelect.value = selectedSortBy;
-                }
-            </script>
+
         </div>
         <br>
         <div class="table-responsive">

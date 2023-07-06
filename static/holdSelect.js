@@ -5,6 +5,7 @@ function guardarValoresSelect() {
     const selectedLab = document.getElementById('lab').value;
     const selectedReference = document.getElementById('reference').value;
     const selectedName = document.getElementById('name').value;
+    const selectedSortBy = document.getElementById('sort-by-select').value;
     
 
 
@@ -13,6 +14,7 @@ function guardarValoresSelect() {
     localStorage.setItem('selectedLab', selectedLab);
     localStorage.setItem('selectedReference', selectedReference);
     localStorage.setItem('selectedName', selectedName);
+    localStorage.setItem('selectedSortBy', selectedSortBy);
 
 }
 
@@ -22,6 +24,7 @@ function configurarSelects() {
     const selectedLab = localStorage.getItem('selectedLab');
     const selectedReference = localStorage.getItem('selectedReference');
     const selectedName = localStorage.getItem('selectedName');
+    const selectedSortBy = localStorage.getItem('selectedSortBy');
 
     // Configurar el selector "Trademark
     const selectTrade = document.getElementById('trademark');
@@ -41,6 +44,10 @@ function configurarSelects() {
     const selectName = document.getElementById('name');
     selectName.value = selectedName || '';
 
+    // Configurar el selector "sortBy"
+    const selectSortBy = document.getElementById('sort-by-select');
+    selectSortBy.value = selectedSortBy || '';
+
 }
 
 window.addEventListener('DOMContentLoaded', function () {
@@ -52,12 +59,14 @@ window.addEventListener('DOMContentLoaded', function () {
     const selectTrade = document.getElementById('trademark');
     const selectReference = document.getElementById('reference');
     const selectName = document.getElementById('name');
+    const selectSortBy = document.getElementById('sort-by-select');
 
 
     selectLab.addEventListener('change', guardarValoresSelect);
     selectReference.addEventListener('change', guardarValoresSelect);
     selectName.addEventListener('change', guardarValoresSelect);
     selectTrade.addEventListener('change', guardarValoresSelect);
+    selectSortBy.addEventListener('change', guardarValoresSelect);
 
     // Agregar el event listener al evento pageshow para guardar los valores seleccionados cuando se muestra la página
     window.addEventListener('pageshow', function (event) {
