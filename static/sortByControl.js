@@ -8,6 +8,10 @@ const refSel = document.getElementById('reference');
 
 // Agregar un controlador de eventos al cambio de selección
 sortBySelect.addEventListener('change', () => {
+    sendSortBy()
+});
+
+function sendSortBy(){
     // Obtener el valor seleccionado
     const sortBy = sortBySelect.value;
     const labS = labSel.value;
@@ -15,12 +19,12 @@ sortBySelect.addEventListener('change', () => {
     const tradS = tradSel.value;
     const refS = refSel.value;
 
-    // Generar la URL con el nuevo valor de sort y valores de filtros actuales
+    // Generar la URL con el nuevo valor de sort y v
     const url = inventarioUrl + "?" + new URLSearchParams({ sort: sortBy, lab: labS, name: namS, trademark: tradS, reference: refS });
 
     // Redirigir a la nueva URL
     window.location.href = url;
-});
+}
 
 // Obtener el valor seleccionado almacenado en la URL (si existe)
 const urlParams = new URLSearchParams(window.location.search);

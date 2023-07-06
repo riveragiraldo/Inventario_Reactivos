@@ -30,11 +30,11 @@ from django.urls import reverse
 from django.utils.http import urlencode
 import time
 from django.core.exceptions import ObjectDoesNotExist
+from reportlab.lib.pagesizes import letter, landscape
 
 # Vista para la creación del index, aun no se define contexto dependiendo de los enlaces a mostrar
 def index(request):
-    unidades = Unidades.objects.all()
-    reactivos = Reactivos.objects.all()
+    
     context = {
         
     }
@@ -43,10 +43,10 @@ def index(request):
 # Vista para la creación del detalle del reactivo, hasta el momento solo tiene contexto el reactivo, pero se le puede poner lo necesario
 def detalle_reactivo(request, pk):
 
-    reactivo = get_object_or_404(Reactivos, pk=pk)
+    inventario = get_object_or_404(Inventarios, pk=pk)
     context = {
 
-        'reactivo': reactivo
+        'inventario': inventario
     }
     return render(request, 'reactivos/detalle_reactivo.html', context)
 
@@ -985,12 +985,13 @@ class InventarioListView(ListView):
     def get_queryset(self):
         queryset = super().get_queryset()
         sort_by = self.request.GET.get('sort')
-        queryset = queryset.order_by('id')
+        
 
         lab = self.request.GET.get('lab')
         name = self.request.GET.get('name')
         trademark = self.request.GET.get('trademark')
         reference = self.request.GET.get('reference')
+        print(sort_by)
 
         if lab and name and trademark and reference:
             queryset = queryset.filter(lab=lab, name=name, trademark=trademark, reference=reference, is_active=True)
@@ -1167,6 +1168,7 @@ def export_to_excel(request):
 
 
     queryset = Inventarios.objects.all()
+    #Filtra según los valores previos de filtro en los selectores
 
     if lab and name and trademark and reference:
             queryset = queryset.filter(lab=lab, name=name, trademark=trademark, reference=reference, is_active=True)
@@ -1347,19 +1349,48 @@ def export_to_excel(request):
 # Utilizando los valores filtrados en el template inventario.html, y guardados en los datos de sesión, se crea el archivo PDF 
 # correspondiente e se introducen los valores desde la tabla del modelo Inventarios. Además, se aplican formatos a los encabezados, se 
 # coloca un título, la fecha de creación y el logo. También se ajustan los anchos de columna y las alturas de fila
+
 def export_to_pdf(request):
     # Obtener los valores filtrados almacenados en la sesión del usuario
+    lab = request.session.get('filtered_lab')
     name = request.session.get('filtered_name')
     trademark = request.session.get('filtered_trademark')
+    reference = request.session.get('filtered_reference')
 
     queryset = Inventarios.objects.all()
 
-    if name and trademark:
-        queryset = queryset.filter(name=name, trademark=trademark)
+    if lab and name and trademark and reference:
+            queryset = queryset.filter(lab=lab, name=name, trademark=trademark, reference=reference, is_active=True)
+    elif lab and name and trademark:
+        queryset = queryset.filter(lab=lab, name=name, trademark=trademark, is_active=True)
+    elif lab and name and reference:
+        queryset = queryset.filter(lab=lab, name=name, reference=reference, is_active=True)
+    elif lab and reference and trademark:
+        queryset = queryset.filter(lab=lab, reference=reference, trademark=trademark, is_active=True)
+    elif name and reference and trademark:
+        queryset = queryset.filter(name=name, reference=reference, trademark=trademark, is_active=True)
+    elif lab and name:
+        queryset = queryset.filter(lab=lab, name=name, is_active=True)
+    elif lab and trademark:
+        queryset = queryset.filter(lab=lab, trademark=trademark, is_active=True)
+    elif lab and reference:
+        queryset = queryset.filter(lab=lab, reference=reference, is_active=True)
+    elif name and reference:
+        queryset = queryset.filter(name=name, reference=reference, is_active=True)
+    elif name and trademark:
+        queryset = queryset.filter(name=name, trademark=trademark, is_active=True)
+    elif reference and trademark:
+        queryset = queryset.filter(reference=reference, trademark=trademark, is_active=True)
+    elif lab:
+        queryset = queryset.filter(lab=lab, is_active=True)
     elif name:
-        queryset = queryset.filter(name=name)
+        queryset = queryset.filter(name=name, is_active=True)
     elif trademark:
-        queryset = queryset.filter(trademark=trademark)
+        queryset = queryset.filter(trademark=trademark, is_active=True)
+    elif reference:
+        queryset = queryset.filter(reference=reference, is_active=True)
+    else:
+        queryset = queryset.filter(is_active=True)
     context = {
         'object_list': queryset
     }
@@ -1373,13 +1404,13 @@ def export_to_pdf(request):
     buffer = BytesIO()
 
     # Crear el archivo PDF
-    p = canvas.Canvas(buffer, pagesize=letter)
+    p = canvas.Canvas(buffer, pagesize=landscape(letter))
 
     # Establecer el tamaño y posición del encabezado
-    header_width = 550
+    header_width = 600
     header_height = 40
-    header_x = 30
-    header_y = 770
+    header_x = 40
+    header_y = 580
 
     # Cargar la imagen del logotipo
     logo_path = finders.find('Images/escudoUnal_black.png')
@@ -1391,10 +1422,10 @@ def export_to_pdf(request):
 
     # Dibujar el título del informe con la fecha
     fecha_creacion = datetime.now().strftime("%d/%m/%Y %H:%M")
-    title_text = f"Inventario de Insumos almacén central de Química\n{fecha_creacion}"
+    title_text = f"Inventario de Insumos \n{fecha_creacion}"
     p.setFont("Helvetica-Bold", 14)
 
-    # Dividir el texto del título en líneas más cortas
+    # Dividir eltexto del título en líneas más cortas
     lines = title_text.split('\n')
 
     # Calcular la altura total del texto del título
@@ -1409,61 +1440,97 @@ def export_to_pdf(request):
         title_y -= 20
 
     # Establecer el tamaño y posición de la tabla
-
-    table_x = header_x
+    table_x = header_x 
     table_y = header_y - header_height - 30
 
     # Dibujar la tabla en el PDF
-    p.setFont("Helvetica-Bold", 12)  # Configurar la fuente en negrita
+    p.setFont("Helvetica-Bold", 10)  # Configurar la fuente en negrita
 
     # Ajustar el espaciado inferior de la línea o el espaciado superior del texto para los encabezados
     # Espaciado adicional entre la línea y el texto inferior de los encabezados
-    line_space_bottom_header = 6
+    line_space_bottom_header = 16
 
     # Dibujar línea debajo de los encabezados
     # Establecer el color de la línea (más tenue)
     p.setStrokeColorRGB(0.8, 0.8, 0.8)
     p.setLineWidth(0.5)  # Establecer el grosor de la línea (más delgada)
-    p.line(table_x, table_y - line_space_bottom_header, table_x +
-           500, table_y - line_space_bottom_header)  # Dibujar línea
+    p.line(table_x-30, table_y - line_space_bottom_header+8, table_x +
+           748, table_y - line_space_bottom_header+8)  # Dibujar línea
 
-    p.drawString(table_x, table_y, "Código")
-    p.drawString(table_x + 58, table_y, "CAS")
-    p.drawString(table_x + 110, table_y, "Reactivo")
-    p.drawString(table_x + 330, table_y, "Marca")
-    p.drawString(table_x + 400, table_y, "Cantidad")
-    p.drawString(table_x + 460, table_y, "Unidad")
+    p.drawString(table_x - 30, table_y, "Código")
+    p.drawString(table_x + 11, table_y, "CAS")
+    p.drawString(table_x + 50, table_y, "Reactivo")
+    p.drawString(table_x + 235, table_y, "Marca")
+    p.drawString(table_x + 318, table_y, "Referencia")
+    p.drawString(table_x + 375, table_y, "Cant.")
+    p.drawString(table_x + 420, table_y, "Ud.")
+    p.drawString(table_x + 440, table_y, "Ubicación")
+    p.drawString(table_x + 530, table_y, "Laboratorio")
+    p.drawString(table_x + 687, table_y, "Vencimiento")
 
     p.setFont("Helvetica", 12)  # Restaurar la configuración de la fuente
 
     row_height = 20
-    row_y = table_y - row_height
+    max_rows = 18  # Máximo número de filas por página
+    current_row = 0
+    page_number = 1
 
     for item in queryset:
         # Ajustar el espaciado inferior de la línea o el espaciado superior del texto
-        line_space_bottom = 12  # Espaciado adicional entre la línea y el texto inferior
+        line_space_bottom = 16  # Espaciado adicional entre la línea y el texto inferior
         text_space_top = 6  # Espaciado adicional entre el texto superior y la línea
 
+        if current_row == max_rows:
+            # Se alcanzó el límite de filas en la página actual, crear una nueva página
+            p.showPage()
+            p.setFont("Helvetica-Bold", 10)  # Configurar la fuente en negrita
+
+            # Dibujar línea debajo de los encabezados en la nueva página
+            p.setStrokeColorRGB(0.8, 0.8, 0.8)
+            p.setLineWidth(0.5)
+            p.line(table_x-30, table_y - line_space_bottom_header+8, table_x +
+                   748, table_y - line_space_bottom_header+8)  # Dibujar línea
+
+            p.drawString(table_x - 30, table_y, "Código")
+            p.drawString(table_x + 11, table_y, "CAS")
+            p.drawString(table_x + 50, table_y, "Reactivo")
+            p.drawString(table_x + 235, table_y, "Marca")
+            p.drawString(table_x + 318, table_y, "Referencia")
+            p.drawString(table_x + 375, table_y, "Cant.")
+            p.drawString(table_x + 420, table_y, "Ud.")
+            p.drawString(table_x + 440, table_y, "Ubicación")
+            p.drawString(table_x + 530, table_y, "Laboratorio")
+            p.drawString(table_x + 687, table_y, "Vencimiento")
+
+            p.setFont("Helvetica", 10)  # Restaurar la configuración de la fuente
+
+            current_row = 0  # Reiniciar el contador de filas
+            page_number += 1  # Incrementar el número de página
+
         # Dibujar línea debajo de la fila
-        # Establecer el color de la línea (más tenue)
         p.setStrokeColorRGB(0.8, 0.8, 0.8)
-        p.setLineWidth(0.5)  # Establecer el grosor de la línea (más delgada)
-        p.line(table_x, row_y - line_space_bottom, table_x +
-               500, row_y - line_space_bottom)  # Dibujar línea
+        p.setLineWidth(0.5)
+        p.line(table_x-30, table_y - (line_space_bottom + (row_height * current_row))-16, table_x +
+               748, table_y - (line_space_bottom + (row_height * current_row))-16) # Dibujar línea
 
         # Ajustar la posición del texto
-        row_y -= text_space_top
+        row_y = table_y - (text_space_top + (row_height * current_row))-20
 
         # Dibujar los contenidos de texto
-        p.setFont("Helvetica", 12)
-        p.drawString(table_x, row_y, str(item.name.code))
-        p.drawString(table_x + 58, row_y, str(item.name.cas))
-        p.drawString(table_x + 110, row_y, str(item.name.name))
-        p.drawString(table_x + 330, row_y, str(item.trademark.name))
+        p.setFont("Helvetica", 10)
+        p.drawString(table_x - 30, row_y, str(item.name.code))
+        p.drawString(table_x + 11, row_y, str(item.name.cas))
+        p.drawString(table_x + 50, row_y, str(item.name.name))
+        p.drawString(table_x + 235, row_y, str(item.trademark.name))
+        p.drawString(table_x + 318, row_y, str(item.reference))
         # Formatear a 1 posición decimal
-        p.drawString(table_x + 400, row_y, "{:.1f}".format(item.weight))
-        p.drawString(table_x + 460, row_y, str(item.unit.name))
-        row_y -= row_height
+        p.drawString(table_x + 375, row_y, "{:.1f}".format(item.weight))
+        p.drawString(table_x + 420, row_y, str(item.unit.name))
+        p.drawString(table_x + 440, row_y, str(item.wlocation.name))
+        p.drawString(table_x + 530, row_y, str(item.lab.name))
+        p.drawString(table_x + 687, row_y, str(item.edate))
+
+        current_row += 1
 
     p.showPage()
     p.save()
@@ -1479,6 +1546,9 @@ def export_to_pdf(request):
     response.write(pdf_file)
 
     return response
+
+
+
 
 # Toma los valores enviados desde el template registrar_entrada.html o registrar_salida.html, consulta en la tabla reactivos y devuelve
 # los valores de code, cas, state, y unit, para que se actualicen en los campos de entrada de los formualrios correspondientes

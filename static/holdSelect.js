@@ -25,6 +25,7 @@ function configurarSelects() {
     const selectedReference = localStorage.getItem('selectedReference');
     const selectedName = localStorage.getItem('selectedName');
     const selectedSortBy = localStorage.getItem('selectedSortBy');
+    
 
     // Configurar el selector "Trademark
     const selectTrade = document.getElementById('trademark');
@@ -47,6 +48,8 @@ function configurarSelects() {
     // Configurar el selector "sortBy"
     const selectSortBy = document.getElementById('sort-by-select');
     selectSortBy.value = selectedSortBy || '';
+    console.log(selectSortBy.value)
+    
 
 }
 

@@ -26,6 +26,8 @@
     <script>var inventarioUrl = "{% url 'reactivos:inventario' %}";</script>
     <script src="{% static 'sortByControl.js' %}" defer></script>
     <!-- Llama Script que envía datos de ordenamiento de registros -->
+    <script src="{% static 'openDetailReactive.js' %}" defer></script>
+    <!-- Llama Script que resalta los controles de paginación -->
 
 </head>
 
@@ -85,7 +87,7 @@
                     </div>
                 </div>
 
-            </form>
+            
 
         </div>
     </div>
@@ -110,7 +112,7 @@
 
             <div class="pagination">
                 <label for="sort-by">Ordenar por:&nbsp;</label>
-                <select id="sort-by-select" class="form-control-sm" name="sort-by-select">
+                <select id="sort-by-select" class="form-control-sm" name='sort'>
                     <option value="code">Código</option>
                     <option value="cas">CAS</option>
                     <option value="name">Reactivo</option>
@@ -121,10 +123,12 @@
                     <option value="wlocation">Ubicación</option>
                     <option value="lab">Laboratorio</option>
                     <option value="edate">Vencimiento</option>
+                    
                 </select>
             </div>
 
         </div>
+    </form>
         <br>
         <div class="table-responsive">
             <table class="table" id="tabla-inventario">
@@ -140,6 +144,7 @@
                         <th>Ubicación</th>
                         <th>Laboratorio</th>
                         <th>Vencimiento</th>
+                        <th>Ver</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -155,10 +160,12 @@
                         <td>{{ item.wlocation }}</td>
                         <td>{{ item.lab }}</td>
                         <td>{{ item.edate }}</td>
+                        <td><img src="{% static 'Images/moreInfo.ico' %}" alt="" width="18" height="18" class="detalle-reactivo" data-reactivo-id="{{ item.id }}" title="Más información sobre: {{ item.name }}"></td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
+            
             <br>
             <div class="d-flex justify-content-between">
                 <!-- Controles de navegación de página -->
