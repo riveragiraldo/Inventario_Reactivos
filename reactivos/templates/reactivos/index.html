@@ -111,8 +111,22 @@
 
             </div>
             <div class="col-lg-4 col-md-6 mb-3">
-                <a href="/reactivos/6" target="_blank" class="btn btn-primary btn-block">Detalle Reactivo</a>
-            </div>
+                <a href="/reactivos/6" target="_blank" class="btn btn-primary btn-block" onclick="updateLink()">Detalle Reactivo</a>
+              </div>
+              
+              <script>
+                function updateLink() {
+                  const number = prompt("Ingrese un número del 6 al 27:");
+                  const parsedNumber = parseInt(number);
+              
+                  if (parsedNumber >= 6 && parsedNumber <= 27) {
+                    const updatedUrl = "/reactivos/" + parsedNumber;
+                    window.open(updatedUrl, "_blank");
+                  } else {
+                    alert("Número inválido. Por favor, ingrese un número del 6 al 27.");
+                  }
+                }
+              </script>
             <div class="col-lg-4 col-md-6 mb-3">
 
             </div>
