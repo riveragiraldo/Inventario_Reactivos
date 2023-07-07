@@ -985,14 +985,14 @@ class InventarioListView(ListView):
     def get_queryset(self):
         queryset = super().get_queryset()
         sort_by = self.request.GET.get('sort')
-        
+        if sort_by=='':
+            sort_by='name'
 
         lab = self.request.GET.get('lab')
         name = self.request.GET.get('name')
         trademark = self.request.GET.get('trademark')
         reference = self.request.GET.get('reference')
-        print(sort_by)
-
+        
         if lab and name and trademark and reference:
             queryset = queryset.filter(lab=lab, name=name, trademark=trademark, reference=reference, is_active=True)
         elif lab and name and trademark:
@@ -1106,6 +1106,7 @@ class NamesTrademarksAndReferencesByLabAPI(View):
     
 # Devuelve valores de trademark y reference para ser insertados los select correspondientes en el template Inventarios al modificar 
 # name de reactivo
+
 class TrademarksAndReferencesByNameAPI(View):
     def get(self, request):
         name = request.GET.get('name')
@@ -1114,12 +1115,35 @@ class TrademarksAndReferencesByNameAPI(View):
         inventarios = Inventarios.objects.all()
 
         if name:
-            inventarios = inventarios.filter(name=name, lab=lab)
+            # Verificar si el valor de name es un número
+            if name.isdigit():
+                reactivo = get_object_or_404(Reactivos, id=int(name))
+                name = reactivo.id
+            else:
+                reactivo = get_object_or_404(Reactivos, name=name)
+                name = reactivo.id
+                
+            
+        if lab:
+            # Verificar si el valor de lab es un número
+            if lab.isdigit():
+                laboratorio = get_object_or_404(Laboratorios, id=int(lab))
+                lab = laboratorio.id
+            else:
+                lab = get_object_or_404(Laboratorios, name=lab)
+                lab = lab.id
+        
+        if name:
+            inventarios = inventarios.filter(name=name)
+
+        if lab:
+            inventarios = inventarios.filter(lab=lab)
 
         trademarks_and_references = inventarios.values('trademark', 'trademark__name', 'reference').distinct()
         trademarks_and_references_list = list(trademarks_and_references)
 
         return JsonResponse(trademarks_and_references_list, safe=False)
+
     
 # Devuelve valores de reference para ser insertados los select correspondientes en el template Inventarios al modificar 
 # trademark de reactivo
@@ -1130,6 +1154,22 @@ class ReferencesByTrademarkAPI(View):
         trademark = request.GET.get('trademark')
 
         inventarios = Inventarios.objects.all()
+        if lab:
+            # Verificar si el valor de lab es un número
+            if lab.isdigit():
+                laboratorio = get_object_or_404(Laboratorios, id=int(lab))
+                lab = laboratorio.id
+            else:
+                lab = get_object_or_404(Laboratorios, name=lab)
+                lab = lab.id
+        if name:
+            # Verificar si el valor de name es un número
+            if name.isdigit():
+                reactivo = get_object_or_404(Reactivos, id=int(name))
+                name = reactivo.id
+            else:
+                reactivo = get_object_or_404(Reactivos, name=name)
+                name = reactivo.id
 
         if name:
             inventarios = inventarios.filter(name=name, lab=lab, trademark=trademark)

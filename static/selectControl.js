@@ -233,7 +233,7 @@ function updateReferenceByTrademark() {
     xhr.send();
 }
 
-// Manejar el evento de cambio en el select name
+// Manejar el evento de cambio en el select trademark
 trademarkSelect.addEventListener('change', updateReferenceByTrademark);
 
 // Manejar el evento de cambio en el select name

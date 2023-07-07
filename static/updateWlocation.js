@@ -9,7 +9,7 @@ const wlocationInput = document.getElementById('wlocation');
 function updateWlocationOptions() {
     // Obtener el valor seleccionado en el campo lab
     const selectedLab = labSelect.value;
-
+    
     // Limpiar el campo de opciones de wlocation
     wlocationInput.innerHTML = '';
 

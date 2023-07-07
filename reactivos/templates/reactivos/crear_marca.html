@@ -77,12 +77,7 @@
             setTimeout(function () {
               // Acceder a la ventana padre y actualizar los valores
 
-              //Actualiza Select lab
-              var lab_new = window.opener.document.querySelector("#lab");
-              lab_new.value = lab;
-              lab_new.setAttribute("selected", true);
-
-              //Ejecuta función de actualizar opciones del select ubicacoines en el almacén
+              //Ejecuta función de actualizar opciones del select ubicaciones en el almacén
               window.opener.updateWlocationOptions();
 
               window.opener.document.querySelector("#name").value = name;
@@ -119,13 +114,22 @@
                 var wlocation_new = window.opener.document.querySelector("#wlocation");
                 wlocation_new.value = wlocation;
                 wlocation_new.setAttribute("selected", true);
-                console.log('Hello World')
+
 
                 var wlocation_2 = window.opener.document.querySelector("#wlocation");
                 wlocation_2.value = wlocation;
                 var selectedOption = wlocation_2.options[wlocation_2.selectedIndex];
-                console.log(wlocation)
-                console.log(selectedOption)
+
+                //Actualiza Select lab
+                var lab_new = window.opener.document.querySelector("#lab");
+                lab_new.value = lab;
+                lab_new.setAttribute("selected", true);
+                console.log(lab)
+
+                
+
+
+
                 window.close();
               }, 300)
             }, 700);

@@ -47,8 +47,7 @@ function configurarSelects() {
 
     // Configurar el selector "sortBy"
     const selectSortBy = document.getElementById('sort-by-select');
-    selectSortBy.value = selectedSortBy || '';
-    console.log(selectSortBy.value)
+    selectSortBy.value = selectedSortBy || 'name';
     
 
 }

@@ -5,10 +5,10 @@ document.addEventListener("DOMContentLoaded", function () {
         var name = document.getElementById("name").value;
         var trademark = document.getElementById("trademark").value;
         var reference = document.getElementById("reference").value;
-        console.log(lab);
-        console.log(name);
-        console.log(trademark);
-        console.log(reference);
+        
+        
+        
+        
 
         // Validar que todos los campos tengan un valor
         if (!lab || !name || !trademark || !reference) {
