@@ -2,6 +2,7 @@
 
 from django.contrib import admin
 from .models import *
+from django.views.generic import TemplateView
 
 # Inclusión de el modelo UNIDADES en la consola de administración de Django
 @admin.register(Unidades)
@@ -104,6 +105,15 @@ class Inventarioadmin(admin.ModelAdmin):
     search_fields=('trademark','name','reference','lab',)
     list_per_page=10
     ordering=('id',)
+
+
+@admin.register(PaginaInicio)
+class PaginaInicioAdmin(admin.ModelAdmin):
+    # Personaliza la visualización en el panel de administración
+    list_display = ['__str__']
+    actions = None
+    change_form_template = 'index.html'
+
 
 
 

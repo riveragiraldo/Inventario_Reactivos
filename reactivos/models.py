@@ -270,3 +270,11 @@ class Inventarios(models.Model):
 
     def __str__(self):
         return f"{self.reactivo.nombre} ({self.marca.nombre}): {self.cantidad}"
+
+#Modelo Ficticio para la página de incio pueda ser incluido en la administración de Django
+class PaginaInicio(models.Model):
+    class Meta:
+        managed = False  # Indica que no se debe crear una tabla en la base de datos
+
+    def __str__(self):
+        return "Página de inicio"

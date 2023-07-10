@@ -3,6 +3,7 @@
 from django.urls import path
 from .views import *
 from . import views
+from django.contrib.auth.views import LoginView
 app_name = 'reactivos'
 
 urlpatterns = [
@@ -38,5 +39,6 @@ urlpatterns = [
     path('export_to_pdf/', views.export_to_pdf, name='export_to_pdf'),
     path('guardar-per-page/<int:per_page>/', GuardarPerPageView.as_view(), name='GuardarPerPage'),
     path("obtener_stock/", obtener_stock, name="obtener_stock"),
+    path('accounts/login/', LoginView.as_view(), name='login'),
 
 ]

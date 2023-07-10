@@ -31,8 +31,11 @@ from django.utils.http import urlencode
 import time
 from django.core.exceptions import ObjectDoesNotExist
 from reportlab.lib.pagesizes import letter, landscape
+from django.contrib.auth.decorators import login_required
+
 
 # Vista para la creación del index, aun no se define contexto dependiendo de los enlaces a mostrar
+@login_required
 def index(request):
     
     context = {
