@@ -38,9 +38,11 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 # Vista para la creación del index, aun no se define contexto dependiendo de los enlaces a mostrar
 @login_required
 def index(request):
+    laboratorio = request.user.lab
     
     context = {
-        
+        'usuarios': User.objects.all(),
+        'laboratorio': laboratorio,
     }
     return render(request, 'reactivos/index.html', context)
 

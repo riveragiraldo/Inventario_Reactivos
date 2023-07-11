@@ -1,5 +1,6 @@
 #Este archivo configuera los modelos para realizar la gestión de la base de datos, tanto en el motor como en el admin
 from django.db import models
+from django.contrib.auth.models import AbstractUser
 
 # Modelo para tabla Unidades en base de datos Reactivos
 class Unidades(models.Model):
@@ -278,3 +279,11 @@ class PaginaInicio(models.Model):
 
     def __str__(self):
         return "Página de inicio"
+
+class User(AbstractUser):
+    email = models.EmailField('Correo Electrónico', unique=True)
+    lab = models.ForeignKey(Laboratorios, on_delete=models.CASCADE, related_name='lab_name', verbose_name='laboratorio', null=True)
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['first_name','last_name','username']
+    
