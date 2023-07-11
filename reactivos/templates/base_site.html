@@ -1,9 +1,9 @@
-{% extends "admin/base.html" %}
+{% extends "base.html" %}
 
 {% block title %}{% if subtitle %}{{ subtitle }} | {% endif %}{{ title }} | {{ site_title|default:_('Inicio de sesión gestión de insumos químicos') }}{% endblock %}
 
 {% block branding %}
-<h1 id="site-name"><a href="{% url 'reactivos:index' %}">{{ site_header|default:_('Inreso aplicativo gestión de reactivos e insumos químicos') }}</a></h1>
+<h1 id="site-name"><a href="{% url 'reactivos:index' %}">{{ site_header|default:_('Ingreso aplicativo gestión de reactivos e insumos químicos') }}</a></h1>
 {% if user.is_anonymous %}
   {% include "admin/color_theme_toggle.html" %}
 {% endif %}

@@ -32,6 +32,7 @@ import time
 from django.core.exceptions import ObjectDoesNotExist
 from reportlab.lib.pagesizes import letter, landscape
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 
 # Vista para la creación del index, aun no se define contexto dependiendo de los enlaces a mostrar
@@ -44,6 +45,7 @@ def index(request):
     return render(request, 'reactivos/index.html', context)
 
 # Vista para la creación del detalle del reactivo, hasta el momento solo tiene contexto el reactivo, pero se le puede poner lo necesario
+@login_required
 def detalle_reactivo(request, pk):
 
     inventario = get_object_or_404(Inventarios, pk=pk)
@@ -57,6 +59,7 @@ def detalle_reactivo(request, pk):
 # existente en el template "crear_reactivo.html" y realiza las operaciones necesarias en la base de datos para almacenar 
 # la información del reactivo. Esto puede incluir la validación de los datos ingresados, la creación de un nuevo registro 
 # en la tabla correspondiente y cualquier otra gestión requerida para asegurar la integridad de los datos en la base de datos.
+@login_required
 def crear_reactivo(request):
     
     if request.method == 'POST':
@@ -135,7 +138,7 @@ def crear_reactivo(request):
 # ya existe en la base de datos antes de crearla. Si la unidad es única, se crea un nuevo registro en la tabla 
 # correspondiente utilizando el modelo "Unidades". Si la unidad ya existe, se muestra un mensaje de error o se toma la 
 # acción apropiada según los requisitos del sistema.
-
+@login_required
 def crear_unidades(request):
     if request.method == 'POST':
         name = request.POST.get('name')
@@ -171,6 +174,7 @@ def crear_unidades(request):
 # ya existe en la base de datos antes de crearla. Si la clasificación es única, se crea un nuevo registro en la tabla 
 # correspondiente utilizando el modelo "RespelC". Si la clasificación ya existe, se muestra un mensaje de error o se toma la 
 # acción apropiada según los requisitos del sistema.
+@login_required
 def crear_respel(request):
     if request.method == 'POST':
         name = request.POST.get('name')
@@ -207,6 +211,7 @@ def crear_respel(request):
 # ya existe en la base de datos antes de crearla. Si la codificación es única, se crea un nuevo registro en la tabla 
 # correspondiente utilizando el modelo "SGA". Si la codificación ya existe, se muestra un mensaje de error o se toma la 
 # acción apropiada según los requisitos del sistema.
+@login_required
 def crear_sga(request):
     if request.method == 'POST':
         name = request.POST.get('name')
@@ -242,6 +247,7 @@ def crear_sga(request):
 # ya existe en la base de datos antes de crearla. Si la marca es única, se crea un nuevo registro en la tabla 
 # correspondiente utilizando el modelo "Marcas". Si la marca ya existe, se muestra un mensaje de error o se toma la 
 # acción apropiada según los requisitos del sistema.
+@login_required
 def crear_marca(request):
     if request.method == 'POST':
         name = request.POST.get('name')
@@ -276,6 +282,7 @@ def crear_marca(request):
 # ubicación es única para un laboratorio específico, se crea un nuevo registro en la tabla correspondiente utilizando el 
 # modelo "Almacenamiento". En caso de que la ubicación ya exista dentro del laboratorio, se muestra un mensaje de error o 
 # se toma la acción apropiada según los requisitos del sistema.
+@login_required
 def crear_walmacen(request):
     if request.method == 'POST':
         name = request.POST.get('name')
@@ -324,7 +331,7 @@ def crear_walmacen(request):
 # ya existe en la base de datos antes de crearlo. Si el estado es única, se crea un nuevo registro en la tabla 
 # correspondiente utilizando el modelo "Estados". Si el estado ya existe, se muestra un mensaje de error o se toma la 
 # acción apropiada según los requisitos del sistema.
-
+@login_required
 def crear_estado(request):
     if request.method == 'POST':
         name = request.POST.get('name')
@@ -361,6 +368,7 @@ def crear_estado(request):
 # ya existe en la base de datos antes de crearlo. Si el laboratorio es único, se crea un nuevo registro en la tabla 
 # correspondiente utilizando el modelo "Laboratorios". Si el estado ya existe, se muestra un mensaje de error o se toma la 
 # acción apropiada según los requisitos del sistema.
+@login_required
 def crear_laboratorio(request):
     if request.method == 'POST':
         name = request.POST.get('name')
@@ -398,6 +406,7 @@ def crear_laboratorio(request):
 # ya existe en la base de datos antes de crearlo. Si la facultad es único, se crea un nuevo registro en la tabla 
 # correspondiente utilizando el modelo "Facultades". Si la facultad ya existe, se muestra un mensaje de error o se toma la 
 # acción apropiada según los requisitos del sistema.
+@login_required
 def crear_facultad(request):
     if request.method == 'POST':
         name = request.POST.get('name')
@@ -434,6 +443,7 @@ def crear_facultad(request):
 # ya existe en la base de datos antes de crearlo. Si este es único, se crea un nuevo registro en la tabla 
 # correspondiente utilizando el modelo "Destinos". Si el destino ya existe, se muestra un mensaje de error o se toma la 
 # acción apropiada según los requisitos del sistema.
+@login_required
 def crear_destino(request):
     if request.method == 'POST':
         name = request.POST.get('name')
@@ -467,6 +477,7 @@ def crear_destino(request):
 # ya existe en la base de datos antes de crearlo. Si este es único, se crea un nuevo registro en la tabla 
 # correspondiente utilizando el modelo "Ubicaciones". Si la ubicación ya existe, se muestra un mensaje de error o se toma la 
 # acción apropiada según los requisitos del sistema.
+@login_required
 def crear_ubicacion(request):
     if request.method == 'POST':
         name = request.POST.get('name')
@@ -502,6 +513,7 @@ def crear_ubicacion(request):
 # base de datos antes de crearlo, para ello, realiza verificación por nombre, correo electrónico y teléfono. Si este es único, se crea 
 # un nuevo registro en la tabla correspondiente utilizando el modelo "Responsables". Si el responsable ya existe, se muestra un mensaje 
 # de error o se toma la acción apropiada según los requisitos del sistema.
+@login_required
 def crear_responsable(request):
     if request.method == 'POST':
         name = request.POST.get('name')
@@ -563,6 +575,7 @@ def crear_responsable(request):
 # "reference". Si hay una coincidencia, se suma el valor del campo "weight" del registro existente. En caso contrario, se crea un nuevo 
 # registro con los valores correspondientes.Finalmente, se realiza la creación del registro de entrada en la base de datos utilizando 
 # el modelo "Entradas".
+@login_required
 def registrar_entrada(request):
 
     if request.method == 'POST':
@@ -773,6 +786,7 @@ def registrar_entrada(request):
 # "weight" sea mayor o igual para permitir la transacción. En caso contrario, se muestra un mensaje de error. Adicionalmente, si el 
 # campo "weight" llega a cero después de realizar el registro, se muestra un mensaje indicando que el insumo ha alcanzado el valor de cero.
 #Finalmente, se realiza la creación del registro de salida en la base de datos utilizando el modelo "Salidas".
+@login_required
 def registrar_salida(request):
 
     if request.method == 'POST': 
@@ -918,7 +932,7 @@ def registrar_salida(request):
 # Esto permite que los valores de filtrado puedan ser utilizados en otras vistas que realicen la exportación a formatos como Excel o 
 # PDF. De esta manera, se garantiza la consistencia de los datos filtrados al exportarlos a otros formatos.
 
-class InventarioListView(ListView):
+class InventarioListView(LoginRequiredMixin,ListView):
     model = Inventarios
     template_name = "reactivos/inventario.html"
     paginate_by = 10
@@ -984,7 +998,7 @@ class InventarioListView(ListView):
         context['object_list'] = inventarios
 
         return context
-
+    
     def get_queryset(self):
         queryset = super().get_queryset()
         sort_by = self.request.GET.get('sort')
@@ -1054,7 +1068,8 @@ class InventarioListView(ListView):
         return queryset
 
 # Guarda los datos de filtrados y datos de paginación en el template inventarios.html en los datos de session de usuario
-class GuardarPerPageView(View):
+
+class GuardarPerPageView(LoginRequiredMixin,View):
     def get(self, request, *args, **kwargs):
         per_page = kwargs.get('per_page')
         request.session['per_page'] = per_page
@@ -1084,7 +1099,7 @@ class GuardarPerPageView(View):
 # Devuelve valores de name, trademark y reference para ser insertados los select correspondientes en el template Inventarios al modificar 
 # el select name
 
-class NamesTrademarksAndReferencesByLabAPI(View):
+class NamesTrademarksAndReferencesByLabAPI(LoginRequiredMixin,View):
     def get(self, request):
         lab = request.GET.get('lab')
 
@@ -1110,7 +1125,7 @@ class NamesTrademarksAndReferencesByLabAPI(View):
 # Devuelve valores de trademark y reference para ser insertados los select correspondientes en el template Inventarios al modificar 
 # name de reactivo
 
-class TrademarksAndReferencesByNameAPI(View):
+class TrademarksAndReferencesByNameAPI(LoginRequiredMixin,View):
     def get(self, request):
         name = request.GET.get('name')
         lab = request.GET.get('lab')
@@ -1150,7 +1165,8 @@ class TrademarksAndReferencesByNameAPI(View):
     
 # Devuelve valores de reference para ser insertados los select correspondientes en el template Inventarios al modificar 
 # trademark de reactivo
-class ReferencesByTrademarkAPI(View):
+
+class ReferencesByTrademarkAPI(LoginRequiredMixin,View):
     def get(self, request):
         lab = request.GET.get('lab')
         name = request.GET.get('name')
@@ -1181,12 +1197,10 @@ class ReferencesByTrademarkAPI(View):
         references_list = list(references)
 
         return JsonResponse(references_list, safe=False)
-
-
-
     
 # Devuelve al template los valores únicos de wlocation según el nombre del reactivo en la tabla del modelo Almacenamiento
-class WlocationsAPI(View):
+
+class WlocationsAPI(LoginRequiredMixin,View):
     def get(self, request):
         lab = request.GET.get('lab')
         
@@ -1201,15 +1215,14 @@ class WlocationsAPI(View):
 # correspondiente e se introducen los valores desde la tabla del modelo Inventarios. Además, se aplican formatos a los encabezados, se 
 # coloca un título, la fecha de creación y el logo. También se ajustan los anchos de columna y las alturas de fila, y se añaden filtros 
 # a los encabezados en caso de que el usuario lo solicite
-
+@login_required
 def export_to_excel(request):
     # Obtener los valores filtrados almacenados en la sesión del usuario
     lab = request.session.get('filtered_lab')
     name = request.session.get('filtered_name')
     trademark = request.session.get('filtered_trademark')
     reference = request.session.get('filtered_reference')
-
-
+    
     queryset = Inventarios.objects.all()
     #Filtra según los valores previos de filtro en los selectores
 
@@ -1392,7 +1405,7 @@ def export_to_excel(request):
 # Utilizando los valores filtrados en el template inventario.html, y guardados en los datos de sesión, se crea el archivo PDF 
 # correspondiente e se introducen los valores desde la tabla del modelo Inventarios. Además, se aplican formatos a los encabezados, se 
 # coloca un título, la fecha de creación y el logo. También se ajustan los anchos de columna y las alturas de fila
-
+@login_required
 def export_to_pdf(request):
     # Obtener los valores filtrados almacenados en la sesión del usuario
     lab = request.session.get('filtered_lab')
@@ -1595,6 +1608,7 @@ def export_to_pdf(request):
 
 # Toma los valores enviados desde el template registrar_entrada.html o registrar_salida.html, consulta en la tabla reactivos y devuelve
 # los valores de code, cas, state, y unit, para que se actualicen en los campos de entrada de los formualrios correspondientes
+@login_required
 def get_value(request):
     if request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest':
         # Si la solicitud es una solicitud AJAX, procesar la solicitud y devolver una respuesta JSON
@@ -1625,6 +1639,7 @@ def get_value(request):
 
 # Devuelve los valores de la tabla Reactivos según lo escrito en el campo name del formulario registrar_salida.html en forma de una 
 # lista de autocompletado
+@login_required
 def autocomplete(request):
     term = request.GET.get('term', '')
     reactivos = Reactivos.objects.filter(Q(name__icontains=term) | Q(
@@ -1644,7 +1659,8 @@ def autocomplete(request):
 
 # Devuelve los valores de la tabla Inventarios según lo escrito en el campo name del formulario registrar_salida.html en forma de una 
 # lista de autocompletado
-class AutocompleteOutAPI(View):
+
+class AutocompleteOutAPI(LoginRequiredMixin,View):
     def get(self, request):
         term = request.GET.get('term', '')
         lab = request.GET.get('lab', '')
@@ -1668,6 +1684,7 @@ class AutocompleteOutAPI(View):
 
 # Devuelve los valores de la tabla Ubicaciones según lo escrito en el campo name del formulario registrar_salida.html en forma de 
 # una lista de autocompletado
+@login_required
 def autocomplete_location(request):
     term = request.GET.get('term', '')
     ubicaciones = Ubicaciones.objects.filter(Q(name__icontains=term))[:10]
@@ -1680,6 +1697,7 @@ def autocomplete_location(request):
 
 # Devuelve los valores de la tabla Responsables según lo escrito en el campo name del formulario registrar_salida.html en forma de 
 # una lista de autocompletado
+@login_required
 def autocomplete_manager(request):
     term = request.GET.get('term', '')
     responsables = Responsables.objects.filter(Q(name__icontains=term))[:10]
@@ -1692,7 +1710,9 @@ def autocomplete_manager(request):
 
 from django.http import JsonResponse
 
-
+# Envía el Stock de un reactivo actual dependiendo de los valores de lab, name, marca y referencia como información al usuario 
+# sepa cuanto retirar
+@login_required
 def obtener_stock(request):
     if request.method == "GET":
         lab_name = request.GET.get("lab")
