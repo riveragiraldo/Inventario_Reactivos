@@ -64,12 +64,12 @@ class Laboratorioadmin(admin.ModelAdmin):
 # Inclusión de el modelo RESPONSABLES en la consola de administración de Django
 @admin.register(Responsables)
 class Responsableadmin(admin.ModelAdmin):
-    list_display=('id','name','mail','phone','is_active',)
+    list_display=('id','name','mail','phone','is_active','cc',)
     ordering=('id',)
 
 # Inclusión de el modelo ALMACENAMIENTO en la consola de administración de Django
 @admin.register(Almacenamiento)
-class Alamacenamientoadmin(admin.ModelAdmin):
+class Almacenamientoadmin(admin.ModelAdmin):
     list_display=('id','lab','name','description',)
     ordering=('id',)
 
@@ -85,7 +85,7 @@ class Reactivosadmin(admin.ModelAdmin):
 # Inclusión de el modelo ENTRADAS en la consola de administración de Django
 @admin.register(Entradas)
 class Entradaadmin(admin.ModelAdmin):
-    list_display=('id','date','name','trademark','reference','weight','order','manager','observations','location','price','nproject','destination','lab',)
+    list_display=('id','date','name','trademark','reference','weight','order','manager','observations','location','price','nproject','destination','lab','observations',)
     list_filter=('date','name','lab',)
     search_fields=('date','name','lab',)
     list_per_page=10

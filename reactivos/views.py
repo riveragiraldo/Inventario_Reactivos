@@ -33,6 +33,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from reportlab.lib.pagesizes import letter, landscape
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+import re
 
 
 # Vista para la creación del index, 
@@ -84,8 +85,11 @@ def crear_reactivo(request):
             subnumber = '0'
 
         code = request.POST.get('code')
+        code = estandarizar_nombre(code)
         name = request.POST.get('name')
+        name = estandarizar_nombre(name)
         cas = request.POST.get('cas')
+        cas = estandarizar_nombre(cas)
         
         state = request.POST.get('state')
         state = get_object_or_404(Estados, id=state)
@@ -155,6 +159,8 @@ def crear_reactivo(request):
 def crear_unidades(request):
     if request.method == 'POST':
         name = request.POST.get('name')
+        # name = estandarizar_nombre(name)#Pendiente definir si sí o no
+
 
         # Verifica si ya existe un registro con el mismo nombre de la unidad
         if Unidades.objects.filter(name=name).exists():
@@ -191,7 +197,9 @@ def crear_unidades(request):
 def crear_respel(request):
     if request.method == 'POST':
         name = request.POST.get('name')
+        name = estandarizar_nombre(name)
         description = request.POST.get('description')
+        description = estandarizar_nombre(description)
 
         # Verifica si ya existe un registro con el mismo nombre de la marca
         if RespelC.objects.filter(name=name).exists():
@@ -228,7 +236,9 @@ def crear_respel(request):
 def crear_sga(request):
     if request.method == 'POST':
         name = request.POST.get('name')
+        name = estandarizar_nombre(name)
         description = request.POST.get('description')
+        description = estandarizar_nombre(description)
 
         # Verifica si ya existe un registro con el mismo nombre de la marca
         if SGA.objects.filter(name=name).exists():
@@ -264,6 +274,7 @@ def crear_sga(request):
 def crear_marca(request):
     if request.method == 'POST':
         name = request.POST.get('name')
+        name = estandarizar_nombre(name)
 
         # Verifica si ya existe un registro con el mismo nombre de la marca
         if Marcas.objects.filter(name=name).exists():
@@ -299,8 +310,9 @@ def crear_marca(request):
 def crear_walmacen(request):
     if request.method == 'POST':
         name = request.POST.get('name')
+        name = estandarizar_nombre(name)
         description = request.POST.get('description')
-        
+        description = estandarizar_nombre(description)
         lab = request.POST.get('lab')
         nlab = lab
 
@@ -348,6 +360,7 @@ def crear_walmacen(request):
 def crear_estado(request):
     if request.method == 'POST':
         name = request.POST.get('name')
+        name = estandarizar_nombre(name)
 
         # Verifica si ya existe un registro con el mismo nombre del estado
         if Estados.objects.filter(name=name).exists():
@@ -385,6 +398,7 @@ def crear_estado(request):
 def crear_laboratorio(request):
     if request.method == 'POST':
         name = request.POST.get('name')
+        name = estandarizar_nombre(name)
 
         # Verifica si ya existe un registro con el mismo nombre del laboratorio
         if Laboratorios.objects.filter(name=name).exists():
@@ -423,6 +437,7 @@ def crear_laboratorio(request):
 def crear_facultad(request):
     if request.method == 'POST':
         name = request.POST.get('name')
+        name = estandarizar_nombre(name)
 
         # Verifica si ya existe un registro con el mismo nombre del estado
         if Facultades.objects.filter(name=name).exists():
@@ -460,7 +475,9 @@ def crear_facultad(request):
 def crear_destino(request):
     if request.method == 'POST':
         name = request.POST.get('name')
+        name = estandarizar_nombre(name)
 
+        
         # Verifica si ya existe un registro con el mismo nombre del destino
         if Destinos.objects.filter(name=name).exists():
             destino = Destinos.objects.get(name=name)
@@ -494,6 +511,7 @@ def crear_destino(request):
 def crear_ubicacion(request):
     if request.method == 'POST':
         name = request.POST.get('name')
+        name = estandarizar_nombre(name)
         facultad = request.POST.get('facultad')
         # Obtiene la instancia de la facultad
         facultad = get_object_or_404(Facultades, id=facultad)
@@ -530,8 +548,10 @@ def crear_ubicacion(request):
 def crear_responsable(request):
     if request.method == 'POST':
         name = request.POST.get('name')
+        name = estandarizar_nombre(name)
         phone = request.POST.get('phone')
         prefix = request.POST.get('prefix')
+        cc = request.POST.get('cc')
 
         # Añadir la secuencia de escape "\+" al prefijo
         if prefix.startswith("+"):
@@ -541,6 +561,15 @@ def crear_responsable(request):
 
         phone = prefix + phone
         mail = request.POST.get('mail')
+        mail = estandarizar_nombre(mail)
+
+        # Verifica si ya existe un registro con el mismo número de cédula, telefono o email de la marca
+        if Responsables.objects.filter(cc=cc).exists():
+            responsablecc = Responsables.objects.get(cc=cc)
+            responsable_cc = responsablecc.cc
+            messages.error(
+                request, 'Ya existe un responsable con cédula registrada: '+str(responsable_cc))
+            return redirect('reactivos:crear_responsable')
 
         # Verifica si ya existe un registro con el mismo nombre, telefono o email de la marca
         if Responsables.objects.filter(name=name).exists():
@@ -566,6 +595,7 @@ def crear_responsable(request):
 
         responsable = Responsables.objects.create(
 
+            cc=cc,
             name=name,
             phone=phone,
             mail=mail,
@@ -666,6 +696,7 @@ def registrar_entrada(request):
                            " no se encuentra en la base de datos, favor crearlo primero.", status=400)
         
         reference = request.POST.get('reference')
+        reference = estandarizar_nombre(reference)
         
         
         # Verificar si el reactivo ya existe en la tabla de inventarios
@@ -714,6 +745,7 @@ def registrar_entrada(request):
                 nameReactivo = Reactivos.objects.get(name=name)
                 name = nameReactivo
                 reference = request.POST.get('reference')
+                reference = estandarizar_nombre(reference)
                 edate = request.POST.get('edate')
                 minstock = request.POST.get('minstock')
                 if minstock=='':
@@ -749,9 +781,12 @@ def registrar_entrada(request):
             
             weight = request.POST.get('weight')
             order = request.POST.get('order')
+            order = estandarizar_nombre(order)
             observations = request.POST.get('observations')
+            observations = estandarizar_nombre(observations)
             unit = request.POST.get('unit')
             nproject = request.POST.get('nproject')
+            nproject = estandarizar_nombre(nproject)
             price = request.POST.get('price')
             
 
@@ -1711,14 +1746,13 @@ def autocomplete_location(request):
 # Devuelve los valores de la tabla Responsables según lo escrito en el campo name del formulario registrar_salida.html en forma de 
 # una lista de autocompletado
 @login_required
+
 def autocomplete_manager(request):
     term = request.GET.get('term', '')
-    responsables = Responsables.objects.filter(Q(name__icontains=term))[:10]
+    responsables = Responsables.objects.filter(Q(name__icontains=term) | Q(phone__icontains=term) | Q(mail__icontains=term) | Q(cc__icontains=term))[:10]
     results = []
     for responsable in responsables:
-        results.append({'value': responsable.name})
-    pass
-
+        results.append({'name': responsable.name, 'mail': responsable.mail})
     return JsonResponse(results, safe=False)
 
 from django.http import JsonResponse
@@ -1744,3 +1778,15 @@ def obtener_stock(request):
        
         # Devolver la respuesta en formato JSON
         return JsonResponse({"stock": stock})
+    
+#Estandariza la escritura en la base de datos que sea mayúscula, sin tildes ni nigún tipo de caracter esecial, reemplaza Ñ por N
+def estandarizar_nombre(nombre):
+    nombre = nombre.upper()  # Convertir a mayúsculas
+    nombre = re.sub('[áÁ]', 'A', nombre)  # Reemplazar á y Á por A
+    nombre = re.sub('[éÉ]', 'E', nombre)  # Reemplazar é y É por E
+    nombre = re.sub('[íÍ]', 'I', nombre)  # Reemplazar í y Í por I
+    nombre = re.sub('[óÓ]', 'O', nombre)  # Reemplazar ó y Ó por O
+    nombre = re.sub('[úÚ]', 'U', nombre)  # Reemplazar ú y Ú por U
+    nombre = re.sub('[ñÑ]', 'N', nombre)  # Reemplazar ñ y Ñ por N
+    nombre = re.sub('[^A-Za-z0-9@ .-_]', '', nombre)  # Eliminar caracteres especiales excepto números y espacios
+    return nombre

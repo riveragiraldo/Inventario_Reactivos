@@ -52,6 +52,7 @@ class Destinos(models.Model):
 
 # Modelo para tabla Responsables en base de datos Reactivos
 class Responsables(models.Model):
+    cc=models.IntegerField(verbose_name="Cédula")
     name = models.CharField(max_length=255, verbose_name="Nombre Responsable")
     mail = models.EmailField(max_length=255, verbose_name="Email")
     phone = models.CharField(max_length=15, verbose_name="Teléfono")
@@ -183,16 +184,15 @@ class Entradas(models.Model):
     trademark = models.ForeignKey(
         Marcas, on_delete=models.CASCADE, related_name='name_marca', verbose_name='Marca')
     reference = models.CharField(max_length=255, verbose_name='Referencia')
-    weight = models.DecimalField(
-        max_digits=10, decimal_places=4, verbose_name='Peso Reactivo')
+    weight = models.DecimalField(max_digits=15, decimal_places=2, verbose_name="Cantidad de entrada")
     order = models.CharField(max_length=255,  verbose_name='Orden No.')
     manager = models.ForeignKey(Responsables, on_delete=models.CASCADE,
                                 related_name='responsable', verbose_name='Responsable')
     observations = models.TextField(
         max_length=1000, verbose_name='Observaciones')
     location = models.ForeignKey(
-        Ubicaciones, on_delete=models.CASCADE, related_name='Ubicacion', verbose_name='Ubicación')
-    price=models.IntegerField(verbose_name="Valor")
+        Ubicaciones, on_delete=models.CASCADE, related_name='Ubicacion', verbose_name='Asignatura/Ubicación')
+    price=models.DecimalField(max_digits=20, decimal_places=2, verbose_name="Valor")
     
     nproject=models.CharField(max_length=15, verbose_name='Número de proyecto')
     destination=models.ForeignKey(Destinos, on_delete=models.CASCADE, verbose_name='Destino')
@@ -218,8 +218,7 @@ class Salidas(models.Model):
     trademark = models.ForeignKey(
         Marcas, on_delete=models.CASCADE, related_name='name_trademark', verbose_name='Marca')
     reference = models.CharField(max_length=255, verbose_name='Referencia')
-    weight = models.DecimalField(
-        max_digits=10, decimal_places=4, verbose_name='Peso Reactivo')
+    weight = models.DecimalField(max_digits=15, decimal_places=2, verbose_name="Cantidad de salida")
     destination = models.ForeignKey(
         Destinos, on_delete=models.CASCADE, related_name='destination', verbose_name='Destino')
     manager = models.ForeignKey(Responsables, on_delete=models.CASCADE,
@@ -247,8 +246,7 @@ class Salidas(models.Model):
 class Inventarios(models.Model):
     name = models.ForeignKey('Reactivos', on_delete=models.CASCADE, verbose_name="Nombre del reactivo")
     trademark = models.ForeignKey('Marcas', on_delete=models.CASCADE, verbose_name="Marca")
-    weight = models.DecimalField(
-        max_digits=10, decimal_places=4, verbose_name='Inventario Actual')
+    weight = models.DecimalField(max_digits=15, decimal_places=2, verbose_name="Cantidad en inventario")
     unit = models.ForeignKey(Unidades, on_delete=models.CASCADE,
                              related_name='unidad', verbose_name="Unidades")
     reference = models.CharField(max_length=20, verbose_name="Referencia")
@@ -257,13 +255,7 @@ class Inventarios(models.Model):
     fecha_registro = models.DateTimeField(auto_now=True,verbose_name='Últma actualización')
     edate=models.DateField(verbose_name="Fecha de vencimiento")
     minstock = models.DecimalField(
-        max_digits=7,
-        decimal_places=2,
-        blank=True,
-        null=True,
-        default=0,
-        help_text="Ingrese el stock mínimo (puede ser nulo)."
-    )
+        max_digits=8, decimal_places=2, blank=True, null=True, default=0, help_text="Ingrese el stock mínimo (puede ser nulo).", verbose_name="Stock mínimo")
     is_active = models.BooleanField(default=True, verbose_name='Activo')
 
     class Meta:

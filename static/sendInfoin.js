@@ -1,14 +1,22 @@
-//Valida que los campos required se hayan diligenciado, antes de sacar alerta informativa y enviarlos al servidor
+
 function validarCampos() {
     var campos = document.querySelectorAll("form input[required], form select[required], form textarea[required]");
     for (var i = 0; i < campos.length; i++) {
-        if (!campos[i].value) {
-            alert("Por favor, complete todos los campos obligatorios.");
-            return false;
-        }
+      var campo = campos[i];
+      if (!campo.value) {
+        alert("Por favor, complete todos los campos obligatorios.");
+        return false;
+      }
+      if (campo.pattern && !new RegExp("^" + campo.pattern + "$").test(campo.value)) {
+        var etiquetaAsociada = obtenerEtiquetaAsociada(campo);
+        var tituloCampo = campo.title || etiquetaAsociada;
+        alert("Verificar información en " + etiquetaAsociada+": "+tituloCampo )
+        return false;
+      }
     }
     return true;
-}
+  }
+  
 
 //Función principal que la orden desde el submit
 function openPopupWindowConfirm() {
