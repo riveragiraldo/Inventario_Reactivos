@@ -35,7 +35,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 
-# Vista para la creación del index, aun no se define contexto dependiendo de los enlaces a mostrar
+# Vista para la creación del index, 
 @login_required
 def index(request):
     laboratorio = request.user.lab
@@ -45,6 +45,17 @@ def index(request):
         'laboratorio': laboratorio,
     }
     return render(request, 'reactivos/index.html', context)
+
+# Vista para la visualización del web template
+@login_required
+def webtemplate(request):
+    laboratorio = request.user.lab
+    
+    context = {
+        'usuarios': User.objects.all(),
+        'laboratorio': laboratorio,
+    }
+    return render(request, 'webtemplate.html', context)
 
 # Vista para la creación del detalle del reactivo, hasta el momento solo tiene contexto el reactivo, pero se le puede poner lo necesario
 @login_required
