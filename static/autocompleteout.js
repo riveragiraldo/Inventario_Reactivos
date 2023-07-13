@@ -95,12 +95,28 @@ $(document).ready(function () {
 //Envía valores escritos en el campo maneger a la vista Autocomplete_manager, esta devuelve los valores de manager
 //se visualizan en forma de lista desplegable 
 //Función autocompletar por Responsable
+
+
 $(document).ready(function () {
     $("#manager").autocomplete({
         source: "autocomplete_manager/",
         minLength: 2,
         select: function (event, ui) {
-            $("#manager").val(ui.item.value);
+            // Muestra el nombre y correo electrónico en la lista desplegable
+            $("#manager").val(ui.item.name);
+            return false;
+        },
+        create: function () {
+            // Muestra solo el nombre en la lista desplegable
+            $(this).data('ui-autocomplete')._renderItem = function (ul, item) {
+                return $("<li>")
+                    .append($("<div>").text(item.name + ' (' + item.mail + ')'))
+                    .appendTo(ul);
+            };
+        },
+        focus: function (event, ui) {
+            // Muestra solo el nombre en el campo de entrada mientras se desplaza por la lista desplegable
+            $("#manager").val(ui.item.name);
             return false;
         }
     });

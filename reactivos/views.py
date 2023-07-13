@@ -33,16 +33,63 @@ from django.core.exceptions import ObjectDoesNotExist
 from reportlab.lib.pagesizes import letter, landscape
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+import re
+import warnings
+from urllib.parse import urlparse, urlunparse
+
+from django.conf import settings
+
+# Avoid shadowing the login() and logout() views below.
+from django.contrib.auth import REDIRECT_FIELD_NAME, get_user_model
+from django.contrib.auth import login as auth_login
+from django.contrib.auth import logout as auth_logout
+from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import (
+    AuthenticationForm,
+    PasswordChangeForm,
+    PasswordResetForm,
+    SetPasswordForm,
+)
+from django.contrib.auth.tokens import default_token_generator
+from django.contrib.sites.shortcuts import get_current_site
+from django.core.exceptions import ImproperlyConfigured, ValidationError
+from django.http import HttpResponseRedirect, QueryDict
+from django.shortcuts import resolve_url
+from django.urls import reverse_lazy
+from django.utils.decorators import method_decorator
+from django.utils.deprecation import RemovedInDjango50Warning
+from django.utils.http import url_has_allowed_host_and_scheme, urlsafe_base64_decode
+from django.utils.translation import gettext_lazy as _
+from django.views.decorators.cache import never_cache
+from django.views.decorators.csrf import csrf_protect
+from django.views.decorators.debug import sensitive_post_parameters
+from django.views.generic.base import TemplateView
+from django.views.generic.edit import FormView
 
 
-# Vista para la creación del index, aun no se define contexto dependiendo de los enlaces a mostrar
+# Vista para la creación del index, 
 @login_required
 def index(request):
+    laboratorio = request.user.lab
+      
     
     context = {
-        
+        'usuarios': User.objects.all(),
+        'laboratorio': laboratorio,
     }
     return render(request, 'reactivos/index.html', context)
+
+# Vista para la visualización del web template
+@login_required
+def webtemplate(request):
+    laboratorio = request.user.lab
+    
+    context = {
+        'usuarios': User.objects.all(),
+        'laboratorio': laboratorio,
+    }
+    return render(request, 'webtemplate.html', context)
 
 # Vista para la creación del detalle del reactivo, hasta el momento solo tiene contexto el reactivo, pero se le puede poner lo necesario
 @login_required
@@ -71,8 +118,11 @@ def crear_reactivo(request):
             subnumber = '0'
 
         code = request.POST.get('code')
+        code = estandarizar_nombre(code)
         name = request.POST.get('name')
+        name = estandarizar_nombre(name)
         cas = request.POST.get('cas')
+        cas = estandarizar_nombre(cas)
         
         state = request.POST.get('state')
         state = get_object_or_404(Estados, id=state)
@@ -142,6 +192,8 @@ def crear_reactivo(request):
 def crear_unidades(request):
     if request.method == 'POST':
         name = request.POST.get('name')
+        # name = estandarizar_nombre(name)#Pendiente definir si sí o no
+
 
         # Verifica si ya existe un registro con el mismo nombre de la unidad
         if Unidades.objects.filter(name=name).exists():
@@ -178,7 +230,9 @@ def crear_unidades(request):
 def crear_respel(request):
     if request.method == 'POST':
         name = request.POST.get('name')
+        name = estandarizar_nombre(name)
         description = request.POST.get('description')
+        description = estandarizar_nombre(description)
 
         # Verifica si ya existe un registro con el mismo nombre de la marca
         if RespelC.objects.filter(name=name).exists():
@@ -215,7 +269,9 @@ def crear_respel(request):
 def crear_sga(request):
     if request.method == 'POST':
         name = request.POST.get('name')
+        name = estandarizar_nombre(name)
         description = request.POST.get('description')
+        description = estandarizar_nombre(description)
 
         # Verifica si ya existe un registro con el mismo nombre de la marca
         if SGA.objects.filter(name=name).exists():
@@ -251,6 +307,7 @@ def crear_sga(request):
 def crear_marca(request):
     if request.method == 'POST':
         name = request.POST.get('name')
+        name = estandarizar_nombre(name)
 
         # Verifica si ya existe un registro con el mismo nombre de la marca
         if Marcas.objects.filter(name=name).exists():
@@ -286,8 +343,9 @@ def crear_marca(request):
 def crear_walmacen(request):
     if request.method == 'POST':
         name = request.POST.get('name')
+        name = estandarizar_nombre(name)
         description = request.POST.get('description')
-        
+        description = estandarizar_nombre(description)
         lab = request.POST.get('lab')
         nlab = lab
 
@@ -335,6 +393,7 @@ def crear_walmacen(request):
 def crear_estado(request):
     if request.method == 'POST':
         name = request.POST.get('name')
+        name = estandarizar_nombre(name)
 
         # Verifica si ya existe un registro con el mismo nombre del estado
         if Estados.objects.filter(name=name).exists():
@@ -372,6 +431,7 @@ def crear_estado(request):
 def crear_laboratorio(request):
     if request.method == 'POST':
         name = request.POST.get('name')
+        name = estandarizar_nombre(name)
 
         # Verifica si ya existe un registro con el mismo nombre del laboratorio
         if Laboratorios.objects.filter(name=name).exists():
@@ -410,6 +470,7 @@ def crear_laboratorio(request):
 def crear_facultad(request):
     if request.method == 'POST':
         name = request.POST.get('name')
+        name = estandarizar_nombre(name)
 
         # Verifica si ya existe un registro con el mismo nombre del estado
         if Facultades.objects.filter(name=name).exists():
@@ -447,7 +508,9 @@ def crear_facultad(request):
 def crear_destino(request):
     if request.method == 'POST':
         name = request.POST.get('name')
+        name = estandarizar_nombre(name)
 
+        
         # Verifica si ya existe un registro con el mismo nombre del destino
         if Destinos.objects.filter(name=name).exists():
             destino = Destinos.objects.get(name=name)
@@ -481,6 +544,7 @@ def crear_destino(request):
 def crear_ubicacion(request):
     if request.method == 'POST':
         name = request.POST.get('name')
+        name = estandarizar_nombre(name)
         facultad = request.POST.get('facultad')
         # Obtiene la instancia de la facultad
         facultad = get_object_or_404(Facultades, id=facultad)
@@ -517,8 +581,10 @@ def crear_ubicacion(request):
 def crear_responsable(request):
     if request.method == 'POST':
         name = request.POST.get('name')
+        name = estandarizar_nombre(name)
         phone = request.POST.get('phone')
         prefix = request.POST.get('prefix')
+        cc = request.POST.get('cc')
 
         # Añadir la secuencia de escape "\+" al prefijo
         if prefix.startswith("+"):
@@ -528,6 +594,15 @@ def crear_responsable(request):
 
         phone = prefix + phone
         mail = request.POST.get('mail')
+        mail = estandarizar_nombre(mail)
+
+        # Verifica si ya existe un registro con el mismo número de cédula, telefono o email de la marca
+        if Responsables.objects.filter(cc=cc).exists():
+            responsablecc = Responsables.objects.get(cc=cc)
+            responsable_cc = responsablecc.cc
+            messages.error(
+                request, 'Ya existe un responsable con cédula registrada: '+str(responsable_cc))
+            return redirect('reactivos:crear_responsable')
 
         # Verifica si ya existe un registro con el mismo nombre, telefono o email de la marca
         if Responsables.objects.filter(name=name).exists():
@@ -553,6 +628,7 @@ def crear_responsable(request):
 
         responsable = Responsables.objects.create(
 
+            cc=cc,
             name=name,
             phone=phone,
             mail=mail,
@@ -653,6 +729,7 @@ def registrar_entrada(request):
                            " no se encuentra en la base de datos, favor crearlo primero.", status=400)
         
         reference = request.POST.get('reference')
+        reference = estandarizar_nombre(reference)
         
         
         # Verificar si el reactivo ya existe en la tabla de inventarios
@@ -701,6 +778,7 @@ def registrar_entrada(request):
                 nameReactivo = Reactivos.objects.get(name=name)
                 name = nameReactivo
                 reference = request.POST.get('reference')
+                reference = estandarizar_nombre(reference)
                 edate = request.POST.get('edate')
                 minstock = request.POST.get('minstock')
                 if minstock=='':
@@ -736,9 +814,12 @@ def registrar_entrada(request):
             
             weight = request.POST.get('weight')
             order = request.POST.get('order')
+            order = estandarizar_nombre(order)
             observations = request.POST.get('observations')
+            observations = estandarizar_nombre(observations)
             unit = request.POST.get('unit')
             nproject = request.POST.get('nproject')
+            nproject = estandarizar_nombre(nproject)
             price = request.POST.get('price')
             
 
@@ -1698,14 +1779,13 @@ def autocomplete_location(request):
 # Devuelve los valores de la tabla Responsables según lo escrito en el campo name del formulario registrar_salida.html en forma de 
 # una lista de autocompletado
 @login_required
+
 def autocomplete_manager(request):
     term = request.GET.get('term', '')
-    responsables = Responsables.objects.filter(Q(name__icontains=term))[:10]
+    responsables = Responsables.objects.filter(Q(name__icontains=term) | Q(phone__icontains=term) | Q(mail__icontains=term) | Q(cc__icontains=term))[:10]
     results = []
     for responsable in responsables:
-        results.append({'value': responsable.name})
-    pass
-
+        results.append({'name': responsable.name, 'mail': responsable.mail})
     return JsonResponse(results, safe=False)
 
 from django.http import JsonResponse
@@ -1731,3 +1811,105 @@ def obtener_stock(request):
        
         # Devolver la respuesta en formato JSON
         return JsonResponse({"stock": stock})
+    
+#Estandariza la escritura en la base de datos que sea mayúscula, sin tildes ni nigún tipo de caracter esecial, reemplaza Ñ por N
+def estandarizar_nombre(nombre):
+    nombre = nombre.upper()  # Convertir a mayúsculas
+    nombre = re.sub('[áÁ]', 'A', nombre)  # Reemplazar á y Á por A
+    nombre = re.sub('[éÉ]', 'E', nombre)  # Reemplazar é y É por E
+    nombre = re.sub('[íÍ]', 'I', nombre)  # Reemplazar í y Í por I
+    nombre = re.sub('[óÓ]', 'O', nombre)  # Reemplazar ó y Ó por O
+    nombre = re.sub('[úÚ]', 'U', nombre)  # Reemplazar ú y Ú por U
+    nombre = re.sub('[ñÑ]', 'N', nombre)  # Reemplazar ñ y Ñ por N
+    nombre = re.sub('[^A-Za-z0-9@ .-_]', '', nombre)  # Eliminar caracteres especiales excepto números y espacios
+    return nombre
+
+
+
+class RedirectURLMixin:
+    next_page = None
+    redirect_field_name = REDIRECT_FIELD_NAME
+    success_url_allowed_hosts = set()
+
+    def get_success_url(self):
+        return self.get_redirect_url() or self.get_default_redirect_url()
+
+    def get_redirect_url(self):
+        """Return the user-originating redirect URL if it's safe."""
+        redirect_to = self.request.POST.get(
+            self.redirect_field_name, self.request.GET.get(self.redirect_field_name)
+        )
+        url_is_safe = url_has_allowed_host_and_scheme(
+            url=redirect_to,
+            allowed_hosts=self.get_success_url_allowed_hosts(),
+            require_https=self.request.is_secure(),
+        )
+        return redirect_to if url_is_safe else ""
+
+    def get_success_url_allowed_hosts(self):
+        return {self.request.get_host(), *self.success_url_allowed_hosts}
+
+    def get_default_redirect_url(self):
+        """Return the default redirect URL."""
+        if self.next_page:
+            return resolve_url(self.next_page)
+        raise ImproperlyConfigured("No URL to redirect to. Provide a next_page.")
+
+# Vista para el Login
+class LoginView(RedirectURLMixin, FormView):
+    """
+    Display the login form and handle the login action.
+    """
+
+    form_class = AuthenticationForm
+    authentication_form = None
+    template_name = "registration/login.html"
+    redirect_authenticated_user = False
+    extra_context = None
+
+    @method_decorator(sensitive_post_parameters())
+    @method_decorator(csrf_protect)
+    @method_decorator(never_cache)
+    def dispatch(self, request, *args, **kwargs):
+        if self.redirect_authenticated_user and self.request.user.is_authenticated:
+            redirect_to = self.get_success_url()
+            if redirect_to == self.request.path:
+                raise ValueError(
+                    "Redirection loop for authenticated user detected. Check that "
+                    "your LOGIN_REDIRECT_URL doesn't point to a login page."
+                )
+            return HttpResponseRedirect(redirect_to)
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_default_redirect_url(self):
+        """Return the default redirect URL."""
+        if self.next_page:
+            return resolve_url(self.next_page)
+        else:
+            return resolve_url(settings.LOGIN_REDIRECT_URL)
+
+    def get_form_class(self):
+        return self.authentication_form or self.form_class
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["request"] = self.request
+        return kwargs
+
+    def form_valid(self, form):
+        """Security check complete. Log the user in."""
+        auth_login(self.request, form.get_user())
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        current_site = get_current_site(self.request)
+        context.update(
+            {
+                self.redirect_field_name: self.get_redirect_url(),
+                "site": current_site,
+                "site_name": current_site.name,
+                **(self.extra_context or {}),
+            }
+        )
+        return context

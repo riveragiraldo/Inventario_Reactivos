@@ -3,6 +3,9 @@
 from django.contrib import admin
 from .models import *
 from django.views.generic import TemplateView
+from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+from django.contrib.auth.forms import UserChangeForm, UserCreationForm
+from .forms import CustomAuthenticationForm
 
 # Inclusión de el modelo UNIDADES en la consola de administración de Django
 @admin.register(Unidades)
@@ -61,12 +64,12 @@ class Laboratorioadmin(admin.ModelAdmin):
 # Inclusión de el modelo RESPONSABLES en la consola de administración de Django
 @admin.register(Responsables)
 class Responsableadmin(admin.ModelAdmin):
-    list_display=('id','name','mail','phone','is_active',)
+    list_display=('id','name','mail','phone','is_active','cc',)
     ordering=('id',)
 
 # Inclusión de el modelo ALMACENAMIENTO en la consola de administración de Django
 @admin.register(Almacenamiento)
-class Alamacenamientoadmin(admin.ModelAdmin):
+class Almacenamientoadmin(admin.ModelAdmin):
     list_display=('id','lab','name','description',)
     ordering=('id',)
 
@@ -82,7 +85,7 @@ class Reactivosadmin(admin.ModelAdmin):
 # Inclusión de el modelo ENTRADAS en la consola de administración de Django
 @admin.register(Entradas)
 class Entradaadmin(admin.ModelAdmin):
-    list_display=('id','date','name','trademark','reference','weight','order','manager','observations','location','price','nproject','destination','lab',)
+    list_display=('id','date','name','trademark','reference','weight','order','manager','observations','location','price','nproject','destination','lab','observations',)
     list_filter=('date','name','lab',)
     search_fields=('date','name','lab',)
     list_per_page=10
@@ -113,6 +116,20 @@ class PaginaInicioAdmin(admin.ModelAdmin):
     list_display = ['__str__']
     actions = None
     change_form_template = 'index.html'
+
+
+
+class UserAdmin(BaseUserAdmin):
+    # Especifica los campos a mostrar en la lista de usuarios en el admin
+    list_display = ('id','first_name', 'last_name','email', 'lab','username',  'is_active')
+    list_editable = ['lab']
+
+    # Utiliza el formulario de autenticación personalizado en el admin
+    login_form = CustomAuthenticationForm
+
+
+# Registra el modelo de usuario personalizado y la clase UserAdmin en el admin
+admin.site.register(User, UserAdmin)
 
 
 

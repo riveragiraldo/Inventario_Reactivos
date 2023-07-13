@@ -34,12 +34,18 @@
         {% csrf_token %}
 
         <div class="col-md-3">
+          <div class="col-md-12">
+            <label class="form-label">Cédula de ciudadanía:</label>
+            <input type="text" class="form-control" placeholder="Ingresa tu número de cédula" name="cc" required id="cc"
+              pattern="[0-9]+"
+              title="Ingrese su número de cédula (solo números enteros positivos, sin puntos ni comas)">
+
+          </div>
 
           <div class="col-md-12">
             <label class="form-label">Nombres y apellidos:</label>
             <input type="text" class="form-control" placeholder="Nombre y apellidos" name="name" required id="name"
-              pattern="[^\s]+( [\wáéíóúÁÉÍÓÚ]+)*"
-              title="Ingrese nombre y apellidos"><!-- formatea campo para que sean mínimo 2 palabras o más -->
+              title="Ingrese nombre y apellidos">
           </div>
 
           <div class="col-md-12">
@@ -48,8 +54,10 @@
               <span class="input-icon">
                 <img src="{% static 'Images/phone.png' %}" alt="Icono de teléfono" class="input-icon-img">
               </span>
-              <input type="tel" class="form-control" placeholder="Teléfono" name="phone" required id="phone"
-                minlength="7" maxlength="12" title="Ingresa un número de teléfono válido entre 7 y 12 dígitos">
+              <input type="text" class="form-control" placeholder="Escribe número telefónico" name="phone" required
+                id="phone" pattern="[0-9]{10,}"
+                title="Ingrese su número telefónico (solo números enteros positivos de al menos 10 dígitos)">
+
             </div>
           </div>
 
