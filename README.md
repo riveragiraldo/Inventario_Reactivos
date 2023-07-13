@@ -9,3 +9,6 @@ Modify the inventariosreac/settings.py  line 82 and 83  to your user name and pa
 On terminal execute the command pip install -r ./requirements.txt <br>
 # Create User
 Next Create a Super User python manage.py createsuperuser<br>
+
+# Execute the Enviroment
+Run python manage.py runserver
