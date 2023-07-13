@@ -792,7 +792,7 @@ def registrar_entrada(request):
                     unit = None
                     return redirect('reactivos:registrar_entrada')
                 
-
+                    
                 inventario = Inventarios.objects.create(
                     name=name,
                     trademark=trademark,
@@ -842,6 +842,7 @@ def registrar_entrada(request):
                              nReactivo+', cantidad '+weight+' '+unit)
             return HttpResponse('Se ha registrado de manera exitosa el ingreso del: ' +
                              nReactivo+', cantidad '+weight+' '+unit, status=200)
+    laboratorio = request.user.lab        
     context = {
                 'reactivos': Reactivos.objects.all(),
                 'responsables': Responsables.objects.all(),
@@ -850,6 +851,8 @@ def registrar_entrada(request):
                 'destinos':Destinos.objects.all(),
                 'laboratorios':Laboratorios.objects.all(),
                 'wubicaciones':Almacenamiento.objects.all(),
+                'usuarios': User.objects.all(),
+                'laboratorio': laboratorio,
             }
         
     return render(request, 'reactivos/registrar_entrada.html', context)

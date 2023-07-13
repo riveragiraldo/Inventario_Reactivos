@@ -91,6 +91,7 @@
                             var destination = window.opener.document.getElementById("destination").value;
                             var manager = window.opener.document.getElementById("manager").value;
                             var observations = window.opener.document.getElementById("observations").value;
+                            
 
                             // Recargar la página padre
                             window.opener.location.replace(window.opener.location.href);
@@ -140,14 +141,14 @@
                                     var wlocation_new = window.opener.document.querySelector("#wlocation");
                                     wlocation_new.value = wlocation;
                                     wlocation_new.setAttribute("selected", true);
-                                    console.log('Hello World')
+                                    
 
                                     var wlocation_2 = window.opener.document.querySelector("#wlocation");
                                     wlocation_2.value = wlocation;
                                     var selectedOption = wlocation_2.options[wlocation_2.selectedIndex];
                                     console.log(wlocation)
                                     console.log(selectedOption)
-                                    window.close();
+                                    // window.close();
                                 }, 300)
                             }, 700);
                         };
