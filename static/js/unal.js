@@ -65,5 +65,3 @@ jQuery(document).ready(function($) {
     });
     serviceMenuStatus();
 });
-
-
