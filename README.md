@@ -16,21 +16,21 @@ The installation instructions depend on the Linux distribution, however to start
 * To start the enviroment type on terminal source env/bin/activate <br>
 * Go to pgadmin4 by cd pgadmin4 <br>
 * Execute pgadmin4 and wait <br>
-** Note that the secure protocol generally does not allow to open pgamind 4 verifies http and not https **<br>
+**Note that the secure protocol generally does not allow to open pgamind 4 verifies http and not https**<br>
 
 ### Virtual Enviroment
 Note that linux executions usually take place in virtual environments <br>
-Execute the start enviroment on terminal  env/bin/activate <br>
-Go to The folder where the repo was cloned usually follow Documents/GitHub/Inventario_Reactivos/<br>
+* Execute the start enviroment on terminal  env/bin/activate <br>
+* Go to The folder where the repo was cloned usually follow Documents/GitHub/Inventario_Reactivos/<br>
 
 # General Instructions 
 
 ## Install Requirements
-On terminal execute the command pip install -r ./requirements.txt <br>
+→ On terminal execute the command pip install -r ./requirements.txt <br>
 ## Create User
-Next Create a Super User python manage.py createsuperuser<br>
+→ Next Create a Super User python manage.py createsuperuser<br>
 
 ## Execute the Enviroment
-Run python manage.py runserver<br>
+→ Run python manage.py runserver<br>
 
 
