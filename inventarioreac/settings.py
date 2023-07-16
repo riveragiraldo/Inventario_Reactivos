@@ -77,10 +77,13 @@ WSGI_APPLICATION = 'inventarioreac.wsgi.application'
 
 DATABASES = {
     'default': {
-       	'ENGINE': 'django.db.backends.postgresql_psycopg2',
+       	'ENGINE': 'django.db.backends.postgresql_psycopg2', 
         'NAME': 'Reactivos',
         'USER': 'postgres',
-        'PASSWORD': 'cjreactivos',
+        #Uncomment to Work on UN 
+        #'PASSWORD': 'cjreactivos',
+        #Comment to Work on UN
+        'PASSWORD': 'cj2618',
         'HOST': 'localhost',
         'PORT': '5432',
         }
