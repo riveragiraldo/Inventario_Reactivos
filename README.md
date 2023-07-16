@@ -3,9 +3,10 @@
 ## Pre-requisites
 ### Windows Instructions 
 #### PostgreSQL
-First check the installation of PostgreSQL 15.2 Version<br>
-Also Create a Empty Database with the Name Reactivos<br>
-Modify the inventariosreac/settings.py  line 82 and 83  to your user name and password of Database<br>
+Usually the Installer PostgreSQL installer can be found at its official website  [PostgreSQL](https://www.enterprisedb.com/downloads/postgres-postgresql-downloads)
+* Check the installation of PostgreSQL 15.2 Version<br>
+* Create a Empty Database with the Name Reactivos<br>
+* Modify the inventariosreac/settings.py  line 82 and 83  to your user name and password of Database<br>
 
 
 ### Linux Instructions 
@@ -18,6 +19,8 @@ The installation instructions depend on the Linux distribution, however to start
 * Go to pgadmin4 by cd pgadmin4 <br>
 * Execute pgadmin4 and wait <br>
 **Note that the secure protocol generally does not allow to open pgamind 4 verifies http and not https**<br>
+* Also Create a Empty Database with the Name Reactivos<br>
+* Modify the inventariosreac/settings.py  line 82 and 83  to your user name and password of Database<br>
 
 #### Virtual Enviroment
 Note that linux executions usually take place in virtual environments <br>
