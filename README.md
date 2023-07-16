@@ -39,6 +39,6 @@ Note that linux executions usually take place in virtual environments <br>
 
 ## Usually errors 
 * Check Migrations after to execute  the user creation follow the command <br>
-    python manage.py migrate <br>
+    - python manage.py migrate <br>
  
 
