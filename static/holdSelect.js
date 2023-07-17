@@ -2,16 +2,11 @@
 // Función para guardar los valores seleccionados de los selectores en el almacenamiento local
 function guardarValoresSelect() {
     const selectedTrade = document.getElementById('trademark').value;
-    const selectedLab = document.getElementById('lab').value;
     const selectedReference = document.getElementById('reference').value;
     const selectedName = document.getElementById('name').value;
     const selectedSortBy = document.getElementById('sort-by-select').value;
     
-
-
-
     localStorage.setItem('selectedTrademark', selectedTrade);
-    localStorage.setItem('selectedLab', selectedLab);
     localStorage.setItem('selectedReference', selectedReference);
     localStorage.setItem('selectedName', selectedName);
     localStorage.setItem('selectedSortBy', selectedSortBy);
@@ -21,22 +16,14 @@ function guardarValoresSelect() {
 // Función para configurar los selectores con los valores almacenados en el almacenamiento local
 function configurarSelects() {
     const selectedTrade = localStorage.getItem('selectedTrademark');
-    const selectedLab = localStorage.getItem('selectedLab');
     const selectedReference = localStorage.getItem('selectedReference');
     const selectedName = localStorage.getItem('selectedName');
     const selectedSortBy = localStorage.getItem('selectedSortBy');
     
-
     // Configurar el selector "Trademark
     const selectTrade = document.getElementById('trademark');
     selectTrade.value = selectedTrade || '';
-
-
-    // Configurar el selector "Lab"
-    const selectLab = document.getElementById('lab');
-    selectLab.value = selectedLab || '';
-
-
+    
     // Configurar el selector "Reference"
     const selectReference = document.getElementById('reference');
     selectReference.value = selectedReference || '';
@@ -48,8 +35,6 @@ function configurarSelects() {
     // Configurar el selector "sortBy"
     const selectSortBy = document.getElementById('sort-by-select');
     selectSortBy.value = selectedSortBy || 'name';
-    
-
 }
 
 window.addEventListener('DOMContentLoaded', function () {
@@ -57,14 +42,12 @@ window.addEventListener('DOMContentLoaded', function () {
     configurarSelects();
 
     // Agregar el event listener a los selectores para guardar los valores seleccionados
-    const selectLab = document.getElementById('lab');
+    
     const selectTrade = document.getElementById('trademark');
     const selectReference = document.getElementById('reference');
     const selectName = document.getElementById('name');
     const selectSortBy = document.getElementById('sort-by-select');
-
-
-    selectLab.addEventListener('change', guardarValoresSelect);
+    
     selectReference.addEventListener('change', guardarValoresSelect);
     selectName.addEventListener('change', guardarValoresSelect);
     selectTrade.addEventListener('change', guardarValoresSelect);

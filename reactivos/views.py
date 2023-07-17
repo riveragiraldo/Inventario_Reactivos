@@ -67,6 +67,17 @@ from django.views.decorators.debug import sensitive_post_parameters
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import FormView
 
+# Vista para la visualización del web template
+@login_required
+def webtemplate(request):
+    laboratorio = request.user.lab
+    
+    context = {
+        'usuarios': User.objects.all(),
+        'laboratorio': laboratorio,
+    }
+    return render(request, 'webtemplate.html', context)
+
 
 # Vista para la creación del index, 
 @login_required
@@ -79,28 +90,514 @@ def index(request):
         'laboratorio': laboratorio,
     }
     return render(request, 'reactivos/index.html', context)
-
-# Vista para la visualización del web template
+# La vista "crear_unidades" se encarga de gestionar la creación de unidades. Esta vista toma los datos del formulario 
+# existente en el template "crear_unidades.html" y realiza las operaciones necesarias en la base de datos utilizando 
+# el modelo "Unidades". El objetivo es garantizar la unicidad de los registros, lo que implica verificar si la unidad
+# ya existe en la base de datos antes de crearla. Si la unidad es única, se crea un nuevo registro en la tabla 
+# correspondiente utilizando el modelo "Unidades". Si la unidad ya existe, se muestra un mensaje de error o se toma la 
+# acción apropiada según los requisitos del sistema.
 @login_required
-def webtemplate(request):
+def crear_unidades(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        # name = estandarizar_nombre(name)#Pendiente definir si sí o no
+
+
+        # Verifica si ya existe un registro con el mismo nombre de la unidad
+        if Unidades.objects.filter(name=name).exists():
+            unidad = Unidades.objects.get(name=name)
+            unidad_id = unidad.id
+            messages.error(
+                request, 'Ya existe una unidad con nombre '+name+' id: '+str(unidad_id))
+            return redirect('reactivos:crear_unidades')
+
+        unidad = Unidades.objects.create(
+            name=name,
+            user=request.user,  # Asignar el usuario actualmente autenticado
+        )
+        unidad_id = unidad.id
+
+        messages.success(
+            request, 'Se ha creado exitosamente la unidad con nombre '+name+' id: '+str(unidad_id))
+
+        # Agregar el ID de la unidad al contexto para seleccionarla en la plantilla
+        context = {'unidad_id': unidad.id, 'unidad_name': unidad.name, }
+        return render(request, 'reactivos/crear_unidades.html', context)
     laboratorio = request.user.lab
-    
+
     context = {
         'usuarios': User.objects.all(),
         'laboratorio': laboratorio,
-    }
-    return render(request, 'webtemplate.html', context)
 
-# Vista para la creación del detalle del reactivo, hasta el momento solo tiene contexto el reactivo, pero se le puede poner lo necesario
+    }
+    return render(request, 'reactivos/crear_unidades.html', context)
+
+# La vista "crear_estado" se encarga de gestionar la creación de estados en la db. Esta vista toma los datos del formulario 
+# existente en el template "crear_estado.html" y realiza las operaciones necesarias en la base de datos utilizando 
+# el modelo "Estados". El objetivo es garantizar la unicidad de los registros, lo que implica verificar si el estado
+# ya existe en la base de datos antes de crearlo. Si el estado es única, se crea un nuevo registro en la tabla 
+# correspondiente utilizando el modelo "Estados". Si el estado ya existe, se muestra un mensaje de error o se toma la 
+# acción apropiada según los requisitos del sistema.
 @login_required
-def detalle_reactivo(request, pk):
+def crear_estado(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        name = estandarizar_nombre(name)
 
-    inventario = get_object_or_404(Inventarios, pk=pk)
+        # Verifica si ya existe un registro con el mismo nombre del estado
+        if Estados.objects.filter(name=name).exists():
+            estado = Estados.objects.get(name=name)
+            estado_id = estado.id
+            estado_name = estado.name
+            messages.error(request, 'Ya existe un estado con nombre ' +
+                           estado_name+' id: '+str(estado_id))
+            return redirect('reactivos:crear_estado')
+
+        estado = Estados.objects.create(
+
+            name=name,
+            user=request.user,  # Asignar el usuario actualmente autenticado
+
+        )
+        estado_id = estado.id
+        estado_name = estado.name
+
+        messages.success(
+            request, 'Se ha creado exitosamente la presentación con nombre '+estado_name+' id: '+str(estado_id))
+        return redirect('reactivos:crear_estado')
+
+    laboratorio = request.user.lab
+
     context = {
+         'usuarios': User.objects.all(),
+        'laboratorio': laboratorio,
 
-        'inventario': inventario
     }
-    return render(request, 'reactivos/detalle_reactivo.html', context)
+    return render(request, 'reactivos/crear_estado.html', context)
+
+# La vista "crear_respel" se encarga de gestionar la creación de clasificación respel. Esta vista toma los datos del formulario 
+# existente en el template "crear_respel.html" y realiza las operaciones necesarias en la base de datos utilizando 
+# el modelo "RespelC". El objetivo es garantizar la unicidad de los registros, lo que implica verificar si la clasifciación respel
+# ya existe en la base de datos antes de crearla. Si la clasificación es única, se crea un nuevo registro en la tabla 
+# correspondiente utilizando el modelo "RespelC". Si la clasificación ya existe, se muestra un mensaje de error o se toma la 
+# acción apropiada según los requisitos del sistema.
+@login_required
+def crear_respel(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        name = estandarizar_nombre(name)
+        description = request.POST.get('description')
+        description = estandarizar_nombre(description)
+
+        # Verifica si ya existe un registro con el mismo nombre de la marca
+        if RespelC.objects.filter(name=name).exists():
+            respel = RespelC.objects.get(name=name)
+            respel_id = respel.id
+            messages.error(
+                request, 'Ya existe una clasificación Respel con nombre '+name+' id: '+str(respel_id))
+            return redirect('reactivos:crear_respel')
+
+        respel = RespelC.objects.create(
+
+            name=name,
+            description=description,
+            user=request.user,  # Asignar el usuario actualmente autenticado
+
+        )
+        respel_id = respel.id
+        messages.success(
+            request, 'Se ha creado exitosamente la clasificación Respel con nombre '+name+' id: '+str(respel_id))
+        return redirect('reactivos:crear_respel')
+
+    laboratorio = request.user.lab
+
+    context = {
+        'usuarios': User.objects.all(),
+        'laboratorio': laboratorio,
+
+    }
+    return render(request, 'reactivos/crear_respel.html', context)
+
+# La vista "crear_sga" se encarga de gestionar la creación de codificación SGA. Esta vista toma los datos del formulario 
+# existente en el template "crear_sga.html" y realiza las operaciones necesarias en la base de datos utilizando 
+# el modelo "SGA". El objetivo es garantizar la unicidad de los registros, lo que implica verificar si la codificación SGA
+# ya existe en la base de datos antes de crearla. Si la codificación es única, se crea un nuevo registro en la tabla 
+# correspondiente utilizando el modelo "SGA". Si la codificación ya existe, se muestra un mensaje de error o se toma la 
+# acción apropiada según los requisitos del sistema.
+@login_required
+def crear_sga(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        name = estandarizar_nombre(name)
+        description = request.POST.get('description')
+        description = estandarizar_nombre(description)
+
+        # Verifica si ya existe un registro con el mismo nombre de la marca
+        if SGA.objects.filter(name=name).exists():
+            sga = SGA.objects.get(name=name)
+            sga_id = sga.id
+            messages.error(
+                request, 'Ya existe una codificación SGA con nombre '+name+' id: '+str(sga_id))
+            return redirect('reactivos:crear_sga')
+
+        sga = SGA.objects.create(
+
+            name=name,
+            description=description,
+            user=request.user,  # Asignar el usuario actualmente autenticado
+
+        )
+        sga_id = sga.id
+        messages.success(
+            request, 'Se ha creado exitosamente la codificación SGA con nombre '+name+' id: '+str(sga_id))
+        return redirect('reactivos:crear_sga')
+
+    laboratorio = request.user.lab
+
+    context = {
+        'usuarios': User.objects.all(),
+        'laboratorio': laboratorio,
+
+    }
+    return render(request, 'reactivos/crear_sga.html', context)
+
+#La vista "crear_responsable" se encarga de gestionar la creación de responsables en la db. Esta vista toma los datos del formulario 
+# existente en el template "crear_responsables.html" y realiza las operaciones necesarias en la base de datos utilizando el modelo 
+# "Responsables". El objetivo es garantizar la unicidad de los registros, lo que implica verificar si la el responsable ya existe en la 
+# base de datos antes de crearlo, para ello, realiza verificación por nombre, correo electrónico y teléfono. Si este es único, se crea 
+# un nuevo registro en la tabla correspondiente utilizando el modelo "Responsables". Si el responsable ya existe, se muestra un mensaje 
+# de error o se toma la acción apropiada según los requisitos del sistema.
+@login_required
+def crear_responsable(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        name = estandarizar_nombre(name)
+        phone = request.POST.get('phone')
+        prefix = request.POST.get('prefix')
+        cc = request.POST.get('cc')
+
+        # Añadir la secuencia de escape "\+" al prefijo
+        if prefix.startswith("+"):
+            prefix = "\\" + prefix
+        # Eliminar los caracteres de escape
+        prefix = prefix.strip("\\")
+
+        phone = prefix + phone
+        mail = request.POST.get('mail')
+        mail = estandarizar_nombre(mail)
+
+        # Verifica si ya existe un registro con el mismo número de cédula, telefono o email de la marca
+        if Responsables.objects.filter(cc=cc).exists():
+            responsablecc = Responsables.objects.get(cc=cc)
+            responsable_cc = responsablecc.cc
+            messages.error(
+                request, 'Ya existe un responsable con cédula registrada: '+str(responsable_cc))
+            return redirect('reactivos:crear_responsable')
+
+        # Verifica si ya existe un registro con el mismo nombre, telefono o email de la marca
+        if Responsables.objects.filter(name=name).exists():
+            responsablename = Responsables.objects.get(name=name)
+            responsable_name = responsablename.name
+            messages.error(
+                request, 'Ya existe una responsable con nombre: '+responsable_name)
+            return redirect('reactivos:crear_responsable')
+
+        if Responsables.objects.filter(phone=phone).exists():
+            responsablename = Responsables.objects.get(phone=phone)
+            responsable_name = responsablename.name
+            messages.error(
+                request, 'Ya existe una responsable con el telefono registrado: '+responsable_name)
+            return redirect('reactivos:crear_responsable')
+
+        if Responsables.objects.filter(mail=mail).exists():
+            responsablename = Responsables.objects.get(mail=mail)
+            responsable_name = responsablename.name
+            messages.error(
+                request, 'Ya existe una responsable con el email registrado: '+responsable_name)
+            return redirect('reactivos:crear_responsable')
+
+        responsable = Responsables.objects.create(
+
+            cc=cc,
+            name=name,
+            phone=phone,
+            mail=mail,
+            user=request.user,  # Asignar el usuario actualmente autenticado
+
+        )
+        messages.success(
+            request, 'Se ha creado exitosamente el siguiente responsable: '+name)
+        return redirect('reactivos:crear_responsable')
+
+    laboratorio = request.user.lab
+
+    context = {
+        'usuarios': User.objects.all(),
+        'laboratorio': laboratorio,
+
+    }
+    return render(request, 'reactivos/crear_responsable.html', context)
+
+# La vista "crear_marca" se encarga de gestionar la creación de marcas en la db. Esta vista toma los datos del formulario 
+# existente en el template "crear_marca.html" y realiza las operaciones necesarias en la base de datos utilizando 
+# el modelo "Marcas". El objetivo es garantizar la unicidad de los registros, lo que implica verificar si la marca
+# ya existe en la base de datos antes de crearla. Si la marca es única, se crea un nuevo registro en la tabla 
+# correspondiente utilizando el modelo "Marcas". Si la marca ya existe, se muestra un mensaje de error o se toma la 
+# acción apropiada según los requisitos del sistema.
+@login_required
+def crear_marca(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        name = estandarizar_nombre(name)
+
+        # Verifica si ya existe un registro con el mismo nombre de la marca
+        if Marcas.objects.filter(name=name).exists():
+            marca = Marcas.objects.get(name=name)
+            marca_id = marca.id
+            messages.error(
+                request, 'Ya existe una marca con nombre '+name+' id: '+str(marca_id))
+            return redirect('reactivos:crear_marca')
+
+        marca = Marcas.objects.create(
+
+            name=name,
+            user=request.user,  # Asignar el usuario actualmente autenticado
+
+        )
+        marca_id = marca.id
+        messages.success(
+            request, 'Se ha creado exitosamente la marca con nombre '+name+' id: '+str(marca_id))
+        return redirect('reactivos:crear_marca')
+
+    laboratorio = request.user.lab
+
+    context = {
+        'usuarios': User.objects.all(),
+        'laboratorio': laboratorio,
+
+    }
+    return render(request, 'reactivos/crear_marca.html', context)
+
+# La vista "crear_facultad" se encarga de gestionar la creación de estados en la db. Esta vista toma los datos del formulario 
+# existente en el template "crear_facultad.html" y realiza las operaciones necesarias en la base de datos utilizando 
+# el modelo "Facultades". El objetivo es garantizar la unicidad de los registros, lo que implica verificar si la facultad
+# ya existe en la base de datos antes de crearlo. Si la facultad es único, se crea un nuevo registro en la tabla 
+# correspondiente utilizando el modelo "Facultades". Si la facultad ya existe, se muestra un mensaje de error o se toma la 
+# acción apropiada según los requisitos del sistema.
+@login_required
+def crear_facultad(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        name = estandarizar_nombre(name)
+
+        # Verifica si ya existe un registro con el mismo nombre del estado
+        if Facultades.objects.filter(name=name).exists():
+            facultad = Facultades.objects.get(name=name)
+            facultad_id = facultad.id
+            facultad_name = facultad.name
+            messages.error(request, 'Ya existe una facultad con nombre ' +
+                           facultad_name+' id: '+str(facultad_id))
+            return redirect('reactivos:crear_facultad')
+
+        facultad = Facultades.objects.create(
+
+            name=name,
+            user=request.user,  # Asignar el usuario actualmente autenticado
+
+        )
+        facultad_id = facultad.id
+        facultad_name = facultad.name
+
+        messages.success(request, 'Se ha creado exitosamente la facultad con nombre ' +
+                         facultad_name+' id: '+str(facultad_id))
+        return redirect('reactivos:crear_facultad')
+    
+    laboratorio = request.user.lab
+
+    context = {
+        'usuarios': User.objects.all(),
+        'laboratorio': laboratorio,
+        }
+    return render(request, 'reactivos/crear_facultad.html', context)
+
+# La vista "crear_destino" se encarga de gestionar la creación de ubicaciones en la db. Esta vista toma los datos del formulario 
+# existente en el template "crear_ubicaciones.html" y realiza las operaciones necesarias en la base de datos utilizando 
+# el modelo "Ubicaciones". El objetivo es garantizar la unicidad de los registros, lo que implica verificar si la ubicación
+# ya existe en la base de datos antes de crearlo. Si este es único, se crea un nuevo registro en la tabla 
+# correspondiente utilizando el modelo "Ubicaciones". Si la ubicación ya existe, se muestra un mensaje de error o se toma la 
+# acción apropiada según los requisitos del sistema.
+@login_required
+def crear_ubicacion(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        name = estandarizar_nombre(name)
+        facultad = request.POST.get('facultad')
+        # Obtiene la instancia de la facultad
+        facultad = get_object_or_404(Facultades, id=facultad)
+
+        # Verifica si ya existe un registro con el mismo nombre de la asignatura
+        if Ubicaciones.objects.filter(name=name).exists():
+
+            messages.error(
+                request, 'Ya existe una ubicación con nombre: '+name)
+            return redirect('reactivos:crear_ubicacion')
+
+        asignatura = Ubicaciones.objects.create(
+
+            name=name,
+            facultad=facultad,
+            user=request.user,  # Asignar el usuario actualmente autenticado
+
+        )
+        messages.success(
+            request, 'Se ha creado exitosamente la ubicación con nombre: '+name)
+        return redirect('reactivos:crear_ubicacion')
+    laboratorio = request.user.lab
+
+    context = {
+        'usuarios': User.objects.all(),
+        'laboratorio': laboratorio,
+        'facultades': Facultades.objects.all()
+
+    }
+    return render(request, 'reactivos/crear_ubicacion.html', context)
+
+# La vista "crear_destino" se encarga de gestionar la creación de destinos en la db. Esta vista toma los datos del formulario 
+# existente en el template "crear_destino.html" y realiza las operaciones necesarias en la base de datos utilizando 
+# el modelo "Destinos". El objetivo es garantizar la unicidad de los registros, lo que implica verificar si el destino
+# ya existe en la base de datos antes de crearlo. Si este es único, se crea un nuevo registro en la tabla 
+# correspondiente utilizando el modelo "Destinos". Si el destino ya existe, se muestra un mensaje de error o se toma la 
+# acción apropiada según los requisitos del sistema.
+@login_required
+def crear_destino(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        name = estandarizar_nombre(name)
+
+        
+        # Verifica si ya existe un registro con el mismo nombre del destino
+        if Destinos.objects.filter(name=name).exists():
+            destino = Destinos.objects.get(name=name)
+            destino_id = destino.id
+            messages.error(request, 'Ya existe un destino llamado ' +
+                           name+' con id: '+str(destino_id))
+            return redirect('reactivos:crear_destino')
+
+        destino = Destinos.objects.create(
+
+            name=name,
+            user=request.user,  # Asignar el usuario actualmente autenticado
+
+        )
+        destino_id = destino.id
+        messages.success(
+            request, 'Se ha creado exitosamente el destino con nombre '+name+' con id: '+str(destino_id))
+        return redirect('reactivos:crear_destino')
+
+    laboratorio = request.user.lab
+
+    context = {
+        'usuarios': User.objects.all(),
+        'laboratorio': laboratorio,
+
+    }
+    return render(request, 'reactivos/crear_destino.html', context)
+
+# La vista "crear_laboratorio" se encarga de gestionar la creación de estados en la db. Esta vista toma los datos del formulario 
+# existente en el template "crear_laboratorio.html" y realiza las operaciones necesarias en la base de datos utilizando 
+# el modelo "Laboratorios". El objetivo es garantizar la unicidad de los registros, lo que implica verificar si el laboratorio
+# ya existe en la base de datos antes de crearlo. Si el laboratorio es único, se crea un nuevo registro en la tabla 
+# correspondiente utilizando el modelo "Laboratorios". Si el estado ya existe, se muestra un mensaje de error o se toma la 
+# acción apropiada según los requisitos del sistema.
+@login_required
+def crear_laboratorio(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        name = estandarizar_nombre(name)
+
+        # Verifica si ya existe un registro con el mismo nombre del laboratorio
+        if Laboratorios.objects.filter(name=name).exists():
+            laboratorio = Laboratorios.objects.get(name=name)
+            laboratorio_id = laboratorio.id
+            laboratorio_name = laboratorio.name
+            messages.error(request, 'Ya existe un laboratorio con nombre ' +
+                           laboratorio_name+' id: '+str(laboratorio_id))
+            return redirect('reactivos:crear_laboratorio')
+
+        laboratorio = Laboratorios.objects.create(
+
+            name=name,
+            user=request.user,  # Asignar el usuario actualmente autenticado
+
+        )
+        laboratorio_id = laboratorio.id
+        laboratorio_name = laboratorio.name
+
+        messages.success(request, 'Se ha creado exitosamente el laboratorio con nombre ' +
+                         laboratorio_name+' id: '+str(laboratorio_id))
+        return redirect('reactivos:crear_laboratorio')
+
+    laboratorio = request.user.lab
+
+    context = {
+        'usuarios': User.objects.all(),
+        'laboratorio': laboratorio,
+
+    }
+    return render(request, 'reactivos/crear_laboratorio.html', context)
+
+# La vista "crear_walmacen" es responsable de la creación de ubicaciones en el almacén dentro de la base de datos. Los 
+# datos se obtienen del formulario presente en el template "crear_walmacen.html", y se realizan las operaciones necesarias 
+# en la base de datos utilizando el modelo "Almacenamiento". El objetivo es asegurar la unicidad de los registros, lo cual 
+# implica verificar si la ubicación en el almacén ya existe antes de crearla, considerando la clave foránea "lab". Si la 
+# ubicación es única para un laboratorio específico, se crea un nuevo registro en la tabla correspondiente utilizando el 
+# modelo "Almacenamiento". En caso de que la ubicación ya exista dentro del laboratorio, se muestra un mensaje de error o 
+# se toma la acción apropiada según los requisitos del sistema.
+@login_required
+def crear_walmacen(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        name = estandarizar_nombre(name)
+        description = request.POST.get('description')
+        description = estandarizar_nombre(description)
+        lab = request.POST.get('lab')
+        nlab = lab
+
+        try:
+            namelab = Laboratorios.objects.get(name=lab)
+            lab = namelab
+        except Laboratorios.DoesNotExist:
+            messages.error(request, "El Laboratorio "+nlab +
+                           " no se encuentra en la base de datos, favor crearlo primero.")
+            lab = None
+            return HttpResponse("El laboratorio "+nlab +
+                           " no se encuentra en la base de datos, favor crearlo primero.", status=400)
+
+       # Verifica si ya existe un registro con el mismo nombre y laboratorio
+        if Almacenamiento.objects.filter(name=name, lab=lab).exists():
+            w_location = Almacenamiento.objects.get(name=name, lab=lab)
+            wlocation_id = w_location.id
+            messages.error(request, "Ya existe una ubicación en almacén con nombre "+name+' id: '+str(wlocation_id))
+            return redirect('reactivos:crear_walmacen')
+        
+        wubicaciones = Almacenamiento.objects.create(
+            name=name,
+            description=description,
+            lab=lab,
+            user=request.user,  # Asignar el usuario actualmente autenticado
+        )
+
+        wubicacion_id = wubicaciones.id
+        messages.success(
+            request, 'Se ha creado exitosamente la ubicacion en almacén con nombre '+name+' id: '+str(wubicacion_id))
+        return redirect('reactivos:crear_walmacen')
+    laboratorio = request.user.lab
+
+    context = {
+        'laboratorio':laboratorio,
+        'laboratorios': Laboratorios.objects.all(),
+    }
+    return render(request, 'reactivos/crear_walmacen.html', context)
 
 # La vista "crear_reactivo" se encarga de gestionar la creación de un reactivo. Esta vista toma los datos del formulario 
 # existente en el template "crear_reactivo.html" y realiza las operaciones necesarias en la base de datos para almacenar 
@@ -168,12 +665,17 @@ def crear_reactivo(request):
             state=state,
             sga=sga,
             respel=respel,
+            user=request.user,  # Asignar el usuario actualmente autenticado
         )
         
         messages.success(request, 'Se ha creado exitosamente el reactivo: '+name)
         return HttpResponse('Reactivo creado correctamente: '+name, status=200)
     
+    laboratorio = request.user.lab
+
     context = {
+        'laboratorio':laboratorio,
+        'laboratorios': Laboratorios.objects.all(),
         'unidades': Unidades.objects.all(),
         'estados': Estados.objects.all(),
         'respels': RespelC.objects.all(),
@@ -181,467 +683,6 @@ def crear_reactivo(request):
     }
     
     return render(request, 'reactivos/crear_reactivo.html', context)
-
-# La vista "crear_unidades" se encarga de gestionar la creación de unidades. Esta vista toma los datos del formulario 
-# existente en el template "crear_unidades.html" y realiza las operaciones necesarias en la base de datos utilizando 
-# el modelo "Unidades". El objetivo es garantizar la unicidad de los registros, lo que implica verificar si la unidad
-# ya existe en la base de datos antes de crearla. Si la unidad es única, se crea un nuevo registro en la tabla 
-# correspondiente utilizando el modelo "Unidades". Si la unidad ya existe, se muestra un mensaje de error o se toma la 
-# acción apropiada según los requisitos del sistema.
-@login_required
-def crear_unidades(request):
-    if request.method == 'POST':
-        name = request.POST.get('name')
-        # name = estandarizar_nombre(name)#Pendiente definir si sí o no
-
-
-        # Verifica si ya existe un registro con el mismo nombre de la unidad
-        if Unidades.objects.filter(name=name).exists():
-            unidad = Unidades.objects.get(name=name)
-            unidad_id = unidad.id
-            messages.error(
-                request, 'Ya existe una unidad con nombre '+name+' id: '+str(unidad_id))
-            return redirect('reactivos:crear_unidades')
-
-        unidad = Unidades.objects.create(
-            name=name,
-        )
-        unidad_id = unidad.id
-
-        messages.success(
-            request, 'Se ha creado exitosamente la unidad con nombre '+name+' id: '+str(unidad_id))
-
-        # Agregar el ID de la unidad al contexto para seleccionarla en la plantilla
-        context = {'unidad_id': unidad.id, 'unidad_name': unidad.name, }
-        return render(request, 'reactivos/crear_unidades.html', context)
-
-    context = {
-
-    }
-    return render(request, 'reactivos/crear_unidades.html', context)
-
-# La vista "crear_respel" se encarga de gestionar la creación de clasificación respel. Esta vista toma los datos del formulario 
-# existente en el template "crear_respel.html" y realiza las operaciones necesarias en la base de datos utilizando 
-# el modelo "RespelC". El objetivo es garantizar la unicidad de los registros, lo que implica verificar si la clasifciación respel
-# ya existe en la base de datos antes de crearla. Si la clasificación es única, se crea un nuevo registro en la tabla 
-# correspondiente utilizando el modelo "RespelC". Si la clasificación ya existe, se muestra un mensaje de error o se toma la 
-# acción apropiada según los requisitos del sistema.
-@login_required
-def crear_respel(request):
-    if request.method == 'POST':
-        name = request.POST.get('name')
-        name = estandarizar_nombre(name)
-        description = request.POST.get('description')
-        description = estandarizar_nombre(description)
-
-        # Verifica si ya existe un registro con el mismo nombre de la marca
-        if RespelC.objects.filter(name=name).exists():
-            respel = RespelC.objects.get(name=name)
-            respel_id = respel.id
-            messages.error(
-                request, 'Ya existe una clasificación Respel con nombre '+name+' id: '+str(respel_id))
-            return redirect('reactivos:crear_respel')
-
-        respel = RespelC.objects.create(
-
-            name=name,
-            description=description,
-
-        )
-        respel_id = respel.id
-        messages.success(
-            request, 'Se ha creado exitosamente la clasificación Respel con nombre '+name+' id: '+str(respel_id))
-        return redirect('reactivos:crear_respel')
-
-    context = {
-
-    }
-    return render(request, 'reactivos/crear_respel.html', context)
-
-
-# La vista "crear_sga" se encarga de gestionar la creación de codificación SGA. Esta vista toma los datos del formulario 
-# existente en el template "crear_sga.html" y realiza las operaciones necesarias en la base de datos utilizando 
-# el modelo "SGA". El objetivo es garantizar la unicidad de los registros, lo que implica verificar si la codificación SGA
-# ya existe en la base de datos antes de crearla. Si la codificación es única, se crea un nuevo registro en la tabla 
-# correspondiente utilizando el modelo "SGA". Si la codificación ya existe, se muestra un mensaje de error o se toma la 
-# acción apropiada según los requisitos del sistema.
-@login_required
-def crear_sga(request):
-    if request.method == 'POST':
-        name = request.POST.get('name')
-        name = estandarizar_nombre(name)
-        description = request.POST.get('description')
-        description = estandarizar_nombre(description)
-
-        # Verifica si ya existe un registro con el mismo nombre de la marca
-        if SGA.objects.filter(name=name).exists():
-            sga = SGA.objects.get(name=name)
-            sga_id = sga.id
-            messages.error(
-                request, 'Ya existe una codificación SGA con nombre '+name+' id: '+str(sga_id))
-            return redirect('reactivos:crear_sga')
-
-        sga = SGA.objects.create(
-
-            name=name,
-            description=description,
-
-        )
-        sga_id = sga.id
-        messages.success(
-            request, 'Se ha creado exitosamente la codificación SGA con nombre '+name+' id: '+str(sga_id))
-        return redirect('reactivos:crear_sga')
-
-    context = {
-
-    }
-    return render(request, 'reactivos/crear_sga.html', context)
-
-# La vista "crear_marca" se encarga de gestionar la creación de marcas en la db. Esta vista toma los datos del formulario 
-# existente en el template "crear_marca.html" y realiza las operaciones necesarias en la base de datos utilizando 
-# el modelo "Marcas". El objetivo es garantizar la unicidad de los registros, lo que implica verificar si la marca
-# ya existe en la base de datos antes de crearla. Si la marca es única, se crea un nuevo registro en la tabla 
-# correspondiente utilizando el modelo "Marcas". Si la marca ya existe, se muestra un mensaje de error o se toma la 
-# acción apropiada según los requisitos del sistema.
-@login_required
-def crear_marca(request):
-    if request.method == 'POST':
-        name = request.POST.get('name')
-        name = estandarizar_nombre(name)
-
-        # Verifica si ya existe un registro con el mismo nombre de la marca
-        if Marcas.objects.filter(name=name).exists():
-            marca = Marcas.objects.get(name=name)
-            marca_id = marca.id
-            messages.error(
-                request, 'Ya existe una marca con nombre '+name+' id: '+str(marca_id))
-            return redirect('reactivos:crear_marca')
-
-        marca = Marcas.objects.create(
-
-            name=name,
-
-        )
-        marca_id = marca.id
-        messages.success(
-            request, 'Se ha creado exitosamente la marca con nombre '+name+' id: '+str(marca_id))
-        return redirect('reactivos:crear_marca')
-
-    context = {
-
-    }
-    return render(request, 'reactivos/crear_marca.html', context)
-
-# La vista "crear_walmacen" es responsable de la creación de ubicaciones en el almacén dentro de la base de datos. Los 
-# datos se obtienen del formulario presente en el template "crear_walmacen.html", y se realizan las operaciones necesarias 
-# en la base de datos utilizando el modelo "Almacenamiento". El objetivo es asegurar la unicidad de los registros, lo cual 
-# implica verificar si la ubicación en el almacén ya existe antes de crearla, considerando la clave foránea "lab". Si la 
-# ubicación es única para un laboratorio específico, se crea un nuevo registro en la tabla correspondiente utilizando el 
-# modelo "Almacenamiento". En caso de que la ubicación ya exista dentro del laboratorio, se muestra un mensaje de error o 
-# se toma la acción apropiada según los requisitos del sistema.
-@login_required
-def crear_walmacen(request):
-    if request.method == 'POST':
-        name = request.POST.get('name')
-        name = estandarizar_nombre(name)
-        description = request.POST.get('description')
-        description = estandarizar_nombre(description)
-        lab = request.POST.get('lab')
-        nlab = lab
-
-        try:
-            namelab = Laboratorios.objects.get(name=lab)
-            lab = namelab
-        except Laboratorios.DoesNotExist:
-            messages.error(request, "El Laboratorio "+nlab +
-                           " no se encuentra en la base de datos, favor crearlo primero.")
-            lab = None
-            return HttpResponse("El laboratorio "+nlab +
-                           " no se encuentra en la base de datos, favor crearlo primero.", status=400)
-
-       # Verifica si ya existe un registro con el mismo nombre y laboratorio
-        if Almacenamiento.objects.filter(name=name, lab=lab).exists():
-            w_location = Almacenamiento.objects.get(name=name, lab=lab)
-            wlocation_id = w_location.id
-            messages.error(request, "Ya existe una ubicación en almacén con nombre "+name+' id: '+str(wlocation_id))
-            return redirect('reactivos:crear_walmacen')
-        
-        wubicaciones = Almacenamiento.objects.create(
-            name=name,
-            description=description,
-            lab=lab,
-        )
-
-        wubicacion_id = wubicaciones.id
-        messages.success(
-            request, 'Se ha creado exitosamente la ubicacion en almacén con nombre '+name+' id: '+str(wubicacion_id))
-        return redirect('reactivos:crear_walmacen')
-
-    context = {
-        'laboratorios': Laboratorios.objects.all()
-    }
-    return render(request, 'reactivos/crear_walmacen.html', context)
-
-
-# La vista "crear_estado" se encarga de gestionar la creación de estados en la db. Esta vista toma los datos del formulario 
-# existente en el template "crear_estado.html" y realiza las operaciones necesarias en la base de datos utilizando 
-# el modelo "Estados". El objetivo es garantizar la unicidad de los registros, lo que implica verificar si el estado
-# ya existe en la base de datos antes de crearlo. Si el estado es única, se crea un nuevo registro en la tabla 
-# correspondiente utilizando el modelo "Estados". Si el estado ya existe, se muestra un mensaje de error o se toma la 
-# acción apropiada según los requisitos del sistema.
-@login_required
-def crear_estado(request):
-    if request.method == 'POST':
-        name = request.POST.get('name')
-        name = estandarizar_nombre(name)
-
-        # Verifica si ya existe un registro con el mismo nombre del estado
-        if Estados.objects.filter(name=name).exists():
-            estado = Estados.objects.get(name=name)
-            estado_id = estado.id
-            estado_name = estado.name
-            messages.error(request, 'Ya existe un estado con nombre ' +
-                           estado_name+' id: '+str(estado_id))
-            return redirect('reactivos:crear_estado')
-
-        estado = Estados.objects.create(
-
-            name=name,
-
-        )
-        estado_id = estado.id
-        estado_name = estado.name
-
-        messages.success(
-            request, 'Se ha creado exitosamente la presentación con nombre '+estado_name+' id: '+str(estado_id))
-        return redirect('reactivos:crear_estado')
-
-    context = {
-
-    }
-    return render(request, 'reactivos/crear_estado.html', context)
-
-# La vista "crear_laboratorio" se encarga de gestionar la creación de estados en la db. Esta vista toma los datos del formulario 
-# existente en el template "crear_laboratorio.html" y realiza las operaciones necesarias en la base de datos utilizando 
-# el modelo "Laboratorios". El objetivo es garantizar la unicidad de los registros, lo que implica verificar si el laboratorio
-# ya existe en la base de datos antes de crearlo. Si el laboratorio es único, se crea un nuevo registro en la tabla 
-# correspondiente utilizando el modelo "Laboratorios". Si el estado ya existe, se muestra un mensaje de error o se toma la 
-# acción apropiada según los requisitos del sistema.
-@login_required
-def crear_laboratorio(request):
-    if request.method == 'POST':
-        name = request.POST.get('name')
-        name = estandarizar_nombre(name)
-
-        # Verifica si ya existe un registro con el mismo nombre del laboratorio
-        if Laboratorios.objects.filter(name=name).exists():
-            laboratorio = Laboratorios.objects.get(name=name)
-            laboratorio_id = laboratorio.id
-            laboratorio_name = laboratorio.name
-            messages.error(request, 'Ya existe un laboratorio con nombre ' +
-                           laboratorio_name+' id: '+str(laboratorio_id))
-            return redirect('reactivos:crear_laboratorio')
-
-        laboratorio = Laboratorios.objects.create(
-
-            name=name,
-
-        )
-        laboratorio_id = laboratorio.id
-        laboratorio_name = laboratorio.name
-
-        messages.success(request, 'Se ha creado exitosamente el laboratorio con nombre ' +
-                         laboratorio_name+' id: '+str(laboratorio_id))
-        return redirect('reactivos:crear_laboratorio')
-
-    context = {
-
-    }
-    return render(request, 'reactivos/crear_laboratorio.html', context)
-
-
-# La vista "crear_facultad" se encarga de gestionar la creación de estados en la db. Esta vista toma los datos del formulario 
-# existente en el template "crear_facultad.html" y realiza las operaciones necesarias en la base de datos utilizando 
-# el modelo "Facultades". El objetivo es garantizar la unicidad de los registros, lo que implica verificar si la facultad
-# ya existe en la base de datos antes de crearlo. Si la facultad es único, se crea un nuevo registro en la tabla 
-# correspondiente utilizando el modelo "Facultades". Si la facultad ya existe, se muestra un mensaje de error o se toma la 
-# acción apropiada según los requisitos del sistema.
-@login_required
-def crear_facultad(request):
-    if request.method == 'POST':
-        name = request.POST.get('name')
-        name = estandarizar_nombre(name)
-
-        # Verifica si ya existe un registro con el mismo nombre del estado
-        if Facultades.objects.filter(name=name).exists():
-            facultad = Facultades.objects.get(name=name)
-            facultad_id = facultad.id
-            facultad_name = facultad.name
-            messages.error(request, 'Ya existe una facultad con nombre ' +
-                           facultad_name+' id: '+str(facultad_id))
-            return redirect('reactivos:crear_facultad')
-
-        facultad = Facultades.objects.create(
-
-            name=name,
-
-        )
-        facultad_id = facultad.id
-        facultad_name = facultad.name
-
-        messages.success(request, 'Se ha creado exitosamente la facultad con nombre ' +
-                         facultad_name+' id: '+str(facultad_id))
-        return redirect('reactivos:crear_facultad')
-
-    context = {
-
-    }
-    return render(request, 'reactivos/crear_facultad.html', context)
-
-# La vista "crear_destino" se encarga de gestionar la creación de destinos en la db. Esta vista toma los datos del formulario 
-# existente en el template "crear_destino.html" y realiza las operaciones necesarias en la base de datos utilizando 
-# el modelo "Destinos". El objetivo es garantizar la unicidad de los registros, lo que implica verificar si el destino
-# ya existe en la base de datos antes de crearlo. Si este es único, se crea un nuevo registro en la tabla 
-# correspondiente utilizando el modelo "Destinos". Si el destino ya existe, se muestra un mensaje de error o se toma la 
-# acción apropiada según los requisitos del sistema.
-@login_required
-def crear_destino(request):
-    if request.method == 'POST':
-        name = request.POST.get('name')
-        name = estandarizar_nombre(name)
-
-        
-        # Verifica si ya existe un registro con el mismo nombre del destino
-        if Destinos.objects.filter(name=name).exists():
-            destino = Destinos.objects.get(name=name)
-            destino_id = destino.id
-            messages.error(request, 'Ya existe un destino llamado ' +
-                           name+' con id: '+str(destino_id))
-            return redirect('reactivos:crear_destino')
-
-        destino = Destinos.objects.create(
-
-            name=name,
-
-        )
-        destino_id = destino.id
-        messages.success(
-            request, 'Se ha creado exitosamente el destino con nombre '+name+' con id: '+str(destino_id))
-        return redirect('reactivos:crear_destino')
-
-    context = {
-
-    }
-    return render(request, 'reactivos/crear_destino.html', context)
-
-# La vista "crear_destino" se encarga de gestionar la creación de ubicaciones en la db. Esta vista toma los datos del formulario 
-# existente en el template "crear_ubicaciones.html" y realiza las operaciones necesarias en la base de datos utilizando 
-# el modelo "Ubicaciones". El objetivo es garantizar la unicidad de los registros, lo que implica verificar si la ubicación
-# ya existe en la base de datos antes de crearlo. Si este es único, se crea un nuevo registro en la tabla 
-# correspondiente utilizando el modelo "Ubicaciones". Si la ubicación ya existe, se muestra un mensaje de error o se toma la 
-# acción apropiada según los requisitos del sistema.
-@login_required
-def crear_ubicacion(request):
-    if request.method == 'POST':
-        name = request.POST.get('name')
-        name = estandarizar_nombre(name)
-        facultad = request.POST.get('facultad')
-        # Obtiene la instancia de la facultad
-        facultad = get_object_or_404(Facultades, id=facultad)
-
-        # Verifica si ya existe un registro con el mismo nombre de la asignatura
-        if Ubicaciones.objects.filter(name=name).exists():
-
-            messages.error(
-                request, 'Ya existe una ubicación con nombre: '+name)
-            return redirect('reactivos:crear_ubicacion')
-
-        asignatura = Ubicaciones.objects.create(
-
-            name=name,
-            facultad=facultad,
-
-        )
-        messages.success(
-            request, 'Se ha creado exitosamente la ubicación con nombre: '+name)
-        return redirect('reactivos:crear_ubicacion')
-    context = {
-        'facultades': Facultades.objects.all()
-
-    }
-    return render(request, 'reactivos/crear_ubicacion.html', context)
-
-#La vista "crear_responsable" se encarga de gestionar la creación de responsables en la db. Esta vista toma los datos del formulario 
-# existente en el template "crear_responsables.html" y realiza las operaciones necesarias en la base de datos utilizando el modelo 
-# "Responsables". El objetivo es garantizar la unicidad de los registros, lo que implica verificar si la el responsable ya existe en la 
-# base de datos antes de crearlo, para ello, realiza verificación por nombre, correo electrónico y teléfono. Si este es único, se crea 
-# un nuevo registro en la tabla correspondiente utilizando el modelo "Responsables". Si el responsable ya existe, se muestra un mensaje 
-# de error o se toma la acción apropiada según los requisitos del sistema.
-@login_required
-def crear_responsable(request):
-    if request.method == 'POST':
-        name = request.POST.get('name')
-        name = estandarizar_nombre(name)
-        phone = request.POST.get('phone')
-        prefix = request.POST.get('prefix')
-        cc = request.POST.get('cc')
-
-        # Añadir la secuencia de escape "\+" al prefijo
-        if prefix.startswith("+"):
-            prefix = "\\" + prefix
-        # Eliminar los caracteres de escape
-        prefix = prefix.strip("\\")
-
-        phone = prefix + phone
-        mail = request.POST.get('mail')
-        mail = estandarizar_nombre(mail)
-
-        # Verifica si ya existe un registro con el mismo número de cédula, telefono o email de la marca
-        if Responsables.objects.filter(cc=cc).exists():
-            responsablecc = Responsables.objects.get(cc=cc)
-            responsable_cc = responsablecc.cc
-            messages.error(
-                request, 'Ya existe un responsable con cédula registrada: '+str(responsable_cc))
-            return redirect('reactivos:crear_responsable')
-
-        # Verifica si ya existe un registro con el mismo nombre, telefono o email de la marca
-        if Responsables.objects.filter(name=name).exists():
-            responsablename = Responsables.objects.get(name=name)
-            responsable_name = responsablename.name
-            messages.error(
-                request, 'Ya existe una responsable con nombre: '+responsable_name)
-            return redirect('reactivos:crear_responsable')
-
-        if Responsables.objects.filter(phone=phone).exists():
-            responsablename = Responsables.objects.get(phone=phone)
-            responsable_name = responsablename.name
-            messages.error(
-                request, 'Ya existe una responsable con el telefono registrado: '+responsable_name)
-            return redirect('reactivos:crear_responsable')
-
-        if Responsables.objects.filter(mail=mail).exists():
-            responsablename = Responsables.objects.get(mail=mail)
-            responsable_name = responsablename.name
-            messages.error(
-                request, 'Ya existe una responsable con el email registrado: '+responsable_name)
-            return redirect('reactivos:crear_responsable')
-
-        responsable = Responsables.objects.create(
-
-            cc=cc,
-            name=name,
-            phone=phone,
-            mail=mail,
-
-        )
-        messages.success(
-            request, 'Se ha creado exitosamente el siguiente responsable: '+name)
-        return redirect('reactivos:crear_responsable')
-
-    context = {
-
-    }
-    return render(request, 'reactivos/crear_responsable.html', context)
 
 # La vista "registrar_entrada" se encarga de gestionar el registro de transacciones de entrada en el aplicativo de insumos en la base de 
 # datos. Los datos se obtienen del formulario presente en el template "registrar_entrada.html". Utilizando el modelo "Entradas", se 
@@ -783,26 +824,17 @@ def registrar_entrada(request):
                 minstock = request.POST.get('minstock')
                 if minstock=='':
                     minstock=0
-
-                unit_id = request.POST.get('unit')
-                try:
-                    nameUnidad = Unidades.objects.get(name=unit_id)
-                    unit = nameUnidad
-                except ObjectDoesNotExist:
-                    unit = None
-                    return redirect('reactivos:registrar_entrada')
                 
-                    
                 inventario = Inventarios.objects.create(
                     name=name,
                     trademark=trademark,
                     weight=weight,
-                    unit=unit,
                     reference=reference,
                     lab=lab,
                     wlocation=wlocation,
                     minstock=minstock,
                     edate=edate,
+                    user=request.user,  # Asignar el usuario actualmente autenticado
                 
                 )
 
@@ -836,6 +868,7 @@ def registrar_entrada(request):
                 price=price,
                 destination=destination,
                 lab=lab,
+                user=request.user,  # Asignar el usuario actualmente autenticado
             )
 
             messages.success(request, 'Se ha registrado de manera exitosa el ingreso del insumo: ' +
@@ -853,11 +886,10 @@ def registrar_entrada(request):
                 'wubicaciones':Almacenamiento.objects.all(),
                 'usuarios': User.objects.all(),
                 'laboratorio': laboratorio,
+                'usuarios': User.objects.all(),
             }
         
     return render(request, 'reactivos/registrar_entrada.html', context)
-
-
 # La vista "registrar_salida" se encarga de gestionar el registro de transacciones de salida en el aplicativo de insumos de la base de 
 # datos. Los datos se obtienen del formulario presente en el template "registrar_salida.html" y se utilizan el modelo "Salidas" para 
 # realizar las operaciones correspondientes de inserción de registros.
@@ -990,13 +1022,18 @@ def registrar_salida(request):
                 observations=observations,
                 destination=destination,
                 lab=lab,
+                user=request.user,  # Asignar el usuario actualmente autenticado
             )
 
             messages.success(request, 'Se ha registrado de manera exitosa la salida del insumo del insumo: ' +
                              nReactivo+', cantidad '+weight+' '+unit+warning)
             return HttpResponse('Se ha registrado de manera exitosa la salida del insumo : ' +
                              nReactivo+', cantidad '+weight+' '+unit+warning, status=200)
+    laboratorio = request.user.lab
+
     context = {
+                'laboratorio':laboratorio,
+                'usuarios': User.objects.all(),
                 'reactivos': Reactivos.objects.all(),
                 'responsables': Responsables.objects.all(),
                 'marcas': Marcas.objects.all(),
@@ -1059,11 +1096,20 @@ class InventarioListView(LoginRequiredMixin,ListView):
         
         unique_references = Inventarios.objects.values(
             'reference').distinct()
+        
+        lab = self.request.user.lab
+        idlaboratorio = self.request.user.lab
+    
+        context['usuarios'] = User.objects.all()
+        context['lab'] = lab
+        context['idlaboratorio'] = idlaboratorio
 
         context['unique_labs'] = unique_labs
         context['unique_names'] = unique_names
         context['unique_trademarks'] = unique_trademarks
         context['unique_references'] = unique_references
+
+        
 
         # Obtener la lista de inventarios
         inventarios = context['object_list']
@@ -1141,7 +1187,7 @@ class InventarioListView(LoginRequiredMixin,ListView):
             elif sort_by == 'weight':
                 queryset = queryset.order_by('weight')
             elif sort_by == 'unit':
-                queryset = queryset.order_by('unit__name')
+                queryset = queryset.order_by('name__unit__name')
             elif sort_by == 'wlocation':
                 queryset = queryset.order_by('wlocation__name')
             elif sort_by == 'lab':
@@ -1150,6 +1196,23 @@ class InventarioListView(LoginRequiredMixin,ListView):
                 queryset = queryset.order_by('edate')
 
         return queryset
+
+#-------------------------------------------------------------------------------------------------------------------------------------
+# Vista para la creación del detalle del reactivo, hasta el momento solo tiene contexto el reactivo, pero se le puede poner lo necesario
+@login_required
+def detalle_reactivo(request, pk):
+
+    inventario = get_object_or_404(Inventarios, pk=pk)
+    laboratorio = request.user.lab
+    
+    context = {
+        'usuarios': User.objects.all(),
+        'laboratorio': laboratorio,
+
+        'inventario': inventario
+    }
+    return render(request, 'reactivos/detalle_reactivo.html', context)
+
 
 # Guarda los datos de filtrados y datos de paginación en el template inventarios.html en los datos de session de usuario
 
@@ -1209,7 +1272,7 @@ class NamesTrademarksAndReferencesByLabAPI(LoginRequiredMixin,View):
 # Devuelve valores de trademark y reference para ser insertados los select correspondientes en el template Inventarios al modificar 
 # name de reactivo
 
-class TrademarksAndReferencesByNameAPI(LoginRequiredMixin,View):
+class TrademarksByLabAndNameAPI(LoginRequiredMixin, View):
     def get(self, request):
         name = request.GET.get('name')
         lab = request.GET.get('lab')
@@ -1224,8 +1287,7 @@ class TrademarksAndReferencesByNameAPI(LoginRequiredMixin,View):
             else:
                 reactivo = get_object_or_404(Reactivos, name=name)
                 name = reactivo.id
-                
-            
+
         if lab:
             # Verificar si el valor de lab es un número
             if lab.isdigit():
@@ -1234,17 +1296,57 @@ class TrademarksAndReferencesByNameAPI(LoginRequiredMixin,View):
             else:
                 lab = get_object_or_404(Laboratorios, name=lab)
                 lab = lab.id
-        
+
         if name:
             inventarios = inventarios.filter(name=name)
 
         if lab:
             inventarios = inventarios.filter(lab=lab)
 
-        trademarks_and_references = inventarios.values('trademark', 'trademark__name', 'reference').distinct()
-        trademarks_and_references_list = list(trademarks_and_references)
+        trademarks = inventarios.values('trademark', 'trademark__name').distinct()
+        trademarks_list = list(trademarks)
 
-        return JsonResponse(trademarks_and_references_list, safe=False)
+        return JsonResponse(trademarks_list, safe=False)
+
+class ReferencesByLabAndNameAPI(LoginRequiredMixin, View):
+    def get(self, request):
+        name = request.GET.get('name')
+        lab = request.GET.get('lab')
+
+        inventarios = Inventarios.objects.all()
+
+        if name:
+            # Verificar si el valor de name es un número
+            if name.isdigit():
+                reactivo = get_object_or_404(Reactivos, id=int(name))
+                name = reactivo.id
+            else:
+                reactivo = get_object_or_404(Reactivos, name=name)
+                name = reactivo.id
+
+        if lab:
+            # Verificar si el valor de lab es un número
+            if lab.isdigit():
+                laboratorio = get_object_or_404(Laboratorios, id=int(lab))
+                lab = laboratorio.id
+            else:
+                lab = get_object_or_404(Laboratorios, name=lab)
+                lab = lab.id
+
+        if name:
+            inventarios = inventarios.filter(name=name)
+
+        if lab:
+            inventarios = inventarios.filter(lab=lab)
+
+        references = inventarios.values('reference').distinct()
+        references_list = list(references)
+        
+
+        return JsonResponse(references_list, safe=False)
+
+
+
 
     
 # Devuelve valores de reference para ser insertados los select correspondientes en el template Inventarios al modificar 
@@ -1438,7 +1540,7 @@ def export_to_excel(request):
         sheet.cell(row=row, column=4).value = item.trademark.name
         sheet.cell(row=row, column=5).value = item.reference
         sheet.cell(row=row, column=6).value = item.weight
-        sheet.cell(row=row, column=7).value = item.unit.name
+        sheet.cell(row=row, column=7).value = item.name.unit.name
         sheet.cell(row=row, column=8).value = item.wlocation.name
         sheet.cell(row=row, column=9).value = item.lab.name
         sheet.cell(row=row, column=10).value = item.edate
@@ -1665,7 +1767,7 @@ def export_to_pdf(request):
         p.drawString(table_x + 318, row_y, str(item.reference))
         # Formatear a 1 posición decimal
         p.drawString(table_x + 375, row_y, "{:.1f}".format(item.weight))
-        p.drawString(table_x + 420, row_y, str(item.unit.name))
+        p.drawString(table_x + 420, row_y, str(item.name.unit.name))
         p.drawString(table_x + 440, row_y, str(item.wlocation.name))
         p.drawString(table_x + 530, row_y, str(item.lab.name))
         p.drawString(table_x + 687, row_y, str(item.edate))
@@ -1824,7 +1926,7 @@ def estandarizar_nombre(nombre):
     nombre = re.sub('[óÓ]', 'O', nombre)  # Reemplazar ó y Ó por O
     nombre = re.sub('[úÚ]', 'U', nombre)  # Reemplazar ú y Ú por U
     nombre = re.sub('[ñÑ]', 'N', nombre)  # Reemplazar ñ y Ñ por N
-    nombre = re.sub('[^A-Za-z0-9@ .-_]', '', nombre)  # Eliminar caracteres especiales excepto números y espacios
+    nombre = re.sub('[^A-Za-z0-9@ ._-]', '', nombre)  # Eliminar caracteres especiales excepto números y espacios
     return nombre
 
 

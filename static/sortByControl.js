@@ -1,17 +1,5 @@
-// Se encarga de enviar a la list view Inventarios los datos de ordenamiento manteniendo los valores de los filtros
-// Obtener el elemento select
-const sortBySelect = document.getElementById('sort-by-select');
-const labSel = document.getElementById('lab');
-const namSel = document.getElementById('name');
-const tradSel = document.getElementById('trademark');
-const refSel = document.getElementById('reference');
-
-// Agregar un controlador de eventos al cambio de selección
-sortBySelect.addEventListener('change', () => {
-    sendSortBy()
-});
-
-function sendSortBy(){
+// Función para enviar los datos a la list view Inventarios
+function sendSortBy() {
     // Obtener el valor seleccionado
     const sortBy = sortBySelect.value;
     const labS = labSel.value;
@@ -25,6 +13,20 @@ function sendSortBy(){
     // Redirigir a la nueva URL
     window.location.href = url;
 }
+
+// Obtener el elemento select
+const sortBySelect = document.getElementById('sort-by-select');
+const labSel = document.getElementById('lab');
+const namSel = document.getElementById('name');
+const tradSel = document.getElementById('trademark');
+const refSel = document.getElementById('reference');
+
+// Agregar un controlador de eventos al cambio de selección del sort by
+sortBySelect.addEventListener('change', () => {
+    sendSortBy();
+});
+
+
 
 // Obtener el valor seleccionado almacenado en la URL (si existe)
 const urlParams = new URLSearchParams(window.location.search);

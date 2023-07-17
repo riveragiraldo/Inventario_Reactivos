@@ -260,6 +260,27 @@
 		<!-- /content wrapper for padding -->
 		<div id="pestania-accesibilidad" class="">Panel de Accesibilidad</div>
 	</div>
+	<nav class="navbar navbar-expand-lg navbar-light bg-light">
+		<div class="collapse navbar-collapse" id="navbarNav">
+			<ul class="navbar-nav ml-auto">
+				<br>
+				<li class="nav-item">
+					<p>Laboratorio: {{ laboratorio|title }}&nbsp;&nbsp;</p>
+
+				</li>
+
+				<li class="nav-item">
+					<span class="navbar-item">&nbsp;BIENVENIDO, {{ request.user.first_name|title }} {{ request.user.last_name|title }}&nbsp;</span>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link" href="/admin/password_change/">&nbsp;CAMBIAR CONTRASEÑA&nbsp;</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link" href="/admin/logout/">CERRAR SESIÓN</a>
+				</li>
+			</ul>
+		</div>
+	</nav>
 
 	<main class="detalle">
 		<div class="breadcrumb-class">Está en:<a href="{% url 'reactivos:index' %}" target="_self" title="Inicio" id="breadcrumb_title">{{ laboratorio|title}}</a>/<container id="breadcrumb-title"></container></div>

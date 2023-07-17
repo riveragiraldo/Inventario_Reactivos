@@ -30,7 +30,7 @@ function updateNameTrademarkAndReferenceByLab() {
     }
 
     // Guardar el nuevo valor seleccionado en el select "Lab"
-    const selectedLab = labSelect.value;
+    
 
     // Realizar una solicitud AJAX para obtener los nombres, marcas y referencias correspondientes al laboratorio seleccionado
     const xhr = new XMLHttpRequest();
@@ -107,37 +107,20 @@ function updateNameTrademarkAndReferenceByLab() {
 
 
 // Función para actualizar los selects "Trademark" y "Reference" al cambiar el select "Name"
-function updateTrademarkAndReferenceByname() {
-    // Obtener los valores seleccionados en los selectores "Trademark" y "Reference"
-    const selectedTrademark = trademarkSelect.value;
-    const selectedReference = referenceSelect.value;
+// // Función para actualizar los selects "Trademark" y "Reference" al cambiar el select "Name"
 
-    // Restaurar la selección previa del select "Trademark" si existe
-    const previousTrademarkValue = trademarkSelect.dataset.previousValue;
-    if (previousTrademarkValue) {
-        trademarkSelect.value = previousTrademarkValue;
-    }
-
-    // Restaurar la selección previa del select "Reference" si existe
-    const previousReferenceValue = referenceSelect.dataset.previousValue;
-    if (previousReferenceValue) {
-        referenceSelect.value = previousReferenceValue;
-    }
-
-    // Guardar el nuevo valor seleccionado en el select "Name"
-    const selectedName = nameSelect.value;
+function updateTrademarkSelect() {
     const selectedLab = labSelect.value;
+    const selectedName = nameSelect.value;
 
-    // Realizar una solicitud AJAX para obtener las marcas y referencias correspondientes al nombre seleccionado
     const xhr = new XMLHttpRequest();
-    xhr.open('GET', `/api/trademarksandreferencesbyname?name=${selectedName}&lab=${selectedLab}`);
+    xhr.open('GET', `/api/trademarksbylabandname?lab=${selectedLab}&name=${selectedName}`);
     xhr.onload = function () {
         if (xhr.status === 200) {
             const response = JSON.parse(xhr.responseText);
 
-            // Limpiar las opciones de los selectores "Trademark" y "Reference"
+            // Limpiar las opciones del select "Trademark"
             trademarkSelect.innerHTML = '';
-            referenceSelect.innerHTML = '';
 
             // Agregar opción "Todas" al select "Trademark"
             const allTrademarkOption = document.createElement('option');
@@ -145,36 +128,49 @@ function updateTrademarkAndReferenceByname() {
             allTrademarkOption.textContent = 'Todas';
             trademarkSelect.appendChild(allTrademarkOption);
 
-            // Agregar opción "Todas" al select "Reference"
-            const allReferenceOption = document.createElement('option');
-            allReferenceOption.value = '';
-            allReferenceOption.textContent = 'Todas';
-            referenceSelect.appendChild(allReferenceOption);
-
-            // Iterar sobre la respuesta JSON (lista de marcas y referencias)
+            // Iterar sobre la respuesta JSON (lista de marcas)
             response.forEach(function (item) {
                 // Agregar opción al select "Trademark"
                 const trademarkOption = document.createElement('option');
                 trademarkOption.value = item.trademark;
                 trademarkOption.textContent = item.trademark__name;
                 trademarkSelect.appendChild(trademarkOption);
+            });
+        }
+    };
+    xhr.send();
+    
+}
 
+
+// Función para actualizar el select "Reference" basado en la selección de "lab" y "name"
+function updateReferenceSelect() {
+    const selectedLab = labSelect.value;
+    const selectedName = nameSelect.value;
+
+    const xhr = new XMLHttpRequest();
+    xhr.open('GET', `/api/referencesbylabandname?lab=${selectedLab}&name=${selectedName}`);
+    xhr.onload = function () {
+        if (xhr.status === 200) {
+            const response = JSON.parse(xhr.responseText);
+
+            // Limpiar las opciones del select "Reference"
+            referenceSelect.innerHTML = '';
+
+            // Agregar opción "Todas" al select "Reference"
+            const allReferenceOption = document.createElement('option');
+            allReferenceOption.value = '';
+            allReferenceOption.textContent = 'Todas';
+            referenceSelect.appendChild(allReferenceOption);
+
+            // Iterar sobre la respuesta JSON (lista de referencias)
+            response.forEach(function (item) {
                 // Agregar opción al select "Reference"
                 const referenceOption = document.createElement('option');
                 referenceOption.value = item.reference;
                 referenceOption.textContent = item.reference;
                 referenceSelect.appendChild(referenceOption);
             });
-
-            // Restaurar la selección previa del select "Trademark" si existía y sigue siendo una opción válida
-            if (selectedTrademark && trademarkSelect.querySelector(`option[value="${selectedTrademark}"]`)) {
-                trademarkSelect.value = selectedTrademark;
-            }
-
-            // Restaurar la selección previa del select "Reference" si existía y sigue siendo una opción válida
-            if (selectedReference && referenceSelect.querySelector(`option[value="${selectedReference}"]`)) {
-                referenceSelect.value = selectedReference;
-            }
         }
     };
     xhr.send();
@@ -183,7 +179,7 @@ function updateTrademarkAndReferenceByname() {
 // Función para actualizar el select y "Reference" al cambiar el select "Trademark"
 function updateReferenceByTrademark() {
     // Obtener los valores seleccionados en los selectores "Trademark" y "Reference"
-    
+
     const selectedReference = referenceSelect.value;
 
     // Restaurar la selección previa del select "Reference" si existe
@@ -207,7 +203,7 @@ function updateReferenceByTrademark() {
             // Limpiar las opciones de los selectores "Trademark" y "Reference"
             referenceSelect.innerHTML = '';
 
-            
+
             // Agregar opción "Todas" al select "Reference"
             const allReferenceOption = document.createElement('option');
             allReferenceOption.value = '';
@@ -216,7 +212,7 @@ function updateReferenceByTrademark() {
 
             // Iterar sobre la respuesta JSON (lista de marcas y referencias)
             response.forEach(function (item) {
-                
+
                 // Agregar opción al select "Reference"
                 const referenceOption = document.createElement('option');
                 referenceOption.value = item.reference;
@@ -237,27 +233,28 @@ function updateReferenceByTrademark() {
 trademarkSelect.addEventListener('change', updateReferenceByTrademark);
 
 // Manejar el evento de cambio en el select name
-nameSelect.addEventListener('change', updateTrademarkAndReferenceByname);
+nameSelect.addEventListener('change', updateTrademarkSelect()
+,setTimeout(updateReferenceSelect, 50));
 
-// Manejar el evento de cambio en el select lab
-labSelect.addEventListener('change', updateNameTrademarkAndReferenceByLab);
+
 
 // Llamar a las funciones de actualización con retraso
 window.addEventListener('load', function () {
     // Obtener el valor actual del select "Name"
     const selectedName = nameSelect.value;
-  
+
     // Ejecutar la primera función inmediatamente
     updateNameTrademarkAndReferenceByLab();
-  
+
     if (selectedName !== '') {
         // Ejecutar la segunda función después de 100 ms
         setTimeout(function () {
-            updateTrademarkAndReferenceByname();
-          
+            updateTrademarkSelect()
+            setTimeout(updateReferenceSelect, 50);
+
             // Obtener el valor actual del select "Trademark"
             const selectedTrademark = trademarkSelect.value;
-          
+
             if (selectedTrademark !== '') {
                 // Ejecutar la tercera función después de 100 ms
                 setTimeout(function () {
