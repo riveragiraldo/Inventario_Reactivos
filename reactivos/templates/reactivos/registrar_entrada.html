@@ -18,7 +18,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://code.jquery.com/ui/1.13.0/jquery-ui.min.js"></script>
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.0/themes/smoothness/jquery-ui.css">
-    
+
 
     {% load static %}
     <script src="{% static 'autocompletein.js' %}"></script>
@@ -37,8 +37,13 @@
     <!-- Llama Script al final crea alerta informativa y envía datos -->
     <script src="{% static 'updateWlocation.js' %}" defer></script>
     <!-- Llama Script al final actualiza select ubicaciones en almacén según laboratorio -->
+    <script src="{% static 'validateMinStock.js' %}" defer></script>
+    <!-- Llama Script  que valida que el stock mínimo sea inferior a la cantidad -->
+    <script src="{% static 'validateEdate.js' %}" defer></script>
+    <!-- Llama Script  que valida que el que la fecha de vencimiento sea futura -->
 
     <link rel="stylesheet" href="{% static 'styles.css' %}">
+
     {% endblock %}
 
 </head>
@@ -57,44 +62,46 @@
                     <span id="currentDate"></span>
                 </div>
                 <div class="col-md-12">
-                    <label class="form-label">Laboratorio:</label>
-                
+                    <label class="form-label" for="lab" name="Laboratorio: ">Laboratorio:</label>
+
                     <input type="text" class="form-control" name="lab" id="lab"
                         placeholder="Laboratorio al que pertence" title="Laboratorio al que pertence" required
-                        value="{{ laboratorio }}" style="border: none; box-shadow: none;" readonly/>
+                        value="{{ laboratorio }}" style="border: none; box-shadow: none;" readonly />
                 </div>
+                
 
                 <div class="col-md-6">
-                    <label class="form-label">*Nombre: "Cód. - Nom. - CAS"</label>
+                    <label class="form-label" for="name" name="Nombre: ">*Nombre: "Cód. - Nom. - CAS"</label>
                     <div class="input-group">
-                        <input type="text" class="form-control" name="name" id="name" placeholder="Nombre, CI o CAS"
-                            title="Se puede filtrar por nombre, CI o CAS" required />
-                        <button type="button" id="add_reagent_btn" class="btn btn-secondary" title="Agregar Nombre">+
-                            </Address>
+                    <input type="text" class="form-control" name="name" id="name" placeholder="Nombre, CI o CAS"
+                        title="Se puede filtrar por nombre, CI o CAS" required />
+                        <button type="button" id="add_reagent_btn" class="btn btn-secondary" title="Agregar Nombre" >+
+                        </button>
                     </div>
                 </div>
-
+                
+          
                 <div class="col-md-2">
-                    <label class="form-label">*Código:</label>
+                    <label class="form-label" for="code" name="Código: ">*Código:</label>
                     <input type="text" name="code" class="form-control" value="" id="code" readonly
                         placeholder="Cód. Interno">
                 </div>
 
                 <div class="col-md-2">
-                    <label class="form-label">*CAS:</label>
+                    <label class="form-label" for="cas"name="CAS: ">*CAS:</label>
                     <input type="text" name="cas" class="form-control" value="" id="cas" readonly
                         placeholder="Cód. CAS">
                 </div>
                 <div class="col-md-2">
-                    <label class="form-label">*Estado:</label>
+                    <label class="form-label" for="is_liquid" name="Estado: ">*Estado:</label>
                     <input type="text" name="is_liquid" class="form-control" value="" id="is_liquid" readonly
                         placeholder="Estado">
                 </div>
 
                 <div class="col-md-4">
-                    <label class="form-label">*Valor:</label>
+                    <label class="form-label" for="price" name="Valor: ">*Valor:</label>
                     <div class="input-group">
-                        <span class="input-group-text">$</span>
+                        <span class="input-group-text" >$</span>
                         <input type="number" class="form-control" placeholder="Valor en COP" name="price" required
                             id="price" min="0" max="1000000000" pattern="^(?:[1-9]\d{0,8}|1000000000)$"
                             title="Ingrese un valor entero positivo sin puntos ni comas (máximo $ 1,000,000,000)">
@@ -103,8 +110,8 @@
                 </div>
 
                 <div class="col-md-4">
-                    <label class="form-label">*Marca:</label>
-                    <div class="input-group">
+                    <label class="form-label" for="trademark" name="Marca: " >*Marca:</label>
+                    <div class="input-group" >
                         <select name="trademark" id="trademark" class="form-select" required>
                             {% for marca in marcas %}
                             <option value="{{ marca.id }}">{{ marca.name }}</option>
@@ -116,51 +123,51 @@
                 </div>
 
                 <div class="col-md-4">
-                    <label class="form-label">*Vencimiento:</label>
+                    <label class="form-label" for="edate" name="Vencimiento: ">*Vencimiento:</label>
                     <input type="date" class="form-control" name="edate" id="edate"
-                        value="{{ date.today|date:'Y-m-d' }}" min="{{ date.today|date:'Y-m-d' }}" required
-                        title="Registre una fecha actual o futura">
+                        value="{{ date.tomorrow|date:'Y-m-d' }}" required title="Registre una fecha  futura"
+                        title="Registre una fecha entre mañana y 31/12/2100">
 
                 </div>
 
                 <div class="col-md-3" id="referenceBlock">
-                    <label class="form-label">*Referencia:</label>
+                    <label class="form-label" for="reference" name="Referencia: ">*Referencia:</label>
                     <input type="text" class="form-control" placeholder="Ref. reactivo" name="reference" id="reference"
                         required>
                 </div>
 
                 <div class="col-md-4" id="weightBlock">
-                    <label class="form-label" for="weight">*Cantidad:</label>
+                    <label class="form-label" for="weight" name="Cantidad a retirar: ">*Cantidad:</label>
                     <input type="number" step="any" class="form-control" placeholder="Cant. reactivo" id="weight"
                         name="weight" min="0" required pattern="^(?:[1-9]\d{0,7}|100000000)$"
                         title="Ingrese un valor entero positivo sin puntos ni comas (máximo 100,000,000)">
                 </div>
 
                 <div class="col-md-3" id="minStockBlock">
-                    <label class="form-label" for="minstock">*Min Stock:</label>
+                    <label class="form-label" for="minstock" name="Stock mínimo: ">*Min Stock:</label>
                     <input type="number" step="any" class="form-control" placeholder="Stock Mínimo" id="minstock"
                         name="minstock" min="0" max="100000" pattern="^(?:[1-9]\d{0,4}|100000)$"
                         title="Ingrese un valor entero positivo sin puntos ni comas (máximo 100,000)">
 
                 </div>
-
+                
                 <div class="col-md-2" id="unitBlock">
-                    <label class="form-label">*Unidades:</label>
+                    <label class="form-label" for="unit" name="Unidad: ">*Unidades:</label>
                     <input type="text" name="unit" class="form-control" value="" id="unit" readonly>
                 </div>
 
                 <div class="col-md-6">
-                    <label class="form-label">Orden:</label>
+                    <label class="form-label" for="order" name="Orden: ">Orden:</label>
                     <input type="text" name="order" class="form-control" id="order" placeholder="Orden Número">
                 </div>
 
                 <div class="col-md-6">
-                    <label class="form-label">Número de proyecto:</label>
+                    <label class="form-label" for="nproject" name="Proyecto No.: ">Número de proyecto:</label>
                     <input type="text" name="nproject" class="form-control" id="nproject" placeholder="Proyecto Número">
                 </div>
 
                 <div class="col-md-6">
-                    <label class="form-label">*Asignatura/Ubicación:</label>
+                    <label class="form-label" for="location" name="Asignatura Ubicación: ">*Asignatura/Ubicación:</label>
                     <div class="input-group">
                         <input type="text" name="location" class="form-control" id="location" required
                             placeholder="Asignatura/Ubicación Destino">
@@ -171,7 +178,7 @@
                 </div>
 
                 <div class="col-md-6">
-                    <label class="form-label">*Destino:</label>
+                    <label class="form-label" for="destination" name="Destino: ">*Destino:</label>
                     <select name="destination" id="destination" class="form-select" required>
                         {% for destino in destinos %}
                         <option value="{{ destino.id }}">{{ destino.name }}</option>
@@ -180,7 +187,7 @@
                 </div>
 
                 <div class="col-md-6">
-                    <label class="form-label">*Responsable:</label>
+                    <label class="form-label" for="manager" name="Responsable: ">*Responsable:</label>
                     <div class="input-group">
                         <input type="text" name="manager" class="form-control" id="manager" required
                             placeholder="Responsable del insumo">
@@ -191,7 +198,7 @@
                 </div>
 
                 <div class="col-md-6">
-                    <label class="form-label">*Ubicación en almacén:</label>
+                    <label class="form-label" for="wlocation" name="Ubicación física: ">*Ubicación en almacén:</label>
                     <div class="input-group">
                         <select name="wlocation" id="wlocation" class="form-select" required>
                             <option value="">Seleccione</option>
@@ -206,7 +213,7 @@
                 </div>
 
                 <div class="col-md-12">
-                    <label class="form-label">Observaciones:</label>
+                    <label class="form-label" for="observations" name="Observaciones: ">Observaciones:</label>
                     <textarea name="observations" class="form-control" placeholder="Escriba sus observaciones" rows="2"
                         id="observations"></textarea>
                 </div>

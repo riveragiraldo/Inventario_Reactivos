@@ -1097,12 +1097,12 @@ class InventarioListView(LoginRequiredMixin,ListView):
         unique_references = Inventarios.objects.values(
             'reference').distinct()
         
-        lab = self.request.user.lab
-        idlaboratorio = self.request.user.lab
+        laboratorio = self.request.user.lab
+        
     
         context['usuarios'] = User.objects.all()
-        context['lab'] = lab
-        context['idlaboratorio'] = idlaboratorio
+        context['laboratorio'] = laboratorio
+        
 
         context['unique_labs'] = unique_labs
         context['unique_names'] = unique_names
@@ -1139,6 +1139,13 @@ class InventarioListView(LoginRequiredMixin,ListView):
         name = self.request.GET.get('name')
         trademark = self.request.GET.get('trademark')
         reference = self.request.GET.get('reference')
+
+        # Verificar si hay datos de filtrado, paginación u ordenamiento en la URL
+        has_filtering_data = any([sort_by, lab, name, trademark, reference])
+    
+        # Si no hay datos de filtrado, paginación u ordenamiento, retornar una lista vacía
+        if not has_filtering_data:
+            return queryset.none()
         
         if lab and name and trademark and reference:
             queryset = queryset.filter(lab=lab, name=name, trademark=trademark, reference=reference, is_active=True)

@@ -1,22 +1,21 @@
-
 function validarCampos() {
     var campos = document.querySelectorAll("form input[required], form select[required], form textarea[required]");
     for (var i = 0; i < campos.length; i++) {
-      var campo = campos[i];
-      if (!campo.value) {
-        alert("Por favor, complete todos los campos obligatorios.");
-        return false;
-      }
-      if (campo.pattern && !new RegExp("^" + campo.pattern + "$").test(campo.value)) {
-        var etiquetaAsociada = obtenerEtiquetaAsociada(campo);
-        var tituloCampo = campo.title || etiquetaAsociada;
-        alert("Verificar información en " + etiquetaAsociada+": "+tituloCampo )
-        return false;
-      }
+        var campo = campos[i];
+        if (!campo.value) {
+            alert("Por favor, complete todos los campos obligatorios.");
+            return false;
+        }
+        if (campo.pattern && !new RegExp("^" + campo.pattern + "$").test(campo.value)) {
+            var etiquetaAsociada = obtenerEtiquetaAsociada(campo);
+            var tituloCampo = campo.title || etiquetaAsociada;
+            alert("Verificar información en " + etiquetaAsociada + ": " + tituloCampo)
+            return false;
+        }
     }
     return true;
-  }
-  
+}
+
 
 //Función principal que la orden desde el submit
 function openPopupWindowConfirm() {
@@ -69,7 +68,7 @@ function enviarInformacion(formData, csrfToken) {
 }
 
 
-//Obtiene los datos del formulario y los organiza para sacar la alerta informativa
+// Obtiene los datos del formulario y los organiza para sacar la alerta informativa
 function obtenerDatosFormulario() {
     var campos = document.querySelectorAll("form input, form select, form textarea");
     var formData = "";
@@ -79,19 +78,18 @@ function obtenerDatosFormulario() {
         var etiquetaAsociada = obtenerEtiquetaAsociada(campo);
         var valorCampo = obtenerValorCampo(campo);
 
-        // Filtrar botones y token CSRF
+        //Filtrar botones y token CSRF
         if (
             campo.tagName.toLowerCase() === 'button' ||
             (campo.tagName.toLowerCase() === 'input' && (campo.type === 'button' || campo.type === 'reset')) ||
             campo.name === 'csrfmiddlewaretoken' ||
             campo.id === 'wf' ||
-            campo.id === 'lab' ||
+            campo.id === 'minstock'||
             campo.id === 'stock'
 
         ) {
             continue;
         }
-
 
         formData += etiquetaAsociada + " " + valorCampo + "\n";
     }
@@ -117,11 +115,16 @@ function obtenerDatosFormularioEnviar() {
 //Obtiene las etiquetas asociadas de manera que la alerta no esté asociada al name de la input sino a la etiqueta de manera que se a 
 //más fácil de entender
 function obtenerEtiquetaAsociada(campo) {
-    var etiqueta = campo.previousElementSibling;
-    if (etiqueta) {
-        return etiqueta.textContent.trim();
+    // Verificar si el campo tiene un atributo 'id'
+    if (campo.id) {
+        // Buscar la etiqueta asociada con el mismo valor en el atributo 'for'
+        var etiqueta = document.querySelector('label[for="' + campo.id + '"]');
+        if (etiqueta) {
+            return etiqueta.getAttribute('name');
+        }
     }
 
+    // Si no se encuentra una etiqueta asociada, devolver el 'name' del campo
     return campo.name;
 }
 
