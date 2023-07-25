@@ -299,14 +299,7 @@ def crear_responsable(request):
             return HttpResponse('Error al insertar en la base de datos', status=400)
            
 
-        # Verifica si ya existe un registro con el mismo nombre, telefono o email de la marca
-        if Responsables.objects.filter(name=name).exists():
-            responsablename = Responsables.objects.get(name=name)
-            responsable_name = responsablename.name
-            messages.error(
-                request, 'Ya existe una responsable con el nombre registrado: '+responsable_name)
-            return HttpResponse('Error al insertar en la base de datos', status=400)
-
+        
         if Responsables.objects.filter(phone=phone).exists():
             responsablename = Responsables.objects.get(phone=phone)
             responsable_name = responsablename.name
@@ -331,7 +324,7 @@ def crear_responsable(request):
 
         )
         messages.success(
-            request, 'Se ha creado exitosamente el siguiente responsable: '+name)
+            request, 'Se ha creado exitosamente el siguiente responsable cc: '+cc+' nombre: '+name)
         return HttpResponse('Se ha creado exitosamente el siguiente responsable: '+name, status=200)
         
 

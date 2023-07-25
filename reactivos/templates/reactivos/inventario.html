@@ -14,6 +14,7 @@
         integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe" crossorigin="anonymous"
         defer>
         </script> -->
+
     <!-- Incluir SweetAlert2 desde CDN -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.min.css">
@@ -111,24 +112,6 @@
 
                 </div>&nbsp;Registros por página
             </div>
-
-            <div class="pagination">
-                <label for="sort-by">Ordenar por:&nbsp;</label>
-                <select id="sort-by-select" class="form-control-sm" name='sort'>
-                    <option value="name">Reactivo</option>
-                    <option value="code">Código</option>
-                    <option value="cas">CAS</option>
-                    <option value="trademark">Marca</option>
-                    <option value="reference">Referencia</option>
-                    <option value="weight">Cantidad</option>
-                    <option value="unit">Unidad</option>
-                    <option value="wlocation">Ubicación</option>
-                    <option value="lab">Laboratorio</option>
-                    <option value="edate">Vencimiento</option>
-
-                </select>
-            </div>
-
         </div>
         </form>
         <br>
@@ -136,19 +119,21 @@
             <table class="table" id="tabla-inventario">
                 <thead>
                     <tr>
-                        <th>Código</th>
-                        <th>CAS</th>
-                        <th>Reactivo</th>
-                        <th>Marca</th>
-                        <th>Referencia</th>
-                        <th>Cantidad</th>
-                        <th>Unidad</th>
-                        <th>Ubicación</th>
-                        <th>Laboratorio</th>
-                        <th>Vencimiento</th>
-                        <th>Ver</th>
+                        <th class="sortable-header" data-column="0" title="Ordenar por código">Código</th>
+                        <th class="sortable-header" data-column="1" title="Ordenar por cas">CAS</th>
+                        <th class="sortable-header" data-column="2" title="Ordenar por nombre">Nombre</th>
+                        <th class="sortable-header" data-column="3" title="Ordenar por marca">Marca</th>
+                        <th class="sortable-header" data-column="4" title="Ordenar por referencia">Referencia</th>
+                        <th class="sortable-header" data-column="5" title="Ordenar por cantidad">Cantidad</th>
+                        <th class="sortable-header" data-column="6" title="Ordenar por unidad">Unidad</th>
+                        <th class="sortable-header" data-column="7" title="Ordenar por ubicación">Ubicación</th>
+                        <th class="sortable-header" data-column="8" title="Ordenar por laboratorio">Laboratorio</th>
+                        <th class="sortable-header" data-column="9"title="Ordenar por fecha de vencimiento">Vencimiento</th>
+                        <th class="sortable-header" title="Visualización de detalle (no ordena)">Ver</th>
                     </tr>
                 </thead>
+
+
                 <tbody>
                     {% for item in object_list %}
                     <tr>
@@ -170,12 +155,9 @@
                                 data-reactivo-cas="{{ item.name.cas }}" data-reactivo-trademark="{{ item.trademark }}"
                                 data-reactivo-reference="{{ item.reference }}"
                                 data-reactivo-quantity="{{ item.weight|floatformat:1 }}"
-                                data-reactivo-unit="{{ item.name.unit }}"
-                                data-reactivo-wlocation="{{ item.wlocation }}"
-                                data-reactivo-lab="{{ item.lab }}"
-                                data-reactivo-edate="{{ item.edate }}"
-                                data-reactivo-respel="{{ item.name.respel }}"
-                                data-reactivo-sga="{{ item.name.sga }}"
+                                data-reactivo-unit="{{ item.name.unit }}" data-reactivo-wlocation="{{ item.wlocation }}"
+                                data-reactivo-lab="{{ item.lab }}" data-reactivo-edate="{{ item.edate }}"
+                                data-reactivo-respel="{{ item.name.respel }}" data-reactivo-sga="{{ item.name.sga }}"
                                 data-reactivo-state="{{ item.name.state }}"
                                 title="Más información sobre: {{ item.name }}">
                         </td>

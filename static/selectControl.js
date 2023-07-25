@@ -10,6 +10,7 @@ function updateNameTrademarkAndReferenceByLab() {
     const selectedName = nameSelect.value;
     const selectedTrademark = trademarkSelect.value;
     const selectedReference = referenceSelect.value;
+    const selectedLab = labSelect.value;
 
     // Restaurar la selección previa del select "Name" si existe
     const previousNameValue = nameSelect.dataset.previousValue;

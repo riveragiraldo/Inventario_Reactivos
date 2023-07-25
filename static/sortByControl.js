@@ -1,38 +1,68 @@
-// Función para enviar los datos a la list view Inventarios
-function sendSortBy() {
-    // Obtener el valor seleccionado
-    const sortBy = sortBySelect.value;
-    const labS = labSel.value;
-    const namS = namSel.value;
-    const tradS = tradSel.value;
-    const refS = refSel.value;
+// Variable global para almacenar el estado de ordenamiento
+let currentSortState = "asc";
+let currentSortedColumnIndex = -1;
 
-    // Generar la URL con el nuevo valor de sort y v
-    const url = inventarioUrl + "?" + new URLSearchParams({ sort: sortBy, lab: labS, name: namS, trademark: tradS, reference: refS });
+// Función para realizar el ordenamiento
+function sortTable(columnIndex) {
+  const tableBody = document.querySelector("#tabla-inventario tbody");
+  const rows = Array.from(tableBody.querySelectorAll("tr"));
 
-    // Redirigir a la nueva URL
-    window.location.href = url;
+  // Obtener el nombre de la columna a ordenar
+  const columnName = tableBody.rows[0].cells[columnIndex].textContent;
+
+  // Ordenar las filas
+  rows.sort((a, b) => {
+    const aValue = a.cells[columnIndex].textContent;
+    const bValue = b.cells[columnIndex].textContent;
+
+    if (currentSortState === "asc") {
+      return aValue.localeCompare(bValue);
+    } else {
+      return bValue.localeCompare(aValue);
+    }
+  });
+
+  // Cambiar el estado de ordenamiento
+  if (currentSortState === "asc") {
+    currentSortState = "desc";
+  } else {
+    currentSortState = "asc";
+  }
+
+  // Limpiar el cuerpo de la tabla
+  tableBody.innerHTML = "";
+
+  // Agregar las filas ordenadas al cuerpo de la tabla
+  rows.forEach(row => tableBody.appendChild(row));
+
+  // Eliminar la clase de ordenamiento de la columna anteriormente ordenada
+  if (currentSortedColumnIndex !== -1) {
+    const previousSortedHeader = document.querySelector(
+      `.sortable-header[data-column="${currentSortedColumnIndex}"]`
+    );
+    previousSortedHeader.classList.remove("sorted-asc", "sorted-desc");
+  }
+
+  // Agregar la clase de ordenamiento a la columna actualmente ordenada
+  const currentSortedHeader = document.querySelector(
+    `.sortable-header[data-column="${columnIndex}"]`
+  );
+  currentSortedHeader.classList.add(
+    currentSortState === "asc" ? "sorted-desc" : "sorted-asc"
+  );
+
+  // Actualizar el índice de la columna actualmente ordenada
+  currentSortedColumnIndex = columnIndex;
 }
 
-// Obtener el elemento select
-const sortBySelect = document.getElementById('sort-by-select');
-const labSel = document.getElementById('lab');
-const namSel = document.getElementById('name');
-const tradSel = document.getElementById('trademark');
-const refSel = document.getElementById('reference');
+// Obtener todos los encabezados de tabla con la clase .sortable-header
+const sortableHeaders = document.querySelectorAll(".sortable-header");
 
-// Agregar un controlador de eventos al cambio de selección del sort by
-sortBySelect.addEventListener('change', () => {
-    sendSortBy();
+// Agregar controlador de eventos click a los encabezados
+sortableHeaders.forEach((header) => {
+  header.addEventListener("click", () => {
+    // Obtener el índice de columna desde el atributo data-column
+    const columnIndex = parseInt(header.getAttribute("data-column"));
+    sortTable(columnIndex);
+  });
 });
-
-
-
-// Obtener el valor seleccionado almacenado en la URL (si existe)
-const urlParams = new URLSearchParams(window.location.search);
-const selectedSortBy = urlParams.get('sort');
-
-// Establecer el valor seleccionado en el elemento select
-if (selectedSortBy) {
-    sortBySelect.value = selectedSortBy;
-}
