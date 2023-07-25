@@ -34,7 +34,7 @@ function updateTrademarkSelect() {
             // Agregar opción "Todas" al select "Trademark"
             const allTrademarkOption = document.createElement('option');
             allTrademarkOption.value = '';
-            allTrademarkOption.textContent = 'Todas';
+            allTrademarkOption.textContent = 'Seleccione';
             trademarkSelect.appendChild(allTrademarkOption);
 
             // Iterar sobre la respuesta JSON (lista de marcas)
@@ -69,7 +69,7 @@ function updateReferenceSelect() {
             // Agregar opción "Todas" al select "Reference"
             const allReferenceOption = document.createElement('option');
             allReferenceOption.value = '';
-            allReferenceOption.textContent = 'Todas';
+            allReferenceOption.textContent = 'Seleccione';
             referenceSelect.appendChild(allReferenceOption);
 
             // Iterar sobre la respuesta JSON (lista de referencias)
@@ -119,7 +119,7 @@ function updateReferenceByTrademark() {
             // Agregar opción "Todas" al select "Reference"
             const allReferenceOption = document.createElement('option');
             allReferenceOption.value = '';
-            allReferenceOption.textContent = 'Todas';
+            allReferenceOption.textContent = 'Seleccione';
             referenceSelect.appendChild(allReferenceOption);
 
             // Iterar sobre la respuesta JSON (lista de marcas y referencias)

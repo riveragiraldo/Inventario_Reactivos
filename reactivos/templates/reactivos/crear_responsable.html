@@ -13,20 +13,30 @@
     integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe" crossorigin="anonymous"
     defer></script>
   -->
-  
+
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/css/intlTelInput.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/css/intlTelInput.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/intlTelInput.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/intlTelInput.min.js"></script>
-  
-    {% load static %}
+  <!-- Incluir SweetAlert2 desde CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.min.css">
+  <!-- Agrega el enlace al CDN de spin.js antes de tu script -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/spin.js/2.3.2/spin.min.js"></script>
+
+  {% load static %}
+
+  <link rel="stylesheet" href="{% static 'stylesShowSpinner.css' %}">
+  <!-- Estilos para el letrero de la mitad del spinner -->
   <link rel="stylesheet" href="{% static 'stylesIcon.css' %}"><!-- Estilos para organizar íconos -->
 
   <script src="{% static 'clearFds.js' %}"></script>
   <!-- Llama Script que borra los campos del formulario cuando se ejecuta cualquier acción -->
   <script src="{% static 'pushPrefix.js' %}" defer></script>
   <!-- Llama Script que inserta banderas y prefijos -->
+  <script src="{% static 'sendInfo.js' %}" defer></script>
+  <!-- Llama Script al final genera alerta informativa con los datos que se va enviar al servidor y acepta-->
   {% endblock %}
 </head>
 
@@ -36,54 +46,69 @@
   <div class="container mt-5">
     <h1>Crear Responsables</h1>
     <div class="row">
+      <!-- HTML para mostrar el spinner -->
+      <p id="message"></p>
+      <div id="spinner"></div>
 
       <form method="post" class="row g-3" id="responsable_form" name="form">
         {% csrf_token %}
 
         <div class="col-md-3">
           <div class="col-md-12">
-            <label class="form-label">Cédula de ciudadanía:</label>
+            <label class="form-label" for="cc" name="Cédula de ciudadanía: ">Cédula de ciudadanía:</label>
             <input type="text" class="form-control" placeholder="Ingresa tu número de cédula" name="cc" required id="cc"
-              pattern="[0-9]+"
-              title="Ingrese su número de cédula (solo números enteros positivos, sin puntos ni comas)">
+              pattern="^(?:[1-9]\d{6,8}|9999999999)$"
+              title="Ingrese un número de cédula entre 1000000 y 9999999999 (sin puntos ni comas)">
+
 
           </div>
 
           <div class="col-md-12">
-            <label class="form-label">Nombres y apellidos:</label>
+            <label class="form-label" for="name" name="Nombre y apellidos: ">Nombres y apellidos:</label>
             <input type="text" class="form-control" placeholder="Nombre y apellidos" name="name" required id="name"
-              title="Ingrese nombre y apellidos">
+              pattern="^(?:[a-zA-Zá-úÁ-Ú]+\s){1,3}[a-zA-Zá-úÁ-Ú]+$"
+              title="Ingrese mínimo 2 y máximo 4 palabras (No se permiten números ni caracteres especiales)">
+
+          </div>
+          <div style="display: none;">
+            <input type="hidden" id="prefix"
+              name="prefix"><!-- prefifx oculto, lo toma automaticamente para ser concatenado e insertado en la db con el +57 -->
           </div>
 
           <div class="col-md-12">
-            <label class="form-label"><br>Teléfono:</label>
+            <label class="form-label" for="phone" name="Teléfono: "><br>Teléfono:</label>
             <div id="phone-input-wrapper" class="input-with-icon">
               <span class="input-icon">
                 <img src="{% static 'Images/phone.png' %}" alt="Icono de teléfono" class="input-icon-img">
               </span>
               <input type="text" class="form-control" placeholder="Escribe número telefónico" name="phone" required
-                id="phone" pattern="[0-9]{10,}"
-                title="Ingrese su número telefónico (solo números enteros positivos de al menos 10 dígitos)">
-
+                id="phone" pattern="[0-9]{10,13}"
+                title="Ingrese su número telefónico (solo números enteros positivos de 10 a 13 dígitos)">
             </div>
           </div>
 
-          <input type="hidden" id="prefix"
-            name="prefix"><!-- prefifx oculto, lo toma automaticamente para ser concatenado e insertado en la db con el +57 -->
+
 
           <div class="col-md-12">
-            <label class="form-label"><br>Correo Electrónico:</label>
+            <label class="form-label" for="mail" name="Correo Electrónico: "><br>Correo Electrónico:</label>
             <div class="input-with-icon">
               <span class="input-icon">
                 <img src="{% static 'Images/email.png' %}" alt="Icono de correo electrónico" class="input-icon-img">
               </span>
-              <input type="email" class="form-control" placeholder="Email" name="mail" required id="mail">
+              <input type="email" class="form-control" placeholder="Email" name="mail" required id="mail"
+                pattern="^[a-zA-Z.]+@[a-zA-Z]+\.[a-zA-Z]{2,}(?:\.[a-zA-Z]+)?$"
+                title="Ingrese una dirección de correo electrónico válida (max 40 caracteres)" maxlength="40">
             </div>
           </div>
         </div>
 
         <div class="col-md-12">
-          <input type="submit" value="Crear Responsable" class="btn btn-primary">
+          <div class="col-md-2 mt-3">
+            <input type="button" value="Crear Responsable" class="btn btn-primary" id="open_confirm_in">
+          </div>
+          <div class="col-md-2 mt-3">
+            <input type="reset" value="Limpiar Campos" class="btn btn-primary">
+          </div>
         </div>
 
       </form>
@@ -103,7 +128,24 @@
           // Si es una ventana emergente, hacer algo y luego cerrar la ventana
           window.onload = function () {
 
-            alert('{{ message }}');
+            var messageText = '{{ message|safe }}';
+
+            var alertType = 'info';  // Tipo de alerta predeterminado para mensajes habituales
+
+            // Verificar el contenido del mensaje para asignar el tipo de alerta adecuado
+            if (messageText.includes('Se ha creado exitosamente')) {
+              alertType = 'success';
+            } else if (messageText.includes('Por favor seleccione') || messageText.includes('Ya existe') || messageText.includes('Solo se permiten registros ')) {
+              alertType = 'warning';
+            }
+
+            // Mostrar la notificación con SweetAlert2
+            Swal.fire({
+              icon: alertType,
+              title: 'Mensaje del servidor',
+              text: messageText,
+              confirmButtonText: 'Aceptar'
+            });
 
             //Obtener nombre despues del mensaje
             mensaje = "{{ message }}";
@@ -122,7 +164,24 @@
         else {
           window.onload = function () {
 
-            alert('{{ message }}');
+            var messageText = '{{ message|safe }}';
+
+            var alertType = 'info';  // Tipo de alerta predeterminado para mensajes habituales
+
+            // Verificar el contenido del mensaje para asignar el tipo de alerta adecuado
+            if (messageText.includes('Se ha creado exitosamente')) {
+              alertType = 'success';
+            } else if (messageText.includes('Por favor seleccione') || messageText.includes('Ya existe') || messageText.includes('Solo se permiten registros ')) {
+              alertType = 'warning';
+            }
+
+            // Mostrar la notificación con SweetAlert2
+            Swal.fire({
+              icon: alertType,
+              title: 'Mensaje del servidor',
+              text: messageText,
+              confirmButtonText: 'Aceptar'
+            });
           };
         }
 
@@ -130,7 +189,7 @@
       {% endfor %}
       {% endif %}
     </div>
-    {% endblock %} 
+    {% endblock %}
 </body>
 
 </html>

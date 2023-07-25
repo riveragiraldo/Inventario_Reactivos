@@ -23,12 +23,25 @@ function validateEdate() {
         const tomorrow = new Date();
         tomorrow.setDate(tomorrow.getDate() + 1);
         const tomorrowFormatted = formatDate(tomorrow);
-        alert('Ingrese una fecha de vencimiento válida: entre ' + tomorrowFormatted + ' y 31/12/2100');
 
         // Establecer la fecha por defecto en el campo edate (mañana)
         tomorrow.setDate(tomorrow.getDate()+30);
         const tomorrowFormattedInput = tomorrow.toISOString().split('T')[0];
         edateInput.value = tomorrowFormattedInput;
+
+        //Mostrar Alerta
+        Swal.fire({
+            icon: 'warning',
+            title: 'Fecha de vencimiento incorrecta',
+            text: 'Ingrese una fecha de vencimiento válida: entre ' + tomorrowFormatted + ' y 31/12/2100',
+            confirmButtonText: 'Aceptar',
+            didClose: () => {
+                // Posicionar el foco en el campo minstock para que el usuario pueda escribir
+                edateInput.focus();
+            }
+        })
+
+        
     }
 }
 
@@ -49,12 +62,23 @@ function validateEdateSubmit() {
         const tomorrow = new Date();
         tomorrow.setDate(tomorrow.getDate() + 1);
         const tomorrowFormatted = formatDate(tomorrow);
-        alert('Ingrese una fecha de vencimiento válida: entre ' + tomorrowFormatted + ' y 31/12/2100');
-
         /// Establecer la fecha por defecto en el campo edate (mañana)
         tomorrow.setDate(tomorrow.getDate()+30);
         const tomorrowFormattedInput = tomorrow.toISOString().split('T')[0];
         edateInput.value = tomorrowFormattedInput;
+        //Mostrar Alerta
+        Swal.fire({
+            icon: 'warning',
+            title: 'Fecha de vencimiento incorrecta',
+            text: 'Ingrese una fecha de vencimiento válida: entre ' + tomorrowFormatted + ' y 31/12/2100',
+            confirmButtonText: 'Aceptar',
+            didClose: () => {
+                // Posicionar el foco en el campo minstock para que el usuario pueda escribir
+                edateInput.focus();
+            },
+        })
+
+        
 
         // Impedir el envío del formulario
         return false;

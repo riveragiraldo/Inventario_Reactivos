@@ -66,6 +66,8 @@ from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.debug import sensitive_post_parameters
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import FormView
+from django.utils.dateparse import parse_date
+from datetime import datetime, timedelta
 
 # Vista para la visualización del web template
 @login_required
@@ -109,7 +111,8 @@ def crear_unidades(request):
             unidad_id = unidad.id
             messages.error(
                 request, 'Ya existe una unidad con nombre '+name+' id: '+str(unidad_id))
-            return redirect('reactivos:crear_unidades')
+            return HttpResponse('Error al insertar en la base de datos', status=400)
+
 
         unidad = Unidades.objects.create(
             name=name,
@@ -122,7 +125,8 @@ def crear_unidades(request):
 
         # Agregar el ID de la unidad al contexto para seleccionarla en la plantilla
         context = {'unidad_id': unidad.id, 'unidad_name': unidad.name, }
-        return render(request, 'reactivos/crear_unidades.html', context)
+        return HttpResponse('Operación exitosa', status=200)
+
     laboratorio = request.user.lab
 
     context = {
@@ -151,7 +155,7 @@ def crear_estado(request):
             estado_name = estado.name
             messages.error(request, 'Ya existe un estado con nombre ' +
                            estado_name+' id: '+str(estado_id))
-            return redirect('reactivos:crear_estado')
+            return HttpResponse('Ya existe un registro en la base de datos', status=409)
 
         estado = Estados.objects.create(
 
@@ -164,7 +168,7 @@ def crear_estado(request):
 
         messages.success(
             request, 'Se ha creado exitosamente la presentación con nombre '+estado_name+' id: '+str(estado_id))
-        return redirect('reactivos:crear_estado')
+        return HttpResponse('Operación exitosa', status=201)
 
     laboratorio = request.user.lab
 
@@ -195,7 +199,7 @@ def crear_respel(request):
             respel_id = respel.id
             messages.error(
                 request, 'Ya existe una clasificación Respel con nombre '+name+' id: '+str(respel_id))
-            return redirect('reactivos:crear_respel')
+            return HttpResponse('Ya existe un registro en la base de datos', status=409)
 
         respel = RespelC.objects.create(
 
@@ -207,7 +211,7 @@ def crear_respel(request):
         respel_id = respel.id
         messages.success(
             request, 'Se ha creado exitosamente la clasificación Respel con nombre '+name+' id: '+str(respel_id))
-        return redirect('reactivos:crear_respel')
+        return HttpResponse('Operación exitosa', status=201)
 
     laboratorio = request.user.lab
 
@@ -238,7 +242,7 @@ def crear_sga(request):
             sga_id = sga.id
             messages.error(
                 request, 'Ya existe una codificación SGA con nombre '+name+' id: '+str(sga_id))
-            return redirect('reactivos:crear_sga')
+            return HttpResponse('Ya existe un registro en la base de datos', status=409)
 
         sga = SGA.objects.create(
 
@@ -250,7 +254,7 @@ def crear_sga(request):
         sga_id = sga.id
         messages.success(
             request, 'Se ha creado exitosamente la codificación SGA con nombre '+name+' id: '+str(sga_id))
-        return redirect('reactivos:crear_sga')
+        return HttpResponse('Operación exitosa', status=201)
 
     laboratorio = request.user.lab
 
@@ -289,32 +293,33 @@ def crear_responsable(request):
         # Verifica si ya existe un registro con el mismo número de cédula, telefono o email de la marca
         if Responsables.objects.filter(cc=cc).exists():
             responsablecc = Responsables.objects.get(cc=cc)
-            responsable_cc = responsablecc.cc
+            responsable_name = responsablecc.name
             messages.error(
-                request, 'Ya existe un responsable con cédula registrada: '+str(responsable_cc))
-            return redirect('reactivos:crear_responsable')
+                request, 'Ya existe un responsable el número de cédula registrada: '+responsable_name)
+            return HttpResponse('Error al insertar en la base de datos', status=400)
+           
 
         # Verifica si ya existe un registro con el mismo nombre, telefono o email de la marca
         if Responsables.objects.filter(name=name).exists():
             responsablename = Responsables.objects.get(name=name)
             responsable_name = responsablename.name
             messages.error(
-                request, 'Ya existe una responsable con nombre: '+responsable_name)
-            return redirect('reactivos:crear_responsable')
+                request, 'Ya existe una responsable con el nombre registrado: '+responsable_name)
+            return HttpResponse('Error al insertar en la base de datos', status=400)
 
         if Responsables.objects.filter(phone=phone).exists():
             responsablename = Responsables.objects.get(phone=phone)
             responsable_name = responsablename.name
             messages.error(
                 request, 'Ya existe una responsable con el telefono registrado: '+responsable_name)
-            return redirect('reactivos:crear_responsable')
+            return HttpResponse('Error al insertar en la base de datos', status=400)
 
         if Responsables.objects.filter(mail=mail).exists():
             responsablename = Responsables.objects.get(mail=mail)
             responsable_name = responsablename.name
             messages.error(
                 request, 'Ya existe una responsable con el email registrado: '+responsable_name)
-            return redirect('reactivos:crear_responsable')
+            return HttpResponse('Error al insertar en la base de datos', status=400)
 
         responsable = Responsables.objects.create(
 
@@ -327,7 +332,8 @@ def crear_responsable(request):
         )
         messages.success(
             request, 'Se ha creado exitosamente el siguiente responsable: '+name)
-        return redirect('reactivos:crear_responsable')
+        return HttpResponse('Se ha creado exitosamente el siguiente responsable: '+name, status=200)
+        
 
     laboratorio = request.user.lab
 
@@ -356,7 +362,8 @@ def crear_marca(request):
             marca_id = marca.id
             messages.error(
                 request, 'Ya existe una marca con nombre '+name+' id: '+str(marca_id))
-            return redirect('reactivos:crear_marca')
+            return HttpResponse('Ya existe un registro en la base de datos', status=409)
+
 
         marca = Marcas.objects.create(
 
@@ -367,7 +374,7 @@ def crear_marca(request):
         marca_id = marca.id
         messages.success(
             request, 'Se ha creado exitosamente la marca con nombre '+name+' id: '+str(marca_id))
-        return redirect('reactivos:crear_marca')
+        return HttpResponse('Operación exitosa', status=201)
 
     laboratorio = request.user.lab
 
@@ -397,7 +404,7 @@ def crear_facultad(request):
             facultad_name = facultad.name
             messages.error(request, 'Ya existe una facultad con nombre ' +
                            facultad_name+' id: '+str(facultad_id))
-            return redirect('reactivos:crear_facultad')
+            return HttpResponse('ya existe un registro en la base de datos', status=409)
 
         facultad = Facultades.objects.create(
 
@@ -410,7 +417,7 @@ def crear_facultad(request):
 
         messages.success(request, 'Se ha creado exitosamente la facultad con nombre ' +
                          facultad_name+' id: '+str(facultad_id))
-        return redirect('reactivos:crear_facultad')
+        return HttpResponse('Operación exitosa', status=201)
     
     laboratorio = request.user.lab
 
@@ -431,34 +438,34 @@ def crear_ubicacion(request):
     if request.method == 'POST':
         name = request.POST.get('name')
         name = estandarizar_nombre(name)
-        facultad = request.POST.get('facultad')
+        facultad_id = request.POST.get('facultad')
+        if not facultad_id.isdigit():
+            messages.error(request, 'Por favor seleccione una Facultad primero')
+            return HttpResponse('Error al insertar en la base de datos', status=400)
+
         # Obtiene la instancia de la facultad
-        facultad = get_object_or_404(Facultades, id=facultad)
+        facultad = get_object_or_404(Facultades, id=facultad_id)
 
-        # Verifica si ya existe un registro con el mismo nombre de la asignatura
-        if Ubicaciones.objects.filter(name=name).exists():
-
-            messages.error(
-                request, 'Ya existe una ubicación con nombre: '+name)
-            return redirect('reactivos:crear_ubicacion')
+        # Verifica si ya existe un registro con el mismo nombre de la asignatura y la misma facultad
+        if Ubicaciones.objects.filter(Q(name=name) & Q(facultad=facultad)).exists():
+            messages.error(request, f'Ya existe  en la facultad {facultad} una ubicación con nombre: {name}')
+            return HttpResponse('Error al insertar en la base de datos', status=400)
 
         asignatura = Ubicaciones.objects.create(
-
             name=name,
             facultad=facultad,
             user=request.user,  # Asignar el usuario actualmente autenticado
-
         )
-        messages.success(
-            request, 'Se ha creado exitosamente la ubicación con nombre: '+name)
-        return redirect('reactivos:crear_ubicacion')
+        
+        messages.success(request, f'Se ha creado exitosamente en la facultad {facultad}, la asignatura/ubicación con nombre: {name}')
+        return HttpResponse('Inserción exitosa', status=200)
+
     laboratorio = request.user.lab
 
     context = {
         'usuarios': User.objects.all(),
         'laboratorio': laboratorio,
         'facultades': Facultades.objects.all()
-
     }
     return render(request, 'reactivos/crear_ubicacion.html', context)
 
@@ -481,8 +488,7 @@ def crear_destino(request):
             destino_id = destino.id
             messages.error(request, 'Ya existe un destino llamado ' +
                            name+' con id: '+str(destino_id))
-            return redirect('reactivos:crear_destino')
-
+            return HttpResponse('ya existe un registro en la base de datos', status=409)
         destino = Destinos.objects.create(
 
             name=name,
@@ -492,7 +498,7 @@ def crear_destino(request):
         destino_id = destino.id
         messages.success(
             request, 'Se ha creado exitosamente el destino con nombre '+name+' con id: '+str(destino_id))
-        return redirect('reactivos:crear_destino')
+        return HttpResponse('Operación exitosa', status=201)
 
     laboratorio = request.user.lab
 
@@ -522,7 +528,7 @@ def crear_laboratorio(request):
             laboratorio_name = laboratorio.name
             messages.error(request, 'Ya existe un laboratorio con nombre ' +
                            laboratorio_name+' id: '+str(laboratorio_id))
-            return redirect('reactivos:crear_laboratorio')
+            return HttpResponse('ya existe un registro en la base de datos', status=409)
 
         laboratorio = Laboratorios.objects.create(
 
@@ -535,7 +541,7 @@ def crear_laboratorio(request):
 
         messages.success(request, 'Se ha creado exitosamente el laboratorio con nombre ' +
                          laboratorio_name+' id: '+str(laboratorio_id))
-        return redirect('reactivos:crear_laboratorio')
+        return HttpResponse('Operación exitosa', status=201)
 
     laboratorio = request.user.lab
 
@@ -556,6 +562,10 @@ def crear_laboratorio(request):
 @login_required
 def crear_walmacen(request):
     if request.method == 'POST':
+        laboratorio = request.POST.get('lab')
+        if not laboratorio:
+            messages.error(request, 'No fue posible realizar su registro: no seleccionó un laboratorio válido, por favor verifique.')
+            return HttpResponse("Error al consultar en la base de datos", status=400)
         name = request.POST.get('name')
         name = estandarizar_nombre(name)
         description = request.POST.get('description')
@@ -570,15 +580,17 @@ def crear_walmacen(request):
             messages.error(request, "El Laboratorio "+nlab +
                            " no se encuentra en la base de datos, favor crearlo primero.")
             lab = None
-            return HttpResponse("El laboratorio "+nlab +
-                           " no se encuentra en la base de datos, favor crearlo primero.", status=400)
+            return HttpResponse("No se encuentra en la base de datos", status=404)
 
        # Verifica si ya existe un registro con el mismo nombre y laboratorio
+
+
+
         if Almacenamiento.objects.filter(name=name, lab=lab).exists():
             w_location = Almacenamiento.objects.get(name=name, lab=lab)
             wlocation_id = w_location.id
             messages.error(request, "Ya existe una ubicación en almacén con nombre "+name+' id: '+str(wlocation_id))
-            return redirect('reactivos:crear_walmacen')
+            return HttpResponse('Ya existe un registro en la base de datos', status=409)
         
         wubicaciones = Almacenamiento.objects.create(
             name=name,
@@ -590,7 +602,7 @@ def crear_walmacen(request):
         wubicacion_id = wubicaciones.id
         messages.success(
             request, 'Se ha creado exitosamente la ubicacion en almacén con nombre '+name+' id: '+str(wubicacion_id))
-        return redirect('reactivos:crear_walmacen')
+        return HttpResponse('Operación exitosa', status=201)
     laboratorio = request.user.lab
 
     context = {
@@ -608,7 +620,17 @@ def crear_reactivo(request):
     
     if request.method == 'POST':
         color = request.POST.get('color')
+        #verificar que el valor sea positivo
+        color_number=float(color)
+        if color_number<=0:
+            messages.error(request, 'Solo se permiten registros de Color con valores positivos')
+            return HttpResponse("Error de cantidades al insertar en la base de datos", status=400)
         number = request.POST.get('number')
+        #verificar que el valor sea positivo
+        number_number=float(number)
+        if number_number<=0:
+            messages.error(request, 'Solo se permiten registros de Número con valores positivos')
+            return HttpResponse("Error de cantidades al insertar en la base de datos", status=400)
         number = str(number).zfill(3)
         subnumber = request.POST.get('subnumber')
         if subnumber == '':
@@ -622,15 +644,27 @@ def crear_reactivo(request):
         cas = estandarizar_nombre(cas)
         
         state = request.POST.get('state')
+        if not state.isdigit():
+            messages.error(request, 'Por favor seleccione un estado primero')
+            HttpResponse('Por favor seleccione un estado primero', status=400)
         state = get_object_or_404(Estados, id=state)
 
         unit = request.POST.get('unit')
+        if not unit.isdigit():
+            messages.error(request, 'Por favor seleccione una unidad primero')
+            HttpResponse('Por favor seleccione una unidad primero', status=400)
         unit = get_object_or_404(Unidades, id=unit)
 
         sga = request.POST.get('sga')
+        if not sga.isdigit():
+            messages.error(request, 'Por favor seleccione una codificación SGA primero')
+            HttpResponse('Por favor seleccione una codificación SGA primero', status=400)
         sga = get_object_or_404(SGA, id=sga)
 
         respel = request.POST.get('respel')
+        if not respel.isdigit():
+            messages.error(request, 'Por favor seleccione una clasificación respel primero')
+            HttpResponse('Por favor seleccione una clasificación respel primero', status=400)
         respel = get_object_or_404(RespelC, id=respel)
 
         if Reactivos.objects.filter(name=name).exists():
@@ -652,7 +686,7 @@ def crear_reactivo(request):
             reactivo_name = reactivo.name
             messages.error(
                 request, 'Ya existe un reactivo con el CAS registrado: '+reactivo_name)
-            return HttpResponse('Ya existe un reactivo con el nombre registrado: ' + reactivo_name, status=400)
+            return HttpResponse('Ya existe un reactivo con el cas registrado: ' + reactivo_name, status=400)
             
         reactivo = Reactivos.objects.create(
             color=color,
@@ -696,6 +730,10 @@ def crear_reactivo(request):
 def registrar_entrada(request):
 
     if request.method == 'POST':
+        laboratorio = request.POST.get('lab')
+        if not laboratorio:
+            messages.error(request, 'No fue posible realizar su registro: no seleccionó un laboratorio válido, por favor verifique.')
+            return HttpResponse("Error al consultar en la base de datos", status=400)
         
         name = request.POST.get('name')
         nReactivo = name
@@ -733,28 +771,37 @@ def registrar_entrada(request):
                            " no se encuentra en la base de datos, favor crearlo primero.", status=400)
                 
         trademark_id = request.POST.get('trademark')
+        if not trademark_id.isdigit():
+            messages.error(request, 'Por favor seleccione una marca primero')
         try:
             nameMarca = Marcas.objects.get(id=trademark_id)
             trademark = nameMarca
         except ObjectDoesNotExist:
             trademark = None
+            messages.error(request, 'Por favor seleccione una marca primero')
             return redirect('reactivos:registrar_entrada')
         
         
         wlocation_id = request.POST.get('wlocation')
+        if not wlocation_id.isdigit():
+            messages.error(request, 'Por favor seleccione una ubicación en almacén primero')
         try:
             nameWlocation = Almacenamiento.objects.get(id=wlocation_id)
             wlocation = nameWlocation
         except ObjectDoesNotExist:
             wlocation = None
+            messages.error(request, 'Por favor seleccione una ubicación en almacén primero')
             return redirect('reactivos:registrar_entrada')        
         
         destination_id = request.POST.get('destination')
+        if not destination_id.isdigit():
+            messages.error(request, 'Por favor seleccione un destino primero')
         try:
             namedestino = Destinos.objects.get(id=destination_id)
             destination = namedestino
         except ObjectDoesNotExist:
             destination = None
+            messages.error(request, 'Por favor seleccione un destino primero')
             return redirect('reactivos:registrar_entrada')
         
         lab = request.POST.get('lab')
@@ -771,12 +818,53 @@ def registrar_entrada(request):
         
         reference = request.POST.get('reference')
         reference = estandarizar_nombre(reference)
+
+        #verificar que el valor sea positivo
+        price = request.POST.get('price')
+        price_number=float(price)
+        if price_number<=0:
+            messages.error(request, 'Solo se permiten registros con precios positivos')
+            return HttpResponse("Error de cantidades al insertar en la base de datos", status=400)
+        
+        #verificar que el valor sea positivo
+        minstock = request.POST.get('minstock')
+        minstock_number=float(minstock)
+        if minstock_number<=0:
+            messages.error(request, 'Solo se permiten registros con stock mínimo positivo')
+            return HttpResponse("Error de cantidades al insertar en la base de datos", status=400)
         
         
         # Verificar si el reactivo ya existe en la tabla de inventarios
         try:
             inventario_existente = Inventarios.objects.filter(
                 name=name, trademark=trademark, reference=reference, lab=lab).first()
+            #Verificar que el peso sea positvo
+            weight = request.POST.get('weight')
+            weight_number=float(weight)
+            if weight_number<=0:
+                messages.error(request, 'Solo se permiten registros de cantidades positivas')
+                return HttpResponse("Error de cantidades al insertar en la base de datos", status=400)
+
+
+            edate = request.POST.get('edate')
+            # Convertir la cadena de texto en un objeto de fecha
+            edate = parse_date(edate)
+
+            # Obtener la fecha actual
+            today = datetime.now().date()
+            # Obtener la fecha futura (mañana)
+            tomorrow = today + timedelta(days=1)
+
+            # Obtener la fecha máxima permitida (31/12/2100)
+            max_date = datetime(2100, 12, 31).date()
+
+            # Verificar si la fecha de vencimiento es válida
+            if not tomorrow <= edate <= max_date:
+		        # Fecha no válida, mostrar el mensaje de error
+                tomorrow = tomorrow.strftime('%d/%m/%Y')
+                mensaje='Por favor ingrese una fecha válida entre '+str(tomorrow)+' y 31/12/2100'
+                messages.error(request, mensaje)
+                return HttpResponse("Error de cantidades al insertar en la base de datos", status=400)
 
             if inventario_existente:
                 # Si el reactivo ya existe y está activo(cantidad>0), sumar el peso obtenido del formulario al peso existente
@@ -785,11 +873,13 @@ def registrar_entrada(request):
                     weight = request.POST.get('weight')
                     inventario_existente.weight += int(weight)
                     inventario_existente.edate = request.POST.get('edate')
+                    inventario_existente.minstock = request.POST.get('minstock')
                     inventario_existente.wlocation = wlocation
                     minstock = request.POST.get('minstock')
                     if minstock=='':
                         minstock=0
                     inventario_existente.minstock = minstock
+                    inventario_existente.edate = edate
                     inventario_existente.save()
                 # Si el reactivo ya existe y NO está activo(cantidad00), poner is_active=True y sumar el peso obtenido del formulario al peso existente    
                 else:
@@ -802,6 +892,7 @@ def registrar_entrada(request):
                     if minstock=='':
                         minstock=0
                     inventario_existente.minstock = minstock
+                    inventario_existente.edate = edate
                     inventario_existente.save()
             else:
                 # Si el reactivo no existe, crear un nuevo registro en la tabla de inventarios
@@ -820,7 +911,9 @@ def registrar_entrada(request):
                 name = nameReactivo
                 reference = request.POST.get('reference')
                 reference = estandarizar_nombre(reference)
-                edate = request.POST.get('edate')
+
+                
+                
                 minstock = request.POST.get('minstock')
                 if minstock=='':
                     minstock=0
@@ -907,6 +1000,18 @@ def registrar_salida(request):
 
     if request.method == 'POST': 
         warning=""
+
+        laboratorio = request.POST.get('lab')
+        if not laboratorio:
+            messages.error(request, 'No fue posible realizar su registro: no seleccionó un laboratorio válido, por favor verifique.')
+            return HttpResponse("Error al consultar en la base de datos", status=400)
+
+        #Verificar que el peso sea positvo
+        weight = request.POST.get('weight')
+        weight_number=float(weight)
+        if weight_number<=0:
+            messages.error(request, 'Solo se permiten registros de cantidades positivas')
+            return HttpResponse("Error de cantidades al insertar en la base de datos", status=400)
         
         name = request.POST.get('name')
         nReactivo = name
@@ -943,19 +1048,29 @@ def registrar_salida(request):
                            " no se encuentra en la base de datos, favor crearlo primero.", status=400)
         
         trademark_id = request.POST.get('trademark')
+        if not trademark_id.isdigit():
+            messages.error(request, 'No fue posible realizar su registro: no seleccionó una marca, por favor verifique.')
+            return HttpResponse("Error al insertar en la base de datos", status=400)
+                     
+
         try:
             nameMarca = Marcas.objects.get(id=trademark_id)
             trademark = nameMarca
         except ObjectDoesNotExist:
             trademark = None
+            messages.error(request, 'La marca no coincide, por favor revise.')
             return redirect('reactivos:registrar_salida')
 
         destination_id = request.POST.get('destination')
+        if not destination_id.isdigit():
+            messages.error(request, 'No fue posible realizar su registro: no seleccionó un destino, por favor verifique.')
+            return HttpResponse("Error al insertar en la base de datos", status=400)
         try:
             namedestino = Destinos.objects.get(id=destination_id)
             destination = namedestino
         except ObjectDoesNotExist:
             destination = None
+            messages.error(request, 'Por favor seleccione un destino primero')
             return redirect('reactivos:registrar_salida')
         
         lab = request.POST.get('lab')
@@ -971,6 +1086,9 @@ def registrar_salida(request):
                            " no se encuentra en la base de datos, favor crearlo primero.", status=400)
         
         reference = request.POST.get('reference')
+        if not reference:
+            messages.error(request, 'No fue posible realizar su registro: no seleccionó una referencia, por favor verifique.')
+            return HttpResponse("Error al consultar en la base de datos", status=400)
         
         # Verificar si el reactivo ya existe en la tabla de inventarios
         try:
@@ -992,6 +1110,11 @@ def registrar_salida(request):
                         inventario_existente.is_active = False  # Asignar False a la columna is_active
                         inventario_existente.save()
                         warning=", pero el inventario actual ha llegado a 0. Favor informar al coordinador de laboratorio."
+                    laboratorio_quimica = Laboratorios.objects.get(name="LABORATORIO DE QUIMICA")
+                    if (inventario_existente.weight<=inventario_existente.minstock) and inventario_existente.lab==laboratorio_quimica and inventario_existente.weight>0:
+
+                        warning=", pero el inventario actual es menor o igual que el stock mínimo para este reactivo. Favor informar al coordinador de laboratorio."
+
                 else:
                     inventario_existente.weight=int(inventario_existente.weight)
                     messages.error(request, "No es posible realizar la salida del reactivo "+inventario_existente.name.name+": Inventario actual: " + str(inventario_existente.weight) + ", " + unit + " Cantidad solicitada: " + str(weight) + " " + unit)
@@ -1400,6 +1523,8 @@ class WlocationsAPI(LoginRequiredMixin,View):
         if lab:
             almacenamiento = Almacenamiento.objects.filter(lab__name=lab)
             wlocation_list = almacenamiento.values('id','name').distinct()
+            # Agregar la opción "Seleccione" al principio de la lista
+            wlocation_list = [{'id': '', 'name': 'Seleccione'}] + list(wlocation_list)
             return JsonResponse(list(wlocation_list), safe=False)
 
         return JsonResponse([], safe=False)
@@ -1860,7 +1985,8 @@ class AutocompleteOutAPI(LoginRequiredMixin,View):
        
         inventarios = Inventarios.objects.filter(
             Q(name__name__icontains=term) | Q(name__code__icontains=term) | Q(name__cas__icontains=term),
-            lab__name__icontains=lab
+            lab__name__icontains=lab,
+            weight__gt=0
         ).order_by('name').distinct('name')[:10]
 
         results = []
@@ -1883,10 +2009,11 @@ def autocomplete_location(request):
     ubicaciones = Ubicaciones.objects.filter(Q(name__icontains=term))[:10]
     results = []
     for ubicacion in ubicaciones:
-        results.append({'value': ubicacion.name})
-    pass
+        results.append({'name': ubicacion.name,'facultad':ubicacion.facultad.name })
 
     return JsonResponse(results, safe=False)
+
+
 
 # Devuelve los valores de la tabla Responsables según lo escrito en el campo name del formulario registrar_salida.html en forma de 
 # una lista de autocompletado
@@ -1933,7 +2060,7 @@ def estandarizar_nombre(nombre):
     nombre = re.sub('[óÓ]', 'O', nombre)  # Reemplazar ó y Ó por O
     nombre = re.sub('[úÚ]', 'U', nombre)  # Reemplazar ú y Ú por U
     nombre = re.sub('[ñÑ]', 'N', nombre)  # Reemplazar ñ y Ñ por N
-    nombre = re.sub('[^A-Za-z0-9@ ._-]', '', nombre)  # Eliminar caracteres especiales excepto números y espacios
+    nombre = re.sub('[^A-Za-z0-9@ .,()_-]', '', nombre)  # Eliminar caracteres especiales excepto números y espacios
     return nombre
 
 

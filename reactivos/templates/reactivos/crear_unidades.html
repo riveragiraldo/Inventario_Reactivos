@@ -12,29 +12,57 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe" crossorigin="anonymous"
         defer></script> -->
+    <!-- Incluir SweetAlert2 desde CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.min.css">
+    <!-- Agrega el enlace al CDN de spin.js antes de tu script -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/spin.js/2.3.2/spin.min.js"></script>
+
     {% load static %}
+
+    <link rel="stylesheet" href="{% static 'stylesShowSpinner.css' %}">
+    <!-- Estilos para el letrero de la mitad del spinner -->
+    <script src="{% static 'sendInfo.js' %}" defer></script>
+    <!-- Llama Script al final genera alerta informativa con los datos que se va enviar al servidor y acepta-->
     <script src="{% static 'clearFds.js' %}"></script>
     <!-- Llama Script que borra los campos del formulario cuando se ejecuta cualquier acción -->
+
+
+
     {% endblock %}
 </head>
 
 <body>
     {% block content %}
-    <h1>Crear Unidades </h1>
+
+
 
     <div class="container mt-5">
+        <h1>Crear Unidades </h1>
+
         <div class="row">
+            <!-- HTML para mostrar el spinner -->
+            <p id="message"></p>
+            <div id="spinner"></div>
 
             <form method="post" class="row g-3" id="unit_form" name="form">
                 {% csrf_token %}
 
                 <div class="col-md-5">
-                    <label class="form-label">Nombre de la unidad:</label>
-                    <input type="text" class="form-control" placeholder="Nombre unidad" name="name" required id="name">
+                    <label class="form-label" for="name" name="Nombre de la unidad: ">Nombre de la unidad:</label>
+                    <input type="text" class="form-control" placeholder="Nombre unidad" name="name" required id="name"
+                        pattern="^[a-zA-Z]{1,3}$" title="Ingrese solo letras (máximo 3 caracteres)">
+
                 </div>
 
-                <div class="col-md-9">
-                    <input type="submit" value="Crear Unidad" class="btn btn-primary" id="enviar">
+                <div class="col-md-12">
+                    <div class="col-md-2 mt-3">
+                        <input type="button" value="Crear Unidad" class="btn btn-primary" id="open_confirm_in">
+                    </div>
+                    <div class="col-md-2 mt-3">
+                        <input type="reset" value="Limpiar Campos" class="btn btn-primary">
+                    </div>
+
                 </div>
             </form>
 
@@ -59,7 +87,25 @@
                         //Obtener id después del mensaje
                         var unidad = mensaje.split(": ")[1];
 
-                        alert('{{ message }}');
+                        var messageText = '{{ message|safe }}';
+
+                        var alertType = 'info';  // Tipo de alerta predeterminado para mensajes habituales
+
+                        // Verificar el contenido del mensaje para asignar el tipo de alerta adecuado
+                        if (messageText.includes('Se ha creado exitosamente')) {
+                            alertType = 'success';
+                        } else if (messageText.includes('Por favor seleccione') || messageText.includes('Ya existe') || messageText.includes('Solo se permiten registros ')) {
+                            alertType = 'warning';
+                        }
+
+                        // Mostrar la notificación con SweetAlert2
+                        Swal.fire({
+                            icon: alertType,
+                            title: 'Mensaje del servidor',
+                            text: messageText,
+                            confirmButtonText: 'Aceptar'
+                        });
+
 
                         // Obtener los valores de los elementos necesarios de la ventana padre
                         var color = window.opener.document.getElementById("color").value;
@@ -115,7 +161,25 @@
                 else {
                     window.onload = function () {
 
-                        alert('{{ message }}');
+                        var messageText = '{{ message|safe }}';
+
+                        var alertType = 'info';  // Tipo de alerta predeterminado para mensajes habituales
+
+                        // Verificar el contenido del mensaje para asignar el tipo de alerta adecuado
+                        if (messageText.includes('Se ha creado exitosamente')) {
+                            alertType = 'success';
+                        } else if (messageText.includes('Por favor seleccione') || messageText.includes('Ya existe') || messageText.includes('Solo se permiten registros ')) {
+                            alertType = 'warning';
+                        }
+
+                        // Mostrar la notificación con SweetAlert2
+                        Swal.fire({
+                            icon: alertType,
+                            title: 'Mensaje del servidor',
+                            text: messageText,
+                            confirmButtonText: 'Aceptar'
+                        });
+
 
                     };
                 }
@@ -124,6 +188,8 @@
             {% endif %}
 
         </div>
+
+
         {% endblock %}
 </body>
 

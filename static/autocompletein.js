@@ -59,16 +59,35 @@ $(document).ready(function () {
 //dicho campo. Se envía este valor a la vista "autocomplete_location", la cual devuelve una lista de nombres de 
 //ubicaciones asociadas. Estos nombres se presentan en un menú desplegable y, al seleccionar uno de ellos, se establece 
 //dicho valor de ubicación en el campo "location".
+
+
 $(document).ready(function () {
     $("#location").autocomplete({
         source: "autocomplete_location/",
         minLength: 2,
         select: function (event, ui) {
-            $("#location").val(ui.item.value);
+            // Muestra el nombre y correo electrónico en la lista desplegable
+            $("#location").val(ui.item.name);
+            return false;
+        },
+        create: function () {
+            // Muestra solo el nombre en la lista desplegable
+            $(this).data('ui-autocomplete')._renderItem = function (ul, item) {
+                var facultadIniciales = item.facultad.split(' ').map(word => word[0]).join('').toUpperCase();
+                
+                return $("<li>")
+                    .append($("<div>").text(item.name + ' (' + facultadIniciales + ')'))
+                    .appendTo(ul);
+            };
+        },
+        focus: function (event, ui) {
+            // Muestra solo el nombre en el campo de entrada mientras se desplaza por la lista desplegable
+            $("#locarion").val(ui.item.name);
             return false;
         }
     });
 });
+
 
 //Función "autocomplete_manager" se encarga de autocompletar el campo "manager" basándose en el valor ingresado en el 
 //campo "location".Utiliza una vista llamada "autocomplete_manager" que devuelve los nombres de los responsables 

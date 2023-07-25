@@ -18,9 +18,16 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://code.jquery.com/ui/1.13.0/jquery-ui.min.js"></script>
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.0/themes/smoothness/jquery-ui.css">
-    
+    <!-- Incluir SweetAlert2 desde CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.min.css">
+    <!-- Agrega el enlace al CDN de spin.js antes de tu script -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/spin.js/2.3.2/spin.min.js"></script>
 
     {% load static %}
+
+    <link rel="stylesheet" href="{% static 'stylesShowSpinner.css' %}">
+    <!-- Estilos para el letrero de la mitad del spinner -->
     <script src="{% static 'autocompleteout.js' %}"></script>
     <!-- Llama Script Autocompleta campo nombre, responsable y ubicacion -->
     <script src="{% static 'updateStock.js' %}"></script>
@@ -31,11 +38,12 @@
     <!-- Llama Script  borrar campos despues de una transacción -->
     <script src="{% static 'callPopUp.js' %}" defer></script>
     <!-- Llama Script al final abre ventanas emergentes -->
-    <script src="{% static 'sendInfoin.js' %}" defer></script>
+    <script src="{% static 'sendInfo.js' %}" defer></script>
     <!-- Llama Script al final crea alerta informativa y envía datos -->
     <script src="{% static 'updateOptions.js' %}" defer></script>
     <!-- Llama Script al final actualiza select Marca, Referencia  -->
     <link rel="stylesheet" href="{% static 'styles.css' %}">
+
     {% endblock %}
 </head>
 
@@ -44,6 +52,9 @@
     <div class="container mt-5">
         <h1>Registrar salida de insumos</h1>
         <div class="col-6">
+            <!-- HTML para mostrar el spinner -->
+            <p id="message"></p>
+            <div id="spinner"></div>
 
             <form method="post" class="row g-3" id="in_form" name="form">
                 {% csrf_token %}
@@ -53,34 +64,34 @@
                 </div>
 
                 <div class="col-md-12">
-                    <label class="form-label">Laboratorio:</label>
-                
+                    <label class="form-label" for="lab" name="Laboratorio: ">Laboratorio:</label>
+
                     <input type="text" class="form-control" name="lab" id="lab"
                         placeholder="Laboratorio al que pertence" title="Laboratorio al que pertence" required
-                        value="{{ laboratorio }}" style="border: none; box-shadow: none;" readonly/>
+                        value="{{ laboratorio }}" style="border: none; box-shadow: none;" readonly />
                 </div>
 
                 <div class="col-md-6">
-                    <label class="form-label">Reactivo: Código - Nombre - CAS</label>
+                    <label class="form-label" for="name" name="Nombre: ">*Reactivo: Código - Nombre - CAS</label>
                     <input type="text" class="form-control" name="name" id="name" placeholder="Nombre, CI o CAS"
                         title="Se puede filtrar por nombre, CI o CAS" required />
                 </div>
 
                 <div class="col-md-3">
-                    <label class="form-label">Código:</label>
+                    <label class="form-label" for="code" name="Código: ">*Código:</label>
                     <input type="text" name="code" class="form-control" value="" id="code" readonly
                         placeholder="Cód. Interno">
                 </div>
 
                 <div class="col-md-3">
-                    <label class="form-label">CAS:</label>
+                    <label class="form-label" for="cas" name="CAS: ">*CAS:</label>
                     <input type="text" name="cas" class="form-control" value="" id="cas" readonly
                         placeholder="Cód. CAS">
                 </div>
 
                 <div class="col-md-4">
-                    <label class="form-label">Marca reactivo:</label>
-                    <select id="trademark" name="trademark" class="form-control">
+                    <label class="form-label" for="trademark" name="Marca: ">*Marca reactivo:</label>
+                    <select id="trademark" name="trademark" class="form-control" required>
                         <option value="">Seleccione</option>
                         {% for trademark in marcas %}
                         <option value="{{ trademark.id }}">{{ trademark.name }}</option>
@@ -89,8 +100,8 @@
                 </div>
 
                 <div class="col-md-4">
-                    <label class="form-label">Referencia:</label>
-                    <select id="reference" name="reference" class="form-control">
+                    <label class="form-label" for="reference" name="Referencia: ">*Referencia:</label>
+                    <select id="reference" name="reference" class="form-control" required>
                         <option value="">Seleccione</option>
                         {% for referencia in referencias %}
                         <option value="{{ referencia.reference}}">{{ referencia.reference }}</option>
@@ -99,13 +110,13 @@
                 </div>
 
                 <div class="col-md-4">
-                    <label class="form-label">Estado:</label>
+                    <label class="form-label" for="is_liquid" name="Estado: ">*Estado:</label>
                     <input type="text" name="is_liquid" class="form-control" value="" id="is_liquid" readonly
                         placeholder="Estado">
                 </div>
-                
+
                 <div class="col-md-4">
-                    <label class="form-label">Cantidad disponible:</label>
+                    <label class="form-label" for="stock" name="Cantidad disponible: ">Cantidad disponible:</label>
                     <div class="input-group">
                         <button type="button" id="stock-view" class="btn btn-secondary">Ver</button>
                         <input type="text" name="stock" class="form-control" value="" id="stock" readonly
@@ -115,18 +126,20 @@
                 </div>
 
                 <div class="col-md-4">
-                    <label class="form-label" for="weight">Cantidad a retirar:</label>
+                    <label class="form-label" for="weight" name="Cantidad retiro: ">*Cantidad retiro:</label>
                     <input type="number" step="any" class="form-control" placeholder="Cant. reactivo" id="weight"
-                        name="weight" min="0" required>
+                        name="weight" required min="0" max="100000000" pattern="^(?:[1-9]\d{0,7}|100000000)$"
+                        title="Ingrese un valor entero positivo sin puntos ni comas (máximo 100000000)">
                 </div>
 
                 <div class="col-md-4">
-                    <label class="form-label">Unidades:</label>
+                    <label class="form-label" for="unit" name="Unidades: ">*Unidades:</label>
                     <input type="text" name="unit" class="form-control" value="" id="unit" readonly>
                 </div>
-                
+
                 <div class="col-md-6">
-                    <label class="form-label">Asignatura/Ubicación:</label>
+                    <label class="form-label" for="location"
+                        name="Asigantura/Ubicación: ">*Asignatura/Ubicación:</label>
                     <div class="input-group">
                         <input type="text" name="location" class="form-control" id="location" required
                             placeholder="Asignatura/Ubicación Destino">
@@ -135,10 +148,11 @@
                             </Address></button>
                     </div>
                 </div>
-                
+
                 <div class="col-md-6">
-                    <label class="form-label">Destino:</label>
-                    <select name="destination" id="destination" class="form-select" required>
+                    <label class="form-label" for="destination" name="Destino: ">*Destino:</label>
+                    <select name="destination" id="destination" class="form-control" required>
+                        <option value="">Seleccione</option>
                         {% for destino in destinos %}
                         <option value="{{ destino.id }}">{{ destino.name }}</option>
                         {% endfor %}
@@ -146,7 +160,7 @@
                 </div>
 
                 <div class="col-md-12">
-                    <label class="form-label">Responsable:</label>
+                    <label class="form-label" for="manager" name="Responsable : ">*Responsable:</label>
                     <div class="input-group">
                         <input type="text" name="manager" class="form-control" id="manager" required
                             placeholder="Responsable del insumo">
@@ -157,9 +171,9 @@
                 </div>
                 <input type="hidden" name="wf" class="form-control" value="salida" id="wf">
                 <!-- identificador para saber que tipo de ventana es -->
-                
+
                 <div class="col-md-12">
-                    <label class="form-label">Observaciones:</label>
+                    <label class="form-label" for="observations" name="Observaciones: ">Observaciones:</label>
                     <textarea name="observations" class="form-control" placeholder="Escriba sus observaciones" rows="2"
                         id="observations"></textarea>
                 </div>
@@ -179,13 +193,29 @@
             {% for message in messages %}
             <script>
                 window.onload = function () {
-                    alert('{{ message }}');
+                    var messageText = '{{ message }}';
+                    var alertType = 'success';  // Tipo de alerta predeterminado para mensajes habituales
+
+                    // Verificar el contenido del mensaje para asignar el tipo de alerta adecuado
+                    if (messageText.includes('stock mínimo') || messageText.includes('no se encuentra en la base de datos') || messageText.includes('realizar su registro')) {
+                        alertType = 'warning';
+                    } else if (messageText.includes('No es posible') || messageText.includes('Los valor seleccionados') || messageText.includes(', pero el inventario actual ha llegado a 0. Favor informar al coordinador de laboratorio.') || messageText.includes('Solo se permiten')) {
+                        alertType = 'error';
+                    }
+
+                    // Mostrar la notificación con SweetAlert2
+                    Swal.fire({
+                        icon: alertType,
+                        title: 'Mensaje del servidor',
+                        text: messageText,
+                        confirmButtonText: 'Aceptar'
+                    });
                 };
             </script>
             {% endfor %}
             {% endif %}
-
         </div>
+
         {% endblock %}
 </body>
 
