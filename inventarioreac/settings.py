@@ -77,13 +77,13 @@ WSGI_APPLICATION = 'inventarioreac.wsgi.application'
 
 DATABASES = {
     'default': {
-       	'ENGINE': 'django.db.backends.postgresql_psycopg2', 
+       	'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'Reactivos',
         'USER': 'postgres',
-        #Uncomment to Work on UN 
-        #'PASSWORD': 'cjreactivos',
-        #Comment to Work on UN
-        'PASSWORD': 'cj2618',
+        #Uncomment to work on UN
+        'PASSWORD':'camiloremotos',
+        #Uncomment to work on HOME
+        #'PASSWORD': 'cj2618'or 'cjreactivos',
         'HOST': 'localhost',
         'PORT': '5432',
         }
@@ -135,6 +135,5 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
 ]
 
-AUTH_USER_MODEL='reactivos.User'
-
+AUTH_USER_MODEL = 'reactivos.User'
 
