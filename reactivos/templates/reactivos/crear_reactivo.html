@@ -1,13 +1,28 @@
+{% extends "webtemplate.html" %}
 <!doctype html>
 <html lang="es">
 
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Registro de reactivos</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet"
+    <title>{% block title %}Creación de reactivos{% endblock %}</title>
+    {% block head %}
+    <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
-    {% load static %}<!-- Permite invocar archivos estáticos -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe"
+        crossorigin="anonymous" defer></script> -->
+
+    <!-- Incluir SweetAlert2 desde CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.min.css">
+    <!-- Agrega el enlace al CDN de spin.js antes de tu script -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/spin.js/2.3.2/spin.min.js"></script>
+
+    {% load static %}
+
+    <link rel="stylesheet" href="{% static 'stylesShowSpinner.css' %}">
+    <!-- Estilos para el letrero de la mitad del spinner -->
     <script src="{% static 'clearFds.js' %}"></script>
     <!-- Llama Script que borra los campos del formulario cuando se ejecuta cualquier acción -->
     <script src="{% static 'codeconst.js' %}" defer></script>
@@ -16,88 +31,102 @@
     <!-- Llama Script al final llama las ventanas emergentes -->
     <script src="{% static 'hideButtonsReactive.js' %}" defer></script>
     <!-- Llama Script al final oculta botones si la página se muestra como emergente -->
-    <script src="{% static 'sendInfocreate.js' %}" defer></script>
+    <script src="{% static 'sendInfo.js' %}" defer></script>
     <!-- Llama Script al final genera alerta informativa con los datos que se va enviar al servidor y acepta-->
+    <script src="{% static 'validateSubnumber.js' %}" defer></script>
+    <!-- Llama Script al final genera alerta cuando no se escribe bien el subnumero-->
+    {% endblock %}
 </head>
 
 <body>
+    {% block content %}
 
     <div class="col-md-6 mx-auto">
         <h1>Crear reactivo</h1>
         <div class="container mt-5">
             <div class="row">
+                <!-- HTML para mostrar el spinner -->
+                <p id="message"></p>
+                <div id="spinner"></div>
                 <div class="col-md-12">
-                    <form method="post" class="row g-3" id="form" name="form">
+                    <form method="post" class="row g-3" id="createForm" name="form">
                         {% csrf_token %}
 
                         <div class="col-md-3">
-                            <label class="form-label">*Color:</label>
-                            <input type="number" class="form-control" placeholder="Núm. Color (o SGA)" id="color"
-                                name="color" required min="0">
+                            <label class="form-label" for="color" name="Color: ">*Color:</label>
+                            <input type="number" class="form-control" placeholder="Número" id="color" name="color"
+                                required title="Escriba un número positivo máximo 2 dígitos" pattern="^(?!0$)\d{1,2}$">
                         </div>
                         <div class="col-md-3">
-                            <label class="form-label">*Número:</label>
+                            <label class="form-label" for="number" name="Número: ">*Número:</label>
                             <input type="number" class="form-control" placeholder="Núm. reactivo" id="number"
-                                name="number" required min="0">
+                                name="number" required min="0" required
+                                title="Escriba un número positivo máximo 3 dígitos" pattern="^(?!0$)\d{1,3}$">
                         </div>
                         <div class="col-md-3">
-                            <label class="form-label">Sub - Número:</label>
-                            <input type="text" class="form-control" placeholder="Sub-Número reactivo" id="subnumber"
-                                name="subnumber" pattern="[A-Z0-9]*|[1-9][0-9]*"
-                                title="Ingrese números positivos o letras mayúsculas">
+                            <label class="form-label" for="subnumber" name="Subnúmero: ">Sub - Número:</label>
+                            <input type="text" class="form-control" name="subnumber" id="subnumber"
+                                placeholder="Ingresa un número positivo o una letra mayúscula"
+                                pattern="^(?:[1-9]|[1-9][0-9]|A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z)$"
+                                title="Ingresa un número de 1 a 99 o una letra mayúscula (sin espacios ni caracteres especiales)">
 
                         </div>
+
                         <div class="col-md-3">
-                            <label class="form-label">*Código interno:</label>
+                            <label class="form-label" for="code" name="Código: ">*Código interno:</label>
                             <input type="text" class="form-control" name="code" id="code" placeholder="Código interno"
                                 title="Código interno" readonly>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label">*Código CAS:</label>
+                            <label class="form-label" for="cas" name="CAS: ">*Código CAS:</label>
                             <input type="text" step="any" class="form-control" placeholder="Código CAS" name="cas"
-                                required id="cas">
+                                required id="cas" pattern="[0-9\-]{1,15}"
+                                title="El CAS debe tener números y guiones (-). Longituf máxima 15 caracteres">
                         </div>
 
                         <div class="col-md-4">
-                            <label class="form-label">*Clasificación Respel:</label>
+                            <label class="form-label" for="respel" name="Respel: ">*Clasificación Respel:</label>
                             <div class="input-group">
-                            <select name="respel" id="respel" class="form-select" required>
-                                <option value="">Seleccione</option>
-                                {% for respel in respels %}
-                                <option value="{{ respel.id }}">{{ respel.name }}</option>
-                                {% endfor %}
-                            </select>
-                            
-                            <button type="button" id="add_respel_btn" class="btn btn-secondary"
-                                    title="Agregar Clasificación Respel" style="color: white;">+</button>
-                            
-                        </div>
-                        </div>
-                        
-                        
-                        <div class="col-md-4">
-                            <label class="form-label">*Códificación SGA:</label>
-                            <div class="input-group">
-                            <select name="sga" id="sga" class="form-select" required>
-                                <option value="">Seleccione</option>
-                                {% for sga in sgas %}
-                                <option value="{{ sga.id }}">{{ sga.name }}</option>
-                                {% endfor %}
-                            </select>
-                            <button type="button" id="add_sga_btn" class="btn btn-secondary"
-                                title="Agregar Códificación SGA">+</button>
+                                <select name="respel" id="respel" class="form-control" required>
+                                    <option value="">Seleccione</option>
+                                    {% for respel in respels %}
+                                    <option value="{{ respel.id }}">{{ respel.name }}</option>
+                                    {% endfor %}
+                                </select>
+
+                                <button type="button" id="add_respel_btn" class="btn btn-secondary"
+                                    title="Agregar Clasificación Respel">+</button>
+
                             </div>
                         </div>
-                        
-                        
+
+
                         <div class="col-md-4">
-                            <label class="form-label">*Nombre del reactivo:</label>
+                            <label class="form-label" for="sga" name="SGA: ">*Códificación SGA:</label>
+                            <div class="input-group">
+                                <select name="sga" id="sga" class="form-control" required>
+                                    <option value="">Seleccione</option>
+                                    {% for sga in sgas %}
+                                    <option value="{{ sga.id }}">{{ sga.name }}</option>
+                                    {% endfor %}
+                                </select>
+                                <button type="button" id="add_sga_btn" class="btn btn-secondary"
+                                    title="Agregar Códificación SGA">+</button>
+                            </div>
+                        </div>
+
+
+                        <div class="col-md-4">
+                            <label class="form-label" for="name" name="Nombre: ">*Nombre del reactivo:</label>
                             <input type="text" class="form-control" placeholder="Nombre de reactivo" name="name"
-                                required id="name">
+                                required id="name" pattern=".{1,80}"
+                                title="El nombre del reactivo debe tener 80 caracteres o menos">
+
+
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label">*Estado:</label>
-                            <select name="state" class="form-select" required id="selectState">
+                            <label class="form-label" for="selectState" name="Estado: ">*Estado:</label>
+                            <select name="state" class="form-control" id="selectState" required>
                                 <option value="">Seleccione</option>
 
                                 {% for estado in estados %}
@@ -107,26 +136,25 @@
                             </select>
 
                         </div>
-                        
+
                         <div class="col-md-4">
-                            <label class="form-label">*Unidades:</label>
+                            <label class="form-label" for="selectUnidades" name="Unidades: ">*Unidades:</label>
                             <div class="input-group">
-                            <select name="unit" class="form-select" required id="selectUnidades">
-                                <option value="">Seleccione</option>
-                                {% for unidad in unidades %}
-                                <option value="{{ unidad.id }}">{{ unidad.name }}</option>
-                                {% endfor %}
-                            </select>
-                            <button type="button" id="add_unit_btn" class="btn btn-secondary"
-                                title="Agregar Unidad">+</button>
+                                <select name="unit" class="form-control" required id="selectUnidades">
+                                    <option value="">Seleccione</option>
+                                    {% for unidad in unidades %}
+                                    <option value="{{ unidad.id }}">{{ unidad.name }}</option>
+                                    {% endfor %}
+                                </select>
+                                <button type="button" id="add_unit_btn" class="btn btn-secondary"
+                                    title="Agregar Unidad">+</button>
                             </div>
                         </div>
 
                         <input type="hidden" name="wf" class="form-control" value="crear" id="wf">
-                        
+
                         <div class="col-md-3 mt-3">
-                            <input type="button" value="Crear Reactivo" class="btn btn-primary"
-                                id="open_confirm_rcreate">
+                            <input type="button" value="Crear Reactivo" class="btn btn-primary" id="open_confirm_in">
                         </div>
                         <div class="col-md-3 mt-3">
                             <input type="reset" value="Limpiar Campos" class="btn btn-primary">
@@ -143,15 +171,31 @@
                     cerrará. Si la ventana no es emergente, se mostrará una alerta de éxito o error según corresponda. -->
                     <script>
                         if (window.opener) {
-                            
-                            window.onload = function () {
-                                
-                                alert('{{ message }}');
 
+                            window.onload = function () {
                                 //Obtener nombre despues del mensaje
                                 mensaje = "{{ message }}";
                                 var name = mensaje.split(": ")[1];
-                                
+
+                                var messageText = '{{ message }}';
+
+                                var alertType = 'info';  // Tipo de alerta predeterminado para mensajes habituales
+
+                                // Verificar el contenido del mensaje para asignar el tipo de alerta adecuado
+                                if (messageText.includes('Se ha creado exitosamente')) {
+                                    alertType = 'success';
+                                } else if (messageText.includes('Por favor seleccione') || messageText.includes('Ya existe') || messageText.includes('Solo se permiten registros ')) {
+                                    alertType = 'warning';
+                                }
+
+                                // Mostrar la notificación con SweetAlert2
+                                Swal.fire({
+                                    icon: alertType,
+                                    title: 'Mensaje del servidor',
+                                    text: messageText,
+                                    confirmButtonText: 'Aceptar'
+                                });
+
                                 //retardo para que los valores se escriban despues de recargar la página
                                 setTimeout(function () {
                                     window.opener.document.querySelector("#name").value = name;
@@ -170,23 +214,35 @@
                         else {
                             window.onload = function () {
 
-                                alert('{{ message }}');
+                                var messageText = '{{ message }}';
 
+                                var alertType = 'info';  // Tipo de alerta predeterminado para mensajes habituales
+
+                                // Verificar el contenido del mensaje para asignar el tipo de alerta adecuado
+                                if (messageText.includes('Se ha creado exitosamente')) {
+                                    alertType = 'success';
+                                } else if (messageText.includes('Por favor seleccione') || messageText.includes('Ya existe') || messageText.includes('Solo se permiten registros ')) {
+                                    alertType = 'warning';
+                                }
+
+                                // Mostrar la notificación con SweetAlert2
+                                Swal.fire({
+                                    icon: alertType,
+                                    title: 'Mensaje del servidor',
+                                    text: messageText,
+                                    confirmButtonText: 'Aceptar'
+                                });
                             };
                         }
-                        </script>
+                    </script>
                     {% endfor %}
                     {% endif %}
 
                 </div>
             </div>
-            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"
-                integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe"
-                crossorigin="anonymous"></script>
-            
-            
-            
         </div>
+
+        {% endblock %}
 
 </body>
 

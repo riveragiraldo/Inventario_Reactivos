@@ -13,13 +13,13 @@
         integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe" crossorigin="anonymous"
         defer></script> -->
 
-    <!-- Estilo para relleno de los enlaces, no se invluye en archivo de estilos, ya que este index de momento es solo funcional, no es definitivo -->
+    <!-- Estilo para relleno de los enlaces, no se incluye en archivo de estilos, ya que este index de momento es solo funcional, no es definitivo -->
     <style>
         .btn.btn-primary {
             width: 100%;
         }
     </style>
-{% endblock %}
+    {% endblock %}
 </head>
 
 <body>
@@ -27,144 +27,94 @@
     <div class="container">
         <div class="row">
             <div class="col-md-12">
-                <nav class="navbar navbar-expand-lg navbar-light bg-light">
-                    <a class="navbar-brand" href="#">
-                        <p>Laboratorio: {{ laboratorio }}</p>
-                    </a>
-                    <div class="collapse navbar-collapse" id="navbarNav">
-                        <ul class="navbar-nav ml-auto">
-                            <li class="nav-item">
-                                <span class="navbar-text">BIENVENIDO, {{ request.user.first_name }} {{ request.user.last_name }}</span>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="/admin/password_change/">CAMBIAR CONTRASEÑA</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="/admin/logout/">CERRAR SESIÓN</a>
-                            </li>
-                        </ul>
-                    </div>
-                </nav>
+
             </div>
         </div>
     </div>
 
-        
-            <div class="col-md-7 mx-auto">
-                <h1 class="mt-10">Aplicación Reactivos</h1>
 
+    <div class="col-md-7 mx-auto">
+        <h1 class="mt-10">Aplicación Reactivos</h1>
+
+    </div>
+
+    <div class="col-md-7 mx-auto">
+        <div class="row">
+            <div class="col-lg-4 col-md-6 mb-3">
+                <a href="/admin/" target="_blank" class="btn btn-primary btn-block">Admin</a>
             </div>
-        
-        <div class="col-md-7 mx-auto">
-            <div class="row">
-                <div class="col-lg-4 col-md-6 mb-3">
-
-                </div>
-                <div class="col-lg-4 col-md-6 mb-3">
-                    <a href="/admin/" target="_blank" class="btn btn-primary btn-block">Admin</a>
-                </div>
-                <div class="col-lg-4 col-md-6 mb-3">
-
-                </div>
-                <div class="col-lg-4 col-md-6 mb-3">
-                    <a href="/unidades/crear/" target="_blank" class="btn btn-primary btn-block">Crear Unidades</a>
-                </div>
-                <div class="col-lg-4 col-md-6 mb-3">
-                    <a href="/estados/crear/" target="_blank" class="btn btn-primary btn-block">Crear Estados</a>
-                </div>
-                <div class="col-lg-4 col-md-6 mb-3">
-                    <a href="/respel/crear/" target="_blank" class="btn btn-primary btn-block">Crear clasificación
-                        Respel</a>
-                </div>
-                <div class="col-lg-4 col-md-6 mb-3">
-                    <a href="/sga/crear/" target="_blank" class="btn btn-primary btn-block">Crear codificación SGA</a>
-                </div>
-                <div class="col-lg-4 col-md-6 mb-3">
-                    <a href="/responsables/crear/" target="_blank" class="btn btn-primary btn-block">Crear
-                        Responsables</a>
-                </div>
-                <div class="col-lg-4 col-md-6 mb-3">
-                    <a href="/marcas/crear/" target="_blank" class="btn btn-primary btn-block">Crear Marcas</a>
-                </div>
-                <div class="col-lg-4 col-md-6 mb-3">
-                    <a href="/facultades/crear/" target="_blank" class="btn btn-primary btn-block">Crear Facultades</a>
-                </div>
-                <div class="col-lg-4 col-md-6 mb-3">
-                    <a href="/ubicaciones/crear/" target="_blank" class="btn btn-primary btn-block">Crear
-                        Ubicaciones/Asignaturas</a>
-                </div>
-                <div class="col-lg-4 col-md-6 mb-3">
-                    <a href="/destinos/crear/" target="_blank" class="btn btn-primary btn-block">Crear Destinos</a>
-                </div>
-                <div class="col-lg-4 col-md-6 mb-3">
-                    <a href="/laboratorios/crear/" target="_blank" class="btn btn-primary btn-block">Crear
-                        Laboratorios</a>
-                </div>
-                <div class="col-lg-4 col-md-6 mb-3">
-
-                </div>
-                <div class="col-lg-4 col-md-6 mb-3">
-                    <a href="/ubicaciones_almacen/crear/" target="_blank" class="btn btn-primary btn-block">Crear
-                        Ubicaciones en Almacén</a>
-                </div>
-                <div class="col-lg-4 col-md-6 mb-3">
-
-                </div>
-                <div class="col-lg-4 col-md-6 mb-3">
-
-                </div>
-                <div class="col-lg-4 col-md-6 mb-3">
-
-                </div>
-
-                <div class="col-lg-4 col-md-6 mb-3">
-                    <a href="/reactivos/crear/" target="_blank" class="btn btn-primary btn-block">Crear Reactivos</a>
-                </div>
-                <div class="col-lg-4 col-md-6 mb-3">
-                    <a href="/reactivos/registrar_entrada/" target="_blank" class="btn btn-primary btn-block">Registrar
-                        entradas</a>
-                </div>
-                <div class="col-lg-4 col-md-6 mb-3">
-                    <a href="/reactivos/registrar_salida/" target="_blank" class="btn btn-primary btn-block">Registrar
-                        Salidas</a>
-                </div>
-                <div class="col-lg-4 col-md-6 mb-3">
-
-                </div>
-                <div class="col-lg-4 col-md-6 mb-3">
-                    <a href="/reactivos/inventario/" target="_blank" class="btn btn-primary btn-block">Ver
-                        inventario</a>
-                </div>
-                <div class="col-lg-4 col-md-6 mb-3">
-
-                </div>
-                <div class="col-lg-4 col-md-6 mb-3">
-
-                </div>
-                <div class="col-lg-4 col-md-6 mb-3">
-                    <a href="/reactivos/6" target="_blank" class="btn btn-primary btn-block"
-                        onclick="updateLink()">Detalle Reactivo</a>
-                </div>
-
-                <script>
-                    function updateLink() {
-                        const number = prompt("Ingrese un número del 6 al 27:");
-                        const parsedNumber = parseInt(number);
-
-                        if (parsedNumber >= 6 && parsedNumber <= 27) {
-                            const updatedUrl = "/reactivos/" + parsedNumber;
-                            window.open(updatedUrl, "_blank");
-                        } else {
-                            alert("Número inválido. Por favor, ingrese un número del 6 al 27.");
-                        }
-                    }
-                </script>
-                <div class="col-lg-4 col-md-6 mb-3">
-
-                </div>
+            <div class="col-lg-4 col-md-6 mb-3">
+                <a href="/unidades/crear/" target="_blank" class="btn btn-primary btn-block">Crear Unidades</a>
+            </div>
+            <div class="col-lg-4 col-md-6 mb-3">
+                <a href="/estados/crear/" target="_blank" class="btn btn-primary btn-block">Crear Estados</a>
+            </div>
+            <div class="col-lg-4 col-md-6 mb-3">
+                <a href="/respel/crear/" target="_blank" class="btn btn-primary btn-block">Crear clasificación
+                    Respel</a>
+            </div>
+            <div class="col-lg-4 col-md-6 mb-3">
+                <a href="/sga/crear/" target="_blank" class="btn btn-primary btn-block">Crear codificación SGA</a>
+            </div>
+            <div class="col-lg-4 col-md-6 mb-3">
+                <a href="/responsables/crear/" target="_blank" class="btn btn-primary btn-block">Crear Responsables</a>
+            </div>
+            <div class="col-lg-4 col-md-6 mb-3">
+                <a href="/marcas/crear/" target="_blank" class="btn btn-primary btn-block">Crear Marcas</a>
+            </div>
+            <div class="col-lg-4 col-md-6 mb-3">
+                <a href="/facultades/crear/" target="_blank" class="btn btn-primary btn-block">Crear Facultades</a>
+            </div>
+            <div class="col-lg-4 col-md-6 mb-3">
+                <a href="/ubicaciones/crear/" target="_blank" class="btn btn-primary btn-block">Crear
+                    Ubicaciones/Asignaturas</a>
+            </div>
+            <div class="col-lg-4 col-md-6 mb-3">
+                <a href="/destinos/crear/" target="_blank" class="btn btn-primary btn-block">Crear Destinos</a>
+            </div>
+            <div class="col-lg-4 col-md-6 mb-3">
+                <a href="/laboratorios/crear/" target="_blank" class="btn btn-primary btn-block">Crear Laboratorios</a>
+            </div>
+            <div class="col-lg-4 col-md-6 mb-3">
+                <a href="/ubicaciones_almacen/crear/" target="_blank" class="btn btn-primary btn-block">Crear
+                    Ubicaciones en Almacén</a>
+            </div>
+            <div class="col-lg-4 col-md-6 mb-3">
+                <a href="/reactivos/crear/" target="_blank" class="btn btn-primary btn-block">Crear Reactivos</a>
+            </div>
+            <div class="col-lg-4 col-md-6 mb-3">
+                <a href="/reactivos/registrar_entrada/" target="_blank" class="btn btn-primary btn-block">Registrar
+                    entradas</a>
+            </div>
+            <div class="col-lg-4 col-md-6 mb-3">
+                <a href="/reactivos/registrar_salida/" target="_blank" class="btn btn-primary btn-block">Registrar
+                    Salidas</a>
+            </div>
+            <div class="col-lg-4 col-md-6 mb-3">
+                <a href="/reactivos/inventario/" target="_blank" class="btn btn-primary btn-block">Ver inventario</a>
+            </div>
+            <div class="col-lg-4 col-md-6 mb-3">
+                <a  target="_blank" class="btn btn-primary btn-block" onclick="updateLink()">Detalle
+                    Reactivo</a>
             </div>
         </div>
-        {% endblock %}
+    </div>
+
+    <script>
+        function updateLink() {
+            const number = prompt("Ingrese un número de ID:");
+            const parsedNumber = parseInt(number);
+
+            if (isNaN(parsedNumber) || parsedNumber <= 0) {
+                alert("Por favor, ingrese un ID válido.");
+            } else {
+                const updatedUrl = "/reactivos/" + parsedNumber;
+                window.open(updatedUrl, "_blank");
+            }
+        }
+    </script>
+
+    {% endblock %}
 
 </body>
 

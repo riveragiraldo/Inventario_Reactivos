@@ -85,7 +85,23 @@ $(document).ready(function () {
         source: "autocomplete_location/",
         minLength: 2,
         select: function (event, ui) {
-            $("#location").val(ui.item.value);
+            // Muestra el nombre y correo electrónico en la lista desplegable
+            $("#location").val(ui.item.name);
+            return false;
+        },
+        create: function () {
+            // Muestra solo el nombre en la lista desplegable
+            $(this).data('ui-autocomplete')._renderItem = function (ul, item) {
+                var facultadIniciales = item.facultad.split(' ').map(word => word[0]).join('').toUpperCase();
+                
+                return $("<li>")
+                    .append($("<div>").text(item.name + ' (' + facultadIniciales + ')'))
+                    .appendTo(ul);
+            };
+        },
+        focus: function (event, ui) {
+            // Muestra solo el nombre en el campo de entrada mientras se desplaza por la lista desplegable
+            $("#locarion").val(ui.item.name);
             return false;
         }
     });

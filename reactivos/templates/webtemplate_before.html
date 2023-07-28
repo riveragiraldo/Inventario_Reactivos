@@ -272,7 +272,16 @@
 		</div>
 
 		<main class="detalle">
-			<div class="breadcrumb-class">Está en:<a href="index.html" target="_self" title="Inicio">Inicio</a>/<span>Item menu ejemplo</span></div>
+			<div class="breadcrumb-class">Está en:<a href="#" target="_self" title="Inicio" id="breadcrumb_title">{{ laboratorio|title}}</a><container id="breadcrumb-title"></container></div>
+
+		<script>
+			// Obtener el valor del campo HTML 'title'
+			var pageTitle = document.title;
+
+			// Asignar el valor al elemento de breadcrumb
+			document.getElementById("breadcrumb-title").textContent = pageTitle;
+			document.getElementById("breadcrumb_title").setAttribute("title", pageTitle);
+		</script>
 			{% block contenido %}{% endblock %}
 
 		</main>

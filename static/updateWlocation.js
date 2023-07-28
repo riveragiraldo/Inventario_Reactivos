@@ -1,12 +1,11 @@
 //Actualiza las ubicaciones en almacen dependiendo de laboratorio en que se encuentre
 
-
-// Obtener los elementos del DOM
-const labSelect = document.getElementById('lab');
-const wlocationInput = document.getElementById('wlocation');
-
 // Función para actualizar los valores del select wlocation
 function updateWlocationOptions() {
+    // Obtener los elementos del DOM
+    const labSelect = document.getElementById('lab');
+    const wlocationInput = document.getElementById('wlocation');
+    
     // Obtener el valor seleccionado en el campo lab
     const selectedLab = labSelect.value;
     
@@ -30,16 +29,7 @@ function updateWlocationOptions() {
         });
 }
 
-if (labSelect) {
-    labSelect.addEventListener('change', function () {
-        // Retrasar la ejecución de la función updateWlocationOptions
-        setTimeout(updateWlocationOptions, 50);
-    });
-
-    // Disparar el evento 'change' en el campo lab al cargar la página
-    setTimeout(function () {
-        labSelect.dispatchEvent(new Event('change'));
-        // Actualizar el select wlocation después de actualizar el select lab
-        updateWlocationOptions();
-    }, 50);
-}
+document.addEventListener('DOMContentLoaded', function() {
+    // Llamar a la función updateWlocationOptions al cargar la página
+    updateWlocationOptions();
+});
