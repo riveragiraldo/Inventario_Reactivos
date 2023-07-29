@@ -81,9 +81,9 @@ DATABASES = {
         'NAME': 'Reactivos',
         'USER': 'postgres',
         #Uncomment to work on UN
-        'PASSWORD':'camiloremotos',
+        #'PASSWORD':'camiloremotos',
         #Uncomment to work on HOME
-        #'PASSWORD': 'cj2618'or 'cjreactivos',
+        'PASSWORD': 'cj2618',
         'HOST': 'localhost',
         'PORT': '5432',
         }

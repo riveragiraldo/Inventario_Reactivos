@@ -17,7 +17,7 @@
 		-->
 
 	<!-- base href="http://subdominio.unal.edu.co/" -->
-	<link rel="shortcut icon" href="{% static 'images/favicon.ico' %}" type="image/x-icon">
+	<link rel="shortcut icon" href="{% static 'inventarioreac/images/favicon.ico' %}" type="image/x-icon">
 
 
 	<meta name="revisit-after" content="1 hour">
@@ -29,20 +29,20 @@
 	<meta name="robots" content="all">
 
 
-	<link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.min.css' %}" media="all">
-	<link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap-theme.min.css' %}" media="all">
-	<link rel="stylesheet" type="text/css" href="{% static 'css/accesibilidad.css' %}" media="all">
-	<link rel="stylesheet" type="text/css" href="{% static 'css/reset.css' %}" media="all">
-	<link rel="stylesheet" type="text/css" href="{% static 'css/unal.css' %}" media="all">
-	<link rel="stylesheet" type="text/css" href="{% static 'css/base.css' %}" media="all">
-	<link rel="stylesheet" type="text/css" href="{% static 'css/tablet.css' %}" media="all">
-	<link rel="stylesheet" type="text/css" href="{% static 'css/phone.css' %}" media="all">
-	<link rel="stylesheet" type="text/css" href="{% static 'css/small.css' %}" media="all">
-	<link rel="stylesheet" type="text/css" href="{% static 'css/printer.css' %}" media="print">
+	<link rel="stylesheet" type="text/css" href="{% static 'inventarioreac/css/bootstrap.min.css' %}" media="all">
+	<link rel="stylesheet" type="text/css" href="{% static 'inventarioreac/css/bootstrap-theme.min.css' %}" media="all">
+	<link rel="stylesheet" type="text/css" href="{% static 'inventarioreac/css/accesibilidad.css' %}" media="all">
+	<link rel="stylesheet" type="text/css" href="{% static 'inventarioreac/css/reset.css' %}" media="all">
+	<link rel="stylesheet" type="text/css" href="{% static 'inventarioreac/css/unal.css' %}" media="all">
+	<link rel="stylesheet" type="text/css" href="{% static 'inventarioreac/css/base.css' %}" media="all">
+	<link rel="stylesheet" type="text/css" href="{% static 'inventarioreac/css/tablet.css' %}" media="all">
+	<link rel="stylesheet" type="text/css" href="{% static 'inventarioreac/css/phone.css' %}" media="all">
+	<link rel="stylesheet" type="text/css" href="{% static 'inventarioreac/css/small.css' %}" media="all">
+	<link rel="stylesheet" type="text/css" href="{% static 'inventarioreac/css/printer.css' %}" media="print">
 
 
-	<script src="{% static 'js/jquery.js' %}" type="text/javascript"></script>
-	<script src="{% static 'js/unal.js' %}" type="text/javascript"></script>
+	<script src="{% static 'inventarioreac/js/jquery.js' %}" type="text/javascript"></script>
+	<script src="{% static 'inventarioreac/js/unal.js' %}" type="text/javascript"></script>
 	
 
 	{% block head %}{% endblock %}
@@ -54,32 +54,21 @@
 		<div class="indicator hidden-xs"></div>
 		<ul class="dropdown-menu">
 			<li>
-				<a href="http://correo.unal.edu.co" target="_blank"><img src="{% static 'images/icnServEmail.png' %}"
-						width="32" height="32" alt="Correo Electrónico">Correo Electrónico</a>
-			</li>
-			<li>
-				<a href="https://dninfoa.unal.edu.co" target="_blank"><img src="{% static 'images/icnServSia.png' %}"
-						width="32" height="32" alt="Dirección Nacional de Información Académica">DNINFOA - SIA</a>
-			</li>
-			<li>
-				<a href="http://bibliotecas.unal.edu.co" target="_blank"><img
-						src="{% static 'images/icnServLibrary.png' %}" width="32" height="32"
-						alt="Biblioteca">Bibliotecas</a>
-			</li>
-			<li>
-				<a href="http://personal.unal.edu.co" target="_blank"><img src="{% static 'images/icnServCall.png' %}"
-						width="32" height="32" alt="Convocatorias">Convocatorias</a>
-			</li>
-			<li>
-				<a href="http://identidad.unal.edu.co" target="_blank"><img
-						src="{% static 'images/icnServIdentidad.png' %}" width="32" height="32"
-						alt="Identidad U.N.">Identidad U.N.</a>
-			</li>
-			<li>
-				<a href="https://d1xb30i372mnxf.cloudfront.net/" target="_blank"><img
-						src="{% static 'images/icnLrn.png' %}" width="32" height="32"
-						alt="Plataforma de Laboratorios Remotos">Plataforma de Laboratorios Remotos</a>
-			</li>
+				<a href="http://correo.unal.edu.co" target="_blank"><img src="{% static 'inventarioreac/images/icnServEmail.png' %}" width="32" height="32" alt="Correo Electrónico">Correo Electrónico</a>
+		</li>
+		<li>
+				<a href="https://dninfoa.unal.edu.co" target="_blank"><img src="{% static 'inventarioreac/images/icnServSia.png' %}" width="32" height="32" alt="Dirección Nacional de Información Académica">DNINFOA - SIA</a>
+		</li>
+		<li>
+				<a href="http://bibliotecas.unal.edu.co" target="_blank"><img src="{% static 'inventarioreac/images/icnServLibrary.png' %}" width="32" height="32" alt="Biblioteca">Bibliotecas</a>
+		</li>
+		<li>
+			<a href="http://laboratorios.manizales.unal.edu.co/"target="_blank"><img src="{% static 'inventarioreac/images/icnLrn.png' %}" width="32" height="32" alt="Direccion de Laboratorios">Direccion de Laboratorios Sede Manizales </a>
+		</li>
+		<li>
+			<a href="https://d1xb30i372mnxf.cloudfront.net/" target="_blank"><img src="{% static 'inventarioreac/images/icnLrn.png' %}" width="32" height="32" alt="Plataforma de Laboratorios Remotos">Plataforma de Laboratorios Remotos</a>	
+			
+		</li>
 		</ul>
 	</div>
 	<header id="unalTop">
@@ -87,7 +76,7 @@
 			<a href="http://unal.edu.co">
 				<!--[if (gte IE 9)|!(IE)]><!-->
 				<svg width="93%" height="93%">
-					<image xlink:href="{% static 'images/escudoUnal.svg' %}" width="100%" height="100%"
+					<image xlink:href="{% static 'inventarioreac/images/escudoUnal.svg' %}" width="100%" height="100%"
 						class="hidden-print" />
 				</svg>
 
@@ -95,15 +84,15 @@
 				<!--[if lt IE 9]>
 			<img src="{% static 'images/escudoUnal.png' %}" width="93%" height="auto" class="hidden-print"/> 
 	  <![endif]-->
-				<img src="{% static 'images/escudoUnal_black.png' %}" class="visible-print" />
+				<img src="{% static 'inventarioreac/images/escudoUnal_black.png' %}" class="visible-print" />
 			</a>
 		</div>
 		<div class="seal">
 			<img class="hidden-print" alt="Escudo de la República de Colombia"
-				src="{% static 'images/sealColombia.png' %}" width="66" height="66" />
+				src="{% static 'inventarioreac/images/sealColombia.png' %}" width="66" height="66" />
 
 			<img class="visible-print" alt="Escudo de la República de Colombia"
-				src="{% static 'images/sealColombia_black.png' %}" width="66" height="66" />
+				src="{% static 'Inventarioreac/inventarioreac/images/sealColombia_black.png' %}" width="66" height="66" />
 		</div>
 		<div class="firstMenu">
 
@@ -198,28 +187,28 @@
 		<div class="col-md-2 col-lg-2 col-sm-2 col-xs-12 logos">
 			<div class="col-xs-6 col-sm-12 col-md-6 no-padding">
 				<a class="col-xs-6 col-sm-12" href="http://www.orgulloun.unal.edu.co" target="_blank">
-					<img class="hidden-print" alt="Orgullo UN" src="{% static 'images/log_orgullo.png' %}" width="78"
+					<img class="hidden-print" alt="Orgullo UN" src="{% static 'inventarioreac/images/log_orgullo.png' %}" width="78"
 						height="21" />
-					<img class="visible-print" alt="Orgullo UN" src="{% static 'images/log_orgullo_black.png' %}"
+					<img class="visible-print" alt="Orgullo UN" src="{% static 'inventarioreac/images/log_orgullo_black.png' %}"
 						width="94" height="37" />
 				</a>
 
 				<a class="col-xs-6 col-sm-12 imgAgencia" href="http://www.agenciadenoticias.unal.edu.co/inicio.html"
 					target="_blank">
-					<img class="hidden-print" alt="Agencia de noticias" src="{% static 'images/log_agenc.png' %}"
+					<img class="hidden-print" alt="Agencia de noticias" src="{% static 'inventarioreac/images/log_agenc.png' %}"
 						width="94" height="25" />
-					<img class="visible-print" alt="Agencia de noticias" src="{% static 'images/log_agenc_black.png' %}"
+					<img class="visible-print" alt="Agencia de noticias" src="{% static 'inventarioreac/images/log_agenc_black.png' %}"
 						width="94" height="37" />
 				</a>
 			</div>
 			<div class="col-xs-6 col-sm-12 col-md-6 no-padding">
 				<a class="col-xs-6 col-sm-12" href="https://www.sivirtual.gov.co/memoficha-entidad/-/entidad/T0356"
 					target="_blank">
-					<img alt="Trámites en línea" src="{% static 'images/log_gobiern.png' %}" width="67" height="51" />
+					<img alt="Trámites en línea" src="{% static 'inventarioreac/images/log_gobiern.png' %}" width="67" height="51" />
 				</a>
 
 				<a class="col-xs-6 col-sm-12" href="http://www.contaduria.gov.co/" target="_blank">
-					<img alt="Contaduría general de la republica" src="{% static 'images/log_contra.png' %}" width="67"
+					<img alt="Contaduría general de la republica" src="{% static 'inventarioreac/images/log_contra.png' %}" width="67"
 						height="51" />
 				</a>
 			</div>
