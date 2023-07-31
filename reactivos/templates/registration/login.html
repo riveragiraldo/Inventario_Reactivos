@@ -52,6 +52,7 @@
     {{ form.username.errors }}
     {{ form.username.label_tag }} {{ form.username }}
   </div>
+  <br>
   <div class="form-row">
     {{ form.password.errors }}
     {{ form.password.label_tag }} {{ form.password }}
@@ -63,6 +64,12 @@
     <a href="{{ password_reset_url }}">{% translate 'Forgotten your password or username?' %}</a>
   </div>
   {% endif %}
+  <div class="password-reset-link">
+    <a href="/password_reset/">{% translate 'Forgotten your password or username?' %}</a>
+  </div>
+  
+  <br>
+
   <div class="submit-row">
     <input type="submit" value="{% translate 'Log in' %}">
   </div>

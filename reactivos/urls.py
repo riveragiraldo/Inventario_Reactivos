@@ -1,8 +1,9 @@
 #Archivo para definición de urls de las diferentes vistas o apis que interactuan el front con el back
 
-from django.urls import path
 from .views import *
 from . import views
+from django.urls import path, include
+
 app_name = 'reactivos'
 
 urlpatterns = [
@@ -39,7 +40,36 @@ urlpatterns = [
     path('export_to_pdf/', views.export_to_pdf, name='export_to_pdf'),
     path('guardar-per-page/<int:per_page>/', GuardarPerPageView.as_view(), name='GuardarPerPage'),
     path("obtener_stock/", obtener_stock, name="obtener_stock"),
-    path('accounts/login/', LoginView.as_view(), name='login'),
     path('templates/webtemplate/', webtemplate, name='webtemplate'),
+    path('accounts/login/', LoginView.as_view(), name='login'),
+    
+
+    path("logout/", views.LogoutView.as_view(), name="logout"),
+    path(
+        "password_change/", PasswordChangeView.as_view(), name="password_change"
+    ),
+    path(
+        "password_change/done/",
+        PasswordChangeDoneView.as_view(),
+        name="password_change_done",
+    ),
+    path("password_reset/", CustomPasswordResetView.as_view(), name="password_reset"),
+    path(
+        "password_reset/done/",
+        PasswordResetDoneView.as_view(),
+        name="password_reset_done_reactivos",
+    ),
+    path(
+        "reset/<uidb64>/<token>/",
+        PasswordResetConfirmView.as_view(),
+        name="password_reset_confirmacion",
+    ),
+    path(
+        "reset/done/",
+        PasswordResetCompleteView.as_view(),
+        name="password_reset_complete",
+    ),
 
 ]
+
+

@@ -1,0 +1,136 @@
+# 每个FL学习任务的唯一标识符
+task_id: ""
+
+#提供数据集和FL学习模拟相关配置
+data:
+  # 存储数据集的根目录
+  root: "./data/"
+  # 数据集的名称，支持：feminist、shakespeare、cifar10和cifar100
+  dataset: femnist
+  split_type: "iid"
+  # 每个客户端的数据分布，支持：iid、niid（用于feminist和shakespeare），以及dir和class（用于cifar数据集）
+    # `iid` 独立同分布的数据
+    # `niid` 非独立同分布的数据（用于feminist和shakespeare）
+    # `dir` 使用狄利克雷过程来模拟CIFAR-10和CIFAR-100数据集的非iid数据
+    # `class` 对于像CIFAR-10、CIFAR-100这样的数据集，“类”意味着按标签类划分数据集
+  # default：femnist + iid
+
+  # 每个客户端中的最小样本数。它适用于LEAF数据集和CIFAR-10和CIFAR-100的dir模拟
+  min_size: 10
+  # LEAF数据集的采样数据部分。例如0。05意味着仅使用总数据量的5％。
+  data_amount: 0.05
+  # split_type为“iid”时使用的客户端数的比例。例如0.1意味着仅使用总客户端数的10%。
+  iid_fraction: 0.1
+  # 是否将数据集的用户划分为训练测试组。仅适用于feminist和shakespeare数据集
+    # True 将数据集的用户划分为训练测试组。
+    # False 将每个用户的样本划分为训练测试组。
+  user: False
+  # 用于训练的数据部分；其余部分用于测试。例如，0.9意味着将数据集的90％用于训练，其余10％用于测试。
+  train_test_split: 0.9
+
+  # 每个客户端中的类的数量。仅当split_type为“class”时适用。
+  class_per_client: 1
+  # 要构建的客户端的目标数量。对于非LEAF数据集：划分为的客户端数量。对于LEAF数据集：仅在split_type为“class”时使用。
+  num_of_clients: 100
+  # Dirichlet分布模拟的参数，仅适用于CIFAR数据集的split_type为“dir”时。
+  alpha: 0.5
+
+  # 有针对性的数量分布，以模拟数据量的异质性。
+    # 这些值的总和应为1。例如[0.1，0.2，0.7]。
+    # “num_of_clients”应该可以被“len（权重）”整除。
+    # None意味着使用相同（average）的数据量模拟客户端。
+  weights: NULL
+
+# 提供数据集和FL学习模拟相关配置
+# 用于训练、支持的模型的名称：lenet、rnn、resnet、resnet18、resnet50、vgg9。
+model: lenet
+# 如何进行测试，选项：test_in_client或test_in_server。
+    # “test_in_client”意味着每个客户端都有一个测试集来运行测试。
+    # “test_in_server”意味着服务器有一个测试集来运行全局模型的测试。对cifar数据集使用此模式。
+# default：test_in_client
+test_mode: "test_in_client"
+# 当测试模式为“test_in_client”时，测量测试性能（精度）的方法，支持： average or weighted （表示平均或加权）。
+test_method: "average"
+
+server:
+  track: False  # 是否使用追踪服务追踪服务器指标。
+  rounds: 10  # 总训练轮次。
+  clients_per_round: 5  # 每轮训练的客户端数量。
+  test_every: 1  # 测试频率：每N轮进行一次测试。
+  save_model_every: 10  # 保存模型的频率：每N轮保存一次模型。
+  save_model_path: ""  # 保存模型的路径。默认路径是库的根目录。
+  batch_size: 32  # test_in_server的批量大小。
+  test_all: False  # 是测试所有客户端还是只测试选定的客户端。
+  random_selection: True  # 是否随机选择要训练的客户端。
+  # 聚合客户端上传模型的策略，选项：FedAvg,equal,FedProx。
+    # FedAvg使用加权平均值聚合模型，其中权重是客户端的数据占比。
+    # equal通过简单平均聚合模型。
+  aggregation_strategy: "FedAvg"
+  # 聚合的内容，选项： all, parameters.
+    # all 使用statedict聚合模型，包括模型参数和持久缓冲区（如BatchNorm统计数据）
+    # parameters 只聚集模型参数。
+  aggregation_content: "all"
+  prox_mu: 0.01  # 用于FedProx算法的mu参数,调整惩罚项的强度，默认0.01。
+  encryption:
+    type: "DES"  # 加密类型，支持：Blowfish, DES, Salsa20
+    # 用于解密模型的密钥，如果为空，则不解密。
+      # DES:8位密钥
+      # Blowfish: 4-56位密钥
+      # Salsa20: 16、32或64位密钥
+    key: ""
+
+
+client:
+  track: False  # 是否使用追踪服务追踪客户端指标。
+  batch_size: 32  # 客户端中训练数据批次大小。
+  test_batch_size: 5  # test_in_client的批量大小。
+  local_epoch: 10  # 每一轮要训练的时代数。
+  # 优化器配置
+  optimizer:
+    type: "Adam"  # 优化器名称，选项: Adam, SGD.
+    lr: 0.001 # 学习率。
+    momentum: 0.9 # 动量。
+    weight_decay: 0 # 权重衰减。
+  seed: 0 # 随机种子。
+  local_test: False  # 是否在将训练好的模型上传到服务器之前在客户端中测试它们。
+  encryption:
+    type: "DES"  # 加密类型，支持：Blowfish, DES
+    # 用于解密模型的密钥，如果为空，则不解密。
+      # DES:8位密钥
+      # Blowfish: 4-56位密钥
+    key: ""
+
+
+gpu: 0  # 训练中使用的gpu总数。0表示使用CPU。
+distributed:  # 分布式训练配置。仅当gpu>1时才适用。
+  backend: "nccl"  # 分布式后端。
+  init_method: "" # 分布式初始化方法。
+  world_size: 0 # 分布式训练中的总进程数。
+  rank: 0 # 当前进程的排名。
+  local_rank: 0 # 当前进程的本地排名。
+
+tracking:  # logging and tracking配置
+  database: ""  # 本地数据库配置,支持sqlite3和mysql。
+  log_file: ""  # 日志文件路径。
+  log_level: "INFO"  # 日志级别。
+  metric_file: "" # 指标文件路径。
+  save_every: 1 # 指标保存频率：每N轮保存一次指标。
+
+# 系统异构性模拟的配置。
+  # 资源异构性
+resource_heterogeneous:
+  simulate: False  # 是否模拟联合学习中的系统异构性。
+  #要模拟的异构类型，支持：iso等同异构、dir直接异构、real真实异构。
+    # iso: 选定客户端具有等长睡眠时间分布
+    # dir: 使用对称狄利克雷过程对睡眠时间异质性进行采样，以模拟直接异质性
+    # real: 模拟真实的异构性，即客户端的计算能力不同。使用主流智能手机的真实速度比来模拟睡眠时间的异构性
+  hetero_type: "real"
+  level: 3  # 异构级别（0-5），0表示客户端之间没有异构。
+  sleep_group_num: 1000  # 具有不同睡眠时间的组的数量。1表示所有客户端都相同。
+  total_time: 1000  # 所有客户端的总睡眠时间，单位为秒。
+  fraction: 1  # 参与异构模拟的客户端的比例。
+  grouping_strategy: "greedy"  # 处理系统异构的分组策略，支持：随机、贪婪、最慢(random, greedy, slowest).
+  initial_default_time: 5  # 每轮训练的预计默认训练时间，单位为秒。
+  default_time_momentum: 0.2  # 默认时间更新的默认动量。
+
+seed: 0  # 系统 random seed.
