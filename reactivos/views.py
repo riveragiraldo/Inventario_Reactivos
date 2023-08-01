@@ -2295,7 +2295,7 @@ class LogoutView(RedirectURLMixin, TemplateView):
     # RemovedInDjango50Warning: when the deprecation ends, remove "get" and
     # "head" from http_method_names.
     http_method_names = ["get", "head", "post", "options"]
-    template_name = "registration/logged_out.html"
+    template_name = "registration/logged_out_reactivos.html"
     extra_context = None
 
     # RemovedInDjango50Warning: when the deprecation ends, move
@@ -2559,7 +2559,7 @@ class PasswordResetCompleteView(PasswordContextMixin, TemplateView):
 
 class PasswordChangeView(PasswordContextMixin, FormView):
     form_class = PasswordChangeForm
-    success_url = reverse_lazy("password_change_done")
+    success_url = reverse_lazy("reactivos:password_change_done_reactivos")
     template_name = "registration/password_change_form_reactivos.html"
     title = _("Password change")
 
@@ -2583,7 +2583,7 @@ class PasswordChangeView(PasswordContextMixin, FormView):
 
 
 class PasswordChangeDoneView(PasswordContextMixin, TemplateView):
-    template_name = "registration/password_change_done.html"
+    template_name = "registration/password_change_done_reactivos.html"
     title = _("Password change successful")
 
     @method_decorator(login_required)
