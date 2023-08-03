@@ -85,18 +85,18 @@ def webtemplate(request):
 
 
 # Vista para la creación del index, 
-@login_required
-def index(request):
-    laboratorio = request.user.lab
-    
-      
-    
-    context = {
-        'usuarios': User.objects.all(),
-        'laboratorio': laboratorio,
-        
-    }
-    return render(request, 'reactivos/index.html', context)
+
+class Index(LoginRequiredMixin, View):  # Utiliza LoginRequiredMixin como clase base
+    template_name = 'reactivos/index.html'  # Nombre de la plantilla
+
+    def get(self, request,*args,**kwargs):
+        laboratorio = request.user.lab   
+             
+        context = {
+            'usuarios': User.objects.all(),
+            'laboratorio': laboratorio,
+        }
+        return render(request, self.template_name, context)
 # La vista "crear_unidades" se encarga de gestionar la creación de unidades. Esta vista toma los datos del formulario 
 # existente en el template "crear_unidades.html" y realiza las operaciones necesarias en la base de datos utilizando 
 # el modelo "Unidades". El objetivo es garantizar la unicidad de los registros, lo que implica verificar si la unidad
@@ -833,8 +833,11 @@ def registrar_entrada(request):
         
         #verificar que el valor sea positivo
         minstock = request.POST.get('minstock')
+        if minstock=='':
+            minstock=0
+
         minstock_number=float(minstock)
-        if minstock_number<=0:
+        if minstock_number<0:
             messages.error(request, 'Solo se permiten registros con stock mínimo positivo')
             return HttpResponse("Error de cantidades al insertar en la base de datos", status=400)
         

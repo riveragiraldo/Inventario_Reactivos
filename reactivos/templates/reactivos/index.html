@@ -1,4 +1,5 @@
 {% extends "webtemplate.html" %}
+{% load has_group %}
 <!doctype html>
 <html lang="es">
 
@@ -46,9 +47,11 @@
             <div class="col-lg-4 col-md-6 mb-3">
                 <a href="/admin/" target="_blank" class="btn btn-primary btn-block">Admin</a>
             </div>
+            {% if request.user|has_group:"Coordinador" %}
             <div class="col-lg-4 col-md-6 mb-3">
                 <a href="/unidades/crear/" target="_blank" class="btn btn-primary btn-block">Crear Unidades</a>
             </div>
+            {% endif %}
             <div class="col-lg-4 col-md-6 mb-3">
                 <a href="/estados/crear/" target="_blank" class="btn btn-primary btn-block">Crear Estados</a>
             </div>

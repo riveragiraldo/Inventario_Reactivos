@@ -1,19 +1,84 @@
 #Este archivo configuera los modelos para realizar la gestión de la base de datos, tanto en el motor como en el admin
+from typing import Iterable, Optional
 from django.db import models
-from django.contrib.auth.models import AbstractUser,User
-from datetime import datetime
+from django.contrib.auth.models import AbstractUser,User,Permission
+from django.contrib.contenttypes.models import ContentType
 from django.dispatch import receiver
 from django.db.models.signals import pre_save
+from django.contrib.auth.models import Permission, Group
+from django.contrib.contenttypes.models import ContentType
+
+class Rol(models.Model):
+    name=models.CharField('Rol', max_length=50, unique=True)
+
+    class Meta:
+        verbose_name_plural = 'Roles'
+        verbose_name = 'Rol'
+    def __str__(self):
+        return self.name
+    def save(self, *args,**kwargs):
+        permisos_defecto=['add','change','delete','view']
+        if not self.id:
+            nuevo_grupo,creado=Group.objects.get_or_create(name=f'{self.name}')
+            for permiso_temporal in permisos_defecto:
+                permiso,created = Permission.objects.update_or_create(
+                    name = f'Can {permiso_temporal} {self.name}',
+                    content_type = ContentType.objects.get_for_model(Rol),
+                    codename = f'{permiso_temporal}_{self.name}'
+                )
+                if creado:
+                    nuevo_grupo.permissions.add(permiso.id)
+            super().save(*args,**kwargs)
+        else:
+            rol_antiguo = Rol.objects.filter (id=self.id).values('name').first()
+            if rol_antiguo['name'] == self.name:
+                super().save(*args,**kwargs)
+            else:
+                Group.objects.filter(name=rol_antiguo['name']).update(name = f'{self.name}')
+                print(f'Actualicé el grupo por {self.name}')
+                for permiso_temp in permisos_defecto:
+                    print(f"Ahora voy a actualizar el permiso {permiso_temp}_{rol_antiguo['name']}")
+                    Permission.objects.filter(codename= f"{permiso_temp}_{rol_antiguo['name']}").update(
+                        codename=f'{permiso_temp}_{self.name}',
+                        name=f'Can {permiso_temp} {self.name}'
+                    )
+                    super().save(*args,**kwargs)
 
 
-class User(AbstractUser):
+
+class User(AbstractUser): 
     email = models.EmailField('Correo Electrónico', unique=True)
     lab = models.ForeignKey('reactivos.Laboratorios', on_delete=models.CASCADE, related_name='lab_users', verbose_name='laboratorio', null=True)
     fecha_registro = models.DateTimeField(auto_now_add=True,verbose_name='Fecha registro',)
     ultima_actualizacion = models.DateTimeField(auto_now=True,verbose_name='Última Actualización',)
+    rol = models.ForeignKey(Rol, on_delete=models.CASCADE, blank=True, null=True)
 
+   
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['first_name','last_name','username']
+
+    def save(self, *args,**kwargs):
+        if not self.id:
+            super().save(*args, **kwargs)
+            
+            if self.rol is not None:
+                grupo = Group.objects.filter(name=self.rol.name).first()
+                if grupo:
+                    self.groups.add(grupo)
+                super().save(*args,**kwargs)
+        else:
+            if self.rol is not None:
+                grupo_antiguo = User.objects.filter(id=self.id).values('rol__name').first()
+                if grupo_antiguo['rol__name'] == self.rol.name:
+                    super().save(*args,**kwargs)
+                else:
+                    grupo_anterior = Group.objects.filter(name=grupo_antiguo['rol__name']).first()
+                    if grupo_anterior:
+                        self.groups.remove(grupo_anterior)
+                    nuevo_grupo=Group.objects.filter(name=self.rol.name).first()
+                    if nuevo_grupo:
+                        self.groups.add(nuevo_grupo)
+                    super().save(*args,**kwargs)      
 
 
 

@@ -6,7 +6,13 @@ from django.views.generic import TemplateView
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.forms import UserChangeForm, UserCreationForm
 from .forms import CustomAuthenticationForm
+from django.contrib.auth.models import Group, Permission
 
+# Inclusión de creación de nuevos permisos en el admin de Dajango
+admin.site.register(Permission)
+
+# Inclusión de creación de nuevos Roles en el admin de Dajango
+admin.site.register(Rol)
 
 # Inclusión de el modelo UNIDADES en la consola de administración de Django
 @admin.register(Unidades)
@@ -122,15 +128,16 @@ class PaginaInicioAdmin(admin.ModelAdmin):
 
 class UserAdmin(BaseUserAdmin):
     # Especifica los campos a mostrar en la lista de usuarios en el admin
-    list_display = ('id','first_name', 'last_name','email', 'lab','username','is_active')
-    list_editable = ['lab']
+    list_display = ('id','first_name', 'last_name','rol','email', 'lab','is_active',)
+    list_editable = ['first_name', 'last_name','email','lab', 'rol',]
+    ordering=('id',)
 
     # Utiliza el formulario de autenticación personalizado en el admin
     login_form = CustomAuthenticationForm
 
 
 # Registra el modelo de usuario personalizado y la clase UserAdmin en el admin
-admin.site.register(User, UserAdmin)
+admin.site.register(User,UserAdmin)
 
 
 

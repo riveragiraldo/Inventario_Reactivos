@@ -7,7 +7,7 @@ from django.urls import path, include
 app_name = 'reactivos'
 
 urlpatterns = [
-    path('', index, name='index'),
+    path('', Index.as_view(), name='index'),
     path('reactivos/<int:pk>', detalle_reactivo, name='detalle_reactivo'),
     path('reactivos/crear/', crear_reactivo, name='crear_reactivo'),
     path('unidades/crear/', crear_unidades, name='crear_unidades'),
