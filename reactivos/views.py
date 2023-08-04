@@ -103,50 +103,58 @@ class Index(LoginRequiredMixin, View):  # Utiliza LoginRequiredMixin como clase 
 # ya existe en la base de datos antes de crearla. Si la unidad es única, se crea un nuevo registro en la tabla 
 # correspondiente utilizando el modelo "Unidades". Si la unidad ya existe, se muestra un mensaje de error o se toma la 
 # acción apropiada según los requisitos del sistema.
-@login_required
-def crear_unidades(request):
-    if request.method == 'POST':
-        reCaptchaForm=ReCaptchaForm(request.POST)
-        if reCaptchaForm.is_valid():
-            print('Hola Mundo') 
+
+
+class CrearUnidades(LoginRequiredMixin, View):
+    template_name = 'reactivos/crear_unidades.html'
+    groups_required=['Coordinador','Administrador']
+
+    def get(self, request, *args, **kwargs):
+            
+        grupos_usuario = request.user.groups.all().values('name')
+        is_of_group = False
+        laboratorio = request.user.lab
+        context = {
+            'usuarios': User.objects.all(),
+            'laboratorio': laboratorio,
+            }
+        for grupo in grupos_usuario:
+            
+            for grupo_requerido in self.groups_required:
+                if grupo['name'] == grupo_requerido:
+                    is_of_group = True
+                    break
+                    
+        if is_of_group:
+                                  
+            return render(request, self.template_name, context)
+        else:
+
+            messages.error(request,'No tiene permisos para acceder a esta vista')
+            return HttpResponseRedirect(reverse('reactivos:login'))   
+
+    def post(self, request, *args, **kwargs):
         name = request.POST.get('name')
-        # name = estandarizar_nombre(name)#Pendiente definir si sí o no
 
-
-        # Verifica si ya existe un registro con el mismo nombre de la unidad
         if Unidades.objects.filter(name=name).exists():
             unidad = Unidades.objects.get(name=name)
             unidad_id = unidad.id
             messages.error(
-                request, 'Ya existe una unidad con nombre '+name+' id: '+str(unidad_id))
+                request, 'Ya existe una unidad con nombre ' + name + ' id: ' + str(unidad_id))
             return HttpResponse('Error al insertar en la base de datos', status=400)
-
 
         unidad = Unidades.objects.create(
             name=name,
-            user=request.user,  # Asignar el usuario actualmente autenticado
+            user=request.user,
         )
         unidad_id = unidad.id
 
         messages.success(
-            request, 'Se ha creado exitosamente la unidad con nombre '+name+' id: '+str(unidad_id))
+            request, 'Se ha creado exitosamente la unidad con nombre ' + name + ' id: ' + str(unidad_id))
 
-        # Agregar el ID de la unidad al contexto para seleccionarla en la plantilla
-        context = {'unidad_id': unidad.id, 'unidad_name': unidad.name, }
+        context = {'unidad_id': unidad.id, 'unidad_name': unidad.name}
         return HttpResponse('Operación exitosa', status=200)
-    else:
-        reCaptchaForm=ReCaptchaForm()
 
-    laboratorio = request.user.lab
-
-    context = {
-        'usuarios': User.objects.all(),
-        'laboratorio': laboratorio,
-        'captcha':reCaptchaForm,
-
-    }
-
-    return render(request, 'reactivos/crear_unidades.html', context)
 
 # La vista "crear_estado" se encarga de gestionar la creación de estados en la db. Esta vista toma los datos del formulario 
 # existente en el template "crear_estado.html" y realiza las operaciones necesarias en la base de datos utilizando 
