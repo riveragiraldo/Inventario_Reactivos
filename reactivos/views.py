@@ -103,37 +103,42 @@ class Index(LoginRequiredMixin, View):  # Utiliza LoginRequiredMixin como clase 
 # ya existe en la base de datos antes de crearla. Si la unidad es única, se crea un nuevo registro en la tabla 
 # correspondiente utilizando el modelo "Unidades". Si la unidad ya existe, se muestra un mensaje de error o se toma la 
 # acción apropiada según los requisitos del sistema.
-
-
-class CrearUnidades(View,LoginRequiredMixin):
-    template_name = 'reactivos/crear_unidades.html'
-    groups_required=['Coordinador','Administrador']
-
-    def get(self, request, *args, **kwargs):
+def check_group_permission(groups_required):
+    def decorator(view_func):
+        @method_decorator(login_required)
+        def _wrapped_view(self, request, *args, **kwargs):
+            grupos_usuario = self.request.user.groups.all().values('name')
+            is_of_group = False
             
-        grupos_usuario = request.user.groups.all().values('name')
-        is_of_group = False
-        laboratorio = request.user.lab
+            for grupo in grupos_usuario:
+                for grupo_requerido in groups_required:
+                    if grupo['name'] == grupo_requerido:
+                        is_of_group = True
+                        break
+            
+            if is_of_group or self.request.user.is_superuser:
+                return view_func(self, request, *args, **kwargs)
+            else:
+                messages.error(request, 'No tiene permisos para acceder a esta vista')
+                return HttpResponseRedirect(reverse('reactivos:login'))
+
+        return _wrapped_view
+    return decorator
+
+class CrearUnidades(LoginRequiredMixin, View):
+    template_name = 'reactivos/crear_unidades.html'
+
+    @check_group_permission(groups_required=['Coordinador', 'Administrador'])
+    def get(self, request, *args, **kwargs):
+        laboratorio = self.request.user.lab
         context = {
             'usuarios': User.objects.all(),
             'laboratorio': laboratorio,
-            'username': request.user.username,
-            }
-        for grupo in grupos_usuario:
-            
-            for grupo_requerido in self.groups_required:
-                if grupo['name'] == grupo_requerido:
-                    is_of_group = True
-                    break
-                    
-        if is_of_group:
-                                  
-            return render(request, self.template_name, context)
-        else:
+            'username': self.request.user.username,
+        }
+        return render(request, self.template_name, context)
 
-            messages.error(request,'No tiene permisos para acceder a la vista Crear Unidades')
-            return HttpResponseRedirect(reverse('reactivos:login'))   
-
+    @check_group_permission(groups_required=['Coordinador', 'Administrador'])
     def post(self, request, *args, **kwargs):
         name = request.POST.get('name')
 
@@ -155,6 +160,59 @@ class CrearUnidades(View,LoginRequiredMixin):
 
         context = {'unidad_id': unidad.id, 'unidad_name': unidad.name}
         return HttpResponse('Operación exitosa', status=200)
+
+# class CrearUnidades(View,LoginRequiredMixin):
+#     template_name = 'reactivos/crear_unidades.html'
+#     groups_required=['Coordinador','Administrador']
+
+#     def get(self, request, *args, **kwargs):
+            
+#         grupos_usuario = request.user.groups.all().values('name')
+#         is_of_group = False
+#         laboratorio = request.user.lab
+#         context = {
+#             'usuarios': User.objects.all(),
+#             'laboratorio': laboratorio,
+#             'username': request.user.username,
+#             }
+        
+#         for grupo in grupos_usuario:
+            
+#             for grupo_requerido in self.groups_required:
+#                 if grupo['name'] == grupo_requerido:
+#                     is_of_group = True
+#                     break
+
+                    
+#         if is_of_group or request.user.is_superuser:
+                                  
+#             return render(request, self.template_name, context)
+#         else:
+
+#             messages.error(request,'No tiene permisos para acceder a la vista Crear Unidades')
+#             return HttpResponseRedirect(reverse('reactivos:login'))   
+
+#     def post(self, request, *args, **kwargs):
+#         name = request.POST.get('name')
+
+#         if Unidades.objects.filter(name=name).exists():
+#             unidad = Unidades.objects.get(name=name)
+#             unidad_id = unidad.id
+#             messages.error(
+#                 request, 'Ya existe una unidad con nombre ' + name + ' id: ' + str(unidad_id))
+#             return HttpResponse('Error al insertar en la base de datos', status=400)
+
+#         unidad = Unidades.objects.create(
+#             name=name,
+#             user=request.user,
+#         )
+#         unidad_id = unidad.id
+
+#         messages.success(
+#             request, 'Se ha creado exitosamente la unidad con nombre ' + name + ' id: ' + str(unidad_id))
+
+#         context = {'unidad_id': unidad.id, 'unidad_name': unidad.name}
+#         return HttpResponse('Operación exitosa', status=200)
 
 
 # La vista "crear_estado" se encarga de gestionar la creación de estados en la db. Esta vista toma los datos del formulario 
@@ -2081,94 +2139,6 @@ def estandarizar_nombre(nombre):
     return nombre
 
 
-
-# class RedirectURLMixin:
-#     next_page = None
-#     redirect_field_name = REDIRECT_FIELD_NAME
-#     success_url_allowed_hosts = set()
-
-#     def get_success_url(self):
-#         return self.get_redirect_url() or self.get_default_redirect_url()
-
-#     def get_redirect_url(self):
-#         """Return the user-originating redirect URL if it's safe."""
-#         redirect_to = self.request.POST.get(
-#             self.redirect_field_name, self.request.GET.get(self.redirect_field_name)
-#         )
-#         url_is_safe = url_has_allowed_host_and_scheme(
-#             url=redirect_to,
-#             allowed_hosts=self.get_success_url_allowed_hosts(),
-#             require_https=self.request.is_secure(),
-#         )
-#         return redirect_to if url_is_safe else ""
-
-#     def get_success_url_allowed_hosts(self):
-#         return {self.request.get_host(), *self.success_url_allowed_hosts}
-
-#     def get_default_redirect_url(self):
-#         """Return the default redirect URL."""
-#         if self.next_page:
-#             return resolve_url(self.next_page)
-#         raise ImproperlyConfigured("No URL to redirect to. Provide a next_page.")
-
-# # Vista para el Login
-# class LoginView(RedirectURLMixin, FormView):
-#     """
-#     Display the login form and handle the login action.
-#     """
-
-#     form_class = AuthenticationForm
-#     authentication_form = None
-#     template_name = "registration/login.html"
-#     redirect_authenticated_user = False
-#     extra_context = None
-
-#     @method_decorator(sensitive_post_parameters())
-#     @method_decorator(csrf_protect)
-#     @method_decorator(never_cache)
-#     def dispatch(self, request, *args, **kwargs):
-#         if self.redirect_authenticated_user and self.request.user.is_authenticated:
-#             redirect_to = self.get_success_url()
-#             if redirect_to == self.request.path:
-#                 raise ValueError(
-#                     "Redirection loop for authenticated user detected. Check that "
-#                     "your LOGIN_REDIRECT_URL doesn't point to a login page."
-#                 )
-#             return HttpResponseRedirect(redirect_to)
-#         return super().dispatch(request, *args, **kwargs)
-
-#     def get_default_redirect_url(self):
-#         """Return the default redirect URL."""
-#         if self.next_page:
-#             return resolve_url(self.next_page)
-#         else:
-#             return resolve_url(settings.LOGIN_REDIRECT_URL)
-
-#     def get_form_class(self):
-#         return self.authentication_form or self.form_class
-
-#     def get_form_kwargs(self):
-#         kwargs = super().get_form_kwargs()
-#         kwargs["request"] = self.request
-#         return kwargs
-
-#     def form_valid(self, form):
-#         """Security check complete. Log the user in."""
-#         auth_login(self.request, form.get_user())
-#         return HttpResponseRedirect(self.get_success_url())
-
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         current_site = get_current_site(self.request)
-#         context.update(
-#             {
-#                 self.redirect_field_name: self.get_redirect_url(),
-#                 "site": current_site,
-#                 "site_name": current_site.name,
-#                 **(self.extra_context or {}),
-#             }
-#         )
-#         return context
 
 
 
