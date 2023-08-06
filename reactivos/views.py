@@ -70,6 +70,30 @@ from django.utils.dateparse import parse_date
 from datetime import datetime, timedelta
 from .forms import ReCaptchaForm,CustomPasswordResetForm
 
+#Esta vista valida los grupos de usuarios a los que pertenece la persona que está tratando de acceder
+#a la vista
+def check_group_permission(groups_required):
+    def decorator(view_func):
+        @method_decorator(login_required)
+        def _wrapped_view(self, request, *args, **kwargs):
+            grupos_usuario = self.request.user.groups.all().values('name')
+            is_of_group = False
+            
+            for grupo in grupos_usuario:
+                for grupo_requerido in groups_required:
+                    if grupo['name'] == grupo_requerido:
+                        is_of_group = True
+                        break
+            
+            if is_of_group or self.request.user.is_superuser:
+                return view_func(self, request, *args, **kwargs)
+            else:
+                messages.error(request, 'No tiene permisos para acceder a esta vista')
+                return HttpResponseRedirect(reverse('reactivos:login'))
+
+        return _wrapped_view
+    return decorator
+
 # Vista para la visualización del web template
 @login_required
 def webtemplate(request):
@@ -103,27 +127,6 @@ class Index(LoginRequiredMixin, View):  # Utiliza LoginRequiredMixin como clase 
 # ya existe en la base de datos antes de crearla. Si la unidad es única, se crea un nuevo registro en la tabla 
 # correspondiente utilizando el modelo "Unidades". Si la unidad ya existe, se muestra un mensaje de error o se toma la 
 # acción apropiada según los requisitos del sistema.
-def check_group_permission(groups_required):
-    def decorator(view_func):
-        @method_decorator(login_required)
-        def _wrapped_view(self, request, *args, **kwargs):
-            grupos_usuario = self.request.user.groups.all().values('name')
-            is_of_group = False
-            
-            for grupo in grupos_usuario:
-                for grupo_requerido in groups_required:
-                    if grupo['name'] == grupo_requerido:
-                        is_of_group = True
-                        break
-            
-            if is_of_group or self.request.user.is_superuser:
-                return view_func(self, request, *args, **kwargs)
-            else:
-                messages.error(request, 'No tiene permisos para acceder a esta vista')
-                return HttpResponseRedirect(reverse('reactivos:login'))
-
-        return _wrapped_view
-    return decorator
 
 class CrearUnidades(LoginRequiredMixin, View):
     template_name = 'reactivos/crear_unidades.html'
@@ -134,7 +137,7 @@ class CrearUnidades(LoginRequiredMixin, View):
         context = {
             'usuarios': User.objects.all(),
             'laboratorio': laboratorio,
-            'username': self.request.user.username,
+            
         }
         return render(request, self.template_name, context)
 
@@ -151,7 +154,8 @@ class CrearUnidades(LoginRequiredMixin, View):
 
         unidad = Unidades.objects.create(
             name=name,
-            user=request.user,
+            created_by=request.user,
+            last_updated_by=request.user,
         )
         unidad_id = unidad.id
 
@@ -160,59 +164,6 @@ class CrearUnidades(LoginRequiredMixin, View):
 
         context = {'unidad_id': unidad.id, 'unidad_name': unidad.name}
         return HttpResponse('Operación exitosa', status=200)
-
-# class CrearUnidades(View,LoginRequiredMixin):
-#     template_name = 'reactivos/crear_unidades.html'
-#     groups_required=['Coordinador','Administrador']
-
-#     def get(self, request, *args, **kwargs):
-            
-#         grupos_usuario = request.user.groups.all().values('name')
-#         is_of_group = False
-#         laboratorio = request.user.lab
-#         context = {
-#             'usuarios': User.objects.all(),
-#             'laboratorio': laboratorio,
-#             'username': request.user.username,
-#             }
-        
-#         for grupo in grupos_usuario:
-            
-#             for grupo_requerido in self.groups_required:
-#                 if grupo['name'] == grupo_requerido:
-#                     is_of_group = True
-#                     break
-
-                    
-#         if is_of_group or request.user.is_superuser:
-                                  
-#             return render(request, self.template_name, context)
-#         else:
-
-#             messages.error(request,'No tiene permisos para acceder a la vista Crear Unidades')
-#             return HttpResponseRedirect(reverse('reactivos:login'))   
-
-#     def post(self, request, *args, **kwargs):
-#         name = request.POST.get('name')
-
-#         if Unidades.objects.filter(name=name).exists():
-#             unidad = Unidades.objects.get(name=name)
-#             unidad_id = unidad.id
-#             messages.error(
-#                 request, 'Ya existe una unidad con nombre ' + name + ' id: ' + str(unidad_id))
-#             return HttpResponse('Error al insertar en la base de datos', status=400)
-
-#         unidad = Unidades.objects.create(
-#             name=name,
-#             user=request.user,
-#         )
-#         unidad_id = unidad.id
-
-#         messages.success(
-#             request, 'Se ha creado exitosamente la unidad con nombre ' + name + ' id: ' + str(unidad_id))
-
-#         context = {'unidad_id': unidad.id, 'unidad_name': unidad.name}
-#         return HttpResponse('Operación exitosa', status=200)
 
 
 # La vista "crear_estado" se encarga de gestionar la creación de estados en la db. Esta vista toma los datos del formulario 
@@ -239,7 +190,8 @@ def crear_estado(request):
         estado = Estados.objects.create(
 
             name=name,
-            user=request.user,  # Asignar el usuario actualmente autenticado
+            created_by=request.user,  # Asignar el usuario actualmente autenticado
+            last_updated_by=request.user,  # Asignar el usuario actualmente autenticado            
 
         )
         estado_id = estado.id
@@ -284,7 +236,8 @@ def crear_respel(request):
 
             name=name,
             description=description,
-            user=request.user,  # Asignar el usuario actualmente autenticado
+            created_by=request.user,  # Asignar el usuario actualmente autenticado
+            last_updated_by=request.user,  # Asignar el usuario actualmente autenticado
 
         )
         respel_id = respel.id
@@ -327,7 +280,8 @@ def crear_sga(request):
 
             name=name,
             description=description,
-            user=request.user,  # Asignar el usuario actualmente autenticado
+            created_by=request.user,  # Asignar el usuario actualmente autenticado
+            last_updated_by=request.user,  # Asignar el usuario actualmente autenticado
 
         )
         sga_id = sga.id
@@ -399,8 +353,8 @@ def crear_responsable(request):
             name=name,
             phone=phone,
             mail=mail,
-            user=request.user,  # Asignar el usuario actualmente autenticado
-
+            created_by=request.user,  # Asignar el usuario actualmente autenticado
+            last_updated_by=request.user,  # Asignar el usuario actualmente autenticado
         )
         messages.success(
             request, 'Se ha creado exitosamente el siguiente responsable cc: '+cc+' nombre: '+name)
@@ -440,7 +394,9 @@ def crear_marca(request):
         marca = Marcas.objects.create(
 
             name=name,
-            user=request.user,  # Asignar el usuario actualmente autenticado
+            created_by=request.user,  # Asignar el usuario actualmente autenticado
+            last_updated_by=request.user,  # Asignar el usuario actualmente autenticado
+            
 
         )
         marca_id = marca.id
@@ -481,7 +437,8 @@ def crear_facultad(request):
         facultad = Facultades.objects.create(
 
             name=name,
-            user=request.user,  # Asignar el usuario actualmente autenticado
+            created_by=request.user,  # Asignar el usuario actualmente autenticado
+            last_updated_by=request.user,  # Asignar el usuario actualmente autenticado
 
         )
         facultad_id = facultad.id
@@ -526,7 +483,8 @@ def crear_ubicacion(request):
         asignatura = Ubicaciones.objects.create(
             name=name,
             facultad=facultad,
-            user=request.user,  # Asignar el usuario actualmente autenticado
+            created_by=request.user,  # Asignar el usuario actualmente autenticado
+            last_updated_by=request.user,  # Asignar el usuario actualmente autenticado
         )
         
         messages.success(request, f'Se ha creado exitosamente en la facultad {facultad}, la asignatura/ubicación con nombre: {name}')
@@ -564,7 +522,8 @@ def crear_destino(request):
         destino = Destinos.objects.create(
 
             name=name,
-            user=request.user,  # Asignar el usuario actualmente autenticado
+            created_by=request.user,  # Asignar el usuario actualmente autenticado
+            last_updated_by=request.user,  # Asignar el usuario actualmente autenticado
 
         )
         destino_id = destino.id
@@ -605,7 +564,8 @@ def crear_laboratorio(request):
         laboratorio = Laboratorios.objects.create(
 
             name=name,
-            user=request.user,  # Asignar el usuario actualmente autenticado
+            created_by=request.user,  # Asignar el usuario actualmente autenticado
+            last_updated_by=request.user,  # Asignar el usuario actualmente autenticado
 
         )
         laboratorio_id = laboratorio.id
@@ -668,7 +628,8 @@ def crear_walmacen(request):
             name=name,
             description=description,
             lab=lab,
-            user=request.user,  # Asignar el usuario actualmente autenticado
+            created_by=request.user,  # Asignar el usuario actualmente autenticado
+            last_updated_by=request.user,  # Asignar el usuario actualmente autenticado
         )
 
         wubicacion_id = wubicaciones.id
@@ -771,7 +732,8 @@ def crear_reactivo(request):
             state=state,
             sga=sga,
             respel=respel,
-            user=request.user,  # Asignar el usuario actualmente autenticado
+            created_by=request.user,  # Asignar el usuario actualmente autenticado
+            last_updated_by=request.user,  # Asignar el usuario actualmente autenticado
         )
         
         messages.success(request, 'Se ha creado exitosamente el reactivo: '+name)
@@ -955,6 +917,7 @@ def registrar_entrada(request):
                         minstock=0
                     inventario_existente.minstock = minstock
                     inventario_existente.edate = edate
+                    inventario_existente.last_updated_by = request.user
                     inventario_existente.save()
                 # Si el reactivo ya existe y NO está activo(cantidad00), poner is_active=True y sumar el peso obtenido del formulario al peso existente    
                 else:
@@ -968,6 +931,8 @@ def registrar_entrada(request):
                         minstock=0
                     inventario_existente.minstock = minstock
                     inventario_existente.edate = edate
+                    inventario_existente.last_updated_by = request.user
+
                     inventario_existente.save()
             else:
                 # Si el reactivo no existe, crear un nuevo registro en la tabla de inventarios
@@ -1002,7 +967,8 @@ def registrar_entrada(request):
                     wlocation=wlocation,
                     minstock=minstock,
                     edate=edate,
-                    user=request.user,  # Asignar el usuario actualmente autenticado
+                    created_by=request.user,  # Asignar el usuario actualmente autenticado
+                    last_updated_by=request.user,  # Asignar el usuario actualmente autenticado
                 
                 )
 
@@ -1036,7 +1002,8 @@ def registrar_entrada(request):
                 price=price,
                 destination=destination,
                 lab=lab,
-                user=request.user,  # Asignar el usuario actualmente autenticado
+                created_by=request.user,  # Asignar el usuario actualmente autenticado
+                last_updated_by=request.user,  # Asignar el usuario actualmente autenticado
             )
 
             messages.success(request, 'Se ha registrado de manera exitosa el ingreso del insumo: ' +
@@ -1178,11 +1145,13 @@ def registrar_salida(request):
                 #Verificar si la cantidad actual sea mayor o igual a cantidad registrada
                 if inventario_existente.weight>=weight:
                     inventario_existente.weight -= int(weight)
+                    inventario_existente.last_updated_by = request.user
                     inventario_existente.save()
                     #Verificación después de restar en la tabla llegue a cero y ponga en warning la alerta que 
                     # posteriormente se enviará al usuario informando
                     if inventario_existente.weight == 0:
                         inventario_existente.is_active = False  # Asignar False a la columna is_active
+                        inventario_existente.last_updated_by = request.user
                         inventario_existente.save()
                         warning=", pero el inventario actual ha llegado a 0. Favor informar al coordinador de laboratorio."
                     laboratorio_quimica = Laboratorios.objects.get(name="LABORATORIO DE QUIMICA")
@@ -1220,7 +1189,8 @@ def registrar_salida(request):
                 observations=observations,
                 destination=destination,
                 lab=lab,
-                user=request.user,  # Asignar el usuario actualmente autenticado
+                created_by=request.user,  # Asignar el usuario actualmente autenticado
+                last_updated_by=request.user,  # Asignar el usuario actualmente autenticado
             )
 
             messages.success(request, 'Se ha registrado de manera exitosa la salida del insumo del insumo: ' +
@@ -1472,7 +1442,50 @@ class NamesTrademarksAndReferencesByLabAPI(LoginRequiredMixin,View):
 
         return JsonResponse(names_trademarks_and_references_list, safe=False)
 
+# La vista "crear_unidades" se encarga de gestionar la creación de unidades. Esta vista toma los datos del formulario 
+# existente en el template "crear_unidades.html" y realiza las operaciones necesarias en la base de datos utilizando 
+# el modelo "Unidades". El objetivo es garantizar la unicidad de los registros, lo que implica verificar si la unidad
+# ya existe en la base de datos antes de crearla. Si la unidad es única, se crea un nuevo registro en la tabla 
+# correspondiente utilizando el modelo "Unidades". Si la unidad ya existe, se muestra un mensaje de error o se toma la 
+# acción apropiada según los requisitos del sistema.
 
+class CrearRoles(LoginRequiredMixin, View):
+    template_name = 'reactivos/crear_roles.html'
+
+    @check_group_permission(groups_required=['SUPERUSUARIO'])
+    def get(self, request, *args, **kwargs):
+        
+        context = {
+            'usuarios': User.objects.all(),
+            'laboratorio': self.request.user.lab,
+            
+        }
+        return render(request, self.template_name, context)
+
+    @check_group_permission(groups_required=['SUPERUSUARIO'])
+    def post(self, request, *args, **kwargs):
+        name = request.POST.get('name')
+        name=estandarizar_nombre(name)
+
+        if Rol.objects.filter(name=name).exists():
+            rol = Rol.objects.get(name=name)
+            rol_id = rol.id
+            messages.error(
+                request, 'Ya existe el rol con nombre ' + name + ' id: ' + str(rol_id))
+            return HttpResponse('Error al insertar en la base de datos', status=400)
+
+        rol = Rol.objects.create(
+            name=name,
+            user_create=request.user,
+            last_updated_by=request.user,
+        )
+        rol_id = rol.id
+
+        messages.success(
+            request, 'Se ha creado exitosamente el rol con nombre ' + name + ' id: ' + str(rol_id))
+
+        context = {'rol_id': rol.id, 'rol_name': rol.name}
+        return HttpResponse('Operación exitosa', status=200)
     
 # Devuelve valores de trademark y reference para ser insertados los select correspondientes en el template Inventarios al modificar 
 # name de reactivo

@@ -113,6 +113,11 @@
             <div class="col-lg-4 col-md-6 mb-3">
                 <a href="/password_reset/" target="_blank" class="btn btn-primary btn-block">Olvidó su contraseña  </a>
             </div>
+            {% if request.user.is_superuser %}
+            <div class="col-lg-4 col-md-6 mb-3">
+                <a href="/roles/crear/" target="_blank" class="btn btn-primary btn-block">Crear Roles</a>
+            </div>
+            {% endif %}
         </div>
     </div>
 

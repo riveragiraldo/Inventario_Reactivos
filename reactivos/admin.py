@@ -9,81 +9,90 @@ from .forms import CustomAuthenticationForm
 from django.contrib.auth.models import Group, Permission
 
 # Inclusión de creación de nuevos permisos en el admin de Dajango
-admin.site.register(Permission)
+
+
+@admin.register(Permission)
+class Permisosadmin(admin.ModelAdmin):
+    list_display=('id','name','content_type', 'codename')
+    ordering=('id',)
+
 
 # Inclusión de creación de nuevos Roles en el admin de Dajango
-admin.site.register(Rol)
+@admin.register(Rol)
+class UnidadesRolesmin(admin.ModelAdmin):
+    list_display=('id','name','date_created', 'user_create','last_update','last_updated_by',)
+    ordering=('id',)
 
 # Inclusión de el modelo UNIDADES en la consola de administración de Django
 @admin.register(Unidades)
 class Unidadesadmin(admin.ModelAdmin):
-    list_display=('id','name','fecha_registro', 'user','ultima_actualizacion','last_updated_by',)
+    list_display=('id','name','created_by', 'date_create','last_update','last_updated_by',)
     ordering=('id',)
 
 # Inclusión de el modelo MARCAS en la consola de administración de Django  
 @admin.register(Marcas)
 class Marcasadmin(admin.ModelAdmin):
-    list_display=('id','name','fecha_registro', 'user','ultima_actualizacion','last_updated_by',)
+    list_display=('id','name','created_by', 'date_create','last_update','last_updated_by',)
     ordering=('id',)
 
 # Inclusión de el modelo DESTINOS en la consola de administración de Django    
 @admin.register(Destinos)
 class Destinoadmin(admin.ModelAdmin):
-    list_display=('id','name','fecha_registro', 'user','ultima_actualizacion','last_updated_by',)
+    list_display=('id','name','created_by', 'date_create','last_update','last_updated_by',)
     ordering=('id',)
 
 # Inclusión de el modelo ESTADOS en la consola de administración de Django
 @admin.register(Estados)
 class Estadoadmin(admin.ModelAdmin):
-    list_display=('id','name','fecha_registro', 'user','ultima_actualizacion','last_updated_by',)
+    list_display=('id','name','created_by', 'date_create','last_update','last_updated_by',)
     ordering=('id',)
 
 # Inclusión de el modelo UBICACIONES en la consola de administración de Django
 @admin.register(Ubicaciones)
 class Ubicacionadmin(admin.ModelAdmin):
-    list_display=('id','name','facultad','fecha_registro', 'user','ultima_actualizacion','last_updated_by',)
+    list_display=('id','name','facultad','created_by', 'date_create','last_update','last_updated_by',)
     ordering=('id',)
 
 # Inclusión de el modelo FACULTADES en la consola de administración de Django
 @admin.register(Facultades)
 class Facultadadmin(admin.ModelAdmin):
-    list_display=('id','name','fecha_registro', 'user','ultima_actualizacion','last_updated_by',)
+    list_display=('id','name','created_by', 'date_create','last_update','last_updated_by')
     ordering=('id',)
 
 # Inclusión de el modelo CLASIFICACIÓN RESPEL en la consola de administración de Django
 @admin.register(RespelC)
 class Respeladmin(admin.ModelAdmin):
-    list_display=('id','name','description','fecha_registro', 'user','ultima_actualizacion','last_updated_by',)
+    list_display=('id','name','description','created_by', 'date_create','last_update','last_updated_by',)
     ordering=('id',)
 
 # Inclusión de el modelo CLASIFICACIÓN SGA en la consola de administración de Django
 @admin.register(SGA)
 class SGIadmin(admin.ModelAdmin):
-    list_display=('id','name','description','fecha_registro', 'user','ultima_actualizacion','last_updated_by',)
+    list_display=('id','name','description','created_by', 'date_create','last_update','last_updated_by',)
     ordering=('id',)
 
 # Inclusión de el modelo LABORATORIOS en la consola de administración de Django
 @admin.register(Laboratorios)
 class Laboratorioadmin(admin.ModelAdmin):
-    list_display=('id','name','fecha_registro', 'user','ultima_actualizacion','last_updated_by',)
+    list_display=('id','name','created_by', 'date_create','last_update','last_updated_by',)
     ordering=('id',)
 
 # Inclusión de el modelo RESPONSABLES en la consola de administración de Django
 @admin.register(Responsables)
 class Responsableadmin(admin.ModelAdmin):
-    list_display=('id','name','mail','phone','is_active','cc','fecha_registro', 'user','ultima_actualizacion','last_updated_by',)
+    list_display=('id','name','mail','phone','is_active','cc','created_by', 'date_create','last_update','last_updated_by',)
     ordering=('id',)
 
 # Inclusión de el modelo ALMACENAMIENTO en la consola de administración de Django
 @admin.register(Almacenamiento)
 class Almacenamientoadmin(admin.ModelAdmin):
-    list_display=('id','lab','name','description','fecha_registro', 'user','ultima_actualizacion','last_updated_by',)
+    list_display=('id','lab','name','description','created_by', 'date_create','last_update','last_updated_by',)
     ordering=('id',)
 
 # Inclusión de el modelo REACTIVOS en la consola de administración de Django
 @admin.register(Reactivos)
 class Reactivosadmin(admin.ModelAdmin):
-    list_display=('id','code','cas','name','state','unit','respel','sga','fecha_registro','fecha_registro', 'user','ultima_actualizacion','last_updated_by',)
+    list_display=('id','code','cas','name','state','unit','respel','sga','created_by', 'date_create','last_update','last_updated_by',)
     list_filter=('code','name',)
     search_fields=('code','name',)
     list_per_page=10
@@ -92,37 +101,29 @@ class Reactivosadmin(admin.ModelAdmin):
 # Inclusión de el modelo ENTRADAS en la consola de administración de Django
 @admin.register(Entradas)
 class Entradaadmin(admin.ModelAdmin):
-    list_display=('id','date','name','trademark','reference','weight','order','manager','observations','location','price','nproject','destination','lab','observations', 'user','ultima_actualizacion','last_updated_by',)
-    list_filter=('date','name','lab',)
-    search_fields=('date','name','lab',)
+    list_display=('id','name','trademark','reference','weight','order','manager','observations','location','price','nproject','destination','lab','observations', 'created_by', 'date_create','last_update','last_updated_by',)
+    list_filter=('date_create','name','lab',)
+    search_fields=('date_create','name','lab',)
     list_per_page=10
     ordering=('id',)
 
 # Inclusión de el modelo SALIDAS en la consola de administración de Django
 @admin.register(Salidas)
 class Salidaadmin(admin.ModelAdmin):
-    list_display=('id','date','name','trademark','reference','weight','destination','manager','observations','location','lab', 'user','ultima_actualizacion','last_updated_by',)
-    list_filter=('date','name','lab')
-    search_fields=('date','name','lab')
+    list_display=('id','name','trademark','reference','weight','destination','manager','observations','location','lab','created_by', 'date_create','last_update','last_updated_by',)
+    list_filter=('name','lab')
+    search_fields=('name','lab')
     list_per_page=10
     ordering=('id',)
 
 # Inclusión de el modelo INVENTARIOS en la consola de administración de Django
 @admin.register(Inventarios)
 class Inventarioadmin(admin.ModelAdmin):
-    list_display=('id','name','trademark','weight','reference','lab','fecha_registro','wlocation','minstock','edate','is_active', 'user','ultima_actualizacion','last_updated_by',)
+    list_display=('id','name','trademark','weight','reference','lab','wlocation','minstock','edate','is_active','created_by', 'date_create','last_update','last_updated_by',)
     list_filter=('trademark','name','reference','lab',)
     search_fields=('trademark','name','reference','lab',)
     list_per_page=10
     ordering=('id',)
-
-
-@admin.register(PaginaInicio)
-class PaginaInicioAdmin(admin.ModelAdmin):
-    # Personaliza la visualización en el panel de administración
-    list_display = ['__str__']
-    actions = None
-    change_form_template = 'index.html'
 
 
 
