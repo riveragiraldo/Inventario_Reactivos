@@ -7,7 +7,7 @@ from .models import *
 from django.db.models import Q
 from django.contrib import messages
 from decimal import Decimal
-from django.views.generic import ListView, View
+from django.views.generic import ListView, View, CreateView
 from django.db.models import F
 from django.views import View
 import json
@@ -68,7 +68,7 @@ from django.views.generic.base import TemplateView
 from django.views.generic.edit import FormView
 from django.utils.dateparse import parse_date
 from datetime import datetime, timedelta
-from .forms import ReCaptchaForm,CustomPasswordResetForm
+from .forms import ReCaptchaForm,CustomPasswordResetForm, FormularioUsuario
 
 #Esta vista valida los grupos de usuarios a los que pertenece la persona que está tratando de acceder
 #a la vista
@@ -1371,6 +1371,59 @@ class InventarioListView(LoginRequiredMixin,ListView):
                 queryset = queryset.order_by('edate')
 
         return queryset
+    
+
+
+#Listado Usuarios
+class ListadoUsuarios(LoginRequiredMixin, ListView):
+    model=User
+    template_name='usuarios/listar_usuarios.html'
+
+    def get_queryset(self):
+        return self.model.objects.filter(is_active=True)
+
+
+#Crear Usuarios
+
+class CrearUsuario(LoginRequiredMixin,CreateView):
+    model=User
+    form_class=FormularioUsuario
+    template_name='usuarios/crear_usuario.html'
+    success_url='reactivos:index'
+
+
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['laboratorio'] = self.request.user.lab
+        context['usuarios'] = User.objects.all()
+        context['roles'] = Rol.objects.all()  
+        context['laboratorios'] = Laboratorios.objects.all()  
+        return context
+    
+    def form_valid(self, form):
+        # Agrega los campos adicionales al usuario antes de guardarlo en la base de datos
+        user = form.save(commit=False)
+        user.rol = form.cleaned_data['rol']
+        user.lab = form.cleaned_data['lab']
+        user.id_number = form.cleaned_data['id_number']
+        user.phone_number = form.cleaned_data['phone_number']
+        
+        # Guarda el usuario en la base de datos
+        user.save()
+        
+        # Establece el objeto creado para que se pueda usar en la redirección
+        self.object = user
+        
+        # Agrega un mensaje de éxito
+        usuario=user.first_name+' '+user.last_name
+        correo=user.email
+       
+        messages.success(self.request, "Se ha creado exitosamente el usuario "+usuario+" y se a enviado un correo electrónico de confirmación al correo "+correo+".")
+        
+        # Redirige a la página de éxito
+        return HttpResponse('Operación exitosa', status=200)
+
 
 #-------------------------------------------------------------------------------------------------------------------------------------
 # Vista para la creación del detalle del reactivo, hasta el momento solo tiene contexto el reactivo, pero se le puede poner lo necesario

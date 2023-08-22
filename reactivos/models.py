@@ -12,9 +12,11 @@ class User(AbstractUser):
     email = models.EmailField('Correo Electrónico', unique=True)
     lab = models.ForeignKey('reactivos.Laboratorios', on_delete=models.CASCADE, related_name='lab_users', verbose_name='laboratorio', null=True)
     rol = models.ForeignKey('reactivos.Rol', on_delete=models.CASCADE, blank=True, related_name='rol_user', verbose_name='Rol',null=True)
-    fecha_registro = models.DateTimeField(auto_now_add=True,verbose_name='Fecha registro',)
-    ultima_actualizacion = models.DateTimeField(auto_now=True,verbose_name='Última Actualización',)
-    
+    last_update = models.DateTimeField(auto_now=True,verbose_name='Última Actualización',)
+    user_create = models.ForeignKey('reactivos.User', on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Creado por', related_name='user_User')
+    last_updated_by = models.ForeignKey('reactivos.User', on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Actualizado por',related_name='updateby_User',)
+    id_number=models.BigIntegerField('Número de identificación', unique=True,null=True, blank=True,)
+    phone_number=models.CharField(max_length=15, verbose_name="Teléfono", unique=True,null=True, blank=True,)
 
    
     USERNAME_FIELD = 'email'

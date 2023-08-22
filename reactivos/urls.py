@@ -70,6 +70,8 @@ urlpatterns = [
         PasswordResetCompleteView.as_view(),
         name="password_reset_complete",
     ),
+    path('usuarios/listado/',login_required(ListadoUsuarios.as_view()),name='listado_usuarios'),
+    path('usuarios/crear/',login_required(CrearUsuario.as_view()),name='crear_usuarios'),
 
 ]
 

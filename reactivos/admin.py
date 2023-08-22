@@ -129,7 +129,7 @@ class Inventarioadmin(admin.ModelAdmin):
 
 class UserAdmin(BaseUserAdmin):
     # Especifica los campos a mostrar en la lista de usuarios en el admin
-    list_display = ('id','first_name', 'last_name','rol','email', 'lab','is_active',)
+    list_display = ('id','first_name', 'last_name','rol','email', 'lab','is_active','user_create', 'date_joined','last_update','last_updated_by','id_number','phone_number',)
     list_editable = ['first_name', 'last_name','email','lab', 'rol',]
     ordering=('id',)
 

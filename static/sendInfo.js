@@ -193,7 +193,9 @@ function obtenerDatosFormulario() {
             campo.id === 'wf' ||
             campo.id === 'minstock' ||
             campo.id === 'stock' ||
-            campo.id === 'prefix'
+            campo.id === 'prefix'||
+            campo.id === 'password1' ||
+            campo.id === 'password2'
 
         ) {
 
