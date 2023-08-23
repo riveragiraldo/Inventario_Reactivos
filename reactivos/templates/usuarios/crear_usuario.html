@@ -18,12 +18,18 @@
   <!-- Agrega el enlace al CDN de spin.js antes de tu script -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/spin.js/2.3.2/spin.min.js"></script>
 
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
   {% load static %}
 
   <link rel="stylesheet" href="{% static 'stylesShowSpinner.css' %}">
   <!-- Estilos para el letrero de la mitad del spinner -->
   <script src="{% static 'sendInfo.js' %}" defer></script>
   <!-- Llama Script al final genera alerta informativa con los datos que se va enviar al servidor y acepta-->
+  <script src="{% static 'validatePass.js' %}" defer></script>
+  <!-- Llama Script al final que verifica los requisitos mínimos del password además de la igualdad de estos-->
+  <script src="{% static 'showHidePass.js' %}" defer></script>
+  <!-- Llama Script al final que muestra u oculta el password en los campos correspondientes-->
 
   {% endblock %}
 
@@ -83,102 +89,37 @@
         </div>
 
         <div class="form-group">
-          <div id="password1-validation-msg" style="color: red;"></div>
           <label for="{{ form.password1.id_for_label }}" name="Contraseña:">Contraseña:</label>
-          {{ form.password1 }}
+          <div class="input-group">
+            {{ form.password1 }}
+            <div class="input-group-append">
+              <span class="input-group-text password-toggle">
+                <i class="fas fa-eye" title="Ver contraseña" style="cursor: pointer;"></i>
+              </span>
+            </div>
+          </div>
+          <div id="password1-validation-msg" class="validation-msg" style="color: red;"></div>
         </div>
-
-        <script>
-          document.addEventListener("DOMContentLoaded", function () {
-            const password1Input = document.getElementById("password1");
-            const password1ValidationMsg = document.getElementById("password1-validation-msg");
-            const password2Input = document.getElementById("password2");
-            const password2ValidationMsg = document.getElementById("password2-validation-msg");
-          
-            password1Input.addEventListener("blur", function () {
-              const password1Value = password1Input.value;
-              const password2Value = password2Input.value;
-              const passwordPattern = /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-          
-              if (!passwordPattern.test(password1Value)) {
-                password1ValidationMsg.textContent = "*La contraseña debe tener mínimo 8 caracteres,  al menos una mayúscula, un número, y un caracter especial";
-                password1Input.focus();
-              } else if (!password2Value || !passwordPattern.test(password2Value)) {
-                password2ValidationMsg.textContent = "Ingrese contraseña correctamente";
-                password2Input.focus();
-              } else if (password1Value !== password2Value) {
-                password1ValidationMsg.textContent = "Contraseñas no coinciden";
-                password2ValidationMsg.textContent = "Contraseñas no coinciden";
-              }else {
-                password1ValidationMsg.textContent = "";
-                password2ValidationMsg.textContent = "";
-              }
-            });
-          
-            password2Input.addEventListener("blur", function () {
-              const password2Value = password2Input.value;
-              const password1Value = password1Input.value;
-              const passwordPattern = /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-          
-              if (!passwordPattern.test(password2Value)) {
-                password2ValidationMsg.textContent = "*La contraseña debe tener mínimo 8 caracteres,  al menos una mayúscula, un número, y un caracter especial";
-                password2Input.focus();
-              } else if (!password1Value || !passwordPattern.test(password1Value)) {
-                password1ValidationMsg.textContent = "Ingrese contraseña correctamente";
-                password1Input.focus();
-              } else if (password1Value !== password2Value) {
-                password1ValidationMsg.textContent = "Contraseñas no coinciden";
-                password2ValidationMsg.textContent = "Contraseñas no coinciden";
-              } else {
-                password1ValidationMsg.textContent = "";
-                password2ValidationMsg.textContent = "";
-              }
-            });
-          
-            password2Input.addEventListener("input", function () {
-              const password1Value = password1Input.value;
-              const password2Value = password2Input.value;
-              const passwordPattern = /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-          
-              if (!password1Value || !passwordPattern.test(password1Value)) {
-                password1ValidationMsg.textContent = "Ingrese Contraseña";
-              } else if (password1Value !== password2Value) {
-                password1ValidationMsg.textContent = "Contraseñas no coinciden";
-                password2ValidationMsg.textContent = "Contraseñas no coinciden";
-              } else {
-                password1ValidationMsg.textContent = "";
-                password2ValidationMsg.textContent = "";
-              }
-            });
-          
-            password1Input.addEventListener("input", function () {
-              password1ValidationMsg.textContent = ""; // Borra el mensaje al empezar a escribir nuevamente
-              password2ValidationMsg.textContent = ""; // Borra el mensaje al empezar a escribir nuevamente
-            });
-          
-            password2Input.addEventListener("input", function () {
-              password1ValidationMsg.textContent = ""; // Borra el mensaje al empezar a escribir nuevamente
-              password2ValidationMsg.textContent = ""; // Borra el mensaje al empezar a escribir nuevamente
-            });
-          });
-          </script>
-          
-          
+        
         <div class="form-group">
-          <div id="password2-validation-msg" style="color: red;"></div>
-          <label for="{{ form.password2.id_for_label }}" name="Confirmación de contraseña:">Confirmación de
-            contraseña:</label>
-          {{ form.password2 }}
+          <label for="{{ form.password2.id_for_label }}" name="Confirmación de contraseña:">Confirmación de contraseña:</label>
+          <div class="input-group">
+            {{ form.password2 }}
+            <div class="input-group-append">
+              <span class="input-group-text password-toggle">
+                <i class="fas fa-eye" title="Ver confirmación de contraseña" style="cursor: pointer;"></i>
+              </span>
+            </div>
+          <div id="password2-validation-msg" class="validation-msg" style="color: red;"></div>
         </div>
+        
 
+          <br>
+          <div class="card-footer">
+            <a href='{% url "reactivos:listado_usuarios" %}' class="btn btn-danger">Cancelar</a>
+            <input type="button" value="Crear Usuario" class="btn btn-primary" id="open_confirm_in">
 
-
-        <br>
-        <div class="card-footer">
-          <a href='{% url "reactivos:listado_usuarios" %}' class="btn btn-danger">Cancelar</a>
-          <input type="button" value="Crear Usuario" class="btn btn-primary" id="open_confirm_in">
-
-        </div>
+          </div>
       </form>
     </div>
   </div>
@@ -220,6 +161,7 @@
   </script>
   {% endfor %}
   {% endif %}
+
 
   {% endblock %}
 </body>
