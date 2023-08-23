@@ -1401,8 +1401,32 @@ class CrearUsuario(LoginRequiredMixin,CreateView):
         context['laboratorios'] = Laboratorios.objects.all()  
         return context
     
+    
+    
     def form_valid(self, form):
+
+        def has_required_password_conditions(password):
+            # Mínimo 8 caracteres, al menos una mayúscula, un número y un carácter especial
+            password_pattern = r"^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$"
+            return re.match(password_pattern, password) is not None
+
+        # Validación personalizada para contraseñas
+        password1 = form.cleaned_data.get('password1')
+        password2 = form.cleaned_data.get('password2')
+        
+        if password1 != password2:
+            messages.error(self.request, "No se puedo crear el usuario porque las contraseñas no coinciden.")
+            return HttpResponse('Contraseña no cumple', status=400)
+
+        if not has_required_password_conditions(password1):
+            messages.error(self.request, "No se puedo crear el usuario porque la contraseña no satisface los requisitos de la política de contraseñas: Mínimo 8 caracteres, al menos una letra mayúscula, un número y un caracter especial")
+            
+            return HttpResponse('Contraseña no cumple', status=400)
+
+        
         # Agrega los campos adicionales al usuario antes de guardarlo en la base de datos
+
+
         user = form.save(commit=False)
         user.rol = form.cleaned_data['rol']
         user.lab = form.cleaned_data['lab']

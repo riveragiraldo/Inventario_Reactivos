@@ -17,7 +17,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.min.css">
   <!-- Agrega el enlace al CDN de spin.js antes de tu script -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/spin.js/2.3.2/spin.min.js"></script>
-
+    <!-- Agrega el enlace de estilos para ícono de ojo -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
   {% load static %}
@@ -147,6 +147,8 @@
         alertType = 'success';
       } else if (messageText.includes('Por favor seleccione') || messageText.includes('Ya existe') || messageText.includes('Solo se permiten registros ')) {
         alertType = 'warning';
+      }else if (messageText.includes('No se puedo crear el usuario') || messageText.includes('Contraseña no cumple')) {
+        alertType = 'error';
       }
 
       // Mostrar la notificación con SweetAlert2
