@@ -1,0 +1,30 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Confirmación de registro</title>
+    
+</head>
+<body>
+    
+    <p>Te damos la bienvenida al aplicativo Gestión de insumos químicos de la Universidad Nacional de Colombia sede Manizales y has sido registrado de manera exitosa con la siguiente información:</p>
+
+    <p>Nombres: {{ user.first_name }} {{ user.last_name }}</p>
+    <p>Número identificación: {{ user.id_number }}</p>
+    <p>Correo electrónico: {{ user.email }}</p>
+    <p>Nombre de usuario: {{ user.username }}</p>
+    <p>Teléfono: {{ user.phone_number }}</p>
+    <p>Laboratorio: {{ user.lab }}</p>
+    <p>Rol: {{ user.rol }}</p>
+    <p>Contraseña: [contraseña no mostrada por razones de seguridad]</p>
+
+    <p>Si deseas cambiar tu contraseña (es opcional, usa la que te suministraron en el momento del registro), puedes hacerlo en el siguiente enlace:</p>
+    <p><a href="{{ reset_url }}">Restablecer contraseña</a></p>
+
+    <p>Cordialmente,</p>
+    <p>Equipo de dirección de Laboratorios</p>
+    <p>Universidad Nacional de Colombia - Sede Manizales</p>
+    
+</body>
+</html>

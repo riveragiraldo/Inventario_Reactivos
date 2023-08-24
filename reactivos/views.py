@@ -1,5 +1,7 @@
 #Diferentes vistas y/o APIS que interactuan el front con back
 
+from plistlib import UID
+import secrets
 from django.shortcuts import render
 from django.shortcuts import get_object_or_404, redirect
 from django.http import JsonResponse, HttpResponseBadRequest, HttpResponse
@@ -38,8 +40,21 @@ import warnings
 from urllib.parse import urlparse, urlunparse
 
 from django.conf import settings
-
-# Avoid shadowing the login() and logout() views below.
+from django.contrib.auth.tokens import default_token_generator
+from django.contrib.sites.shortcuts import get_current_site
+from django.core.exceptions import ImproperlyConfigured, ValidationError
+from django.http import HttpResponseRedirect, QueryDict
+from django.shortcuts import resolve_url
+from django.urls import reverse_lazy
+from django.utils.decorators import method_decorator
+from django.utils.deprecation import RemovedInDjango50Warning
+from django.utils.http import url_has_allowed_host_and_scheme, urlsafe_base64_decode
+from django.utils.translation import gettext_lazy as _
+from django.views.decorators.cache import never_cache
+from django.views.decorators.csrf import csrf_protect
+from django.views.decorators.debug import sensitive_post_parameters
+from django.views.generic.base import TemplateView
+from django.views.generic.edit import FormView
 from django.contrib.auth import REDIRECT_FIELD_NAME, get_user_model
 from django.contrib.auth import login as auth_login
 from django.contrib.auth import logout as auth_logout
@@ -69,6 +84,16 @@ from django.views.generic.edit import FormView
 from django.utils.dateparse import parse_date
 from datetime import datetime, timedelta
 from .forms import ReCaptchaForm,CustomPasswordResetForm, FormularioUsuario
+from django.core.mail import send_mail
+from django.utils.translation import gettext as _
+from django.contrib.auth.tokens import default_token_generator
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
+import base64
+from urllib.parse import urlencode
+
+
+UserModel = get_user_model()
 
 #Esta vista valida los grupos de usuarios a los que pertenece la persona que está tratando de acceder
 #a la vista
@@ -1391,8 +1416,6 @@ class CrearUsuario(LoginRequiredMixin,CreateView):
     template_name='usuarios/crear_usuario.html'
     success_url='reactivos:index'
 
-
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['laboratorio'] = self.request.user.lab
@@ -1401,7 +1424,25 @@ class CrearUsuario(LoginRequiredMixin,CreateView):
         context['laboratorios'] = Laboratorios.objects.all()  
         return context
     
-    
+    def send_confirmation_email(self, user):
+        protocol = 'https' if self.request.is_secure() else 'http'
+        domain = self.request.get_host()
+        # Codificar el correo electrónico en base64 y agregarlo en la URL
+        encoded_email = base64.urlsafe_b64encode(user.email.encode()).decode()
+        reset_link = reverse('reactivos:password_reset') + '?' + urlencode({'email': encoded_email})
+        reset_url = f"{protocol}://{domain}{reset_link}"
+
+        subject = _('Bienvenido a la Gestión de Insumos Químicos')
+        context = {
+            'user': user,
+            'reset_url': reset_url,
+        }
+        message = render_to_string('registration/registro_exitoso_email.html', context)
+        plain_message = strip_tags(message)
+        from_email = None  # Agrega el correo electrónico desde el cual se enviará el mensaje
+        recipient_list = [user.email]
+
+        send_mail(subject, plain_message, from_email, recipient_list, fail_silently=False, html_message=message)           
     
     def form_valid(self, form):
 
@@ -1422,16 +1463,16 @@ class CrearUsuario(LoginRequiredMixin,CreateView):
             messages.error(self.request, "No se puedo crear el usuario porque la contraseña no satisface los requisitos de la política de contraseñas: Mínimo 8 caracteres, al menos una letra mayúscula, un número y un caracter especial")
             
             return HttpResponse('Contraseña no cumple', status=400)
-
         
         # Agrega los campos adicionales al usuario antes de guardarlo en la base de datos
-
 
         user = form.save(commit=False)
         user.rol = form.cleaned_data['rol']
         user.lab = form.cleaned_data['lab']
         user.id_number = form.cleaned_data['id_number']
         user.phone_number = form.cleaned_data['phone_number']
+        # Asignar el usuario actual al campo user_create
+        user.user_create = self.request.user
         
         # Guarda el usuario en la base de datos
         user.save()
@@ -1439,14 +1480,16 @@ class CrearUsuario(LoginRequiredMixin,CreateView):
         # Establece el objeto creado para que se pueda usar en la redirección
         self.object = user
         
-        # Agrega un mensaje de éxito
-        usuario=user.first_name+' '+user.last_name
-        correo=user.email
-       
-        messages.success(self.request, "Se ha creado exitosamente el usuario "+usuario+" y se a enviado un correo electrónico de confirmación al correo "+correo+".")
+     
+        # Enviar correo electrónico de confirmación
+        self.send_confirmation_email(user)
+
+        # Agregar mensaje de éxito
         
-        # Redirige a la página de éxito
+        messages.success(self.request, f"Se ha creado exitosamente el usuario {user.first_name} {user.last_name} y se ha enviado un correo electrónico de confirmación a {user.email}.")
+
         return HttpResponse('Operación exitosa', status=200)
+
 
 
 #-------------------------------------------------------------------------------------------------------------------------------------
@@ -2251,23 +2294,7 @@ from django.contrib.auth.forms import (
     PasswordResetForm,
     SetPasswordForm,
 )
-from django.contrib.auth.tokens import default_token_generator
-from django.contrib.sites.shortcuts import get_current_site
-from django.core.exceptions import ImproperlyConfigured, ValidationError
-from django.http import HttpResponseRedirect, QueryDict
-from django.shortcuts import resolve_url
-from django.urls import reverse_lazy
-from django.utils.decorators import method_decorator
-from django.utils.deprecation import RemovedInDjango50Warning
-from django.utils.http import url_has_allowed_host_and_scheme, urlsafe_base64_decode
-from django.utils.translation import gettext_lazy as _
-from django.views.decorators.cache import never_cache
-from django.views.decorators.csrf import csrf_protect
-from django.views.decorators.debug import sensitive_post_parameters
-from django.views.generic.base import TemplateView
-from django.views.generic.edit import FormView
 
-UserModel = get_user_model()
 
 
 class RedirectURLMixin:
@@ -2617,6 +2644,8 @@ class PasswordResetConfirmView(PasswordContextMixin, FormView):
                 }
             )
         return context
+
+
 
 
 class PasswordResetCompleteView(PasswordContextMixin, TemplateView):
