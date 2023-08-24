@@ -62,30 +62,63 @@ class FormularioUsuario(forms.ModelForm):
         }
     ))
     rol = forms.ModelChoiceField(queryset=Rol.objects.all(), label='Rol', required=True,
-                                 widget=forms.Select(attrs={'class': 'form-control','required':'required'}))
+                                 widget=forms.Select(
+                                     attrs={
+                                         'class': 'form-control',
+                                         'required':'required'
+                                         }))
+    
     id_number = forms.IntegerField(label='Cédula', required=True,
-                                   widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Número de identificación','pattern':'^(?:[1-9]\d{6,10}|9999999999)$','title':'Ingrese un número de cédula entre 1000000 y 9999999999 (sin puntos ni comas)','required':'required'}))
+                                   widget=forms.NumberInput(
+                                       attrs={
+                                           'class': 'form-control',
+                                           'placeholder': 'Número de identificación',
+                                           'pattern':'^(?:[1-9]\d{6,10}|9999999999)$',
+                                           'title':'Ingrese un número de cédula entre 1000000 y 9999999999 (sin puntos ni comas)',
+                                           'required':'required'
+                                       }))
     
     phone_number = forms.IntegerField(label='Número Telefónico', required=True,
-                                      widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Número Telefónico','pattern':'[0-9]{10,13}','title':'Ingrese su número telefónico (solo números enteros positivos de 10 a 13 dígitos)','required':'required'}))
+                                      widget=forms.NumberInput(
+                                          attrs={
+                                              'class': 'form-control',
+                                              'placeholder': 'Número Telefónico',
+                                              'pattern':'[0-9]{10,13}','title':'Ingrese su número telefónico (solo números enteros positivos de 10 a 13 dígitos)',
+                                              'required':'required'
+                                              }))
     
     lab = forms.ModelChoiceField(queryset=Laboratorios.objects.all(), label='Laboratorio', required=True,
-                                 widget=forms.Select(attrs={'class': 'form-control','required':'required'}))
+                                 widget=forms.Select(
+                                     attrs={
+                                         'class': 'form-control',
+                                         'required':'required'
+                                         }))
+    
+    email = forms.EmailField(label='Correo Electrónico', required=True, widget=forms.EmailInput(
+        attrs={
+            'class': 'form-control',
+            'placeholder': 'Correo Electrónico',
+            'id': 'email',
+            'required':'required',
+            'pattern':'^[a-zA-Z0-9.-_]+@[a-zA-Z]+\.[a-zA-Z]{2,}(?:\.[a-zA-Z]+)?$',
+            'title':'Ingrese una dirección de correo electrónico válida (max 40 caracteres)',
+            'maxlength':'100'
+            }))
+    
+    username=forms.CharField(label='Nombre de usuario', required=True, widget=forms.TextInput(
+        attrs={
+            'class': 'form-control',
+            'placeholder': 'Escriba los nombres',
+            'id': 'first_name',
+            'required':'required',
+            'pattern':'^(?:[a-zA-Zá-úÁ-Ú]+\s){0,1}[a-zA-Zá-úÁ-Ú]+$',
+            'title':'Ingrese máximos dos palabras sin números ni caracteres especiales',
+            }))
+
     class Meta:
         model = User  # Usar el signo igual (=) en lugar de dos puntos (:)
-        fields = ('email', 'username', 'first_name', 'last_name')
+        fields = ('first_name', 'last_name')
         widgets = {
-            'email': forms.EmailInput(
-                attrs={
-                    'class': 'form-control',
-                    'placeholder': 'Correo Electrónico',
-                    'id': 'email',
-                    'required':'required',
-                    'pattern':'^[a-zA-Z0-9.-_]+@[a-zA-Z]+\.[a-zA-Z]{2,}(?:\.[a-zA-Z]+)?$',
-                    'title':'Ingrese una dirección de correo electrónico válida (max 40 caracteres)',
-                    'maxlength':'100'
-                }
-            ),
             'first_name': forms.TextInput(
                 attrs={
                     'class': 'form-control',
@@ -106,18 +139,7 @@ class FormularioUsuario(forms.ModelForm):
                     'title':'Ingrese máximos dos palabras sin números ni caracteres especiales',
                 }
             ),
-            'username': forms.TextInput(
-                attrs={
-                    'class': 'form-control',
-                    'placeholder': 'Ingrese su nombre de usuario',
-                    'id': 'username',
-                    'required':'required',
-                    'pattern':'^[a-zA-Z]{5,40}$',
-                    'title':'Ingrese una palabra con mínimo 5 caracteres y máximo 40, sin caracteres especiales ni números',
-                }
-            ),
-             
-        }
+            }
     
     def clean(self):
         cleaned_data = super().clean()

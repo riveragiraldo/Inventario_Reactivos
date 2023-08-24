@@ -145,7 +145,7 @@
       // Verificar el contenido del mensaje para asignar el tipo de alerta adecuado
       if (messageText.includes('Se ha creado exitosamente')) {
         alertType = 'success';
-      } else if (messageText.includes('Por favor seleccione') || messageText.includes('Ya existe') || messageText.includes('Solo se permiten registros ')) {
+      } else if (messageText.includes('Por favor seleccione') || messageText.includes('Ya existe') || messageText.includes('Solo se permiten registros ')|| messageText.includes('No es posible ')) {
         alertType = 'warning';
       }else if (messageText.includes('No se puedo crear el usuario') || messageText.includes('Contraseña no cumple')) {
         alertType = 'error';

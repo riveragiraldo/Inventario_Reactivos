@@ -1450,6 +1450,36 @@ class CrearUsuario(LoginRequiredMixin,CreateView):
             # Mínimo 8 caracteres, al menos una mayúscula, un número y un carácter especial
             password_pattern = r"^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$"
             return re.match(password_pattern, password) is not None
+        
+        # Verificar si el id_number ya existe en la base de datos
+        id_number = form.cleaned_data['id_number']
+
+        if User.objects.filter(id_number=id_number).exists():
+            messages.error(self.request, f"No es posible crear el usuario {form.cleaned_data['username']} ya que su número de identificación {id_number} ya existe en la base de datos.")
+            return HttpResponseBadRequest("Ya existe un registro en la base de datos")
+        
+        # Verificar si el phone_number ya existe en la base de datos
+        phone_number = form.cleaned_data['phone_number']
+
+        if User.objects.filter(phone_number=phone_number).exists():
+            messages.error(self.request, f"No es posible crear el usuario {form.cleaned_data['username']} ya que su número de teléfono {phone_number} ya existe en la base de datos.")
+            return HttpResponseBadRequest("Ya existe un registro en la base de datos")
+        
+        # Verificar si el email ya existe en la base de datos
+        email = form.cleaned_data['email']
+        
+
+        if User.objects.filter(email=email).exists():
+            messages.error(self.request, f"No es posible crear el usuario {form.cleaned_data['username']} ya que su correo electrónico {email} ya existe en la base de datos.")
+            return HttpResponseBadRequest("Ya existe un registro en la base de datos")
+        
+        # Verificar si el username ya existe en la base de datos
+        username = form.cleaned_data['username']
+        
+
+        if User.objects.filter(username=username).exists():
+            messages.error(self.request, f"No es posible crear el usuario {form.cleaned_data['username']} ya que su nombre de usuario {username} ya existe en la base de datos.")
+            return HttpResponseBadRequest("Ya existe un registro en la base de datos")
 
         # Validación personalizada para contraseñas
         password1 = form.cleaned_data.get('password1')
@@ -1471,6 +1501,8 @@ class CrearUsuario(LoginRequiredMixin,CreateView):
         user.lab = form.cleaned_data['lab']
         user.id_number = form.cleaned_data['id_number']
         user.phone_number = form.cleaned_data['phone_number']
+        user.email = form.cleaned_data['email']
+        user.username = form.cleaned_data['username']
         # Asignar el usuario actual al campo user_create
         user.user_create = self.request.user
         
