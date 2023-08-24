@@ -47,7 +47,7 @@
             <div class="col-lg-4 col-md-6 mb-3">
                 <a href="/admin/" target="_blank" class="btn btn-primary btn-block">Admin</a>
             </div>
-            {% if request.user|has_group:"Coordinador" or request.user|has_group:"Administrador" or request.user.is_superuser %}
+            {% if request.user|has_group:"COORDINADOR" or request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
             <div class="col-lg-4 col-md-6 mb-3">
                 <a href="/unidades/crear/" target="_blank" class="btn btn-primary btn-block">Crear Unidades</a>
             </div>

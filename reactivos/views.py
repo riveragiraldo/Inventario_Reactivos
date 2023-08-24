@@ -91,6 +91,8 @@ from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 import base64
 from urllib.parse import urlencode
+from functools import wraps
+
 
 
 UserModel = get_user_model()
@@ -113,11 +115,12 @@ def check_group_permission(groups_required):
             if is_of_group or self.request.user.is_superuser:
                 return view_func(self, request, *args, **kwargs)
             else:
-                messages.error(request, 'No tiene permisos para acceder a esta vista')
+                messages.error(request, 'No tiene permisos para acceder a esta vista, desea acceder con credenciales distintas')
                 return HttpResponseRedirect(reverse('reactivos:login'))
 
         return _wrapped_view
     return decorator
+
 
 # Vista para la visualización del web template
 @login_required
@@ -156,7 +159,7 @@ class Index(LoginRequiredMixin, View):  # Utiliza LoginRequiredMixin como clase 
 class CrearUnidades(LoginRequiredMixin, View):
     template_name = 'reactivos/crear_unidades.html'
 
-    @check_group_permission(groups_required=['Coordinador', 'Administrador'])
+    @check_group_permission(groups_required=['COORDINADOR','ADMINISTRADOR'])
     def get(self, request, *args, **kwargs):
         laboratorio = self.request.user.lab
         context = {
@@ -166,7 +169,7 @@ class CrearUnidades(LoginRequiredMixin, View):
         }
         return render(request, self.template_name, context)
 
-    @check_group_permission(groups_required=['Coordinador', 'Administrador'])
+    @check_group_permission(groups_required=['COORDINADOR','ADMINISTRADOR'])
     def post(self, request, *args, **kwargs):
         name = request.POST.get('name')
 
@@ -1409,16 +1412,22 @@ class ListadoUsuarios(LoginRequiredMixin, ListView):
 
 
 #Crear Usuarios
-
-class CrearUsuario(LoginRequiredMixin,CreateView):
+# @method_decorator(check_group_permissions(groups_required=['COORDINADOR', 'ADMINISTRADOR']), name='dispatch')
+class CrearUsuario(LoginRequiredMixin, CreateView):
     model=User
     form_class=FormularioUsuario
     template_name='usuarios/crear_usuario.html'
     success_url='reactivos:index'
+    # Validador de grupos que pueden acceder
+    # Sobreescribir el método dispatch para aplicar el decorador
+    @check_group_permission(groups_required=['COORDINADOR', 'ADMINISTRADOR'])
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['laboratorio'] = self.request.user.lab
+        context['labname'] = self.request.user.lab.name
         context['usuarios'] = User.objects.all()
         context['roles'] = Rol.objects.all()  
         context['laboratorios'] = Laboratorios.objects.all()  
