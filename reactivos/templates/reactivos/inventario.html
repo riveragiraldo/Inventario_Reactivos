@@ -1,4 +1,5 @@
 {% extends "webtemplate.html" %}
+{% load has_group %}
 <!doctype html>
 <html lang="es">
 
@@ -50,10 +51,24 @@
 
                     <div class="col-md-3 d-flex flex-column align-items-left">
                         <label for="lab">Laboratorio:</label>
-                        <input type="text" class="form-control" name="lab2" id="lab2"
-                            placeholder="Laboratorio al que pertence" title="Laboratorio al que pertence"
-                            value="{{ laboratorio }}" style="border: none; box-shadow: none;" readonly />
+                        {% if request.user|has_group:"COORDINADOR" or request.user|has_group:"TECNICO" %}
+                    <input type="text" class="form-control" name="lab2" id="lab2"
+                        placeholder="Laboratorio al que pertence" title="Laboratorio al que pertence" 
+                        value="{{ laboratorio }}" style="border: none; box-shadow: none;" readonly />
+                        <option value="{{ lab.name }}">{{ lab.name }}</option>
                         <input type="hidden" class="form-control" name="lab" id="lab" value="{{ laboratorio.id }}" />
+                    {% endif %}
+                    {% if request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
+                    <select name="lab" class="form-control"  id="lab">
+                        <option value='0' selected="">---------</option>
+                        {% for lab in laboratorios %}
+
+                        <option value="{{ lab.id }}">{{ lab.name }}</option>
+
+                        {% endfor %}
+                    </select>
+                    {% endif %}
+                        
 
                     </div>
 

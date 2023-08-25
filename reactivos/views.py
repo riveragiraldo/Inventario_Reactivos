@@ -1298,6 +1298,7 @@ class InventarioListView(LoginRequiredMixin,ListView):
     
         context['usuarios'] = User.objects.all()
         context['laboratorio'] = laboratorio
+        context['laboratorios'] = Laboratorios.objects.all()
         
 
         context['unique_labs'] = unique_labs
@@ -1335,6 +1336,13 @@ class InventarioListView(LoginRequiredMixin,ListView):
         name = self.request.GET.get('name')
         trademark = self.request.GET.get('trademark')
         reference = self.request.GET.get('reference')
+        print(lab)
+        if lab=='0':
+            print(lab)
+            lab=''
+            queryset = queryset.filter(is_active=True)
+            return queryset
+
 
         # Verificar si hay datos de filtrado, paginación u ordenamiento en la URL
         has_filtering_data = any([sort_by, lab, name, trademark, reference])
@@ -1373,6 +1381,7 @@ class InventarioListView(LoginRequiredMixin,ListView):
             queryset = queryset.filter(trademark=trademark, is_active=True)
         elif reference:
             queryset = queryset.filter(reference=reference, is_active=True)
+       
         else:
             queryset = queryset.filter(is_active=True)
 

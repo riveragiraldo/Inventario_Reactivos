@@ -1,4 +1,5 @@
 {% extends "webtemplate.html" %}
+{% load has_group %}
 <!doctype html>
 <html lang="es">
 
@@ -45,9 +46,21 @@
 
                     <div class="col-md-12">
                         <label class="form-label">Laboratorio:</label>
+                        {% if request.user|has_group:"COORDINADOR" or request.user|has_group:"TECNICO" %}
                         <input type="text" class="form-control" name="lab" id="lab"
                             placeholder="Laboratorio al que pertence" title="Laboratorio al que pertence" required
                             value="{{ laboratorio }}" style="border: none; box-shadow: none;" readonly />
+                        {% endif %}
+                        {% if request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
+                        <select name="lab" class="form-control" required="" id="lab">
+                            <option value="" selected="">---------</option>
+                            {% for lab in laboratorios %}
+                            
+                            <option value="{{ lab.name }}">{{ lab.name }}</option>
+                            
+                            {% endfor %}
+                          </select>
+                        {% endif %}
                     </div>
 
                     <div class="col-md-12">
