@@ -21,6 +21,25 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.min.css">
 
     {% load static %}
+    {% if request.user|has_group:"COORDINADOR" or request.user|has_group:"TECNICO" %}
+    {% for lab in laboratorios %}
+    {% if lab.id == laboratorio.id %}
+
+
+
+    <script>
+        labDefault = '{{ lab.id }}'
+    </script>
+    {% endif %}
+    {% endfor %}
+    {% endif %}
+
+    {% if request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
+
+    <script>
+        labDefault = "0"
+    </script>
+    {% endif %}
     <link rel="stylesheet" href="{% static 'inventoryStyles.css' %}">
     <script src="{% static 'paginationInventoryControl.js' %}"></script>
     <!-- Llama Script que controla la paginación -->
@@ -52,23 +71,28 @@
                     <div class="col-md-3 d-flex flex-column align-items-left">
                         <label for="lab">Laboratorio:</label>
                         {% if request.user|has_group:"COORDINADOR" or request.user|has_group:"TECNICO" %}
-                    <input type="text" class="form-control" name="lab2" id="lab2"
-                        placeholder="Laboratorio al que pertence" title="Laboratorio al que pertence" 
-                        value="{{ laboratorio }}" style="border: none; box-shadow: none;" readonly />
-                        <option value="{{ lab.name }}">{{ lab.name }}</option>
-                        <input type="hidden" class="form-control" name="lab" id="lab" value="{{ laboratorio.id }}" />
-                    {% endif %}
-                    {% if request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
-                    <select name="lab" class="form-control"  id="lab">
-                        <option value='0' selected="">---------</option>
-                        {% for lab in laboratorios %}
+                        <select name="lab" class="form-control" id="lab">
+                            {% for lab in laboratorios %}
+                            {% if lab.id == laboratorio.id %}
+                            <option value="{{ lab.id }}" selected="">{{ lab.name }}</option>
 
-                        <option value="{{ lab.id }}">{{ lab.name }}</option>
+                            {% endif %}
+                            {% endfor %}
+                        </select>
+                        {% endif %}
 
-                        {% endfor %}
-                    </select>
-                    {% endif %}
-                        
+
+                        {% if request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
+                        <select name="lab" class="form-control" id="lab">
+                            <option value='0' selected="">Todos</option>
+                            {% for lab in laboratorios %}
+
+                            <option value="{{ lab.id }}">{{ lab.name }}</option>
+
+                            {% endfor %}
+                        </select>
+                        {% endif %}
+
 
                     </div>
 
@@ -89,16 +113,6 @@
                             <option value="">Todas</option>
                             {% for item in unique_trademarks %}
                             <option value="{{ item.id }}">{{ item.name }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-
-                    <div class="col-md-2 d-flex flex-column align-items-left">
-                        <label for="reference">Referencia:</label>
-                        <select id="reference" name="reference" class="form-control">
-                            <option value="">Todas</option>
-                            {% for item in unique_references %}
-                            <option value="{{ item.reference }}">{{ item.reference }}</option>
                             {% endfor %}
                         </select>
                     </div>
@@ -143,7 +157,8 @@
                         <th class="sortable-header" data-column="6" title="Ordenar por unidad">Unidad</th>
                         <th class="sortable-header" data-column="7" title="Ordenar por ubicación">Ubicación</th>
                         <th class="sortable-header" data-column="8" title="Ordenar por laboratorio">Laboratorio</th>
-                        <th class="sortable-header" data-column="9"title="Ordenar por fecha de vencimiento">Vencimiento</th>
+                        <th class="sortable-header" data-column="9" title="Ordenar por fecha de vencimiento">Vencimiento
+                        </th>
                         <th class="sortable-header" title="Visualización de detalle (no ordena)">Ver</th>
                     </tr>
                 </thead>
@@ -188,19 +203,21 @@
                 <div class="pagination">
                     <span class="step-links">
                         {% if page_obj.has_previous %}
-                        <a href="?page=1">&laquo; Primera</a>
-                        <a href="?page={{ page_obj.previous_page_number }}">Anterior</a>
+                            <a href="" id="first-page-link">Primera</a>
+                            <a href="" id="previous-page-link">Anterior</a>
                         {% endif %}
-
-                        <span class="current-page">Página {{ page_obj.number }} de
-                            {{page_obj.paginator.num_pages}}</span>
-
+                
+                        <span class="current-page">Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}.</span>
+                
                         {% if page_obj.has_next %}
-                        <a href="?page={{ page_obj.next_page_number }}">Siguiente</a>
-                        <a href="?page={{ page_obj.paginator.num_pages }}">Última &raquo;</a>
+                            <a href="" id="next-page-link">Siguiente</a>
+                            <a href="" id="last-page-link">Última</a>
                         {% endif %}
                     </span>
                 </div>
+                
+                
+                
 
                 <!-- Información de paginación -->
                 <div class="pagination-info">
@@ -215,6 +232,56 @@
 
         </div>
     </div>
+    <script>
+        // Obtener la URL actual
+        const currentUrl = window.location.href;
+
+        // Verificar si la URL no tiene parámetros de búsqueda
+        if (currentUrl.endsWith('/reactivos/inventario/')) {
+            // Modificar la URL agregando los parámetros de búsqueda deseados
+            const newUrl = currentUrl + '?lab='+labDefault+'&name=&trademark=';
+
+            // Redirigir a la nueva URL
+            window.location.href = newUrl;
+        }
+
+    </script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const baseUrl = window.location.href;
+        const currentPage = '{{ page_obj.number }}';
+        const nextPage = parseInt(currentPage)+1
+        const previousPage = parseInt(currentPage)-1
+        const totalPages = '{{ page_obj.paginator.num_pages }}';
+        
+        
+        '{% if page_obj.has_previous %}'
+        const firstPageLink = document.getElementById('first-page-link');
+        const previousPageLink = document.getElementById('previous-page-link');
+        firstPageLink.href = baseUrl+'&page=1';
+        previousPageLink.href = baseUrl+'&page='+previousPage;
+        '{% endif %}'
+
+        '{% if page_obj.has_next %}'
+        const nextPageLink = document.getElementById('next-page-link');
+        const lastPageLink = document.getElementById('last-page-link');
+        nextPageLink.href = baseUrl+'&page='+nextPage;
+        lastPageLink.href = baseUrl+'&page='+totalPages;
+
+        '{% endif %}'
+        
+    
+        
+        
+        
+        
+        
+        
+
+        
+    });
+    </script>
     {% endblock %}
 </body>
 

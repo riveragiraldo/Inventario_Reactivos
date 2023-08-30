@@ -1267,13 +1267,13 @@ class InventarioListView(LoginRequiredMixin,ListView):
         lab = request.GET.get('lab')
         name = request.GET.get('name')
         trademark = request.GET.get('trademark')
-        reference = request.GET.get('reference')
+        
 
         # Guardar los valores de filtrado en la sesión
         request.session['filtered_lab'] = lab
         request.session['filtered_name'] = name
         request.session['filtered_trademark'] = trademark
-        request.session['filtered_reference'] = reference
+        
 
         return super().get(request, *args, **kwargs)
 
@@ -1289,10 +1289,7 @@ class InventarioListView(LoginRequiredMixin,ListView):
         unique_trademarks_ids = Inventarios.objects.values(
             'trademark').distinct()
         unique_trademarks = Marcas.objects.filter(id__in=unique_trademarks_ids)
-        
-        unique_references = Inventarios.objects.values(
-            'reference').distinct()
-        
+               
         laboratorio = self.request.user.lab
         
     
@@ -1304,7 +1301,7 @@ class InventarioListView(LoginRequiredMixin,ListView):
         context['unique_labs'] = unique_labs
         context['unique_names'] = unique_names
         context['unique_trademarks'] = unique_trademarks
-        context['unique_references'] = unique_references
+        
 
         
 
@@ -1328,85 +1325,56 @@ class InventarioListView(LoginRequiredMixin,ListView):
     
     def get_queryset(self):
         queryset = super().get_queryset()
-        sort_by = self.request.GET.get('sort')
-        if sort_by=='':
-            sort_by='name'
-
         lab = self.request.GET.get('lab')
         name = self.request.GET.get('name')
         trademark = self.request.GET.get('trademark')
-        reference = self.request.GET.get('reference')
-        print(lab)
-        if lab=='0':
-            print(lab)
+        
+        
+        
+        if lab=='0' and name and trademark:
+            lab=''
+            queryset = queryset.filter(name=name, trademark=trademark, is_active=True)
+            queryset = queryset.order_by('id')
+            return queryset
+        
+        elif lab=='0' and name:
+            lab=''
+            queryset = queryset.filter(name=name, is_active=True)
+            queryset = queryset.order_by('id')
+            return queryset
+        
+        elif lab=='0' and trademark:
+            lab=''
+            queryset = queryset.filter(trademark=trademark, is_active=True)
+            queryset = queryset.order_by('id')
+            return queryset
+        
+        elif lab=='0':
             lab=''
             queryset = queryset.filter(is_active=True)
-            return queryset
-
-
-        # Verificar si hay datos de filtrado, paginación u ordenamiento en la URL
-        has_filtering_data = any([sort_by, lab, name, trademark, reference])
-    
-        # Si no hay datos de filtrado, paginación u ordenamiento, retornar una lista vacía
-        if not has_filtering_data:
-            return queryset.none()
+            queryset = queryset.order_by('id')
+            return queryset       
         
-        if lab and name and trademark and reference:
-            queryset = queryset.filter(lab=lab, name=name, trademark=trademark, reference=reference, is_active=True)
+        
         elif lab and name and trademark:
             queryset = queryset.filter(lab=lab, name=name, trademark=trademark, is_active=True)
-        elif lab and name and reference:
-            queryset = queryset.filter(lab=lab, name=name, reference=reference, is_active=True)
-        elif lab and reference and trademark:
-            queryset = queryset.filter(lab=lab, reference=reference, trademark=trademark, is_active=True)
-        elif name and reference and trademark:
-            queryset = queryset.filter(name=name, reference=reference, trademark=trademark, is_active=True)
         elif lab and name:
             queryset = queryset.filter(lab=lab, name=name, is_active=True)
         elif lab and trademark:
             queryset = queryset.filter(lab=lab, trademark=trademark, is_active=True)
-        elif lab and reference:
-            queryset = queryset.filter(lab=lab, reference=reference, is_active=True)
-        elif name and reference:
-            queryset = queryset.filter(name=name, reference=reference, is_active=True)
         elif name and trademark:
             queryset = queryset.filter(name=name, trademark=trademark, is_active=True)
-        elif reference and trademark:
-            queryset = queryset.filter(reference=reference, trademark=trademark, is_active=True)
         elif lab:
             queryset = queryset.filter(lab=lab, is_active=True)
         elif name:
             queryset = queryset.filter(name=name, is_active=True)
         elif trademark:
             queryset = queryset.filter(trademark=trademark, is_active=True)
-        elif reference:
-            queryset = queryset.filter(reference=reference, is_active=True)
-       
+        
         else:
             queryset = queryset.filter(is_active=True)
-
-        if sort_by:
-            if sort_by == 'code':
-                queryset = queryset.order_by('name__code')
-            elif sort_by == 'cas':
-                queryset = queryset.order_by('name__cas')
-            elif sort_by == 'name':
-                queryset = queryset.order_by('name__name')
-            elif sort_by == 'trademark':
-                queryset = queryset.order_by('trademark__name')
-            elif sort_by == 'reference':
-                queryset = queryset.order_by('reference')
-            elif sort_by == 'weight':
-                queryset = queryset.order_by('weight')
-            elif sort_by == 'unit':
-                queryset = queryset.order_by('name__unit__name')
-            elif sort_by == 'wlocation':
-                queryset = queryset.order_by('wlocation__name')
-            elif sort_by == 'lab':
-                queryset = queryset.order_by('lab__name')
-            elif sort_by == 'edate':
-                queryset = queryset.order_by('edate')
-
+            
+        queryset = queryset.order_by('id')
         return queryset
     
 
@@ -1570,7 +1538,6 @@ class GuardarPerPageView(LoginRequiredMixin,View):
         filtered_lab = request.session.get('filtered_lab')
         filtered_name = request.session.get('filtered_name')
         filtered_trademark = request.session.get('filtered_trademark')
-        filtered_reference = request.session.get('filtered_reference')
         
         url = reverse('reactivos:inventario')
         params = {}
@@ -1580,38 +1547,13 @@ class GuardarPerPageView(LoginRequiredMixin,View):
             params['name'] = filtered_name
         if filtered_trademark:
             params['trademark'] = filtered_trademark
-        if filtered_reference:
-            params['reference'] = filtered_reference
+        
         
         if params:
             url += '?' + urlencode(params)
 
         return redirect(url)
-
-# Devuelve valores de name, trademark y reference para ser insertados los select correspondientes en el template Inventarios al modificar 
-# el select name
-
-class NamesTrademarksAndReferencesByLabAPI(LoginRequiredMixin,View):
-    def get(self, request):
-        lab = request.GET.get('lab')
-
-        inventarios = Inventarios.objects.all()
-
-        if lab:
-            inventarios = inventarios.filter(lab=lab)
-
-        names = inventarios.values('name', 'name__name').distinct().order_by('name__name')
-        trademarks = inventarios.values('trademark', 'trademark__name').distinct().order_by('trademark__name')
-        references = inventarios.values('reference').distinct().order_by('reference')
-
-        names_trademarks_and_references_list = {
-            'names': list(names),
-            'trademarks': list(trademarks),
-            'references': list(references)
-        }
-
-        return JsonResponse(names_trademarks_and_references_list, safe=False)
-
+    
 # La vista "crear_unidades" se encarga de gestionar la creación de unidades. Esta vista toma los datos del formulario 
 # existente en el template "crear_unidades.html" y realiza las operaciones necesarias en la base de datos utilizando 
 # el modelo "Unidades". El objetivo es garantizar la unicidad de los registros, lo que implica verificar si la unidad
@@ -1656,6 +1598,34 @@ class CrearRoles(LoginRequiredMixin, View):
 
         context = {'rol_id': rol.id, 'rol_name': rol.name}
         return HttpResponse('Operación exitosa', status=200)
+
+# Devuelve valores de name, trademark y reference para ser insertados los select correspondientes en el template Inventarios al modificar 
+# el select name
+
+class NamesTrademarksAndReferencesByLabAPI(LoginRequiredMixin,View):
+    def get(self, request):
+        lab = request.GET.get('lab')
+
+        inventarios = Inventarios.objects.all()
+
+        if lab:
+            if lab!='0':
+                inventarios = inventarios.filter(lab=lab)
+
+        names = inventarios.values('name', 'name__name').distinct().order_by('name__name')
+        trademarks = inventarios.values('trademark', 'trademark__name').distinct().order_by('trademark__name')
+        references = inventarios.values('reference').distinct().order_by('reference')
+
+        names_trademarks_and_references_list = {
+            'names': list(names),
+            'trademarks': list(trademarks),
+            'references': list(references)
+        }
+        
+
+        return JsonResponse(names_trademarks_and_references_list, safe=False)
+
+
     
 # Devuelve valores de trademark y reference para ser insertados los select correspondientes en el template Inventarios al modificar 
 # name de reactivo
@@ -1664,6 +1634,7 @@ class TrademarksByLabAndNameAPI(LoginRequiredMixin, View):
     def get(self, request):
         name = request.GET.get('name')
         lab = request.GET.get('lab')
+        
 
         inventarios = Inventarios.objects.all()
 
@@ -1672,29 +1643,33 @@ class TrademarksByLabAndNameAPI(LoginRequiredMixin, View):
             if name.isdigit():
                 reactivo = get_object_or_404(Reactivos, id=int(name))
                 name = reactivo.id
+                inventarios = inventarios.filter(name=name)
             else:
                 reactivo = get_object_or_404(Reactivos, name=name)
                 name = reactivo.id
+                inventarios = inventarios.filter(name=name)
 
         if lab:
             # Verificar si el valor de lab es un número
             if lab.isdigit():
-                laboratorio = get_object_or_404(Laboratorios, id=int(lab))
-                lab = laboratorio.id
+                if lab == '0':
+                    
+                    inventarios = Inventarios.objects.all()
+                else:
+                    laboratorio = get_object_or_404(Laboratorios, id=int(lab))
+                    lab = laboratorio.id
+                    inventarios = inventarios.filter(lab=lab)
             else:
-                lab = get_object_or_404(Laboratorios, name=lab)
-                lab = lab.id
-
-        if name:
-            inventarios = inventarios.filter(name=name)
-
-        if lab:
-            inventarios = inventarios.filter(lab=lab)
-
+                lab_obj = get_object_or_404(Laboratorios, name=lab)
+                lab = lab_obj.id
+                inventarios = inventarios.filter(lab=lab)
+                
+         
         trademarks = inventarios.values('trademark', 'trademark__name').distinct()
         trademarks_list = list(trademarks)
-
         return JsonResponse(trademarks_list, safe=False)
+    
+    
 
 class ReferencesByLabAndNameAPI(LoginRequiredMixin, View):
     def get(self, request):
