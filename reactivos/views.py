@@ -1268,6 +1268,9 @@ class InventarioListView(LoginRequiredMixin,ListView):
         name = request.GET.get('name')
         trademark = request.GET.get('trademark')
         
+        # si el valor de lab viene de sesión superusuario o ADMINISTRADOR lab=0 cambiar por lab=''
+        if lab=='0':
+            lab=''
 
         # Guardar los valores de filtrado en la sesión
         request.session['filtered_lab'] = lab
@@ -1328,35 +1331,13 @@ class InventarioListView(LoginRequiredMixin,ListView):
         lab = self.request.GET.get('lab')
         name = self.request.GET.get('name')
         trademark = self.request.GET.get('trademark')
-        
-        
-        
-        if lab=='0' and name and trademark:
-            lab=''
-            queryset = queryset.filter(name=name, trademark=trademark, is_active=True)
-            queryset = queryset.order_by('id')
-            return queryset
-        
-        elif lab=='0' and name:
-            lab=''
-            queryset = queryset.filter(name=name, is_active=True)
-            queryset = queryset.order_by('id')
-            return queryset
-        
-        elif lab=='0' and trademark:
-            lab=''
-            queryset = queryset.filter(trademark=trademark, is_active=True)
-            queryset = queryset.order_by('id')
-            return queryset
-        
-        elif lab=='0':
-            lab=''
-            queryset = queryset.filter(is_active=True)
-            queryset = queryset.order_by('id')
-            return queryset       
-        
-        
-        elif lab and name and trademark:
+
+        # si el valor de lab viene de sesión superusuario o ADMINISTRADOR lab=0 cambiar por lab=''
+        if lab=='0':
+             lab=''
+             
+        # Definir Queryset para filtrado de visulización
+        if lab and name and trademark:
             queryset = queryset.filter(lab=lab, name=name, trademark=trademark, is_active=True)
         elif lab and name:
             queryset = queryset.filter(lab=lab, name=name, is_active=True)
@@ -1772,41 +1753,24 @@ def export_to_excel(request):
     lab = request.session.get('filtered_lab')
     name = request.session.get('filtered_name')
     trademark = request.session.get('filtered_trademark')
-    reference = request.session.get('filtered_reference')
     
     queryset = Inventarios.objects.all()
     #Filtra según los valores previos de filtro en los selectores
 
-    if lab and name and trademark and reference:
-            queryset = queryset.filter(lab=lab, name=name, trademark=trademark, reference=reference, is_active=True)
-    elif lab and name and trademark:
+    if lab and name and trademark:
         queryset = queryset.filter(lab=lab, name=name, trademark=trademark, is_active=True)
-    elif lab and name and reference:
-        queryset = queryset.filter(lab=lab, name=name, reference=reference, is_active=True)
-    elif lab and reference and trademark:
-        queryset = queryset.filter(lab=lab, reference=reference, trademark=trademark, is_active=True)
-    elif name and reference and trademark:
-        queryset = queryset.filter(name=name, reference=reference, trademark=trademark, is_active=True)
     elif lab and name:
         queryset = queryset.filter(lab=lab, name=name, is_active=True)
     elif lab and trademark:
         queryset = queryset.filter(lab=lab, trademark=trademark, is_active=True)
-    elif lab and reference:
-        queryset = queryset.filter(lab=lab, reference=reference, is_active=True)
-    elif name and reference:
-        queryset = queryset.filter(name=name, reference=reference, is_active=True)
     elif name and trademark:
         queryset = queryset.filter(name=name, trademark=trademark, is_active=True)
-    elif reference and trademark:
-        queryset = queryset.filter(reference=reference, trademark=trademark, is_active=True)
     elif lab:
         queryset = queryset.filter(lab=lab, is_active=True)
     elif name:
         queryset = queryset.filter(name=name, is_active=True)
     elif trademark:
         queryset = queryset.filter(trademark=trademark, is_active=True)
-    elif reference:
-        queryset = queryset.filter(reference=reference, is_active=True)
     else:
         queryset = queryset.filter(is_active=True)
 
@@ -1962,40 +1926,23 @@ def export_to_pdf(request):
     lab = request.session.get('filtered_lab')
     name = request.session.get('filtered_name')
     trademark = request.session.get('filtered_trademark')
-    reference = request.session.get('filtered_reference')
 
     queryset = Inventarios.objects.all()
 
-    if lab and name and trademark and reference:
-            queryset = queryset.filter(lab=lab, name=name, trademark=trademark, reference=reference, is_active=True)
-    elif lab and name and trademark:
+    if lab and name and trademark:
         queryset = queryset.filter(lab=lab, name=name, trademark=trademark, is_active=True)
-    elif lab and name and reference:
-        queryset = queryset.filter(lab=lab, name=name, reference=reference, is_active=True)
-    elif lab and reference and trademark:
-        queryset = queryset.filter(lab=lab, reference=reference, trademark=trademark, is_active=True)
-    elif name and reference and trademark:
-        queryset = queryset.filter(name=name, reference=reference, trademark=trademark, is_active=True)
     elif lab and name:
         queryset = queryset.filter(lab=lab, name=name, is_active=True)
     elif lab and trademark:
         queryset = queryset.filter(lab=lab, trademark=trademark, is_active=True)
-    elif lab and reference:
-        queryset = queryset.filter(lab=lab, reference=reference, is_active=True)
-    elif name and reference:
-        queryset = queryset.filter(name=name, reference=reference, is_active=True)
     elif name and trademark:
         queryset = queryset.filter(name=name, trademark=trademark, is_active=True)
-    elif reference and trademark:
-        queryset = queryset.filter(reference=reference, trademark=trademark, is_active=True)
     elif lab:
         queryset = queryset.filter(lab=lab, is_active=True)
     elif name:
         queryset = queryset.filter(name=name, is_active=True)
     elif trademark:
         queryset = queryset.filter(trademark=trademark, is_active=True)
-    elif reference:
-        queryset = queryset.filter(reference=reference, is_active=True)
     else:
         queryset = queryset.filter(is_active=True)
     context = {

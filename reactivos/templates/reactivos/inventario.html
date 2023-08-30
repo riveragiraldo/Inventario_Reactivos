@@ -54,6 +54,8 @@
     <!-- Llama Script que envía datos de ordenamiento de registros -->
     <script src="{% static 'openDetailReactive.js' %}" defer></script>
     <!-- Llama Script que resalta los controles de paginación -->
+    <script src="{% static 'updateUrl.js' %}" ></script>
+    <!-- Llama Script que actualiza URL -->
     {% endblock %}
 </head>
 
@@ -166,17 +168,17 @@
 
                 <tbody>
                     {% for item in object_list %}
-                    <tr>
-                        <td>{{ item.name.code }}</td>
-                        <td>{{ item.name.cas }}</td>
-                        <td>{{ item.name }}</td>
-                        <td>{{ item.trademark }}</td>
-                        <td>{{ item.reference }}</td>
-                        <td>{{ item.weight|floatformat:1 }}</td>
-                        <td>{{ item.name.unit }}</td>
-                        <td>{{ item.wlocation }}</td>
-                        <td>{{ item.lab }}</td>
-                        <td>{{ item.edate }}</td>
+                    <tr class="table-row">
+                        <td title="Código Interno de {{ item.name }}">{{ item.name.code }}</td>
+                        <td title="CAS de {{ item.name }}">{{ item.name.cas }}</td>
+                        <td title="Nombre: {{ item.name }}">{{ item.name }}</td>
+                        <td title="Marca de {{ item.name }}">{{ item.trademark }}</td>
+                        <td title="Referencia de {{ item.name }}">{{ item.reference }}</td>
+                        <td title="Cantidad  de {{ item.name }}">{{ item.weight|floatformat:1 }}</td>
+                        <td title="Unidad">{{ item.name.unit }}</td>
+                        <td title="Ubicación en almacén de {{ item.name }}">{{ item.wlocation }}</td>
+                        <td title="Labratorio al que pertenece el reactivo {{ item.name }}">{{ item.lab }}</td>
+                        <td title="Fecha de vencimiento del reactivo {{ item.name }}">{{ item.edate }}</td>
                         <!-- Modifica el evento click de la imagen para mostrar SweetAlert -->
                         <td>
                             <img src="{% static 'Images/moreInfo.ico' %}" alt="" width="18" height="18"
@@ -232,21 +234,7 @@
 
         </div>
     </div>
-    <script>
-        // Obtener la URL actual
-        const currentUrl = window.location.href;
-
-        // Verificar si la URL no tiene parámetros de búsqueda
-        if (currentUrl.endsWith('/reactivos/inventario/')) {
-            // Modificar la URL agregando los parámetros de búsqueda deseados
-            const newUrl = currentUrl + '?lab='+labDefault+'&name=&trademark=';
-
-            // Redirigir a la nueva URL
-            window.location.href = newUrl;
-        }
-
-    </script>
-
+    <!-- Este script no puede ser llamado de manera independiente ya que tiene muchas variables provenientes del servidor -->
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const baseUrl = window.location.href;
