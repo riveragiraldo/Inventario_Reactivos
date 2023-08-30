@@ -127,31 +127,9 @@
 
           // Si es una ventana emergente, hacer algo y luego cerrar la ventana
           window.onload = function () {
-
-            var messageText = '{{ message|safe }}';
-
-            var alertType = 'info';  // Tipo de alerta predeterminado para mensajes habituales
-
-            // Verificar el contenido del mensaje para asignar el tipo de alerta adecuado
-            if (messageText.includes('Se ha creado exitosamente')) {
-              alertType = 'success';
-            } else if (messageText.includes('Por favor seleccione') || messageText.includes('Ya existe') || messageText.includes('Solo se permiten registros ')) {
-              alertType = 'warning';
-            }
-
-            // Mostrar la notificación con SweetAlert2
-            Swal.fire({
-              icon: alertType,
-              title: 'Mensaje del servidor',
-              text: messageText,
-              confirmButtonText: 'Aceptar'
-            });
-
-            //Obtener nombre despues del mensaje
-            mensaje = "{{ message }}";
+            var mensaje = '{{ message|safe }}';
+            alert(mensaje)
             var manager = mensaje.split(": ")[1];
-
-            //retardo para que los valores se escriban despues de recargar la página
             setTimeout(function () {
 
               window.opener.document.querySelector("#manager").value = manager;

@@ -385,7 +385,7 @@ def crear_responsable(request):
             last_updated_by=request.user,  # Asignar el usuario actualmente autenticado
         )
         messages.success(
-            request, 'Se ha creado exitosamente el siguiente responsable cc: '+cc+' nombre: '+name)
+            request, 'Se ha creado exitosamente el siguiente responsable cc '+cc+' nombre: '+name)
         return HttpResponse('Se ha creado exitosamente el siguiente responsable: '+name, status=200)
         
 
