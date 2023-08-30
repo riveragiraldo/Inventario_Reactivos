@@ -76,13 +76,20 @@
                     <label class="form-label" for="lab" name="Laboratorio: ">Laboratorio:</label>
 
                     {% if request.user|has_group:"COORDINADOR" or request.user|has_group:"TECNICO" %}
-                    <input type="text" class="form-control" name="lab" id="lab"
-                        placeholder="Laboratorio al que pertence" title="Laboratorio al que pertence" required
-                        value="{{ laboratorio }}" style="border: none; box-shadow: none;" readonly />
+                    <select name="lab" class="form-control" required="" id="lab">
+                        {% for lab in laboratorios %}
+
+                        {% if lab.id == laboratorio.id %}
+                        <option value="{{ lab.name }}" selected="">{{ lab.name }}</option>
+
+                        {% endif %}
+
+                        {% endfor %}
+                    </select>
                     {% endif %}
                     {% if request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
                     <select name="lab" class="form-control" required="" id="lab">
-                        <option value="" selected="">---------</option>
+                        <option value="" selected="">Seleccione</option>
                         {% for lab in laboratorios %}
 
                         <option value="{{ lab.name }}">{{ lab.name }}</option>
