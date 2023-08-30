@@ -42,6 +42,7 @@ urlpatterns = [
     path('guardar-per-page/<int:per_page>/', GuardarPerPageView.as_view(), name='GuardarPerPage'),
     path("obtener_stock/", obtener_stock, name="obtener_stock"),
     path('templates/webtemplate/', webtemplate, name='webtemplate'),
+    
     path('accounts/login/', LoginView.as_view(), name='login'),
     
 
@@ -72,7 +73,7 @@ urlpatterns = [
     ),
     path('usuarios/listado/',login_required(ListadoUsuarios.as_view()),name='listado_usuarios'),
     path('usuarios/crear/',login_required(CrearUsuario.as_view()),name='crear_usuarios'),
-
-]
+    
+    ]
 
 

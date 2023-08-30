@@ -85,29 +85,12 @@
 
                     window.onload = function () {
 
-                        mensaje = "{{ message }}";
+                        mensaje = "{{ message|safe }}";
 
                         //Obtener id después del mensaje
                         var unidad = mensaje.split(": ")[1];
 
-                        var messageText = '{{ message|safe }}';
-
-                        var alertType = 'info';  // Tipo de alerta predeterminado para mensajes habituales
-
-                        // Verificar el contenido del mensaje para asignar el tipo de alerta adecuado
-                        if (messageText.includes('Se ha creado exitosamente')) {
-                            alertType = 'success';
-                        } else if (messageText.includes('Por favor seleccione') || messageText.includes('Ya existe') || messageText.includes('Solo se permiten registros ')) {
-                            alertType = 'warning';
-                        }
-
-                        // Mostrar la notificación con SweetAlert2
-                        Swal.fire({
-                            icon: alertType,
-                            title: 'Mensaje del servidor',
-                            text: messageText,
-                            confirmButtonText: 'Aceptar'
-                        });
+                        alert(mensaje)
 
 
                         // Obtener los valores de los elementos necesarios de la ventana padre
@@ -157,7 +140,7 @@
 
                             window.close();
 
-                        }, 500);
+                        }, 2500);
                     };
                 }
 

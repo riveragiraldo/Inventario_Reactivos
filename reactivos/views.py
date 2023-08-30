@@ -1579,6 +1579,7 @@ class CrearRoles(LoginRequiredMixin, View):
 
         context = {'rol_id': rol.id, 'rol_name': rol.name}
         return HttpResponse('Operación exitosa', status=200)
+    
 
 # Devuelve valores de name, trademark y reference para ser insertados los select correspondientes en el template Inventarios al modificar 
 # el select name
