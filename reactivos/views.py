@@ -844,30 +844,32 @@ def registrar_entrada(request):
         except ObjectDoesNotExist:
             trademark = None
             messages.error(request, 'Por favor seleccione una marca primero')
-            return redirect('reactivos:registrar_entrada')
+            return HttpResponse(" no se encuentra en la base de datos, favor crearlo primero.", status=400)
         
         
         wlocation_id = request.POST.get('wlocation')
         if not wlocation_id.isdigit():
             messages.error(request, 'Por favor seleccione una ubicación en almacén primero')
+            return HttpResponse(" no se encuentra en la base de datos, favor crearlo primero.", status=400)
         try:
             nameWlocation = Almacenamiento.objects.get(id=wlocation_id)
             wlocation = nameWlocation
         except ObjectDoesNotExist:
             wlocation = None
             messages.error(request, 'Por favor seleccione una ubicación en almacén primero')
-            return redirect('reactivos:registrar_entrada')        
+            return HttpResponse("Por favor seleccione una ubicación en almacén primero", status=400)       
         
         destination_id = request.POST.get('destination')
         if not destination_id.isdigit():
             messages.error(request, 'Por favor seleccione un destino primero')
+            return HttpResponse("Por favor seleccione una destino en almacén primero", status=400)
         try:
             namedestino = Destinos.objects.get(id=destination_id)
             destination = namedestino
         except ObjectDoesNotExist:
             destination = None
             messages.error(request, 'Por favor seleccione un destino primero')
-            return redirect('reactivos:registrar_entrada')
+            return HttpResponse("Por favor seleccione un destino primero", status=400)
         
         lab = request.POST.get('lab')
         nlab = lab
@@ -1023,6 +1025,8 @@ def registrar_entrada(request):
             weight = request.POST.get('weight')
             order = request.POST.get('order')
             order = estandarizar_nombre(order)
+            orderdate = request.POST.get('orderdate')
+            orderdate = parse_date(orderdate)
             observations = request.POST.get('observations')
             observations = estandarizar_nombre(observations)
             unit = request.POST.get('unit')
@@ -1038,6 +1042,7 @@ def registrar_entrada(request):
                 weight=weight,
                 location=location,
                 order=order,
+                date_order=orderdate,
                 manager=manager,
                 observations=observations,
                 nproject=nproject,
@@ -1200,7 +1205,7 @@ def registrar_salida(request):
                         inventario_existente.save()
                         warning=", pero el inventario actual ha llegado a 0. Favor informar al coordinador de laboratorio."
                     laboratorio_quimica = Laboratorios.objects.get(name="LABORATORIO DE QUIMICA")
-                    if (inventario_existente.weight<=inventario_existente.minstock) and inventario_existente.lab==laboratorio_quimica and inventario_existente.weight>0:
+                    if (inventario_existente.weight<=inventario_existente.minstock) and inventario_existente.minStockControl==True and inventario_existente.weight>0:
 
                         warning=", pero el inventario actual es menor o igual que el stock mínimo para este reactivo. Favor informar al coordinador de laboratorio."
 

@@ -101,7 +101,7 @@ class Reactivosadmin(admin.ModelAdmin):
 # Inclusión de el modelo ENTRADAS en la consola de administración de Django
 @admin.register(Entradas)
 class Entradaadmin(admin.ModelAdmin):
-    list_display=('id','name','trademark','reference','weight','order','manager','observations','location','price','nproject','destination','lab','observations', 'created_by', 'date_create','last_update','last_updated_by',)
+    list_display=('id','name','trademark','reference','weight','order','date_order','manager','observations','location','price','nproject','destination','lab','observations', 'created_by', 'date_create','last_update','last_updated_by',)
     list_filter=('date_create','name','lab',)
     search_fields=('date_create','name','lab',)
     list_per_page=10
