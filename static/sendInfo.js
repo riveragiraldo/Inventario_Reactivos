@@ -191,11 +191,11 @@ function obtenerDatosFormulario() {
             (campo.tagName.toLowerCase() === 'input' && (campo.type === 'button' || campo.type === 'reset')) ||
             campo.name === 'csrfmiddlewaretoken' ||
             campo.id === 'wf' ||
-            campo.id === 'minstock' ||
             campo.id === 'stock' ||
             campo.id === 'prefix'||
             campo.id === 'password1' ||
-            campo.id === 'password2'
+            campo.id === 'password2'||
+            campo.id === 'controlMinStock'
 
         ) {
 

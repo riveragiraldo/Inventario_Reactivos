@@ -808,10 +808,13 @@ def registrar_entrada(request):
             name = None
             return HttpResponse("El reactivo "+nReactivo +" no se encuentra en la base de datos, favor crearlo primero.", status=400)
 
+        facultad = request.POST.get('facultad')
+        facultad=get_object_or_404(Facultades, name=facultad)
+        
         location = request.POST.get('location')
         nlocation = location
         try:
-            nameLocation = Ubicaciones.objects.get(name=location)
+            nameLocation = Ubicaciones.objects.get(name=location, facultad=facultad)
             location = nameLocation
 
         except Ubicaciones.DoesNotExist:
@@ -888,6 +891,14 @@ def registrar_entrada(request):
             messages.error(request, 'Solo se permiten registros con precios positivos')
             return HttpResponse("Error de cantidades al insertar en la base de datos", status=400)
         
+        #Obtener minStockControl
+        minStockControl = request.POST.get('minStockControl')
+        if minStockControl=="Activo":
+            minStockControl=True
+        elif minStockControl=="Inactivo":
+            minStockControl=False
+
+        
         #verificar que el valor sea positivo
         minstock = request.POST.get('minstock')
         if minstock=='':
@@ -940,6 +951,7 @@ def registrar_entrada(request):
                     inventario_existente.edate = request.POST.get('edate')
                     inventario_existente.minstock = request.POST.get('minstock')
                     inventario_existente.wlocation = wlocation
+                    inventario_existente.minStockControl = minStockControl
                     minstock = request.POST.get('minstock')
                     if minstock=='':
                         minstock=0
@@ -954,6 +966,7 @@ def registrar_entrada(request):
                     inventario_existente.weight += int(weight)
                     inventario_existente.edate = request.POST.get('edate')
                     inventario_existente.wlocation = wlocation
+                    inventario_existente.minStockControl = minStockControl
                     minstock = request.POST.get('minstock')
                     if minstock=='':
                         minstock=0
@@ -993,6 +1006,7 @@ def registrar_entrada(request):
                     reference=reference,
                     lab=lab,
                     wlocation=wlocation,
+                    minStockControl=minStockControl,
                     minstock=minstock,
                     edate=edate,
                     created_by=request.user,  # Asignar el usuario actualmente autenticado
@@ -1094,10 +1108,13 @@ def registrar_salida(request):
             name = None
             return HttpResponse("El reactivo "+nReactivo +" no se encuentra en la base de datos, favor crearlo primero.", status=400)
 
+        facultad = request.POST.get('facultad')
+        facultad=get_object_or_404(Facultades, name=facultad)
+        
         location = request.POST.get('location')
         nlocation = location
         try:
-            nameLocation = Ubicaciones.objects.get(name=location)
+            nameLocation = Ubicaciones.objects.get(name=location,facultad=facultad)
             location = nameLocation
         except Ubicaciones.DoesNotExist:
             messages.error(request, "La ubicación "+nlocation +
@@ -1204,6 +1221,7 @@ def registrar_salida(request):
             reference = request.POST.get('reference')
             weight = request.POST.get('weight')
             observations = request.POST.get('observations')
+            observations = estandarizar_nombre(observations)
             unit = request.POST.get('unit')
             
 

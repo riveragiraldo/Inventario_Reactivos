@@ -119,7 +119,7 @@ class Salidaadmin(admin.ModelAdmin):
 # Inclusión de el modelo INVENTARIOS en la consola de administración de Django
 @admin.register(Inventarios)
 class Inventarioadmin(admin.ModelAdmin):
-    list_display=('id','name','trademark','weight','reference','lab','wlocation','minstock','edate','is_active','created_by', 'date_create','last_update','last_updated_by',)
+    list_display=('id','name','trademark','weight','reference','lab','wlocation','minStockControl','minstock','edate','is_active','created_by', 'date_create','last_update','last_updated_by',)
     list_filter=('trademark','name','reference','lab',)
     search_fields=('trademark','name','reference','lab',)
     list_per_page=10
