@@ -24,6 +24,7 @@ urlpatterns = [
     path('reactivos/registrar_salida/', registrar_salida, name='registrar_salida'),
     path('reactivos/registrar_entrada/', registrar_entrada, name='registrar_entrada'),
     path('reactivos/inventario/', InventarioListView.as_view(), name='inventario'),
+    path('reactivos/listado_entradas/', EntradasListView.as_view(), name='listado_entradas'),
     path('roles/crear/', CrearRoles.as_view(), name='crear_roles'),
     path('get-value/', get_value, name='get_value'),
     path('autocomplete/', autocomplete, name='autocomplete'),

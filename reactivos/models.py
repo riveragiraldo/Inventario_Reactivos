@@ -47,6 +47,7 @@ class User(AbstractUser):
 
 class Rol(models.Model):
     name=models.CharField('Rol', max_length=50, unique=True,)
+    is_active = models.BooleanField(default=True)
     date_created = models.DateTimeField(auto_now_add=True,verbose_name='Fecha registro',)
     last_update = models.DateTimeField(auto_now=True,verbose_name='Última Actualización',)
     user_create = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Usuario', related_name='user_Rol')
@@ -91,6 +92,7 @@ class Rol(models.Model):
 # Modelo para tabla Unidades en base de datos Reactivos
 class Unidades(models.Model):
     name = models.CharField(max_length=20, verbose_name="Unidad")
+    is_active = models.BooleanField(default=True)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Usuario')
     date_create = models.DateTimeField(auto_now_add=True,verbose_name='Fecha registro',)
     last_update = models.DateTimeField(auto_now=True,verbose_name='Última Actualización')
@@ -106,6 +108,7 @@ class Unidades(models.Model):
 # Modelo para tabla Marcas en base de datos Reactivos
 class Marcas(models.Model):
     name = models.CharField(max_length=30, verbose_name="Marca")
+    is_active = models.BooleanField(default=True)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Usuario')
     date_create = models.DateTimeField(auto_now_add=True, verbose_name='Fecha Registro')
     last_update = models.DateTimeField(auto_now=True,verbose_name='Última Actualización')
@@ -121,6 +124,7 @@ class Marcas(models.Model):
 # Modelo para tabla Estados en base de datos Reactivos
 class Estados(models.Model):
     name = models.CharField(max_length=30, verbose_name="Estado")
+    is_active = models.BooleanField(default=True)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Usuario')
     date_create = models.DateTimeField(auto_now_add=True,verbose_name='Fecha registro',)
     last_update = models.DateTimeField(auto_now=True,verbose_name='Última Actualización')
@@ -136,6 +140,7 @@ class Estados(models.Model):
 # Modelo para tabla Destinos en base de datos Reactivos
 class Destinos(models.Model):
     name = models.CharField(max_length=30, verbose_name="Destino")
+    is_active = models.BooleanField(default=True)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Usuario')
     date_create = models.DateTimeField(auto_now_add=True,verbose_name='Fecha registro',)
     last_update = models.DateTimeField(auto_now=True,verbose_name='Última Actualización')
@@ -151,6 +156,7 @@ class Destinos(models.Model):
 # Modelo para tabla Laboratorios en base de datos Reactivos
 class Laboratorios(models.Model):
     name = models.CharField(max_length=100, verbose_name="Nombre Laboratorio")
+    is_active = models.BooleanField(default=True)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Usuario')
     date_create = models.DateTimeField(auto_now_add=True,verbose_name='Fecha registro',)
     last_update = models.DateTimeField(auto_now=True,verbose_name='Última Actualización')
@@ -185,6 +191,7 @@ class Responsables(models.Model):
 # Modelo para tabla Facultades en base de datos Reactivos
 class Facultades(models.Model):
     name = models.CharField(max_length=100, verbose_name="Nombre Facultad")
+    is_active = models.BooleanField(default=True)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Usuario')
     date_create = models.DateTimeField(auto_now_add=True,verbose_name='Fecha registro',)
     last_update = models.DateTimeField(auto_now=True,verbose_name='Última Actualización')
@@ -202,6 +209,7 @@ class Facultades(models.Model):
 class RespelC(models.Model):
     name = models.CharField(max_length=100, verbose_name="Clasificación Respel")
     description=models.TextField(max_length=1000, verbose_name="Descripción")
+    is_active = models.BooleanField(default=True)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Usuario')
     date_create = models.DateTimeField(auto_now_add=True,verbose_name='Fecha registro',)
     last_update = models.DateTimeField(auto_now=True,verbose_name='Última Actualización')
@@ -218,6 +226,7 @@ class RespelC(models.Model):
 class SGA(models.Model):
     name = models.CharField(max_length=100, verbose_name="Codificiación SGA")
     description=models.TextField(max_length=1000, verbose_name="Descripción")
+    is_active = models.BooleanField(default=True)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Usuario')
     date_create = models.DateTimeField(auto_now_add=True,verbose_name='Fecha registro',)
     last_update = models.DateTimeField(auto_now=True,verbose_name='Última Actualización')
@@ -236,6 +245,7 @@ class Ubicaciones(models.Model):
         max_length=100, verbose_name="Ubicación/Asignaturas")
     facultad = models.ForeignKey(
         Facultades, on_delete=models.CASCADE, related_name='facultad', verbose_name='Facultad')
+    is_active = models.BooleanField(default=True)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Usuario')
     date_create = models.DateTimeField(auto_now_add=True,verbose_name='Fecha registro',)
     last_update = models.DateTimeField(auto_now=True,verbose_name='Última Actualización')
@@ -255,6 +265,7 @@ class Almacenamiento(models.Model):
         max_length=100, verbose_name="Ubicación/Asignaturas")
     lab=models.ForeignKey(Laboratorios, on_delete=models.CASCADE, related_name='labrel', verbose_name='Laboratorio')    
     description=models.TextField(max_length=1000, verbose_name="Descripción")
+    is_active = models.BooleanField(default=True)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Usuario')
     date_create = models.DateTimeField(auto_now_add=True,verbose_name='Fecha registro',)
     last_update = models.DateTimeField(auto_now=True,verbose_name='Última Actualización')
@@ -282,6 +293,7 @@ class Reactivos(models.Model):
                               related_name='respel', verbose_name="Clasificación Respel")
     sga = models.ForeignKey(SGA, on_delete=models.CASCADE,
                               related_name='resp', verbose_name="Clasificación SGA")
+    is_active = models.BooleanField(default=True)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Usuario')
     date_create = models.DateTimeField(auto_now_add=True,verbose_name='Fecha registro',)
     last_update = models.DateTimeField(auto_now=True,verbose_name='Última Actualización')
@@ -320,6 +332,7 @@ class Entradas(models.Model):
     nproject=models.CharField(max_length=15, verbose_name='Número de proyecto')
     destination=models.ForeignKey(Destinos, on_delete=models.CASCADE, verbose_name='Destino')
     lab=models.ForeignKey(Laboratorios, on_delete=models.CASCADE, related_name='labs', verbose_name='Laboratorio')
+    is_active = models.BooleanField(default=True)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Usuario')
     date_create = models.DateTimeField(auto_now_add=True,verbose_name='Fecha registro',)
     last_update = models.DateTimeField(auto_now=True,verbose_name='Última Actualización')
@@ -354,6 +367,7 @@ class Salidas(models.Model):
     location = models.ForeignKey(
         Ubicaciones, on_delete=models.CASCADE, related_name='location', verbose_name='Ubicación')
     lab=models.ForeignKey(Laboratorios, on_delete=models.CASCADE, related_name='lab', verbose_name='Laboratorio')
+    is_active = models.BooleanField(default=True)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Usuario')
     date_create = models.DateTimeField(auto_now_add=True,verbose_name='Fecha registro',)
     last_update = models.DateTimeField(auto_now=True,verbose_name='Última Actualización')

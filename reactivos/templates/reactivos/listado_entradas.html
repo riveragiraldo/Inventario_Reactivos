@@ -1,0 +1,292 @@
+{% extends "webtemplate.html" %}
+{% load has_group %}
+<!doctype html>
+<html lang="es">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Listado de entradas{% endblock %}</title>
+    {% block head %}
+    <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe" crossorigin="anonymous"
+        defer>
+        </script> -->
+
+    <!-- Incluir SweetAlert2 desde CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.min.css">
+
+    {% load static %}
+    {% if request.user|has_group:"COORDINADOR" or request.user|has_group:"TECNICO" %}
+    {% for lab in laboratorios %}
+    {% if lab.id == laboratorio.id %}
+
+
+
+    <script>
+        labDefault = '{{ lab.id }}'
+    </script>
+    {% endif %}
+    {% endfor %}
+    {% endif %}
+
+    {% if request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
+
+    <script>
+        labDefault = "0"
+    </script>
+    {% endif %}
+    <link rel="stylesheet" href="{% static 'inventoryStyles.css' %}">
+    <script src="{% static 'paginationInventoryControl.js' %}"></script>
+    <!-- Llama Script que controla la paginación -->
+    <script src="{% static 'selectControl.js' %}" defer></script>
+    <!-- Llama Script que controla los select según el inventario -->
+    <script src="{% static 'holdSelect.js' %}" defer></script>
+    <!-- Llama Script que controla los select según el inventario -->
+    <script src="{% static 'highlightPaginationControl.js' %}" defer></script>
+    <!-- Llama Script que resalta los controles de paginación -->
+    <script>var inventarioUrl = "{% url 'reactivos:inventario' %}";</script>
+    <script src="{% static 'sortByControl.js' %}" defer></script>
+    <!-- Llama Script que envía datos de ordenamiento de registros -->
+    <script src="{% static 'openDetailIn.js' %}" defer></script>
+    <!-- Llama Script que resalta los controles de paginación -->
+    <script src="{% static 'updateUrl.js' %}" ></script>
+    <!-- Llama Script que actualiza URL -->
+    {% endblock %}
+</head>
+
+<body>
+    {% block content %}
+    <div class="row">
+        <div class="col-md-9 mx-auto">
+            <h1>Inventario Reactivos</h1>
+            <br>
+
+            <form method="get" onsubmit="guardarValoresSelect()">
+
+                <div class="row justify-content-between">
+
+                    <div class="col-md-3 d-flex flex-column align-items-left">
+                        <label for="lab">Laboratorio:</label>
+                        {% if request.user|has_group:"COORDINADOR" or request.user|has_group:"TECNICO" %}
+                        <select name="lab" class="form-control" id="lab">
+                            {% for lab in laboratorios %}
+                            {% if lab.id == laboratorio.id %}
+                            <option value="{{ lab.id }}" selected="">{{ lab.name }}</option>
+
+                            {% endif %}
+                            {% endfor %}
+                        </select>
+                        {% endif %}
+
+
+                        {% if request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
+                        <select name="lab" class="form-control" id="lab">
+                            <option value='0' selected="">Todos</option>
+                            {% for lab in laboratorios %}
+
+                            <option value="{{ lab.id }}">{{ lab.name }}</option>
+
+                            {% endfor %}
+                        </select>
+                        {% endif %}
+
+
+                    </div>
+
+
+                    <div class="col-md-3 d-flex flex-column align-items-left">
+                        <label for="name">Nombre Reactivo:</label>
+                        <select id="name" name="name" class="form-control">
+                            <option value="">Todos</option>
+                            {% for item in unique_names %}
+                            <option value="{{ item.id }}">{{ item.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="col-md-2 d-flex flex-column align-items-left">
+                        <label for="trademark">Marca:</label>
+                        <select id="trademark" name="trademark" class="form-control">
+                            <option value="">Todas</option>
+                            {% for item in unique_trademarks %}
+                            <option value="{{ item.id }}">{{ item.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button id="boton-buscar" type="submit" class="btn btn-primary">Buscar</button>
+                    </div>
+                </div>
+        </div>
+    </div>
+    <br>
+
+    <div class="col-md-11 mx-auto">
+        <!-- Control de paginación -->
+        <div class="d-flex justify-content-between">
+            <div>
+                Ver&nbsp;
+                <div class="btn-group btn-group-toggle" data-toggle="buttons">
+
+                    <a href="{% url 'reactivos:GuardarPerPage' per_page=10 %}" class="btn btn-secondary btn-sm"
+                        id="per-page-10">10</a>
+                    <a href="{% url 'reactivos:GuardarPerPage' per_page=20 %}" class="btn btn-secondary btn-sm"
+                        id="per-page-20">20</a>
+                    <a href="{% url 'reactivos:GuardarPerPage' per_page=50 %}" class="btn btn-secondary btn-sm"
+                        id="per-page-50">50</a>
+
+                </div>&nbsp;Registros por página
+            </div>
+        </div>
+        </form>
+        <br>
+        <div class="table-responsive">
+            <table class="table" id="tabla-inventario">
+                <thead>
+                    <tr>
+                        <th class="sortable-header" data-column="0" title="Ordenar por Consecutivo">Consecutivo</th>
+                        <th class="sortable-header" data-column="1" title="Ordenar por fecha">Fecha</th>
+                        <th class="sortable-header" data-column="2" title="Ordenar por nombre">Nombre</th>
+                        <th class="sortable-header" data-column="3" title="Ordenar por marca">Marca</th>
+                        <th class="sortable-header" data-column="4" title="Ordenar por referencia">Referencia</th>
+                        <th class="sortable-header" data-column="5" title="Ordenar por cantidad">Cantidad</th>
+                        <th class="sortable-header" data-column="6" title="Ordenar por laboratorio">Laboratorio</th>
+                        <th class="sortable-header" data-column="7" title="Ordenar por Orden">Orden</th>
+                        <th class="sortable-header" data-column="8" title="Ordenar por Proyecto">Proyecto</th>
+                        <th class="sortable-header" data-column="9" title="Ordenar por Valor">Valor</th>
+                        <th class="sortable-header" data-column="10" title="Ordenar por Destino">Destino</th>
+                        <th class="sortable-header" data-column="11" title="Ordenar por Responsable">Responsable</th>
+                        <th class="sortable-header" data-column="12" title="Ordenar por Asignatura/Ubicación">Asignatura</th>
+                        <th class="sortable-header" data-column="13" title="Facultad">Facultad</th>
+                        <th class="sortable-header" data-column="14" title="Ordenar por Responsable del Registro">Registrado por</th>
+                        <th class="sortable-header" title="Visualización de detalle (no ordena)">Ver detalle</th>
+                    </tr>
+                </thead>
+
+
+                <tbody>
+                    {% for item in object_list %}
+                    <tr class="table-row">
+                        <td title="Consecutivo">{{ item.id }}</td>
+                        <td title="Fecha de entrada">{{ item.date_create|date:"d/m/Y" }}</td>
+                        <td title="Reactivo">{{ item.name }}</td>
+                        <td title="Marca">{{ item.trademark }}</td>
+                        <td title="Referencia ">{{ item.reference }}</td>
+                        <td title="Cantidad  de {{ item.name }}">{{ item.weight|floatformat:1 }} {{ item.name.unit }}</td>
+                        <td title="Laboratorio al que pertenece el reactivo {{ item.name }}">{{ item.lab }}</td>
+                        <td title="Orden {{ item.name }}">{{ item.order }} de {{ item.date_order }}</td>
+                        <td title="Número de proyecto {{ item.name }}">{{ item.nproject }}</td>
+                        <td title="Valor Ingreso {{ item.name }}">{{ item.price }}</td>
+                        <td title="Destino de ingreso {{ item.name }}">{{ item.destination }}</td>
+                        <td title="Responsable de ingreso">{{ item.manager }}</td>
+                        <td title="Ubicación de ingreso {{ item.name }}">{{ item.location }}</td>
+                        <td title="Facultad de ingreso {{ item.name }}">{{ item.location.facultad }}</td>
+                        <td title="Responsable del registro">{{ item.created_by.first_name }} {{ item.created_by.last_name }}</td>
+                        <!-- Modifica el evento click de la imagen para mostrar SweetAlert -->
+                        <td>
+                            <img src="{% static 'Images/moreInfo.ico' %}" alt="" width="18" height="18"
+                                class="detalle-reactivo" data-reactivo-id="{{ item.id }}"
+                                data-reactivo-name="{{ item.name }}" data-reactivo-order="{{ item.order }}"
+                                data-reactivo-date="{{ item.date_create|date:'d/m/Y' }}" data-reactivo-trademark="{{ item.trademark }}"
+                                data-reactivo-reference="{{ item.reference }}"
+                                data-reactivo-quantity="{{ item.weight|floatformat:1 }}"
+                                data-reactivo-unit="{{ item.name.unit }}" data-reactivo-date_order="{{ item.date_order }}"
+                                data-reactivo-lab="{{ item.lab }}" data-reactivo-date_create="{{ item.date_create }}"
+                                data-reactivo-nproject="{{ item.nproject }}" data-reactivo-price="{{ item.price|floatformat:0 }}"
+                                data-reactivo-destination="{{ item.destination }}"
+                                data-reactivo-manager="{{ item.manager }}"
+                                data-reactivo-location="{{ item.location }}"
+                                data-reactivo-school="{{ item.location.facultad }}"
+                                data-reactivo-observations="{{ item.observations }}"
+                                data-reactivo-create_by="{{ item.created_by.first_name }} {{ item.created_by.last_name }}"
+                                data-reactivo-lastupdate="{{ item.last_update }}"
+                                data-reactivo-update_by="{{ item.last_updated_by.first_name }} {{ item.last_updated_by.last_name }}"
+                                title="Más información sobre el registro de entrada de: {{ item.name }}">
+                        </td>
+
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <br>
+            <div class="d-flex justify-content-between">
+                <!-- Controles de navegación de página -->
+                <div class="pagination">
+                    <span class="step-links">
+                        {% if page_obj.has_previous %}
+                            <a href="" id="first-page-link">Primera</a>
+                            <a href="" id="previous-page-link">Anterior</a>
+                        {% endif %}
+                
+                        <span class="current-page">Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}.</span>
+                
+                        {% if page_obj.has_next %}
+                            <a href="" id="next-page-link">Siguiente</a>
+                            <a href="" id="last-page-link">Última</a>
+                        {% endif %}
+                    </span>
+                </div>
+                
+                
+                
+
+                <!-- Información de paginación -->
+                <div class="pagination-info">
+                    Mostrando {{ page_obj.start_index }} - {{ page_obj.end_index }} de {{ paginator.count }} registros
+                </div>
+            </div>
+
+            <br>
+            <!-- Opciones de exportación -->
+            <a href="{% url 'reactivos:export_to_excel' %}" class="btn btn-primary">Exportar a Excel</a>
+            <a href="{% url 'reactivos:export_to_pdf' %}" class="btn btn-primary">Exportar a PDF</a>
+
+        </div>
+    </div>
+    <!-- Este script no puede ser llamado de manera independiente ya que tiene muchas variables provenientes del servidor -->
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const baseUrl = window.location.href;
+        const currentPage = '{{ page_obj.number }}';
+        const nextPage = parseInt(currentPage)+1
+        const previousPage = parseInt(currentPage)-1
+        const totalPages = '{{ page_obj.paginator.num_pages }}';
+        
+        
+        '{% if page_obj.has_previous %}'
+        const firstPageLink = document.getElementById('first-page-link');
+        const previousPageLink = document.getElementById('previous-page-link');
+        firstPageLink.href = baseUrl+'&page=1';
+        previousPageLink.href = baseUrl+'&page='+previousPage;
+        '{% endif %}'
+
+        '{% if page_obj.has_next %}'
+        const nextPageLink = document.getElementById('next-page-link');
+        const lastPageLink = document.getElementById('last-page-link');
+        nextPageLink.href = baseUrl+'&page='+nextPage;
+        lastPageLink.href = baseUrl+'&page='+totalPages;
+
+        '{% endif %}'
+        
+    
+        
+        
+        
+        
+        
+        
+
+        
+    });
+    </script>
+    {% endblock %}
+</body>
+
+</html>

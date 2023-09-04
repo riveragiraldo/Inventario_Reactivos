@@ -1390,6 +1390,132 @@ class ListadoUsuarios(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         return self.model.objects.filter(is_active=True)
+    
+
+
+    
+
+class EntradasListView(LoginRequiredMixin,ListView):
+    model = Entradas
+    template_name = "reactivos/listado_entradas.html"
+    paginate_by = 10
+    
+
+    def get(self, request, *args, **kwargs):
+        # Obtener el número de registros por página de la sesión del usuario
+        per_page = request.session.get('per_page')
+        if per_page:
+            self.paginate_by = int(per_page)
+        else:
+            self.paginate_by = 10  # Valor predeterminado si no hay variable de sesión
+
+        # Obtener los parámetros de filtrado
+        lab = request.GET.get('lab')
+        # name = request.GET.get('name')
+        # trademark = request.GET.get('trademark')
+        
+        # si el valor de lab viene de sesión superusuario o ADMINISTRADOR lab=0 cambiar por lab=''
+        if lab=='0':
+            lab=''
+
+        # Guardar los valores de filtrado en la sesión
+        request.session['filtered_lab'] = lab
+        # request.session['filtered_name'] = name
+        # request.session['filtered_trademark'] = trademark
+        
+
+        return super().get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        unique_labs_ids = Inventarios.objects.values('lab').distinct()
+        unique_labs = Laboratorios.objects.filter(id__in=unique_labs_ids)
+
+        # unique_names_ids = Inventarios.objects.values('name').distinct()
+        # unique_names = Reactivos.objects.filter(id__in=unique_names_ids)
+
+        # unique_trademarks_ids = Inventarios.objects.values(
+        #     'trademark').distinct()
+        # unique_trademarks = Marcas.objects.filter(id__in=unique_trademarks_ids)
+               
+        laboratorio = self.request.user.lab
+        
+    
+        context['usuarios'] = User.objects.all()
+        context['laboratorio'] = laboratorio
+        context['laboratorios'] = Laboratorios.objects.all()
+        
+
+        context['unique_labs'] = unique_labs
+        # context['unique_names'] = unique_names
+        # context['unique_trademarks'] = unique_trademarks
+        
+
+        
+
+        # Obtener la lista de inventarios
+        entradas = context['object_list']
+        # Recorrer los entradas y cambiar el formato de la fecha
+        
+        for entrada in entradas:
+            # Obtener la fecha de vencimiento
+            date_order = entrada.date_order
+            if date_order==None:
+                date_order=''
+            else:
+                # Cambiar el formato de fecha de inglés a formato dd/mm/aaaa
+                date_order = date_order.strftime('%d/%m/%Y')
+
+            # Actualizar la fecha en el inventario
+            entrada.date_order = date_order
+        
+
+        context['object_list'] = entradas
+
+        return context
+    
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        lab = self.request.GET.get('lab')
+        # name = self.request.GET.get('name')
+        # trademark = self.request.GET.get('trademark')
+
+        # si el valor de lab viene de sesión superusuario o ADMINISTRADOR lab=0 cambiar por lab=''
+        if lab=='0':
+             lab=''
+             
+        # Definir Queryset para filtrado de visulización
+        # if lab and name and trademark:
+        #     queryset = queryset.filter(lab=lab, name=name, trademark=trademark, is_active=True)
+        # elif lab and name:
+        #     queryset = queryset.filter(lab=lab, name=name, is_active=True)
+        # elif lab and trademark:
+        #     queryset = queryset.filter(lab=lab, trademark=trademark, is_active=True)
+        # elif name and trademark:
+        #     queryset = queryset.filter(name=name, trademark=trademark, is_active=True)
+        if lab:
+            queryset = queryset.filter(lab=lab, is_active=True)
+        # elif name:
+        #     queryset = queryset.filter(name=name, is_active=True)
+        # elif trademark:
+        #     queryset = queryset.filter(trademark=trademark, is_active=True)
+        
+        else:
+            queryset = queryset.filter(is_active=True)
+            
+        queryset = queryset.order_by('id')
+        return queryset
+    
+
+
+#Listado Usuarios
+class ListadoUsuarios(LoginRequiredMixin, ListView):
+    model=User
+    template_name='usuarios/listar_usuarios.html'
+
+    def get_queryset(self):
+        return self.model.objects.filter(is_active=True)
 
 
 #Crear Usuarios

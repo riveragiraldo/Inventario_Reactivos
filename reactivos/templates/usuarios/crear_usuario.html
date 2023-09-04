@@ -31,7 +31,8 @@
   <!-- Llama Script al final que verifica los requisitos mínimos del password además de la igualdad de estos-->
   <script src="{% static 'showHidePass.js' %}" defer></script>
   <!-- Llama Script al final que muestra u oculta el password en los campos correspondientes-->
-
+  <script src="{% static 'callPopUp.js' %}" defer></script>
+  <!-- Llama Script al final llama las ventanas emergentes -->
   {% endblock %}
 
 </head>
@@ -65,7 +66,10 @@
 
         <div class="form-group">
           <label for="{{ form.email.id_for_label }}" name="Correo Electrónico:">Correo Electrónico:</label>
+
+
           {{ form.email }}
+
         </div>
         <div class="form-group">
           <label for="{{ form.username.id_for_label }}" name="Nombre de usuario:">Nombre de usuario:</label>
@@ -82,9 +86,16 @@
 
         <div class="form-group">
           <label for="{{ form.rol.id_for_label }}" name="Rol:">Rol:</label>
+
           {% if request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
-          {{ form.rol }}
+          <div class="input-group">
+            {{ form.rol }}
+            {% if request.user.is_superuser %}
+            <button type="button" id="add_rol_btn" class="btn btn-secondary" title="Agregar Rol">+</button>
+            {% endif %}
+          </div>
           {% endif %}
+
           {% if request.user|has_group:"COORDINADOR" %}
           <select name="rol" class="form-control" required="" id="id_rol">
             <option value="" selected="">---------</option>
@@ -99,16 +110,22 @@
 
         <div class="form-group">
           <label for="{{ form.lab.id_for_label }}" name="Laboratorio:">Laboratorio:</label>
+
           {% if request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
-          {{ form.lab }}
+          <div class="input-group">
+            {{ form.lab }}
+            <button type="button" id="add_lab_btn" class="btn btn-secondary" title="Agregar Laboratorio">+</button>
+          </div>
           {% endif %}
+
+
           {% if request.user|has_group:"COORDINADOR" %}
           <select name="lab" class="form-control" required="" id="id_lab">
             <option value="" selected="">---------</option>
             {% for lab in laboratorios %}
-            {% if  lab.name == labname %}
+            {% if lab.name == labname %}
             <option value="{{ lab.id }}">{{ lab.name }}</option>
-            
+
             {% endif %}
             {% endfor %}
           </select>
@@ -140,6 +157,7 @@
             </div>
             <div id="password2-validation-msg" class="validation-msg" style="color: red;"></div>
           </div>
+          <input type="hidden" name="wf" class="form-control" value="user_create" id="wf">
 
 
           <br>

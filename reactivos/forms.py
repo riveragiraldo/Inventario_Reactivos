@@ -75,7 +75,9 @@ class FormularioUsuario(forms.ModelForm):
                                            'placeholder': 'Número de identificación',
                                            'pattern':'^(?:[1-9]\d{6,10}|9999999999)$',
                                            'title':'Ingrese un número de cédula entre 1000000 y 9999999999 (sin puntos ni comas)',
-                                           'required':'required'
+                                           'required':'required',
+                                           'id':'id_number'
+
                                        }))
     
     phone_number = forms.IntegerField(label='Número Telefónico', required=True,
@@ -109,7 +111,7 @@ class FormularioUsuario(forms.ModelForm):
         attrs={
             'class': 'form-control',
             'placeholder': 'Escriba los nombres',
-            'id': 'first_name',
+            'id': 'username',
             'required':'required',
             'pattern':'^(?:[a-zA-Zá-úÁ-Ú]+\s){0,1}[a-zA-Zá-úÁ-Ú]+$',
             'title':'Ingrese máximos dos palabras sin números ni caracteres especiales',

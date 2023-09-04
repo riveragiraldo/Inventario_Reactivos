@@ -51,8 +51,8 @@
 
                 <div class="col-md-5">
                     <label class="form-label" for="name" name="Nombre del Rol: ">Nombre del Rol:</label>
-                    <input type="text" class="form-control" placeholder="Ejemplo: Administrador" name="name" required id="name"
-                        pattern="^[a-z A-Záéíóú]{1,15}$" title="Ingrese solo letras (máximo 15 caracteres)">
+                    <input type="text" class="form-control" placeholder="Ejemplo: Administrador" name="name" required
+                        id="name" pattern="^[a-z A-Záéíóú]{1,15}$" title="Ingrese solo letras (máximo 15 caracteres)">
 
                 </div>
                 <div class="col-md-12">
@@ -83,81 +83,56 @@
                 //Verificar si es ventana emergente
                 if (window.opener) {
 
+                    // Código para actualizar formulario padre según corresponda
+
                     window.onload = function () {
 
-                        mensaje = "{{ message }}";
+                        mensaje = "{{ message|safe }}";
+                        alert(mensaje)
 
-                        //Obtener id después del mensaje
-                        var unidad = mensaje.split(": ")[1];
-
-                        var messageText = '{{ message|safe }}';
-
-                        var alertType = 'info';  // Tipo de alerta predeterminado para mensajes habituales
-
-                        // Verificar el contenido del mensaje para asignar el tipo de alerta adecuado
-                        if (messageText.includes('Se ha creado exitosamente')) {
-                            alertType = 'success';
-                        } else if (messageText.includes('Por favor seleccione') || messageText.includes('Ya existe') || messageText.includes('Solo se permiten registros ')) {
-                            alertType = 'warning';
-                        }
-
-                        // Mostrar la notificación con SweetAlert2
-                        Swal.fire({
-                            icon: alertType,
-                            title: 'Mensaje del servidor',
-                            text: messageText,
-                            confirmButtonText: 'Aceptar'
-                        });
+                        //Obtener el id desde el mensaje
+                        var id_rol = mensaje.split(": ")[1];
 
 
                         // Obtener los valores de los elementos necesarios de la ventana padre
-                        var color = window.opener.document.getElementById("color").value;
-                        var number = window.opener.document.getElementById("number").value;
-                        var subnumber = window.opener.document.getElementById("subnumber").value;
-                        var code = window.opener.document.getElementById("code").value;
-                        var cas = window.opener.document.getElementById("cas").value;
-                        var name_father = window.opener.document.getElementById("name").value;
-                        var estado = window.opener.document.getElementById("selectState").value;
-                        var respel = window.opener.document.getElementById("respel").value;
-                        var sga = window.opener.document.getElementById("sga").value;
-
+                        var id_number = window.opener.document.getElementById("id_number").value;
+                        var id_phone_number = window.opener.document.getElementById("id_phone_number").value;
+                        var email = window.opener.document.getElementById("email").value;
+                        var username = window.opener.document.getElementById("username").value;
+                        var first_name = window.opener.document.getElementById("first_name").value;
+                        var last_name = window.opener.document.getElementById("last_name").value;
+                        var id_lab = window.opener.document.getElementById("id_lab").value;
+                        var password1 = window.opener.document.getElementById("password1").value;
+                        var password2 = window.opener.document.getElementById("password2").value;
                         // Recargar la página padre
                         window.opener.location.replace(window.opener.location.href);
 
                         setTimeout(function () {
-                            // Acceder a la ventana padre y actualizar los valores
+                            // // Acceder a la ventana padre y actualizar los valores
 
-                            window.opener.document.querySelector("#color").value = color;
-                            window.opener.document.querySelector("#number").value = number;
-                            window.opener.document.querySelector("#subnumber").value = subnumber;
-                            window.opener.document.querySelector("#code").value = code;
-                            window.opener.document.querySelector("#cas").value = cas;
-                            window.opener.document.querySelector("#name").value = name_father;
+                            window.opener.document.querySelector("#id_number").value = id_number;
+                            window.opener.document.querySelector("#id_phone_number").value = id_phone_number;
+                            window.opener.document.querySelector("#email").value = email;
+                            window.opener.document.querySelector("#username").value = username;
+                            window.opener.document.querySelector("#first_name").value = first_name;
+                            window.opener.document.querySelector("#last_name").value = last_name;
 
+                            //Actualiza Select Rol
+                            var rol_new = window.opener.document.querySelector("#id_rol");
+                            rol_new.value = id_rol;
+                            rol_new.setAttribute("selected", true);
 
-                            //Actualiza Select state
-                            var state_new = window.opener.document.querySelector("#selectState");
-                            state_new.value = estado;
-                            state_new.setAttribute("selected", true);
+                            //Actualiza Select Lab
+                            var lab_new = window.opener.document.querySelector("#id_lab");
+                            lab_new.value = id_lab;
+                            lab_new.setAttribute("selected", true);
 
-                            //Actualiza Select respel
-                            var respel_new = window.opener.document.querySelector("#respel");
-                            respel_new.value = respel;
-                            respel_new.setAttribute("selected", true);
-
-                            //Actualiza Select sga
-                            var sga_new = window.opener.document.querySelector("#sga");
-                            sga_new.value = sga;
-                            sga_new.setAttribute("selected", true);
-
-                            //Actualiza Select selectunidades
-                            var unidad_new = window.opener.document.querySelector("#selectUnidades");
-                            unidad_new.value = unidad;
-                            unidad_new.setAttribute("selected", true);
+                            window.opener.document.querySelector("#password1").value = password1;
+                            window.opener.document.querySelector("#password2").value = password2;
 
                             window.close();
 
-                        }, 500);
+                        }, 2500);
                     };
                 }
 
