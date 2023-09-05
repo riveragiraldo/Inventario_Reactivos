@@ -1400,6 +1400,9 @@ class EntradasListView(LoginRequiredMixin,ListView):
     template_name = "reactivos/listado_entradas.html"
     paginate_by = 10
     
+    @check_group_permission(groups_required=['COORDINADOR', 'ADMINISTRADOR'])
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
         # Obtener el número de registros por página de la sesión del usuario
