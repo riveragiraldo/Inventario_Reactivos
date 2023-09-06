@@ -34,6 +34,7 @@ urlpatterns = [
     path('reactivos/registrar_entrada/autocomplete_manager/', autocomplete_manager, name='autocomplete_manager'),
     path('reactivos/registrar_entrada/autocomplete_location/', autocomplete_location, name='autocomplete_location'),
     path('api/namesandtrademarksandreferencesbylab/', NamesTrademarksAndReferencesByLabAPI.as_view(), name='select-updatetrademarksandreferences'),
+    path('api/selectoptionsbylab/', SelectOptionsByLabAPI.as_view(), name='select-updatetrademarksandreferences'),
     path('api/trademarksbylabandname/', TrademarksByLabAndNameAPI.as_view(), name='select-updatetrademarksandreferences'),
     path('api/referencesbylabandname/', ReferencesByLabAndNameAPI.as_view(), name='select-updatetrademarksandreferencesbyname'),
     path('api/referencesbytrademark/', ReferencesByTrademarkAPI.as_view(), name='select-updatereferences'),

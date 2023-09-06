@@ -1432,15 +1432,16 @@ class EntradasListView(LoginRequiredMixin,ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        unique_labs_ids = Inventarios.objects.values('lab').distinct()
+        unique_labs_ids = Entradas.objects.values('lab').distinct()
         unique_labs = Laboratorios.objects.filter(id__in=unique_labs_ids)
 
-        # unique_names_ids = Inventarios.objects.values('name').distinct()
-        # unique_names = Reactivos.objects.filter(id__in=unique_names_ids)
+        unique_names_ids = Entradas.objects.values('name').distinct()
+        unique_names = Reactivos.objects.filter(id__in=unique_names_ids)
 
-        # unique_trademarks_ids = Inventarios.objects.values(
-        #     'trademark').distinct()
-        # unique_trademarks = Marcas.objects.filter(id__in=unique_trademarks_ids)
+        unique_locations_ids = Entradas.objects.values(
+            'location').distinct()
+        unique_locations = Ubicaciones.objects.filter(id__in=unique_locations_ids)
+        
                
         laboratorio = self.request.user.lab
         
@@ -1448,11 +1449,14 @@ class EntradasListView(LoginRequiredMixin,ListView):
         context['usuarios'] = User.objects.all()
         context['laboratorio'] = laboratorio
         context['laboratorios'] = Laboratorios.objects.all()
+        context['shools'] = Facultades.objects.all()
+        context['destinations'] = Destinos.objects.all()
+        context['created_bys'] = UserModel.objects.all()
         
 
         context['unique_labs'] = unique_labs
-        # context['unique_names'] = unique_names
-        # context['unique_trademarks'] = unique_trademarks
+        context['unique_names'] = unique_names
+        context['unique_locations'] = unique_locations
         
 
         
@@ -1473,39 +1477,91 @@ class EntradasListView(LoginRequiredMixin,ListView):
             # Actualizar la fecha en el inventario
             entrada.date_order = date_order
         
-
         context['object_list'] = entradas
-
         return context
     
     def get_queryset(self):
         queryset = super().get_queryset()
         lab = self.request.GET.get('lab')
-        # name = self.request.GET.get('name')
-        # trademark = self.request.GET.get('trademark')
+        name = self.request.GET.get('name')
+        location = self.request.GET.get('location')
+        destination= self.request.GET.get('destination')
+        created_by= self.request.GET.get('created_by')
+        
+
+        
+        
 
         # si el valor de lab viene de sesión superusuario o ADMINISTRADOR lab=0 cambiar por lab=''
         if lab=='0':
-             lab=''
+             lab=None
              
-        # Definir Queryset para filtrado de visulización
-        # if lab and name and trademark:
-        #     queryset = queryset.filter(lab=lab, name=name, trademark=trademark, is_active=True)
-        # elif lab and name:
-        #     queryset = queryset.filter(lab=lab, name=name, is_active=True)
-        # elif lab and trademark:
-        #     queryset = queryset.filter(lab=lab, trademark=trademark, is_active=True)
-        # elif name and trademark:
-        #     queryset = queryset.filter(name=name, trademark=trademark, is_active=True)
-        if lab:
-            queryset = queryset.filter(lab=lab, is_active=True)
-        # elif name:
-        #     queryset = queryset.filter(name=name, is_active=True)
-        # elif trademark:
-        #     queryset = queryset.filter(trademark=trademark, is_active=True)
         
+        if lab and name and destination and location and created_by:
+            queryset = queryset.filter(lab=lab, name=name, destination=destination, location=location, created_by=created_by, is_active=True)
+        elif lab and name and destination and location:
+            queryset = queryset.filter(lab=lab, name=name, destination=destination, location=location, is_active=True)
+        elif lab and name and destination and created_by:
+            queryset = queryset.filter(lab=lab, name=name, destination=destination, created_by=created_by, is_active=True)
+        elif lab and name and location and created_by:
+            queryset = queryset.filter(lab=lab, name=name, location=location, created_by=created_by, is_active=True)
+        elif lab and destination and location and created_by:
+            queryset = queryset.filter(lab=lab, destination=destination, location=location, created_by=created_by, is_active=True)
+        elif name and destination and location and created_by:
+            queryset = queryset.filter(name=name, destination=destination, location=location, created_by=created_by, is_active=True)
+        elif lab and name and destination:
+            queryset = queryset.filter(lab=lab, name=name, destination=destination, is_active=True)
+        elif lab and name and location:
+            queryset = queryset.filter(lab=lab, name=name, location=location, is_active=True)
+        elif lab and name and created_by:
+            queryset = queryset.filter(lab=lab, name=name, created_by=created_by, is_active=True)
+        elif lab and destination and location:
+            queryset = queryset.filter(lab=lab, destination=destination, location=location, is_active=True)
+        elif lab and destination and created_by:
+            queryset = queryset.filter(lab=lab, destination=destination, created_by=created_by, is_active=True)
+        elif lab and location and created_by:
+            queryset = queryset.filter(lab=lab, location=location, created_by=created_by, is_active=True)
+        elif name and destination and location:
+            queryset = queryset.filter(name=name, destination=destination, location=location, is_active=True)
+        elif name and destination and created_by:
+            queryset = queryset.filter(name=name, destination=destination, created_by=created_by, is_active=True)
+        elif name and location and created_by:
+            queryset = queryset.filter(name=name, location=location, created_by=created_by, is_active=True)
+        elif destination and location and created_by:
+            queryset = queryset.filter(destination=destination, location=location, created_by=created_by, is_active=True)
+        elif location and created_by:
+            queryset = queryset.filter(location=location, created_by=created_by, is_active=True)
+        elif destination and created_by:
+            queryset = queryset.filter(destination=destination, created_by=created_by, is_active=True)
+        elif destination and location:
+            queryset = queryset.filter(destination=destination, location=location, is_active=True)
+        elif name and created_by:
+            queryset = queryset.filter(name=name, created_by=created_by, is_active=True)
+        elif name and location:
+            queryset = queryset.filter(name=name, location=location, is_active=True)
+        elif name and destination:
+            queryset = queryset.filter(name=name, destination=destination, is_active=True)
+        elif lab and created_by:
+            queryset = queryset.filter(lab=lab, created_by=created_by, is_active=True)
+        elif lab and location:
+            queryset = queryset.filter(lab=lab, location=location, is_active=True)
+        elif lab and destination:
+            queryset = queryset.filter(lab=lab, destination=destination, is_active=True)
+        elif lab and name:
+            queryset = queryset.filter(lab=lab, name=name, is_active=True)
+        elif lab:
+            queryset = queryset.filter(lab=lab, is_active=True)
+        elif name:
+            queryset = queryset.filter(name=name, is_active=True)
+        elif destination:
+            queryset = queryset.filter(destination=destination, is_active=True)
+        elif location:
+            queryset = queryset.filter(location=location, is_active=True)
+        elif created_by:
+            queryset = queryset.filter(created_by=created_by, is_active=True)
         else:
             queryset = queryset.filter(is_active=True)
+
             
         queryset = queryset.order_by('id')
         return queryset
@@ -1758,6 +1814,34 @@ class NamesTrademarksAndReferencesByLabAPI(LoginRequiredMixin,View):
         
 
         return JsonResponse(names_trademarks_and_references_list, safe=False)
+    
+
+# Devuelve valores de name, trademark y reference para ser insertados los select correspondientes en el template Inventarios al modificar 
+# el select name
+
+class SelectOptionsByLabAPI(LoginRequiredMixin,View):
+    def get(self, request):
+        lab = request.GET.get('lab')
+
+        entradas = Entradas.objects.all()
+
+        if lab:
+            if lab!='0':
+                entradas = entradas.filter(lab=lab)
+
+        names = entradas.values('name', 'name__name').distinct().order_by('name__name')
+        locations = entradas.values('location', 'location__name').distinct().order_by('location__name')
+        destinations = entradas.values('destination','destination__name').distinct().order_by('destination__name')
+        created_bys = entradas.values('created_by','created_by__first_name','created_by__last_name').distinct().order_by('created_by__first_name')
+
+        select_option_list = {
+            'names': list(names),
+            'locations': list(locations),
+            'destinations': list(destinations),
+            'created_bys': list(created_bys)
+        }
+
+        return JsonResponse(select_option_list, safe=False)
 
 
     
