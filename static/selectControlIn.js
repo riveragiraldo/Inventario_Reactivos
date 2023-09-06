@@ -53,7 +53,10 @@ function updateSelectOptionsByLab() {
 
             // Agregar las opciones de nombres al select "Location"
             response.locations.forEach(function (item) {
-                const option = new Option(item.location__name, item.location);
+                const school = item.location__facultad__name
+                var facultadIniciales = school.split(' ').map(word => word[0]).join('').toUpperCase();
+                nameLocation=item.location__name+' - '+facultadIniciales
+                const option = new Option(nameLocation, item.location);
                 locationSelect.add(option);
             });
 

@@ -76,6 +76,7 @@
                     <label class="form-label" for="lab" name="Laboratorio: ">Laboratorio:</label>
 
                     {% if request.user|has_group:"COORDINADOR" or request.user|has_group:"TECNICO" %}
+                    <div id="add_reagent_btn"></div>
                     <select name="lab" class="form-control" required="" id="lab">
                         {% for lab in laboratorios %}
 
