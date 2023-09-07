@@ -82,7 +82,8 @@ $(document).ready(function () {
         },
         focus: function (event, ui) {
             // Muestra solo el nombre en el campo de entrada mientras se desplaza por la lista desplegable
-            $("#locarion").val(ui.item.name);
+            $("#location").val(ui.item.name);
+            $("#facultad").val(ui.item.facultad);
             return false;
         }
     });

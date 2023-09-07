@@ -44,7 +44,7 @@
                 <div class="col-md-12">
                     <label class="form-label" for="name" name="Nombre Laboratorio: ">*Nombre de Laboratorio:</label>
                     <input type="text" class="form-control" placeholder="Nombre del laboratorio" name="name" required
-                        id="name" pattern="^[A-Za-záéíóúÁÉÍÓÚ\s]{1,50}$" title="Palabras de máximo 50 caracteres">
+                        id="name" pattern="^[A-Za-záéíóúÁÉÍÓÚ\s]{1,80}$" title="Palabras de máximo 80 caracteres">
                 </div>
 
                 <div class="col-md-12">
@@ -68,57 +68,56 @@
             corresponda. -->
             <script>
                 if (window.opener) {
-                    // Código para actualizar formulario padre segpun corresponda
+                    // Código para actualizar formulario padre según corresponda
 
                     window.onload = function () {
 
-                        mensaje = "{{ message }}";
+                        mensaje = "{{ message|safe }}";
+                        alert(mensaje)
 
-                        //Obtiene el ID desde el mensaje    
-                        var facultad = mensaje.split(": ")[1];
-
-                        //Alerta
-                        var messageText = '{{ message|safe }}';
-
-                        var alertType = 'info';  // Tipo de alerta predeterminado para mensajes habituales
-
-                        // Verificar el contenido del mensaje para asignar el tipo de alerta adecuado
-                        if (messageText.includes('Se ha creado exitosamente')) {
-                            alertType = 'success';
-                        } else if (messageText.includes('Por favor seleccione') || messageText.includes('Ya existe') || messageText.includes('Solo se permiten registros ')) {
-                            alertType = 'warning';
-                        }
-
-                        // Mostrar la notificación con SweetAlert2
-                        Swal.fire({
-                            icon: alertType,
-                            title: 'Mensaje del servidor',
-                            text: messageText,
-                            confirmButtonText: 'Aceptar'
-                        });
+                        //Obtener el id desde el mensaje
+                        var id_lab = mensaje.split(": ")[1];
 
 
                         // Obtener los valores de los elementos necesarios de la ventana padre
-                        var name = window.opener.document.getElementById("name").value;
-
+                        var id_number = window.opener.document.getElementById("id_number").value;
+                        var id_phone_number = window.opener.document.getElementById("id_phone_number").value;
+                        var email = window.opener.document.getElementById("email").value;
+                        var username = window.opener.document.getElementById("username").value;
+                        var first_name = window.opener.document.getElementById("first_name").value;
+                        var last_name = window.opener.document.getElementById("last_name").value;
+                        var id_rol = window.opener.document.getElementById("id_rol").value;
+                        var password1 = window.opener.document.getElementById("password1").value;
+                        var password2 = window.opener.document.getElementById("password2").value;
                         // Recargar la página padre
                         window.opener.location.replace(window.opener.location.href);
 
                         setTimeout(function () {
-                            // Acceder a la ventana padre y actualizar los valores
+                            // // Acceder a la ventana padre y actualizar los valores
 
-                            window.opener.document.querySelector("#name").value = name;
+                            window.opener.document.querySelector("#id_number").value = id_number;
+                            window.opener.document.querySelector("#id_phone_number").value = id_phone_number;
+                            window.opener.document.querySelector("#email").value = email;
+                            window.opener.document.querySelector("#username").value = username;
+                            window.opener.document.querySelector("#first_name").value = first_name;
+                            window.opener.document.querySelector("#last_name").value = last_name;
 
-                            //Actualiza Select Facultad
-                            console.log(facultad);
-                            var facultad_new = window.opener.document.querySelector("#selectFacultad");
-                            facultad_new.value = facultad;
+                            //Actualiza Select Rol
+                            var rol_new = window.opener.document.querySelector("#id_rol");
+                            rol_new.value = id_rol;
+                            rol_new.setAttribute("selected", true);
 
-                            facultad_new.setAttribute("selected", true);
+                            //Actualiza Select Lab
+                            var lab_new = window.opener.document.querySelector("#id_lab");
+                            lab_new.value = id_lab;
+                            lab_new.setAttribute("selected", true);
+
+                            window.opener.document.querySelector("#password1").value = password1;
+                            window.opener.document.querySelector("#password2").value = password2;
 
                             window.close();
 
-                        }, 1000);
+                        }, 2500);
                     };
 
 

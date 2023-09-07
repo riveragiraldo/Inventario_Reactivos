@@ -5,10 +5,10 @@ function updateWlocationOptions() {
     // Obtener los elementos del DOM
     const labSelect = document.getElementById('lab');
     const wlocationInput = document.getElementById('wlocation');
-    
+
     // Obtener el valor seleccionado en el campo lab
     const selectedLab = labSelect.value;
-    
+
     // Limpiar el campo de opciones de wlocation
     wlocationInput.innerHTML = '';
 
@@ -29,7 +29,14 @@ function updateWlocationOptions() {
         });
 }
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     // Llamar a la función updateWlocationOptions al cargar la página
     updateWlocationOptions();
+
+    // Agregar evento de cambio al select lab para ejecutar la función cuando cambie la selección
+    const labSelect = document.getElementById('lab');
+    labSelect.addEventListener('change', updateWlocationOptions);
 });
+
+
+

@@ -1,4 +1,5 @@
 {% extends "webtemplate.html" %}
+{% load has_group %}
 <!doctype html>
 <html lang="es">
 
@@ -36,13 +37,13 @@
     <!-- Llama Script  borrar campos despues de una transacción -->
     <script src="{% static 'UpdateFields.js' %}"></script>
     <!-- Llama Script  actualizar campos según el nombre -->
-    <script src="{% static 'hideMinStock.js' %}"></script>
+    <script src="{% static 'hideMinStock.js' %}" defer></script>
     <!-- Llama Script  que oculta el campo stock mínimo -->
     <script src="{% static 'callPopUp.js' %}" defer></script>
     <!-- Llama Script al final abre ventanas emergentes -->
     <script src="{% static 'sendInfo.js' %}" defer></script>
     <!-- Llama Script al final crea alerta informativa y envía datos -->
-    <script src="{% static 'updateWlocation.js' %}" defer></script>
+    <script src="{% static 'updateWlocation.js' %}"></script>
     <!-- Llama Script al final actualiza select ubicaciones en almacén según laboratorio -->
     <script src="{% static 'validateMinStock.js' %}" defer></script>
     <!-- Llama Script  que valida que el stock mínimo sea inferior a la cantidad -->
@@ -74,22 +75,42 @@
                 <div class="col-md-12">
                     <label class="form-label" for="lab" name="Laboratorio: ">Laboratorio:</label>
 
-                    <input type="text" class="form-control" name="lab" id="lab"
-                        placeholder="Laboratorio al que pertence" title="Laboratorio al que pertence" required
-                        value="{{ laboratorio }}" style="border: none; box-shadow: none;" readonly />
-                </div>
+                    {% if request.user|has_group:"COORDINADOR" or request.user|has_group:"TECNICO" %}
+                    <div id="add_reagent_btn"></div>
+                    <select name="lab" class="form-control" required="" id="lab">
+                        {% for lab in laboratorios %}
 
+                        {% if lab.id == laboratorio.id %}
+                        <option value="{{ lab.name }}" selected="">{{ lab.name }}</option>
+
+                        {% endif %}
+
+                        {% endfor %}
+                    </select>
+                    {% endif %}
+                    {% if request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
+                    <select name="lab" class="form-control" required="" id="lab">
+                        <option value="" selected="">Seleccione</option>
+                        {% for lab in laboratorios %}
+
+                        <option value="{{ lab.name }}">{{ lab.name }}</option>
+
+                        {% endfor %}
+                    </select>
+                    {% endif %}
+                </div>
 
                 <div class="col-md-6">
                     <label class="form-label" for="name" name="Nombre: ">*Nombre: "Cód. - Nom. - CAS"</label>
                     <div class="input-group">
                         <input type="text" class="form-control" name="name" id="name" placeholder="Nombre, CI o CAS"
                             title="Se puede filtrar por nombre, CI o CAS" required />
-                        <button type="button" id="add_reagent_btn" class="btn btn-secondary" title="Agregar Nombre">+
+                        {% if request.user|has_group:"COORDINADOR" or request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
+                        <button type="button" id="add_reagent_btn" class="btn btn-secondary" title="Agregar Reactivo">+
                         </button>
+                        {% endif %}
                     </div>
                 </div>
-
 
                 <div class="col-md-2">
                     <label class="form-label" for="code" name="Código: ">*Código:</label>
@@ -138,7 +159,7 @@
                     <input type="date" class="form-control" name="edate" id="edate"
                         value="{{ date.tomorrow|date:'Y-m-d' }}" required
                         title="Registre una fecha futura (hasta 31/12/2100)"
-                        title="Registre una fecha entre mañana y 31/12/2100">
+                        >
 
                 </div>
 
@@ -154,6 +175,20 @@
                         name="weight" required min="0" max="100000000" pattern="^(?:[1-9]\d{0,7}|100000000)$"
                         title="Ingrese un valor entero positivo sin puntos ni comas (máximo 100000000)">
                 </div>
+                
+
+                <div class="col-md-2" id="unitBlock">
+                    <label class="form-label" for="unit" name="Unidad: ">*Unidades:</label>
+                    <input type="text" name="unit" class="form-control" value="" id="unit" readonly>
+                </div>
+                <!-- Agregar el checkbox para Control de Stock -->
+                <div class="col-md-12">
+                    
+                    <input type="checkbox" id="controlMinStock" name="controlMinStock" checked>
+                    <input type="hidden" name="minStockControl" id="minStockControl" value="" readonly required>
+                    <label for="minStockControl" name="Control de Stock Mínimo:">Control de Stock Mínimo</label>
+                    
+                </div>
 
                 <div class="col-md-3" id="minStockBlock">
                     <label class="form-label" for="minstock" name="Stock mínimo: ">*Min Stock:</label>
@@ -163,15 +198,16 @@
 
                 </div>
 
-                <div class="col-md-2" id="unitBlock">
-                    <label class="form-label" for="unit" name="Unidad: ">*Unidades:</label>
-                    <input type="text" name="unit" class="form-control" value="" id="unit" readonly>
+                <div class="col-md-6">
+                    <label class="form-label" for="order" name="Orden: ">Número de orden:</label>
+                    <input type="text" name="order" class="form-control" id="order" placeholder="Orden Número">
                 </div>
 
                 <div class="col-md-6">
-                    <label class="form-label" for="order" name="Orden: ">Orden:</label>
-                    <input type="text" name="order" class="form-control" id="order" placeholder="Orden Número">
-                </div>
+                    <label class="form-label" for="orderdate" name="Fecha de orden:">Fecha de orden:</label>
+                    <input type="date" class="form-control" name="orderdate" id="orderdate" title="Fecha de la orden">
+                </div>  
+
 
                 <div class="col-md-6">
                     <label class="form-label" for="nproject" name="Proyecto No.: ">Número de proyecto:</label>
@@ -189,6 +225,10 @@
                             </Address></button>
                     </div>
                 </div>
+
+                <input type="hidden" name="facultad" class="form-control" id="facultad" placeholder="Facultad" readonly>
+
+
 
                 <div class="col-md-6">
                     <label class="form-label" for="destination" name="Destino: ">*Destino:</label>

@@ -1,5 +1,7 @@
 #Diferentes vistas y/o APIS que interactuan el front con back
 
+from plistlib import UID
+import secrets
 from django.shortcuts import render
 from django.shortcuts import get_object_or_404, redirect
 from django.http import JsonResponse, HttpResponseBadRequest, HttpResponse
@@ -7,7 +9,7 @@ from .models import *
 from django.db.models import Q
 from django.contrib import messages
 from decimal import Decimal
-from django.views.generic import ListView, View
+from django.views.generic import ListView, View, CreateView
 from django.db.models import F
 from django.views import View
 import json
@@ -38,8 +40,21 @@ import warnings
 from urllib.parse import urlparse, urlunparse
 
 from django.conf import settings
-
-# Avoid shadowing the login() and logout() views below.
+from django.contrib.auth.tokens import default_token_generator
+from django.contrib.sites.shortcuts import get_current_site
+from django.core.exceptions import ImproperlyConfigured, ValidationError
+from django.http import HttpResponseRedirect, QueryDict
+from django.shortcuts import resolve_url
+from django.urls import reverse_lazy
+from django.utils.decorators import method_decorator
+from django.utils.deprecation import RemovedInDjango50Warning
+from django.utils.http import url_has_allowed_host_and_scheme, urlsafe_base64_decode
+from django.utils.translation import gettext_lazy as _
+from django.views.decorators.cache import never_cache
+from django.views.decorators.csrf import csrf_protect
+from django.views.decorators.debug import sensitive_post_parameters
+from django.views.generic.base import TemplateView
+from django.views.generic.edit import FormView
 from django.contrib.auth import REDIRECT_FIELD_NAME, get_user_model
 from django.contrib.auth import login as auth_login
 from django.contrib.auth import logout as auth_logout
@@ -67,74 +82,118 @@ from django.views.decorators.debug import sensitive_post_parameters
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import FormView
 from django.utils.dateparse import parse_date
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
+from .forms import ReCaptchaForm,CustomPasswordResetForm, FormularioUsuario
+from django.core.mail import send_mail
+from django.utils.translation import gettext as _
+from django.contrib.auth.tokens import default_token_generator
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
+import base64
+from urllib.parse import urlencode
+from functools import wraps
+from django.utils.timezone import make_aware
+
+
+
+UserModel = get_user_model()
+
+#Esta vista valida los grupos de usuarios a los que pertenece la persona que está tratando de acceder
+#a la vista
+def check_group_permission(groups_required):
+    def decorator(view_func):
+        @method_decorator(login_required)
+        def _wrapped_view(self, request, *args, **kwargs):
+            grupos_usuario = self.request.user.groups.all().values('name')
+            is_of_group = False
+            
+            for grupo in grupos_usuario:
+                for grupo_requerido in groups_required:
+                    if grupo['name'] == grupo_requerido:
+                        is_of_group = True
+                        break
+            
+            if is_of_group or self.request.user.is_superuser:
+                return view_func(self, request, *args, **kwargs)
+            else:
+                messages.error(request, 'No tiene permisos para acceder a esta vista, desea acceder con credenciales distintas')
+                return HttpResponseRedirect(reverse('reactivos:login'))
+
+        return _wrapped_view
+    return decorator
+
 
 # Vista para la visualización del web template
 @login_required
 def webtemplate(request):
     laboratorio = request.user.lab
     
+    
     context = {
         'usuarios': User.objects.all(),
         'laboratorio': laboratorio,
+        
     }
     return render(request, 'webtemplate.html', context)
 
 
 # Vista para la creación del index, 
-@login_required
-def index(request):
-    laboratorio = request.user.lab
-      
-    
-    context = {
-        'usuarios': User.objects.all(),
-        'laboratorio': laboratorio,
-    }
-    return render(request, 'reactivos/index.html', context)
+
+class Index(LoginRequiredMixin, View):  # Utiliza LoginRequiredMixin como clase base
+    template_name = 'reactivos/index.html'  # Nombre de la plantilla
+
+    def get(self, request,*args,**kwargs):
+        laboratorio = request.user.lab   
+             
+        context = {
+            'usuarios': User.objects.all(),
+            'laboratorio': laboratorio,
+        }
+        return render(request, self.template_name, context)
 # La vista "crear_unidades" se encarga de gestionar la creación de unidades. Esta vista toma los datos del formulario 
 # existente en el template "crear_unidades.html" y realiza las operaciones necesarias en la base de datos utilizando 
 # el modelo "Unidades". El objetivo es garantizar la unicidad de los registros, lo que implica verificar si la unidad
 # ya existe en la base de datos antes de crearla. Si la unidad es única, se crea un nuevo registro en la tabla 
 # correspondiente utilizando el modelo "Unidades". Si la unidad ya existe, se muestra un mensaje de error o se toma la 
 # acción apropiada según los requisitos del sistema.
-@login_required
-def crear_unidades(request):
-    if request.method == 'POST':
+
+class CrearUnidades(LoginRequiredMixin, View):
+    template_name = 'reactivos/crear_unidades.html'
+
+    @check_group_permission(groups_required=['COORDINADOR','ADMINISTRADOR'])
+    def get(self, request, *args, **kwargs):
+        laboratorio = self.request.user.lab
+        context = {
+            'usuarios': User.objects.all(),
+            'laboratorio': laboratorio,
+            
+        }
+        return render(request, self.template_name, context)
+
+    @check_group_permission(groups_required=['COORDINADOR','ADMINISTRADOR'])
+    def post(self, request, *args, **kwargs):
         name = request.POST.get('name')
-        # name = estandarizar_nombre(name)#Pendiente definir si sí o no
 
-
-        # Verifica si ya existe un registro con el mismo nombre de la unidad
         if Unidades.objects.filter(name=name).exists():
             unidad = Unidades.objects.get(name=name)
             unidad_id = unidad.id
             messages.error(
-                request, 'Ya existe una unidad con nombre '+name+' id: '+str(unidad_id))
+                request, 'Ya existe una unidad con nombre ' + name + ' id: ' + str(unidad_id))
             return HttpResponse('Error al insertar en la base de datos', status=400)
-
 
         unidad = Unidades.objects.create(
             name=name,
-            user=request.user,  # Asignar el usuario actualmente autenticado
+            created_by=request.user,
+            last_updated_by=request.user,
         )
         unidad_id = unidad.id
 
         messages.success(
-            request, 'Se ha creado exitosamente la unidad con nombre '+name+' id: '+str(unidad_id))
+            request, 'Se ha creado exitosamente la unidad con nombre ' + name + ' id: ' + str(unidad_id))
 
-        # Agregar el ID de la unidad al contexto para seleccionarla en la plantilla
-        context = {'unidad_id': unidad.id, 'unidad_name': unidad.name, }
+        context = {'unidad_id': unidad.id, 'unidad_name': unidad.name}
         return HttpResponse('Operación exitosa', status=200)
 
-    laboratorio = request.user.lab
-
-    context = {
-        'usuarios': User.objects.all(),
-        'laboratorio': laboratorio,
-
-    }
-    return render(request, 'reactivos/crear_unidades.html', context)
 
 # La vista "crear_estado" se encarga de gestionar la creación de estados en la db. Esta vista toma los datos del formulario 
 # existente en el template "crear_estado.html" y realiza las operaciones necesarias en la base de datos utilizando 
@@ -160,7 +219,8 @@ def crear_estado(request):
         estado = Estados.objects.create(
 
             name=name,
-            user=request.user,  # Asignar el usuario actualmente autenticado
+            created_by=request.user,  # Asignar el usuario actualmente autenticado
+            last_updated_by=request.user,  # Asignar el usuario actualmente autenticado            
 
         )
         estado_id = estado.id
@@ -205,7 +265,8 @@ def crear_respel(request):
 
             name=name,
             description=description,
-            user=request.user,  # Asignar el usuario actualmente autenticado
+            created_by=request.user,  # Asignar el usuario actualmente autenticado
+            last_updated_by=request.user,  # Asignar el usuario actualmente autenticado
 
         )
         respel_id = respel.id
@@ -248,7 +309,8 @@ def crear_sga(request):
 
             name=name,
             description=description,
-            user=request.user,  # Asignar el usuario actualmente autenticado
+            created_by=request.user,  # Asignar el usuario actualmente autenticado
+            last_updated_by=request.user,  # Asignar el usuario actualmente autenticado
 
         )
         sga_id = sga.id
@@ -320,11 +382,11 @@ def crear_responsable(request):
             name=name,
             phone=phone,
             mail=mail,
-            user=request.user,  # Asignar el usuario actualmente autenticado
-
+            created_by=request.user,  # Asignar el usuario actualmente autenticado
+            last_updated_by=request.user,  # Asignar el usuario actualmente autenticado
         )
         messages.success(
-            request, 'Se ha creado exitosamente el siguiente responsable cc: '+cc+' nombre: '+name)
+            request, 'Se ha creado exitosamente el siguiente responsable cc '+cc+' nombre: '+name)
         return HttpResponse('Se ha creado exitosamente el siguiente responsable: '+name, status=200)
         
 
@@ -361,7 +423,9 @@ def crear_marca(request):
         marca = Marcas.objects.create(
 
             name=name,
-            user=request.user,  # Asignar el usuario actualmente autenticado
+            created_by=request.user,  # Asignar el usuario actualmente autenticado
+            last_updated_by=request.user,  # Asignar el usuario actualmente autenticado
+            
 
         )
         marca_id = marca.id
@@ -402,7 +466,8 @@ def crear_facultad(request):
         facultad = Facultades.objects.create(
 
             name=name,
-            user=request.user,  # Asignar el usuario actualmente autenticado
+            created_by=request.user,  # Asignar el usuario actualmente autenticado
+            last_updated_by=request.user,  # Asignar el usuario actualmente autenticado
 
         )
         facultad_id = facultad.id
@@ -447,7 +512,8 @@ def crear_ubicacion(request):
         asignatura = Ubicaciones.objects.create(
             name=name,
             facultad=facultad,
-            user=request.user,  # Asignar el usuario actualmente autenticado
+            created_by=request.user,  # Asignar el usuario actualmente autenticado
+            last_updated_by=request.user,  # Asignar el usuario actualmente autenticado
         )
         
         messages.success(request, f'Se ha creado exitosamente en la facultad {facultad}, la asignatura/ubicación con nombre: {name}')
@@ -485,7 +551,8 @@ def crear_destino(request):
         destino = Destinos.objects.create(
 
             name=name,
-            user=request.user,  # Asignar el usuario actualmente autenticado
+            created_by=request.user,  # Asignar el usuario actualmente autenticado
+            last_updated_by=request.user,  # Asignar el usuario actualmente autenticado
 
         )
         destino_id = destino.id
@@ -526,7 +593,8 @@ def crear_laboratorio(request):
         laboratorio = Laboratorios.objects.create(
 
             name=name,
-            user=request.user,  # Asignar el usuario actualmente autenticado
+            created_by=request.user,  # Asignar el usuario actualmente autenticado
+            last_updated_by=request.user,  # Asignar el usuario actualmente autenticado
 
         )
         laboratorio_id = laboratorio.id
@@ -589,7 +657,8 @@ def crear_walmacen(request):
             name=name,
             description=description,
             lab=lab,
-            user=request.user,  # Asignar el usuario actualmente autenticado
+            created_by=request.user,  # Asignar el usuario actualmente autenticado
+            last_updated_by=request.user,  # Asignar el usuario actualmente autenticado
         )
 
         wubicacion_id = wubicaciones.id
@@ -692,7 +761,8 @@ def crear_reactivo(request):
             state=state,
             sga=sga,
             respel=respel,
-            user=request.user,  # Asignar el usuario actualmente autenticado
+            created_by=request.user,  # Asignar el usuario actualmente autenticado
+            last_updated_by=request.user,  # Asignar el usuario actualmente autenticado
         )
         
         messages.success(request, 'Se ha creado exitosamente el reactivo: '+name)
@@ -739,10 +809,13 @@ def registrar_entrada(request):
             name = None
             return HttpResponse("El reactivo "+nReactivo +" no se encuentra en la base de datos, favor crearlo primero.", status=400)
 
+        facultad = request.POST.get('facultad')
+        facultad=get_object_or_404(Facultades, name=facultad)
+        
         location = request.POST.get('location')
         nlocation = location
         try:
-            nameLocation = Ubicaciones.objects.get(name=location)
+            nameLocation = Ubicaciones.objects.get(name=location, facultad=facultad)
             location = nameLocation
 
         except Ubicaciones.DoesNotExist:
@@ -772,30 +845,32 @@ def registrar_entrada(request):
         except ObjectDoesNotExist:
             trademark = None
             messages.error(request, 'Por favor seleccione una marca primero')
-            return redirect('reactivos:registrar_entrada')
+            return HttpResponse(" no se encuentra en la base de datos, favor crearlo primero.", status=400)
         
         
         wlocation_id = request.POST.get('wlocation')
         if not wlocation_id.isdigit():
             messages.error(request, 'Por favor seleccione una ubicación en almacén primero')
+            return HttpResponse(" no se encuentra en la base de datos, favor crearlo primero.", status=400)
         try:
             nameWlocation = Almacenamiento.objects.get(id=wlocation_id)
             wlocation = nameWlocation
         except ObjectDoesNotExist:
             wlocation = None
             messages.error(request, 'Por favor seleccione una ubicación en almacén primero')
-            return redirect('reactivos:registrar_entrada')        
+            return HttpResponse("Por favor seleccione una ubicación en almacén primero", status=400)       
         
         destination_id = request.POST.get('destination')
         if not destination_id.isdigit():
             messages.error(request, 'Por favor seleccione un destino primero')
+            return HttpResponse("Por favor seleccione una destino en almacén primero", status=400)
         try:
             namedestino = Destinos.objects.get(id=destination_id)
             destination = namedestino
         except ObjectDoesNotExist:
             destination = None
             messages.error(request, 'Por favor seleccione un destino primero')
-            return redirect('reactivos:registrar_entrada')
+            return HttpResponse("Por favor seleccione un destino primero", status=400)
         
         lab = request.POST.get('lab')
         nlab = lab
@@ -819,10 +894,21 @@ def registrar_entrada(request):
             messages.error(request, 'Solo se permiten registros con precios positivos')
             return HttpResponse("Error de cantidades al insertar en la base de datos", status=400)
         
+        #Obtener minStockControl
+        minStockControl = request.POST.get('minStockControl')
+        if minStockControl=="Activo":
+            minStockControl=True
+        elif minStockControl=="Inactivo":
+            minStockControl=False
+
+        
         #verificar que el valor sea positivo
         minstock = request.POST.get('minstock')
+        if minstock=='':
+            minstock=0
+
         minstock_number=float(minstock)
-        if minstock_number<=0:
+        if minstock_number<0:
             messages.error(request, 'Solo se permiten registros con stock mínimo positivo')
             return HttpResponse("Error de cantidades al insertar en la base de datos", status=400)
         
@@ -868,11 +954,13 @@ def registrar_entrada(request):
                     inventario_existente.edate = request.POST.get('edate')
                     inventario_existente.minstock = request.POST.get('minstock')
                     inventario_existente.wlocation = wlocation
+                    inventario_existente.minStockControl = minStockControl
                     minstock = request.POST.get('minstock')
                     if minstock=='':
                         minstock=0
                     inventario_existente.minstock = minstock
                     inventario_existente.edate = edate
+                    inventario_existente.last_updated_by = request.user
                     inventario_existente.save()
                 # Si el reactivo ya existe y NO está activo(cantidad00), poner is_active=True y sumar el peso obtenido del formulario al peso existente    
                 else:
@@ -881,11 +969,14 @@ def registrar_entrada(request):
                     inventario_existente.weight += int(weight)
                     inventario_existente.edate = request.POST.get('edate')
                     inventario_existente.wlocation = wlocation
+                    inventario_existente.minStockControl = minStockControl
                     minstock = request.POST.get('minstock')
                     if minstock=='':
                         minstock=0
                     inventario_existente.minstock = minstock
                     inventario_existente.edate = edate
+                    inventario_existente.last_updated_by = request.user
+
                     inventario_existente.save()
             else:
                 # Si el reactivo no existe, crear un nuevo registro en la tabla de inventarios
@@ -918,9 +1009,11 @@ def registrar_entrada(request):
                     reference=reference,
                     lab=lab,
                     wlocation=wlocation,
+                    minStockControl=minStockControl,
                     minstock=minstock,
                     edate=edate,
-                    user=request.user,  # Asignar el usuario actualmente autenticado
+                    created_by=request.user,  # Asignar el usuario actualmente autenticado
+                    last_updated_by=request.user,  # Asignar el usuario actualmente autenticado
                 
                 )
 
@@ -933,6 +1026,8 @@ def registrar_entrada(request):
             weight = request.POST.get('weight')
             order = request.POST.get('order')
             order = estandarizar_nombre(order)
+            orderdate = request.POST.get('orderdate')
+            orderdate = parse_date(orderdate)
             observations = request.POST.get('observations')
             observations = estandarizar_nombre(observations)
             unit = request.POST.get('unit')
@@ -948,13 +1043,15 @@ def registrar_entrada(request):
                 weight=weight,
                 location=location,
                 order=order,
+                date_order=orderdate,
                 manager=manager,
                 observations=observations,
                 nproject=nproject,
                 price=price,
                 destination=destination,
                 lab=lab,
-                user=request.user,  # Asignar el usuario actualmente autenticado
+                created_by=request.user,  # Asignar el usuario actualmente autenticado
+                last_updated_by=request.user,  # Asignar el usuario actualmente autenticado
             )
 
             messages.success(request, 'Se ha registrado de manera exitosa el ingreso del insumo: ' +
@@ -1017,10 +1114,13 @@ def registrar_salida(request):
             name = None
             return HttpResponse("El reactivo "+nReactivo +" no se encuentra en la base de datos, favor crearlo primero.", status=400)
 
+        facultad = request.POST.get('facultad')
+        facultad=get_object_or_404(Facultades, name=facultad)
+        
         location = request.POST.get('location')
         nlocation = location
         try:
-            nameLocation = Ubicaciones.objects.get(name=location)
+            nameLocation = Ubicaciones.objects.get(name=location,facultad=facultad)
             location = nameLocation
         except Ubicaciones.DoesNotExist:
             messages.error(request, "La ubicación "+nlocation +
@@ -1096,15 +1196,17 @@ def registrar_salida(request):
                 #Verificar si la cantidad actual sea mayor o igual a cantidad registrada
                 if inventario_existente.weight>=weight:
                     inventario_existente.weight -= int(weight)
+                    inventario_existente.last_updated_by = request.user
                     inventario_existente.save()
                     #Verificación después de restar en la tabla llegue a cero y ponga en warning la alerta que 
                     # posteriormente se enviará al usuario informando
                     if inventario_existente.weight == 0:
                         inventario_existente.is_active = False  # Asignar False a la columna is_active
+                        inventario_existente.last_updated_by = request.user
                         inventario_existente.save()
                         warning=", pero el inventario actual ha llegado a 0. Favor informar al coordinador de laboratorio."
                     laboratorio_quimica = Laboratorios.objects.get(name="LABORATORIO DE QUIMICA")
-                    if (inventario_existente.weight<=inventario_existente.minstock) and inventario_existente.lab==laboratorio_quimica and inventario_existente.weight>0:
+                    if (inventario_existente.weight<=inventario_existente.minstock) and inventario_existente.minStockControl==True and inventario_existente.weight>0:
 
                         warning=", pero el inventario actual es menor o igual que el stock mínimo para este reactivo. Favor informar al coordinador de laboratorio."
 
@@ -1125,6 +1227,7 @@ def registrar_salida(request):
             reference = request.POST.get('reference')
             weight = request.POST.get('weight')
             observations = request.POST.get('observations')
+            observations = estandarizar_nombre(observations)
             unit = request.POST.get('unit')
             
 
@@ -1138,7 +1241,8 @@ def registrar_salida(request):
                 observations=observations,
                 destination=destination,
                 lab=lab,
-                user=request.user,  # Asignar el usuario actualmente autenticado
+                created_by=request.user,  # Asignar el usuario actualmente autenticado
+                last_updated_by=request.user,  # Asignar el usuario actualmente autenticado
             )
 
             messages.success(request, 'Se ha registrado de manera exitosa la salida del insumo del insumo: ' +
@@ -1187,13 +1291,16 @@ class InventarioListView(LoginRequiredMixin,ListView):
         lab = request.GET.get('lab')
         name = request.GET.get('name')
         trademark = request.GET.get('trademark')
-        reference = request.GET.get('reference')
+        
+        # si el valor de lab viene de sesión superusuario o ADMINISTRADOR lab=0 cambiar por lab=''
+        if lab=='0':
+            lab=''
 
         # Guardar los valores de filtrado en la sesión
         request.session['filtered_lab'] = lab
         request.session['filtered_name'] = name
         request.session['filtered_trademark'] = trademark
-        request.session['filtered_reference'] = reference
+        
 
         return super().get(request, *args, **kwargs)
 
@@ -1209,21 +1316,19 @@ class InventarioListView(LoginRequiredMixin,ListView):
         unique_trademarks_ids = Inventarios.objects.values(
             'trademark').distinct()
         unique_trademarks = Marcas.objects.filter(id__in=unique_trademarks_ids)
-        
-        unique_references = Inventarios.objects.values(
-            'reference').distinct()
-        
+               
         laboratorio = self.request.user.lab
         
     
         context['usuarios'] = User.objects.all()
         context['laboratorio'] = laboratorio
+        context['laboratorios'] = Laboratorios.objects.all()
         
 
         context['unique_labs'] = unique_labs
         context['unique_names'] = unique_names
         context['unique_trademarks'] = unique_trademarks
-        context['unique_references'] = unique_references
+        
 
         
 
@@ -1247,78 +1352,391 @@ class InventarioListView(LoginRequiredMixin,ListView):
     
     def get_queryset(self):
         queryset = super().get_queryset()
-        sort_by = self.request.GET.get('sort')
-        if sort_by=='':
-            sort_by='name'
-
         lab = self.request.GET.get('lab')
         name = self.request.GET.get('name')
         trademark = self.request.GET.get('trademark')
-        reference = self.request.GET.get('reference')
 
-        # Verificar si hay datos de filtrado, paginación u ordenamiento en la URL
-        has_filtering_data = any([sort_by, lab, name, trademark, reference])
-    
-        # Si no hay datos de filtrado, paginación u ordenamiento, retornar una lista vacía
-        if not has_filtering_data:
-            return queryset.none()
-        
-        if lab and name and trademark and reference:
-            queryset = queryset.filter(lab=lab, name=name, trademark=trademark, reference=reference, is_active=True)
-        elif lab and name and trademark:
+        # si el valor de lab viene de sesión superusuario o ADMINISTRADOR lab=0 cambiar por lab=''
+        if lab=='0':
+             lab=''
+             
+        # Definir Queryset para filtrado de visulización
+        if lab and name and trademark:
             queryset = queryset.filter(lab=lab, name=name, trademark=trademark, is_active=True)
-        elif lab and name and reference:
-            queryset = queryset.filter(lab=lab, name=name, reference=reference, is_active=True)
-        elif lab and reference and trademark:
-            queryset = queryset.filter(lab=lab, reference=reference, trademark=trademark, is_active=True)
-        elif name and reference and trademark:
-            queryset = queryset.filter(name=name, reference=reference, trademark=trademark, is_active=True)
         elif lab and name:
             queryset = queryset.filter(lab=lab, name=name, is_active=True)
         elif lab and trademark:
             queryset = queryset.filter(lab=lab, trademark=trademark, is_active=True)
-        elif lab and reference:
-            queryset = queryset.filter(lab=lab, reference=reference, is_active=True)
-        elif name and reference:
-            queryset = queryset.filter(name=name, reference=reference, is_active=True)
         elif name and trademark:
             queryset = queryset.filter(name=name, trademark=trademark, is_active=True)
-        elif reference and trademark:
-            queryset = queryset.filter(reference=reference, trademark=trademark, is_active=True)
         elif lab:
             queryset = queryset.filter(lab=lab, is_active=True)
         elif name:
             queryset = queryset.filter(name=name, is_active=True)
         elif trademark:
             queryset = queryset.filter(trademark=trademark, is_active=True)
-        elif reference:
-            queryset = queryset.filter(reference=reference, is_active=True)
+        
+        else:
+            queryset = queryset.filter(is_active=True)
+            
+        queryset = queryset.order_by('id')
+        return queryset
+    
+
+
+#Listado Usuarios
+class ListadoUsuarios(LoginRequiredMixin, ListView):
+    model=User
+    template_name='usuarios/listar_usuarios.html'
+
+    def get_queryset(self):
+        return self.model.objects.filter(is_active=True)
+    
+
+
+    
+
+class EntradasListView(LoginRequiredMixin,ListView):
+    model = Entradas
+    template_name = "reactivos/listado_entradas.html"
+    paginate_by = 10
+    
+    @check_group_permission(groups_required=['COORDINADOR', 'ADMINISTRADOR'])
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        # Obtener el número de registros por página de la sesión del usuario
+        per_page = request.session.get('per_page')
+        if per_page:
+            self.paginate_by = int(per_page)
+        else:
+            self.paginate_by = 10  # Valor predeterminado si no hay variable de sesión
+
+        # Obtener los parámetros de filtrado
+        lab = request.GET.get('lab')
+        name = request.GET.get('name')
+        location = request.GET.get('location')
+        destination = request.GET.get('destination')
+        created_by = request.GET.get('created_by')
+
+       
+        
+        # si el valor de lab viene de sesión superusuario o ADMINISTRADOR lab=0 cambiar por lab=''
+        if lab=='0':
+            lab=''
+
+        # Guardar los valores de filtrado en la sesión
+        request.session['filtered_lab'] = lab
+        request.session['filtered_name'] = name
+        request.session['filtered_location'] = location
+        request.session['filtered_destination'] = destination
+        request.session['filtered_created_by'] = created_by
+        
+
+        return super().get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # Obtener la fecha de hoy
+        today = date.today()
+        # Calcular la fecha hace un mes hacia atrás
+        one_month_ago = today - timedelta(days=30)
+
+        # Agregar la fecha al contexto
+        context['one_month_ago'] = one_month_ago
+
+        # Agregar la fecha de hoy al contexto
+        context['today'] = today
+
+        unique_labs_ids = Entradas.objects.values('lab').distinct()
+        unique_labs = Laboratorios.objects.filter(id__in=unique_labs_ids)
+
+        unique_names_ids = Entradas.objects.values('name').distinct()
+        unique_names = Reactivos.objects.filter(id__in=unique_names_ids)
+
+        unique_locations_ids = Entradas.objects.values(
+            'location').distinct()
+        unique_locations = Ubicaciones.objects.filter(id__in=unique_locations_ids)
+        
+               
+        laboratorio = self.request.user.lab
+        
+    
+        context['usuarios'] = User.objects.all()
+        context['laboratorio'] = laboratorio
+        context['laboratorios'] = Laboratorios.objects.all()
+        context['shools'] = Facultades.objects.all()
+        context['destinations'] = Destinos.objects.all()
+        context['created_bys'] = UserModel.objects.all()
+        
+
+        context['unique_labs'] = unique_labs
+        context['unique_names'] = unique_names
+        context['unique_locations'] = unique_locations
+        
+
+        
+
+        # Obtener la lista de inventarios
+        entradas = context['object_list']
+        # Recorrer los entradas y cambiar el formato de la fecha
+        
+        for entrada in entradas:
+            # Obtener la fecha de vencimiento
+            date_order = entrada.date_order
+            if date_order==None:
+                date_order=''
+            else:
+                # Cambiar el formato de fecha de inglés a formato dd/mm/aaaa
+                date_order = date_order.strftime('%d/%m/%Y')
+
+            # Actualizar la fecha en el inventario
+            entrada.date_order = date_order
+        
+        context['object_list'] = entradas
+        return context
+    
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        lab = self.request.GET.get('lab')
+        name = self.request.GET.get('name')
+        location = self.request.GET.get('location')
+        destination= self.request.GET.get('destination')
+        created_by= self.request.GET.get('created_by')
+
+         # Obtener las fechas de inicio y fin de la solicitud GET
+        start_date = self.request.GET.get('start_date')
+        end_date = self.request.GET.get('end_date')
+                
+        
+
+        # si el valor de lab viene de sesión superusuario o ADMINISTRADOR lab=0 cambiar por lab=''
+        if lab=='0':
+             lab=None
+        # Validar y convertir las fechas
+        try:
+            if start_date:
+                start_date = make_aware(datetime.strptime(start_date, '%Y-%m-%d'))
+            if end_date:
+                end_date = make_aware(datetime.strptime(end_date, '%Y-%m-%d'))
+        except ValueError:
+            # Manejar errores de formato de fecha aquí si es necesario
+            pass
+
+        
+        # Realiza la filtración de acuerdo a las fechas
+        if start_date:
+            queryset = queryset.filter(date_create__gt=start_date)
+        elif end_date:
+            queryset = queryset.filter(date_create__lt=end_date)
+        elif start_date and end_date:
+            queryset = queryset.filter(date_create__gt=start_date,date_create__lt=end_date)
+
+             
+        
+        # if lab and name and destination and location and created_by:
+        #     queryset = queryset.filter(lab=lab, name=name, destination=destination, location=location, created_by=created_by, is_active=True)
+        # elif lab and name and destination and location:
+        #     queryset = queryset.filter(lab=lab, name=name, destination=destination, location=location, is_active=True)
+        # elif lab and name and destination and created_by:
+        #     queryset = queryset.filter(lab=lab, name=name, destination=destination, created_by=created_by, is_active=True)
+        # elif lab and name and location and created_by:
+        #     queryset = queryset.filter(lab=lab, name=name, location=location, created_by=created_by, is_active=True)
+        # elif lab and destination and location and created_by:
+        #     queryset = queryset.filter(lab=lab, destination=destination, location=location, created_by=created_by, is_active=True)
+        # elif name and destination and location and created_by:
+        #     queryset = queryset.filter(name=name, destination=destination, location=location, created_by=created_by, is_active=True)
+        # elif lab and name and destination:
+        #     queryset = queryset.filter(lab=lab, name=name, destination=destination, is_active=True)
+        # elif lab and name and location:
+        #     queryset = queryset.filter(lab=lab, name=name, location=location, is_active=True)
+        # elif lab and name and created_by:
+        #     queryset = queryset.filter(lab=lab, name=name, created_by=created_by, is_active=True)
+        # elif lab and destination and location:
+        #     queryset = queryset.filter(lab=lab, destination=destination, location=location, is_active=True)
+        # elif lab and destination and created_by:
+        #     queryset = queryset.filter(lab=lab, destination=destination, created_by=created_by, is_active=True)
+        # elif lab and location and created_by:
+        #     queryset = queryset.filter(lab=lab, location=location, created_by=created_by, is_active=True)
+        # elif name and destination and location:
+        #     queryset = queryset.filter(name=name, destination=destination, location=location, is_active=True)
+        # elif name and destination and created_by:
+        #     queryset = queryset.filter(name=name, destination=destination, created_by=created_by, is_active=True)
+        # elif name and location and created_by:
+        #     queryset = queryset.filter(name=name, location=location, created_by=created_by, is_active=True)
+        # elif destination and location and created_by:
+        #     queryset = queryset.filter(destination=destination, location=location, created_by=created_by, is_active=True)
+        # elif location and created_by:
+        #     queryset = queryset.filter(location=location, created_by=created_by, is_active=True)
+        # elif destination and created_by:
+        #     queryset = queryset.filter(destination=destination, created_by=created_by, is_active=True)
+        # elif destination and location:
+        #     queryset = queryset.filter(destination=destination, location=location, is_active=True)
+        # elif name and created_by:
+        #     queryset = queryset.filter(name=name, created_by=created_by, is_active=True)
+        # elif name and location:
+        #     queryset = queryset.filter(name=name, location=location, is_active=True)
+        # elif name and destination:
+        #     queryset = queryset.filter(name=name, destination=destination, is_active=True)
+        # elif lab and created_by:
+        #     queryset = queryset.filter(lab=lab, created_by=created_by, is_active=True)
+        # elif lab and location:
+        #     queryset = queryset.filter(lab=lab, location=location, is_active=True)
+        # elif lab and destination:
+        #     queryset = queryset.filter(lab=lab, destination=destination, is_active=True)
+        # elif lab and name:
+        #     queryset = queryset.filter(lab=lab, name=name, is_active=True)
+        # elif lab:
+        #     queryset = queryset.filter(lab=lab, is_active=True)
+        # elif name:
+        #     queryset = queryset.filter(name=name, is_active=True)
+        # elif destination:
+        #     queryset = queryset.filter(destination=destination, is_active=True)
+        # elif location:
+        #     queryset = queryset.filter(location=location, is_active=True)
+        # elif created_by:
+        #     queryset = queryset.filter(created_by=created_by, is_active=True)
         else:
             queryset = queryset.filter(is_active=True)
 
-        if sort_by:
-            if sort_by == 'code':
-                queryset = queryset.order_by('name__code')
-            elif sort_by == 'cas':
-                queryset = queryset.order_by('name__cas')
-            elif sort_by == 'name':
-                queryset = queryset.order_by('name__name')
-            elif sort_by == 'trademark':
-                queryset = queryset.order_by('trademark__name')
-            elif sort_by == 'reference':
-                queryset = queryset.order_by('reference')
-            elif sort_by == 'weight':
-                queryset = queryset.order_by('weight')
-            elif sort_by == 'unit':
-                queryset = queryset.order_by('name__unit__name')
-            elif sort_by == 'wlocation':
-                queryset = queryset.order_by('wlocation__name')
-            elif sort_by == 'lab':
-                queryset = queryset.order_by('lab__name')
-            elif sort_by == 'edate':
-                queryset = queryset.order_by('edate')
-
+            
+        queryset = queryset.order_by('id')
         return queryset
+    
+
+
+#Listado Usuarios
+class ListadoUsuarios(LoginRequiredMixin, ListView):
+    model=User
+    template_name='usuarios/listar_usuarios.html'
+
+    def get_queryset(self):
+        return self.model.objects.filter(is_active=True)
+
+
+#Crear Usuarios
+# @method_decorator(check_group_permissions(groups_required=['COORDINADOR', 'ADMINISTRADOR']), name='dispatch')
+class CrearUsuario(LoginRequiredMixin, CreateView):
+    model=User
+    form_class=FormularioUsuario
+    template_name='usuarios/crear_usuario.html'
+    success_url='reactivos:index'
+    # Validador de grupos que pueden acceder
+    # Sobreescribir el método dispatch para aplicar el decorador
+    @check_group_permission(groups_required=['COORDINADOR', 'ADMINISTRADOR'])
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['laboratorio'] = self.request.user.lab
+        context['labname'] = self.request.user.lab.name
+        context['usuarios'] = User.objects.all()
+        context['roles'] = Rol.objects.all()  
+        context['laboratorios'] = Laboratorios.objects.all()  
+        return context
+    
+    def send_confirmation_email(self, user):
+        protocol = 'https' if self.request.is_secure() else 'http'
+        domain = self.request.get_host()
+        # Codificar el correo electrónico en base64 y agregarlo en la URL
+        encoded_email = base64.urlsafe_b64encode(user.email.encode()).decode()
+        reset_link = reverse('reactivos:password_reset') + '?' + urlencode({'email': encoded_email})
+        reset_url = f"{protocol}://{domain}{reset_link}"
+
+        subject = _('Bienvenido a la Gestión de Insumos Químicos')
+        context = {
+            'user': user,
+            'reset_url': reset_url,
+        }
+        message = render_to_string('registration/registro_exitoso_email.html', context)
+        plain_message = strip_tags(message)
+        from_email = None  # Agrega el correo electrónico desde el cual se enviará el mensaje
+        recipient_list = [user.email]
+
+        send_mail(subject, plain_message, from_email, recipient_list, fail_silently=False, html_message=message)           
+    
+    def form_valid(self, form):
+
+        def has_required_password_conditions(password):
+            # Mínimo 8 caracteres, al menos una mayúscula, un número y un carácter especial
+            password_pattern = r"^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$"
+            return re.match(password_pattern, password) is not None
+        
+        # Verificar si el id_number ya existe en la base de datos
+        id_number = form.cleaned_data['id_number']
+
+        if User.objects.filter(id_number=id_number).exists():
+            messages.error(self.request, f"No es posible crear el usuario {form.cleaned_data['username']} ya que su número de identificación {id_number} ya existe en la base de datos.")
+            return HttpResponseBadRequest("Ya existe un registro en la base de datos")
+        
+        # Verificar si el phone_number ya existe en la base de datos
+        phone_number = form.cleaned_data['phone_number']
+
+        if User.objects.filter(phone_number=phone_number).exists():
+            messages.error(self.request, f"No es posible crear el usuario {form.cleaned_data['username']} ya que su número de teléfono {phone_number} ya existe en la base de datos.")
+            return HttpResponseBadRequest("Ya existe un registro en la base de datos")
+        
+        # Verificar si el email ya existe en la base de datos
+        email = form.cleaned_data['email']
+        
+
+        if User.objects.filter(email=email).exists():
+            messages.error(self.request, f"No es posible crear el usuario {form.cleaned_data['username']} ya que su correo electrónico {email} ya existe en la base de datos.")
+            return HttpResponseBadRequest("Ya existe un registro en la base de datos")
+        
+        # Verificar si el username ya existe en la base de datos
+        username = form.cleaned_data['username']
+        
+
+        if User.objects.filter(username=username).exists():
+            messages.error(self.request, f"No es posible crear el usuario {form.cleaned_data['username']} ya que su nombre de usuario {username} ya existe en la base de datos.")
+            return HttpResponseBadRequest("Ya existe un registro en la base de datos")
+
+        # Validación personalizada para contraseñas
+        password1 = form.cleaned_data.get('password1')
+        password2 = form.cleaned_data.get('password2')
+        
+        if password1 != password2:
+            messages.error(self.request, "No se puedo crear el usuario porque las contraseñas no coinciden.")
+            return HttpResponse('Contraseña no cumple', status=400)
+
+        if not has_required_password_conditions(password1):
+            messages.error(self.request, "No se puedo crear el usuario porque la contraseña no satisface los requisitos de la política de contraseñas: Mínimo 8 caracteres, al menos una letra mayúscula, un número y un caracter especial")
+            
+            return HttpResponse('Contraseña no cumple', status=400)
+        
+        # Agrega los campos adicionales al usuario antes de guardarlo en la base de datos
+
+        user = form.save(commit=False)
+        user.rol = form.cleaned_data['rol']
+        user.lab = form.cleaned_data['lab']
+        user.id_number = form.cleaned_data['id_number']
+        user.phone_number = form.cleaned_data['phone_number']
+        user.email = form.cleaned_data['email']
+        user.username = form.cleaned_data['username']
+        # Asignar el usuario actual al campo user_create
+        user.user_create = self.request.user
+        
+        # Guarda el usuario en la base de datos
+        user.save()
+        
+        # Establece el objeto creado para que se pueda usar en la redirección
+        self.object = user
+        
+     
+        # Enviar correo electrónico de confirmación
+        self.send_confirmation_email(user)
+
+        # Agregar mensaje de éxito
+        
+        messages.success(self.request, f"Se ha creado exitosamente el usuario {user.first_name} {user.last_name} y se ha enviado un correo electrónico de confirmación a {user.email}.")
+
+        return HttpResponse('Operación exitosa', status=200)
+
+
 
 #-------------------------------------------------------------------------------------------------------------------------------------
 # Vista para la creación del detalle del reactivo, hasta el momento solo tiene contexto el reactivo, pero se le puede poner lo necesario
@@ -1348,7 +1766,6 @@ class GuardarPerPageView(LoginRequiredMixin,View):
         filtered_lab = request.session.get('filtered_lab')
         filtered_name = request.session.get('filtered_name')
         filtered_trademark = request.session.get('filtered_trademark')
-        filtered_reference = request.session.get('filtered_reference')
         
         url = reverse('reactivos:inventario')
         params = {}
@@ -1358,13 +1775,90 @@ class GuardarPerPageView(LoginRequiredMixin,View):
             params['name'] = filtered_name
         if filtered_trademark:
             params['trademark'] = filtered_trademark
-        if filtered_reference:
-            params['reference'] = filtered_reference
+        
         
         if params:
             url += '?' + urlencode(params)
 
         return redirect(url)
+    
+class GuardarPerPageViewIn(LoginRequiredMixin,View):
+    def get(self, request, *args, **kwargs):
+        per_page = kwargs.get('per_page')
+        request.session['per_page'] = per_page
+
+        # Redirigir a la página de inventario con los parámetros de filtrado actuales
+        filtered_lab = request.session.get('filtered_lab')
+        filtered_name = request.session.get('filtered_name')
+        filtered_location = request.session.get('filtered_location')
+        filtered_destination = request.session.get('filtered_destination')
+        filtered_created_by = request.session.get('filtered_created_by')
+        
+        url = reverse('reactivos:listado_entradas')
+        params = {}
+        if filtered_lab:
+            params['lab'] = filtered_lab
+        if filtered_name:
+            params['name'] = filtered_name
+
+        if filtered_location:
+            params['location'] = filtered_name
+        if filtered_destination:
+            params['destination'] = filtered_name
+        if filtered_created_by:
+            params['created_by'] = filtered_name
+        
+        
+        if params:
+            url += '?' + urlencode(params)
+
+        return redirect(url)
+    
+# La vista "crear_unidades" se encarga de gestionar la creación de unidades. Esta vista toma los datos del formulario 
+# existente en el template "crear_unidades.html" y realiza las operaciones necesarias en la base de datos utilizando 
+# el modelo "Unidades". El objetivo es garantizar la unicidad de los registros, lo que implica verificar si la unidad
+# ya existe en la base de datos antes de crearla. Si la unidad es única, se crea un nuevo registro en la tabla 
+# correspondiente utilizando el modelo "Unidades". Si la unidad ya existe, se muestra un mensaje de error o se toma la 
+# acción apropiada según los requisitos del sistema.
+
+class CrearRoles(LoginRequiredMixin, View):
+    template_name = 'reactivos/crear_roles.html'
+
+    @check_group_permission(groups_required=['SUPERUSUARIO'])
+    def get(self, request, *args, **kwargs):
+        
+        context = {
+            'usuarios': User.objects.all(),
+            'laboratorio': self.request.user.lab,
+            
+        }
+        return render(request, self.template_name, context)
+
+    @check_group_permission(groups_required=['SUPERUSUARIO'])
+    def post(self, request, *args, **kwargs):
+        name = request.POST.get('name')
+        name=estandarizar_nombre(name)
+
+        if Rol.objects.filter(name=name).exists():
+            rol = Rol.objects.get(name=name)
+            rol_id = rol.id
+            messages.error(
+                request, 'Ya existe el rol con nombre ' + name + ' id: ' + str(rol_id))
+            return HttpResponse('Error al insertar en la base de datos', status=400)
+
+        rol = Rol.objects.create(
+            name=name,
+            user_create=request.user,
+            last_updated_by=request.user,
+        )
+        rol_id = rol.id
+
+        messages.success(
+            request, 'Se ha creado exitosamente el rol con nombre ' + name + ' id: ' + str(rol_id))
+
+        context = {'rol_id': rol.id, 'rol_name': rol.name}
+        return HttpResponse('Operación exitosa', status=200)
+    
 
 # Devuelve valores de name, trademark y reference para ser insertados los select correspondientes en el template Inventarios al modificar 
 # el select name
@@ -1376,7 +1870,8 @@ class NamesTrademarksAndReferencesByLabAPI(LoginRequiredMixin,View):
         inventarios = Inventarios.objects.all()
 
         if lab:
-            inventarios = inventarios.filter(lab=lab)
+            if lab!='0':
+                inventarios = inventarios.filter(lab=lab)
 
         names = inventarios.values('name', 'name__name').distinct().order_by('name__name')
         trademarks = inventarios.values('trademark', 'trademark__name').distinct().order_by('trademark__name')
@@ -1387,8 +1882,37 @@ class NamesTrademarksAndReferencesByLabAPI(LoginRequiredMixin,View):
             'trademarks': list(trademarks),
             'references': list(references)
         }
+        
 
         return JsonResponse(names_trademarks_and_references_list, safe=False)
+    
+
+# Devuelve valores de name, trademark y reference para ser insertados los select correspondientes en el template Inventarios al modificar 
+# el select name
+
+class SelectOptionsByLabAPI(LoginRequiredMixin,View):
+    def get(self, request):
+        lab = request.GET.get('lab')
+
+        entradas = Entradas.objects.all()
+
+        if lab:
+            if lab!='0':
+                entradas = entradas.filter(lab=lab)
+
+        names = entradas.values('name', 'name__name').distinct().order_by('name__name')
+        locations = entradas.values('location', 'location__name','location__facultad__name').distinct().order_by('location__name')
+        destinations = entradas.values('destination','destination__name').distinct().order_by('destination__name')
+        created_bys = entradas.values('created_by','created_by__first_name','created_by__last_name').distinct().order_by('created_by__first_name')
+
+        select_option_list = {
+            'names': list(names),
+            'locations': list(locations),
+            'destinations': list(destinations),
+            'created_bys': list(created_bys)
+        }
+
+        return JsonResponse(select_option_list, safe=False)
 
 
     
@@ -1399,6 +1923,7 @@ class TrademarksByLabAndNameAPI(LoginRequiredMixin, View):
     def get(self, request):
         name = request.GET.get('name')
         lab = request.GET.get('lab')
+        
 
         inventarios = Inventarios.objects.all()
 
@@ -1407,29 +1932,33 @@ class TrademarksByLabAndNameAPI(LoginRequiredMixin, View):
             if name.isdigit():
                 reactivo = get_object_or_404(Reactivos, id=int(name))
                 name = reactivo.id
+                inventarios = inventarios.filter(name=name)
             else:
                 reactivo = get_object_or_404(Reactivos, name=name)
                 name = reactivo.id
+                inventarios = inventarios.filter(name=name)
 
         if lab:
             # Verificar si el valor de lab es un número
             if lab.isdigit():
-                laboratorio = get_object_or_404(Laboratorios, id=int(lab))
-                lab = laboratorio.id
+                if lab == '0':
+                    
+                    inventarios = Inventarios.objects.all()
+                else:
+                    laboratorio = get_object_or_404(Laboratorios, id=int(lab))
+                    lab = laboratorio.id
+                    inventarios = inventarios.filter(lab=lab)
             else:
-                lab = get_object_or_404(Laboratorios, name=lab)
-                lab = lab.id
-
-        if name:
-            inventarios = inventarios.filter(name=name)
-
-        if lab:
-            inventarios = inventarios.filter(lab=lab)
-
+                lab_obj = get_object_or_404(Laboratorios, name=lab)
+                lab = lab_obj.id
+                inventarios = inventarios.filter(lab=lab)
+                
+         
         trademarks = inventarios.values('trademark', 'trademark__name').distinct()
         trademarks_list = list(trademarks)
-
         return JsonResponse(trademarks_list, safe=False)
+    
+    
 
 class ReferencesByLabAndNameAPI(LoginRequiredMixin, View):
     def get(self, request):
@@ -1532,41 +2061,24 @@ def export_to_excel(request):
     lab = request.session.get('filtered_lab')
     name = request.session.get('filtered_name')
     trademark = request.session.get('filtered_trademark')
-    reference = request.session.get('filtered_reference')
     
     queryset = Inventarios.objects.all()
     #Filtra según los valores previos de filtro en los selectores
 
-    if lab and name and trademark and reference:
-            queryset = queryset.filter(lab=lab, name=name, trademark=trademark, reference=reference, is_active=True)
-    elif lab and name and trademark:
+    if lab and name and trademark:
         queryset = queryset.filter(lab=lab, name=name, trademark=trademark, is_active=True)
-    elif lab and name and reference:
-        queryset = queryset.filter(lab=lab, name=name, reference=reference, is_active=True)
-    elif lab and reference and trademark:
-        queryset = queryset.filter(lab=lab, reference=reference, trademark=trademark, is_active=True)
-    elif name and reference and trademark:
-        queryset = queryset.filter(name=name, reference=reference, trademark=trademark, is_active=True)
     elif lab and name:
         queryset = queryset.filter(lab=lab, name=name, is_active=True)
     elif lab and trademark:
         queryset = queryset.filter(lab=lab, trademark=trademark, is_active=True)
-    elif lab and reference:
-        queryset = queryset.filter(lab=lab, reference=reference, is_active=True)
-    elif name and reference:
-        queryset = queryset.filter(name=name, reference=reference, is_active=True)
     elif name and trademark:
         queryset = queryset.filter(name=name, trademark=trademark, is_active=True)
-    elif reference and trademark:
-        queryset = queryset.filter(reference=reference, trademark=trademark, is_active=True)
     elif lab:
         queryset = queryset.filter(lab=lab, is_active=True)
     elif name:
         queryset = queryset.filter(name=name, is_active=True)
     elif trademark:
         queryset = queryset.filter(trademark=trademark, is_active=True)
-    elif reference:
-        queryset = queryset.filter(reference=reference, is_active=True)
     else:
         queryset = queryset.filter(is_active=True)
 
@@ -1722,40 +2234,23 @@ def export_to_pdf(request):
     lab = request.session.get('filtered_lab')
     name = request.session.get('filtered_name')
     trademark = request.session.get('filtered_trademark')
-    reference = request.session.get('filtered_reference')
 
     queryset = Inventarios.objects.all()
 
-    if lab and name and trademark and reference:
-            queryset = queryset.filter(lab=lab, name=name, trademark=trademark, reference=reference, is_active=True)
-    elif lab and name and trademark:
+    if lab and name and trademark:
         queryset = queryset.filter(lab=lab, name=name, trademark=trademark, is_active=True)
-    elif lab and name and reference:
-        queryset = queryset.filter(lab=lab, name=name, reference=reference, is_active=True)
-    elif lab and reference and trademark:
-        queryset = queryset.filter(lab=lab, reference=reference, trademark=trademark, is_active=True)
-    elif name and reference and trademark:
-        queryset = queryset.filter(name=name, reference=reference, trademark=trademark, is_active=True)
     elif lab and name:
         queryset = queryset.filter(lab=lab, name=name, is_active=True)
     elif lab and trademark:
         queryset = queryset.filter(lab=lab, trademark=trademark, is_active=True)
-    elif lab and reference:
-        queryset = queryset.filter(lab=lab, reference=reference, is_active=True)
-    elif name and reference:
-        queryset = queryset.filter(name=name, reference=reference, is_active=True)
     elif name and trademark:
         queryset = queryset.filter(name=name, trademark=trademark, is_active=True)
-    elif reference and trademark:
-        queryset = queryset.filter(reference=reference, trademark=trademark, is_active=True)
     elif lab:
         queryset = queryset.filter(lab=lab, is_active=True)
     elif name:
         queryset = queryset.filter(name=name, is_active=True)
     elif trademark:
         queryset = queryset.filter(trademark=trademark, is_active=True)
-    elif reference:
-        queryset = queryset.filter(reference=reference, is_active=True)
     else:
         queryset = queryset.filter(is_active=True)
     context = {
@@ -2058,6 +2553,30 @@ def estandarizar_nombre(nombre):
 
 
 
+
+
+import warnings
+from urllib.parse import urlparse, urlunparse
+
+
+
+from django.conf import settings
+
+# Avoid shadowing the login() and logout() views below.
+from django.contrib.auth import REDIRECT_FIELD_NAME, get_user_model
+from django.contrib.auth import login as auth_login
+from django.contrib.auth import logout as auth_logout
+from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import (
+    AuthenticationForm,
+    PasswordChangeForm,
+    PasswordResetForm,
+    SetPasswordForm,
+)
+
+
+
 class RedirectURLMixin:
     next_page = None
     redirect_field_name = REDIRECT_FIELD_NAME
@@ -2087,7 +2606,7 @@ class RedirectURLMixin:
             return resolve_url(self.next_page)
         raise ImproperlyConfigured("No URL to redirect to. Provide a next_page.")
 
-# Vista para el Login
+
 class LoginView(RedirectURLMixin, FormView):
     """
     Display the login form and handle the login action.
@@ -2145,3 +2664,309 @@ class LoginView(RedirectURLMixin, FormView):
             }
         )
         return context
+
+
+class LogoutView(RedirectURLMixin, TemplateView):
+    """
+    Log out the user and display the 'You are logged out' message.
+    """
+
+    # RemovedInDjango50Warning: when the deprecation ends, remove "get" and
+    # "head" from http_method_names.
+    http_method_names = ["get", "head", "post", "options"]
+    template_name = "registration/logged_out_reactivos.html"
+    extra_context = None
+
+    # RemovedInDjango50Warning: when the deprecation ends, move
+    # @method_decorator(csrf_protect) from post() to dispatch().
+    @method_decorator(never_cache)
+    def dispatch(self, request, *args, **kwargs):
+        if request.method.lower() == "get":
+            warnings.warn(
+                "Log out via GET requests is deprecated and will be removed in Django "
+                "5.0. Use POST requests for logging out.",
+                RemovedInDjango50Warning,
+            )
+        return super().dispatch(request, *args, **kwargs)
+
+    @method_decorator(csrf_protect)
+    def post(self, request, *args, **kwargs):
+        """Logout may be done via POST."""
+        auth_logout(request)
+        redirect_to = self.get_success_url()
+        if redirect_to != request.get_full_path():
+            # Redirect to target page once the session has been cleared.
+            return HttpResponseRedirect(redirect_to)
+        return super().get(request, *args, **kwargs)
+
+    # RemovedInDjango50Warning.
+    get = post
+
+    def get_default_redirect_url(self):
+        """Return the default redirect URL."""
+        if self.next_page:
+            return resolve_url(self.next_page)
+        elif settings.LOGOUT_REDIRECT_URL:
+            return resolve_url(settings.LOGOUT_REDIRECT_URL)
+        else:
+            return self.request.path
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        current_site = get_current_site(self.request)
+        context.update(
+            {
+                "site": current_site,
+                "site_name": current_site.name,
+                "title": _("Logged out"),
+                "subtitle": None,
+                **(self.extra_context or {}),
+            }
+        )
+        return context
+
+
+def logout_then_login(request, login_url=None):
+    """
+    Log out the user if they are logged in. Then redirect to the login page.
+    """
+    login_url = resolve_url(login_url or settings.LOGIN_URL)
+    return LogoutView.as_view(next_page=login_url)(request)
+
+
+def redirect_to_login(next, login_url=None, redirect_field_name=REDIRECT_FIELD_NAME):
+    """
+    Redirect the user to the login page, passing the given 'next' page.
+    """
+    resolved_url = resolve_url(login_url or settings.LOGIN_URL)
+
+    login_url_parts = list(urlparse(resolved_url))
+    if redirect_field_name:
+        querystring = QueryDict(login_url_parts[4], mutable=True)
+        querystring[redirect_field_name] = next
+        login_url_parts[4] = querystring.urlencode(safe="/")
+
+    return HttpResponseRedirect(urlunparse(login_url_parts))
+
+
+# Class-based password reset views
+# - PasswordResetView sends the mail
+# - PasswordResetDoneView shows a success message for the above
+# - PasswordResetConfirmView checks the link the user clicked and
+#   prompts for a new password
+# - PasswordResetCompleteView shows a success message for the above
+
+
+class PasswordContextMixin:
+    extra_context = None
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update(
+            {"title": self.title, "subtitle": None, **(self.extra_context or {})}
+        )
+        return context
+
+
+class PasswordResetView(PasswordContextMixin, FormView):
+    email_template_name = "registration/password_reset_email_reactivos.html"
+    extra_email_context = None
+    
+    from_email = None
+    html_email_template_name = None
+    subject_template_name = "registration/password_reset_subject.txt"
+    success_url = reverse_lazy("reactivos:password_reset_done_reactivos")
+    template_name = "registration/password_reset_formulario.html"
+    title = _("Password reset")
+    token_generator = default_token_generator
+    
+
+    @method_decorator(csrf_protect)
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
+
+    def form_valid(self, form):
+        opts = {
+            "use_https": self.request.is_secure(),
+            "token_generator": self.token_generator,
+            "from_email": self.from_email,
+            "email_template_name": self.email_template_name,
+            "subject_template_name": self.subject_template_name,
+            "request": self.request,
+            "html_email_template_name": self.html_email_template_name,
+            "extra_email_context": self.extra_email_context,
+        }
+        form.save(**opts)
+        return super().form_valid(form)
+    
+class CustomPasswordResetView(PasswordResetView):
+    form_class = CustomPasswordResetForm
+    email_template_name = "registration/password_reset_email_reactivos.html"
+    extra_email_context = None
+    
+    from_email = None
+    html_email_template_name = None
+    subject_template_name = "registration/password_reset_subject.txt"
+    success_url = reverse_lazy("reactivos:password_reset_done_reactivos")
+    template_name = "registration/password_reset_formulario.html"
+    title = _("Password reset")
+    token_generator = default_token_generator
+    
+
+    @method_decorator(csrf_protect)
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
+
+    def form_valid(self, form):
+        opts = {
+            "use_https": self.request.is_secure(),
+            "token_generator": self.token_generator,
+            "from_email": self.from_email,
+            "email_template_name": self.email_template_name,
+            "subject_template_name": self.subject_template_name,
+            "request": self.request,
+            "html_email_template_name": self.html_email_template_name,
+            "extra_email_context": self.extra_email_context,
+        }
+        form.save(**opts)
+        return super().form_valid(form)
+
+
+INTERNAL_RESET_SESSION_TOKEN = "_password_reset_token"
+
+
+class PasswordResetDoneView(PasswordContextMixin, TemplateView):
+    template_name = "registration/password_reset_done_reactivos.html"
+    title = _("Password reset sent")
+
+
+class PasswordResetConfirmView(PasswordContextMixin, FormView):
+    form_class = SetPasswordForm
+    post_reset_login = False
+    post_reset_login_backend = None
+    reset_url_token = "set-password"
+    success_url = reverse_lazy("reactivos:password_reset_complete")
+    template_name = "registration/password_reset_confirmacion.html"
+    title = _("Enter new password")
+    token_generator = default_token_generator
+
+    @method_decorator(sensitive_post_parameters())
+    @method_decorator(never_cache)
+    def dispatch(self, *args, **kwargs):
+        if "uidb64" not in kwargs or "token" not in kwargs:
+            raise ImproperlyConfigured(
+                "The URL path must contain 'uidb64' and 'token' parameters."
+            )
+
+        self.validlink = False
+        self.user = self.get_user(kwargs["uidb64"])
+
+        if self.user is not None:
+            token = kwargs["token"]
+            if token == self.reset_url_token:
+                session_token = self.request.session.get(INTERNAL_RESET_SESSION_TOKEN)
+                if self.token_generator.check_token(self.user, session_token):
+                    # If the token is valid, display the password reset form.
+                    self.validlink = True
+                    return super().dispatch(*args, **kwargs)
+            else:
+                if self.token_generator.check_token(self.user, token):
+                    # Store the token in the session and redirect to the
+                    # password reset form at a URL without the token. That
+                    # avoids the possibility of leaking the token in the
+                    # HTTP Referer header.
+                    self.request.session[INTERNAL_RESET_SESSION_TOKEN] = token
+                    redirect_url = self.request.path.replace(
+                        token, self.reset_url_token
+                    )
+                    return HttpResponseRedirect(redirect_url)
+
+        # Display the "Password reset unsuccessful" page.
+        return self.render_to_response(self.get_context_data())
+
+    def get_user(self, uidb64):
+        try:
+            # urlsafe_base64_decode() decodes to bytestring
+            uid = urlsafe_base64_decode(uidb64).decode()
+            user = UserModel._default_manager.get(pk=uid)
+        except (
+            TypeError,
+            ValueError,
+            OverflowError,
+            UserModel.DoesNotExist,
+            ValidationError,
+        ):
+            user = None
+        return user
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["user"] = self.user
+        return kwargs
+
+    def form_valid(self, form):
+        user = form.save()
+        del self.request.session[INTERNAL_RESET_SESSION_TOKEN]
+        if self.post_reset_login:
+            auth_login(self.request, user, self.post_reset_login_backend)
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.validlink:
+            context["validlink"] = True
+        else:
+            context.update(
+                {
+                    "form": None,
+                    "title": _("Password reset unsuccessful"),
+                    "validlink": False,
+                }
+            )
+        return context
+
+
+
+
+class PasswordResetCompleteView(PasswordContextMixin, TemplateView):
+    template_name = "registration/password_reset_complete_reactivos.html"
+    title = _("Password reset complete")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["login_url"] = resolve_url(settings.LOGIN_URL)
+        return context
+
+
+class PasswordChangeView(PasswordContextMixin, FormView):
+    form_class = PasswordChangeForm
+    success_url = reverse_lazy("reactivos:password_change_done_reactivos")
+    template_name = "registration/password_change_form_reactivos.html"
+    title = _("Password change")
+
+    @method_decorator(sensitive_post_parameters())
+    @method_decorator(csrf_protect)
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["user"] = self.request.user
+        return kwargs
+
+    def form_valid(self, form):
+        form.save()
+        # Updating the password logs out all other sessions for the user
+        # except the current one.
+        update_session_auth_hash(self.request, form.user)
+        return super().form_valid(form)
+
+
+class PasswordChangeDoneView(PasswordContextMixin, TemplateView):
+    template_name = "registration/password_change_done_reactivos.html"
+    title = _("Password change successful")
+
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)

@@ -57,7 +57,7 @@
           <div class="col-md-12">
             <label class="form-label" for="cc" name="Cédula de ciudadanía: ">Cédula de ciudadanía:</label>
             <input type="text" class="form-control" placeholder="Ingresa tu número de cédula" name="cc" required id="cc"
-              pattern="^(?:[1-9]\d{6,8}|9999999999)$"
+              pattern="^(?:[1-9]\d{6,10}|9999999999)$"
               title="Ingrese un número de cédula entre 1000000 y 9999999999 (sin puntos ni comas)">
 
 
@@ -96,7 +96,7 @@
                 <img src="{% static 'Images/email.png' %}" alt="Icono de correo electrónico" class="input-icon-img">
               </span>
               <input type="email" class="form-control" placeholder="Email" name="mail" required id="mail"
-                pattern="^[a-zA-Z.]+@[a-zA-Z]+\.[a-zA-Z]{2,}(?:\.[a-zA-Z]+)?$"
+                pattern="^[a-zA-Z0-9.-_]+@[a-zA-Z]+\.[a-zA-Z]{2,}(?:\.[a-zA-Z]+)?$"
                 title="Ingrese una dirección de correo electrónico válida (max 40 caracteres)" maxlength="40">
             </div>
           </div>
@@ -127,31 +127,9 @@
 
           // Si es una ventana emergente, hacer algo y luego cerrar la ventana
           window.onload = function () {
-
-            var messageText = '{{ message|safe }}';
-
-            var alertType = 'info';  // Tipo de alerta predeterminado para mensajes habituales
-
-            // Verificar el contenido del mensaje para asignar el tipo de alerta adecuado
-            if (messageText.includes('Se ha creado exitosamente')) {
-              alertType = 'success';
-            } else if (messageText.includes('Por favor seleccione') || messageText.includes('Ya existe') || messageText.includes('Solo se permiten registros ')) {
-              alertType = 'warning';
-            }
-
-            // Mostrar la notificación con SweetAlert2
-            Swal.fire({
-              icon: alertType,
-              title: 'Mensaje del servidor',
-              text: messageText,
-              confirmButtonText: 'Aceptar'
-            });
-
-            //Obtener nombre despues del mensaje
-            mensaje = "{{ message }}";
+            var mensaje = '{{ message|safe }}';
+            alert(mensaje)
             var manager = mensaje.split(": ")[1];
-
-            //retardo para que los valores se escriban despues de recargar la página
             setTimeout(function () {
 
               window.opener.document.querySelector("#manager").value = manager;

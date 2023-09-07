@@ -1,4 +1,5 @@
 {% extends "webtemplate.html" %}
+{% load has_group %}
 <!doctype html>
 <html lang="es">
 
@@ -24,8 +25,8 @@
     <!-- Estilos para el letrero de la mitad del spinner -->
     <script src="{% static 'sendInfo.js' %}" defer></script>
     <!-- Llama Script al final genera alerta informativa con los datos que se va enviar al servidor y acepta-->
-    <script src="{% static 'clearFds.js' %}"></script>
-    <!-- Llama Script que borra los campos del formulario cuando se ejecuta cualquier acción -->
+    <script src="{% static 'updateLabWlocation.js' %}"></script>
+    <!-- Llama Script que actualiza el select laboratorio cuando es ventana emergente -->
 
     {% endblock %}
 </head>
@@ -45,9 +46,28 @@
 
                     <div class="col-md-12">
                         <label class="form-label">Laboratorio:</label>
-                        <input type="text" class="form-control" name="lab" id="lab"
-                            placeholder="Laboratorio al que pertence" title="Laboratorio al que pertence" required
-                            value="{{ laboratorio }}" style="border: none; box-shadow: none;" readonly />
+                        {% if request.user|has_group:"COORDINADOR" or request.user|has_group:"TECNICO" %}
+                        <select name="lab" class="form-control" required="" id="lab">
+                            {% for lab in laboratorios %}
+    
+                            {% if lab.id == laboratorio.id %}
+                            <option value="{{ lab.name }}" selected="">{{ lab.name }}</option>
+    
+                            {% endif %}
+    
+                            {% endfor %}
+                        </select>
+                        {% endif %}
+                        {% if request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
+                        <select name="lab" class="form-control" required="" id="lab">
+                            <option value="" selected="">Seleccione</option>
+                            {% for lab in laboratorios %}
+                            
+                            <option value="{{ lab.name }}">{{ lab.name }}</option>
+                            
+                            {% endfor %}
+                          </select>
+                        {% endif %}
                     </div>
 
                     <div class="col-md-12">
@@ -64,7 +84,7 @@
 
                     <div class="col-md-12">
                         <div class="col-md-2 mt-3">
-                            <input type="button" value="Crear Ubicación en alamcén" class="btn btn-primary"
+                            <input type="button" value="Crear Ubicación en almacén" class="btn btn-primary"
                                 id="open_confirm_in">
                         </div>
                         <div class="col-md-2 mt-3">
@@ -88,44 +108,21 @@
 
                         window.onload = function () {
 
-                            //Alerta
-                            var messageText = '{{ message|safe }}';
-
-                            var alertType = 'info';  // Tipo de alerta predeterminado para mensajes habituales
-
-                            // Verificar el contenido del mensaje para asignar el tipo de alerta adecuado
-                            if (messageText.includes('Se ha creado exitosamente')) {
-                                alertType = 'success';
-                            } else if (messageText.includes('Por favor seleccione') || messageText.includes('Ya existe') || messageText.includes('Solo se permiten registros ')) {
-                                alertType = 'warning';
-                            }
-
-                            // Mostrar la notificación con SweetAlert2
-                            Swal.fire({
-                                icon: alertType,
-                                title: 'Mensaje del servidor',
-                                text: messageText,
-                                confirmButtonText: 'Aceptar'
-                            });
-
-
                             //Obtener Id despues del mensaje
-                            mensaje = "{{ message }}";
-                            var wlocation = mensaje.split(": ")[1];
+                            mensaje = "{{ message|safe }}";
+                            alert(mensaje)
+                            var location = mensaje.split(": ")[1];
 
                             // Obtener los valores de los elementos necesarios de la ventana padre
-
+                            
+                            var lab = window.opener.document.getElementById("lab").value;
                             var name = window.opener.document.getElementById("name").value;
-                            // var code = window.opener.document.getElementById("code").value;
-                            // var cas = window.opener.document.getElementById("cas").value;
                             var price = window.opener.document.getElementById("price").value;
                             var trademark = window.opener.document.getElementById("trademark").value;
                             var edate = window.opener.document.getElementById("edate").value;
                             var reference = window.opener.document.getElementById("reference").value;
-                            // var is_liquid = window.opener.document.getElementById("is_liquid").value;
                             var weight = window.opener.document.getElementById("weight").value;
                             var minstock = window.opener.document.getElementById("minstock").value;
-                            // var unit = window.opener.document.getElementById("unit").value;
                             var order = window.opener.document.getElementById("order").value;
                             var nproject = window.opener.document.getElementById("nproject").value;
                             var location = window.opener.document.getElementById("location").value;
@@ -140,16 +137,18 @@
                             //retardo para que los valores se escriban despues de recargar la página
                             setTimeout(function () {
                                 // Acceder a la ventana padre y actualizar los valores
-
-
-
+                                
+                                //Actualiza Select lab
+                                var lab_new = window.opener.document.querySelector("#lab");
+                                lab_new.value = lab;
+                                lab_new.setAttribute("selected", true)
+                                
                                 //Ejecuta función de actualizar opciones del select ubicacoines en el almacén
-                                //  window.opener.updateWlocationOptions();
+                                window.opener.updateWlocationOptions()
 
                                 window.opener.document.querySelector("#name").value = name;
                                 window.opener.updateFields()
-                                // window.opener.document.querySelector("#code").value = code;
-                                // window.opener.document.querySelector("#cas").value = cas;
+                                
                                 window.opener.document.querySelector("#price").value = price;
 
                                 //Actualiza Select trademark
@@ -159,10 +158,8 @@
 
                                 window.opener.document.querySelector("#edate").value = edate;
                                 window.opener.document.querySelector("#reference").value = reference;
-                                // window.opener.document.querySelector("#is_liquid").value = is_liquid;
                                 window.opener.document.querySelector("#weight").value = weight;
                                 window.opener.document.querySelector("#minstock").value = minstock;
-                                // window.opener.document.querySelector("#unit").value = unit;
                                 window.opener.document.querySelector("#order").value = order;
                                 window.opener.document.querySelector("#nproject").value = nproject;
                                 window.opener.document.querySelector("#location").value = location;
@@ -181,15 +178,10 @@
                                     var wlocation_new = window.opener.document.querySelector("#wlocation");
                                     wlocation_new.value = wlocation;
                                     wlocation_new.setAttribute("selected", true);
-
-
-                                    // var wlocation_2 = window.opener.document.querySelector("#wlocation");
-                                    // wlocation_2.value = wlocation;
-                                    // var selectedOption = wlocation_2.options[wlocation_2.selectedIndex];
-
+                                    
                                     window.close();
-                                }, 300)
-                            }, 700);
+                                }, 500)
+                            }, 2500);
                         };
                     }
 

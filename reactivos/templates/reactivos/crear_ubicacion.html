@@ -80,29 +80,45 @@
         <!-- Este script no puede ser invocado como un archivo externo.  se mostrará una alerta
         de éxito o error según corresponda. -->
         <script>
+          //Verifica si es ventana emergente
+          if (window.opener) {
+            window.onload = function () {
+              var mensaje = '{{ message|safe }}';
+              alert(mensaje)
+              var location = mensaje.split(": ")[1];
+              setTimeout(function () {
 
-          window.onload = function () {
+                window.opener.document.querySelector("#location").value = location;
+                window.close();
 
-            var messageText = '{{ message|safe }}';
-
-            var alertType = 'info';  // Tipo de alerta predeterminado para mensajes habituales
-
-            // Verificar el contenido del mensaje para asignar el tipo de alerta adecuado
-            if (messageText.includes('Se ha creado exitosamente')) {
-              alertType = 'success';
-            } else if (messageText.includes('Por favor seleccione') || messageText.includes('Ya existe') || messageText.includes('Solo se permiten registros ')) {
-              alertType = 'warning';
+              }, 500);
             }
+          }
+          else {
 
-            // Mostrar la notificación con SweetAlert2
-            Swal.fire({
-              icon: alertType,
-              title: 'Mensaje del servidor',
-              text: messageText,
-              confirmButtonText: 'Aceptar'
-            });
+            window.onload = function () {
 
-          };
+              var messageText = '{{ message|safe }}';
+
+              var alertType = 'info';  // Tipo de alerta predeterminado para mensajes habituales
+
+              // Verificar el contenido del mensaje para asignar el tipo de alerta adecuado
+              if (messageText.includes('Se ha creado exitosamente')) {
+                alertType = 'success';
+              } else if (messageText.includes('Por favor seleccione') || messageText.includes('Ya existe') || messageText.includes('Solo se permiten registros ')) {
+                alertType = 'warning';
+              }
+
+              // Mostrar la notificación con SweetAlert2
+              Swal.fire({
+                icon: alertType,
+                title: 'Mensaje del servidor',
+                text: messageText,
+                confirmButtonText: 'Aceptar'
+              });
+
+            };
+          }
 
         </script>
         {% endfor %}
