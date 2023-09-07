@@ -38,7 +38,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'captcha',
     'reactivos',
+    
 ]
 
 MIDDLEWARE = [
@@ -133,4 +135,28 @@ STATICFILES_DIRS = [
 ]
 
 AUTH_USER_MODEL = 'reactivos.User'
+
+RECAPTCHA_PUBLIC_KEY = '6LeGjm4nAAAAABXTrZCNgjlT3P57fyB5oQI0NdpB'
+RECAPTCHA_PRIVATE_KEY = '6LeGjm4nAAAAABdT4YwpvZ_xZ1cwQ07xFJDjSgrI'
+
+# Opciones disponibles: 'image', 'audio', 'checkbox'
+RECAPTCHA_TYPE = 'image'  # Puedes elegir el tipo que prefieras
+
+# Configuración para utilizar el backend de correo electrónico SMTP
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
+# Configuración para el servidor de correo SMTP
+EMAIL_HOST = 'smtp.gmail.com'  # Dirección del servidor SMTP
+EMAIL_PORT = 587  # Puerto para la conexión (generalmente 587 para TLS o 465 para SSL)
+EMAIL_USE_TLS = True  # Configura como True si se requiere TLS (usar EMAIL_USE_SSL en caso de SSL)
+EMAIL_HOST_USER = 'andresrgiraldo@gmail.com'  # Usuario para autenticación SMTP
+EMAIL_HOST_PASSWORD = 'vfruavgehdlymyaz'  # Contraseña para autenticación SMTP
+
+# Correo del remitente predeterminado
+DEFAULT_FROM_EMAIL = 'andresrgiraldo@gmail.com'
+
+LOGIN_REDIRECT_URL = "/"
+
+
+
 

@@ -74,3 +74,13 @@ select.form-control-sm {
     border-top: 6px solid #000; /* Ancho y color del borde superior (triángulo apuntando hacia abajo) */
     margin-left: 5px;
 }
+
+
+
+
+/* Estilo para la fila con la clase .table-row */
+tr.table-row:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+    /* Fondo tenue al pasar el cursor por encima de la fila */
+}
+

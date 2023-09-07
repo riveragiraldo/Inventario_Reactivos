@@ -75,6 +75,24 @@ function openPopupWindowWlocation() {
 }
 
 
+//Llama PopUp Crear Roles
+function openPopupWindowRol() {
+    var w = 450; // ancho de la ventana emergente
+    var h = 500; // altura de la ventana emergente
+    var left = (screen.width / 2) - (w / 2);
+    var top = (screen.height / 2) - (h / 2);
+    window.open("/roles/crear/", "popup", "width=" + w + ",height=" + h + ",left=" + left + ",top=" + top);
+}
+
+//Llama PopUp Crear Roles
+function openPopupWindowLab() {
+    var w = 450; // ancho de la ventana emergente
+    var h = 500; // altura de la ventana emergente
+    var left = (screen.width / 2) - (w / 2);
+    var top = (screen.height / 2) - (h / 2);
+    window.open("/laboratorios/crear/", "popup", "width=" + w + ",height=" + h + ",left=" + left + ",top=" + top);
+}
+
 //Lee que formulario es de acuerdo con entrada oculta "wf"
 var wf = document.getElementById("wf").value;
 
@@ -121,4 +139,14 @@ else if (wf == "salida") {
     // Escucha el clic en add y llamar función 
     addManagerBtn.addEventListener("click", openPopupWindowManager);
     addLocationBtn.addEventListener("click", openPopupWindowLocation);
+}
+else if (wf == "user_create") {
+    
+    //Leer Valores
+    var addRolBtn = document.getElementById("add_rol_btn");
+    var addLabBtn = document.getElementById("add_lab_btn");
+
+    // Escucha el clic en add y llamar función 
+    addRolBtn.addEventListener("click", openPopupWindowRol);
+    addLabBtn.addEventListener("click", openPopupWindowLab);
 }

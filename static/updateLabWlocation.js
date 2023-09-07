@@ -23,4 +23,8 @@ function updateLabIfPopup() {
 }
 
 // Ejecutar la función al cargar la página
-updateLabIfPopup();
+
+setTimeout(function () {
+
+    updateLabIfPopup();
+}, 100)

@@ -1,71 +1,37 @@
+// Función para configurar los selectores según los valores en la URL o valores por defecto
+function configurarSelectoresDesdeURL() {
+    const urlParams = new URLSearchParams(window.location.search);
 
-// Función para guardar los valores seleccionados de los selectores en el almacenamiento local
-function guardarValoresSelect() {
-    const selectedTrade = document.getElementById('trademark').value;
-    const selectedReference = document.getElementById('reference').value;
-    const selectedName = document.getElementById('name').value;
-    const selectedSortBy = document.getElementById('sort-by-select').value;
-    
-    localStorage.setItem('selectedTrademark', selectedTrade);
-    localStorage.setItem('selectedReference', selectedReference);
-    localStorage.setItem('selectedName', selectedName);
-    localStorage.setItem('selectedSortBy', selectedSortBy);
+    const labValue = urlParams.get('lab');
+    const nameValue = urlParams.get('name');
+    const trademarkValue = urlParams.get('trademark');
 
+    const labSelect = document.getElementById('lab');
+    const nameSelect = document.getElementById('name');
+    const trademarkSelect = document.getElementById('trademark');
+
+    // Verificar si hay valores en la URL, si no, asignar valores por defecto
+    if (labValue !== null) {
+        labSelect.value = labValue;
+    } else {
+        labSelect.value = labDefault; // Valor por defecto del selector "lab"
+    }
+
+    if (nameValue !== null) {
+        nameSelect.value = nameValue;
+    } else {
+        nameSelect.value = ''; // Valor por defecto del selector "name"
+    }
+
+    if (trademarkValue !== null) {
+        trademarkSelect.value = trademarkValue;
+    } else {
+        trademarkSelect.value = ''; // Valor por defecto del selector "trademark"
+    }
+    updateNameTrademarkAndReferenceByLab();
 }
 
-// Función para configurar los selectores con los valores almacenados en el almacenamiento local
-function configurarSelects() {
-    const selectedTrade = localStorage.getItem('selectedTrademark');
-    const selectedReference = localStorage.getItem('selectedReference');
-    const selectedName = localStorage.getItem('selectedName');
-    const selectedSortBy = localStorage.getItem('selectedSortBy');
-    
-    // Configurar el selector "Trademark
-    const selectTrade = document.getElementById('trademark');
-    selectTrade.value = selectedTrade || '';
-    
-    // Configurar el selector "Reference"
-    const selectReference = document.getElementById('reference');
-    selectReference.value = selectedReference || '';
-
-    // Configurar el selector "Name"
-    const selectName = document.getElementById('name');
-    selectName.value = selectedName || '';
-
-    // Configurar el selector "sortBy"
-    const selectSortBy = document.getElementById('sort-by-select');
-    selectSortBy.value = selectedSortBy || 'name';
-}
-
-window.addEventListener('DOMContentLoaded', function () {
-    // Configurar los selectores al cargar la página o después de realizar una búsqueda
-    configurarSelects();
-
-    // Agregar el event listener a los selectores para guardar los valores seleccionados
-    
-    const selectTrade = document.getElementById('trademark');
-    const selectReference = document.getElementById('reference');
-    const selectName = document.getElementById('name');
-    const selectSortBy = document.getElementById('sort-by-select');
-    
-    selectReference.addEventListener('change', guardarValoresSelect);
-    selectName.addEventListener('change', guardarValoresSelect);
-    selectTrade.addEventListener('change', guardarValoresSelect);
-    selectSortBy.addEventListener('change', guardarValoresSelect);
-
-    // Agregar el event listener al evento pageshow para guardar los valores seleccionados cuando se muestra la página
-    window.addEventListener('pageshow', function (event) {
-        if (!event.persisted) {
-            configurarSelects();
-        }
-    });
-
-    // Agregar el event listener a los enlaces de registros por página para guardar los valores seleccionados
-    const perPage10Link = document.getElementById('per-page-10');
-    const perPage20Link = document.getElementById('per-page-20');
-    const perPage50Link = document.getElementById('per-page-50');
-
-    perPage10Link.addEventListener('click', guardarValoresSelect);
-    perPage20Link.addEventListener('click', guardarValoresSelect);
-    perPage50Link.addEventListener('click', guardarValoresSelect);
+// Esperar 200 ms después de la carga para configurar los selectores desde la URL
+window.addEventListener('load', function () {
+    setTimeout(configurarSelectoresDesdeURL, 200);
 });

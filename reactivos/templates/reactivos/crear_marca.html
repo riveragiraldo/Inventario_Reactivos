@@ -72,42 +72,20 @@
 
           window.onload = function () {
 
-            //Alerta
-            var messageText = '{{ message|safe }}';
-
-            var alertType = 'info';  // Tipo de alerta predeterminado para mensajes habituales
-
-            // Verificar el contenido del mensaje para asignar el tipo de alerta adecuado
-            if (messageText.includes('Se ha creado exitosamente')) {
-              alertType = 'success';
-            } else if (messageText.includes('Por favor seleccione') || messageText.includes('Ya existe') || messageText.includes('Solo se permiten registros ')) {
-              alertType = 'warning';
-            }
-
-            // Mostrar la notificación con SweetAlert2
-            Swal.fire({
-              icon: alertType,
-              title: 'Mensaje del servidor',
-              text: messageText,
-              confirmButtonText: 'Aceptar'
-            });
 
             //Obtener Id despues del mensaje
-            mensaje = "{{ message }}";
+            mensaje = "'{{ message|safe }}";
             var trademark = mensaje.split(": ")[1];
+            alert(mensaje)
 
             // Obtener los valores de los elementos necesarios de la ventana padre
             var lab = window.opener.document.getElementById("lab").value;
             var name = window.opener.document.getElementById("name").value;
-            // var code = window.opener.document.getElementById("code").value;
-            // var cas = window.opener.document.getElementById("cas").value;
             var price = window.opener.document.getElementById("price").value;
             var edate = window.opener.document.getElementById("edate").value;
             var reference = window.opener.document.getElementById("reference").value;
-            // var is_liquid = window.opener.document.getElementById("is_liquid").value;
             var weight = window.opener.document.getElementById("weight").value;
             var minstock = window.opener.document.getElementById("minstock").value;
-            // var unit = window.opener.document.getElementById("unit").value;
             var order = window.opener.document.getElementById("order").value;
             var nproject = window.opener.document.getElementById("nproject").value;
             var location = window.opener.document.getElementById("location").value;
@@ -123,13 +101,16 @@
             setTimeout(function () {
               // Acceder a la ventana padre y actualizar los valores
 
-              //Ejecuta función de actualizar opciones del select ubicaciones en el almacén
-              window.opener.updateWlocationOptions();
+              //Actualiza Select lab
+              var lab_new = window.opener.document.querySelector("#lab");
+              lab_new.value = lab;
+              lab_new.setAttribute("selected", true)
+
+              //Ejecuta función de actualizar opciones del select ubicacoines en el almacén
+              window.opener.updateWlocationOptions()
 
               window.opener.document.querySelector("#name").value = name;
               window.opener.updateFields()
-              //window.opener.document.querySelector("#code").value = code;
-              //window.opener.document.querySelector("#cas").value = cas;
               window.opener.document.querySelector("#price").value = price;
 
               //Actualiza Select trademark
@@ -139,9 +120,7 @@
 
               window.opener.document.querySelector("#edate").value = edate;
               window.opener.document.querySelector("#reference").value = reference;
-              //window.opener.document.querySelector("#is_liquid").value = is_liquid;
               window.opener.document.querySelector("#weight").value = weight;
-              //window.opener.document.querySelector("#unit").value = unit;
               window.opener.document.querySelector("#minstock").value = minstock;
               window.opener.document.querySelector("#order").value = order;
               window.opener.document.querySelector("#nproject").value = nproject;
@@ -163,24 +142,13 @@
                 wlocation_new.value = wlocation;
                 wlocation_new.setAttribute("selected", true);
 
-
-                var wlocation_2 = window.opener.document.querySelector("#wlocation");
-                wlocation_2.value = wlocation;
-                var selectedOption = wlocation_2.options[wlocation_2.selectedIndex];
-
                 //Actualiza Select lab
                 var lab_new = window.opener.document.querySelector("#lab");
                 lab_new.value = lab;
                 lab_new.setAttribute("selected", true);
-                console.log(lab)
-
-
-
-
-
                 window.close();
               }, 300)
-            }, 700);
+            }, 2500);
           };
         }
 

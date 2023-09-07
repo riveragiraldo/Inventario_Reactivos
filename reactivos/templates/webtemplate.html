@@ -211,10 +211,10 @@
 					<span class="navbar-item">&nbsp;BIENVENIDO, {{ request.user.first_name|title }} {{ request.user.last_name|title }}&nbsp;</span>
 				</li>
 				<li class="nav-item">
-					<a class="nav-link" href="/admin/password_change/">&nbsp;CAMBIAR CONTRASEÑA&nbsp;</a>
+					<a class="nav-link" href="{% url 'reactivos:password_change' %}">&nbsp;CAMBIAR CONTRASEÑA&nbsp;</a>
 				</li>
 				<li class="nav-item">
-					<a class="nav-link" href="/admin/logout/">CERRAR SESIÓN</a>
+					<a class="nav-link" href="{% url 'reactivos:logout'%}">CERRAR SESIÓN</a>
 				</li>
 			</ul>
 		</div>
