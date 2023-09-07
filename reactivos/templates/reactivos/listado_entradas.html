@@ -40,6 +40,10 @@
         labDefault = "0"
     </script>
     {% endif %}
+    <script>
+        today="{{ today|date:'Y-m-d' }}"
+        oneMonthAgo="{{ one_month_ago|date:'Y-m-d' }}"
+    </script>
     <link rel="stylesheet" href="{% static 'inventoryStyles.css' %}">
     <script src="{% static 'paginationInventoryControl.js' %}"></script>
     <!-- Llama Script que controla la paginación -->

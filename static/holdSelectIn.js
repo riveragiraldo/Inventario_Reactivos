@@ -49,17 +49,17 @@ function configurarSelectoresDesdeURL() {
         createdBySelect.value = ''; // Valor por defecto del selector "created_by"
     }
 
-    // if (startDateValue !== null) {
-    //     startDateSelect.value = startDateValue;
-    // } else {
-    //     startDateSelect.value = ''; // Valor por defecto del selector "start_date"
-    // }
+    if (startDateValue !== null) {
+        startDateSelect.value = startDateValue;
+    } else {
+        startDateSelect.value = ''; // Valor por defecto del selector "start_date"
+    }
 
-    // if (endDateValue !== null) {
-    //     endDateSelect.value = endDateValue;
-    // } else {
-    //     endDateSelect.value = ''; // Valor por defecto del selector "start_date"
-    // }
+    if (endDateValue !== null) {
+        endDateSelect.value = endDateValue;
+    } else {
+        endDateSelect.value = ''; // Valor por defecto del selector "start_date"
+    }
 
     updateSelectOptionsByLab();
 }

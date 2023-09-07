@@ -100,7 +100,7 @@
           <select name="rol" class="form-control" required="" id="id_rol">
             <option value="" selected="">---------</option>
             {% for rol in roles %}
-            {% if not rol.name == "ADMINISTRADOR" %}
+            {% if rol.name == "TECNICO" %}
             <option value="{{ rol.id }}">{{ rol.name }}</option>
             {% endif %}
             {% endfor %}
