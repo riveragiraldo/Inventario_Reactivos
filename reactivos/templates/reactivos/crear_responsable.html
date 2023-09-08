@@ -129,10 +129,24 @@
           window.onload = function () {
             var mensaje = '{{ message|safe }}';
             alert(mensaje)
-            var manager = mensaje.split(": ")[1];
+            // Expresión regular para extraer el nombre y el correo
+            var regex = /nombre: (.*?), correo: (.*?$)/;
+
+            // Ejecutar la expresión regular en el mensaje
+            var matches = mensaje.match(regex);
+
+            if (matches) {
+              var manager = matches[1]; // Captura el nombre
+              var correo = matches[2]; // Captura el correo
+
+              
+            } else {
+              console.log('No se encontró información de nombre y correo en el mensaje.');
+            }
             setTimeout(function () {
 
               window.opener.document.querySelector("#manager").value = manager;
+              window.opener.document.querySelector("#correo").value = correo;
               window.close();
 
             }, 500);

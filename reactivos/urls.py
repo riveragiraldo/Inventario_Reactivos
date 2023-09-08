@@ -42,6 +42,7 @@ urlpatterns = [
     path('exportar-excel/', views.export_to_excel, name='export_to_excel'),
     path('export_to_pdf/', views.export_to_pdf, name='export_to_pdf'),
     path('guardar-per-page/<int:per_page>/', GuardarPerPageView.as_view(), name='GuardarPerPage'),
+    path('guardar-per-page-in/<int:per_page>/', GuardarPerPageViewIn.as_view(), name='GuardarPerPageIn'),
     path("obtener_stock/", obtener_stock, name="obtener_stock"),
     path('templates/webtemplate/', webtemplate, name='webtemplate'),
     

@@ -82,7 +82,7 @@ from django.views.decorators.debug import sensitive_post_parameters
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import FormView
 from django.utils.dateparse import parse_date
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from .forms import ReCaptchaForm,CustomPasswordResetForm, FormularioUsuario
 from django.core.mail import send_mail
 from django.utils.translation import gettext as _
@@ -92,6 +92,7 @@ from django.utils.html import strip_tags
 import base64
 from urllib.parse import urlencode
 from functools import wraps
+from django.utils.timezone import make_aware
 
 
 
@@ -355,8 +356,9 @@ def crear_responsable(request):
         if Responsables.objects.filter(cc=cc).exists():
             responsablecc = Responsables.objects.get(cc=cc)
             responsable_name = responsablecc.name
+            responsable_mail = responsablecc.mail
             messages.error(
-                request, 'Ya existe un responsable el número de cédula registrada: '+responsable_name)
+                request, 'Ya existe un responsable el número de cédula registrada, su nombre: '+responsable_name+', correo: '+responsable_mail)
             return HttpResponse('Error al insertar en la base de datos', status=400)
            
 
@@ -364,15 +366,17 @@ def crear_responsable(request):
         if Responsables.objects.filter(phone=phone).exists():
             responsablename = Responsables.objects.get(phone=phone)
             responsable_name = responsablename.name
+            responsable_mail = responsablename.mail
             messages.error(
-                request, 'Ya existe una responsable con el telefono registrado: '+responsable_name)
+                request, 'Ya existe una responsable con el telefono registrado, su nombre: '+responsable_name+', correo: '+responsable_mail)
             return HttpResponse('Error al insertar en la base de datos', status=400)
 
         if Responsables.objects.filter(mail=mail).exists():
             responsablename = Responsables.objects.get(mail=mail)
             responsable_name = responsablename.name
+            responsable_mail = responsablename.mail
             messages.error(
-                request, 'Ya existe una responsable con el email registrado: '+responsable_name)
+                request, 'Ya existe una responsable con el email registrado, su nombre: '+responsable_name+', correo: '+responsable_mail)
             return HttpResponse('Error al insertar en la base de datos', status=400)
 
         responsable = Responsables.objects.create(
@@ -385,7 +389,7 @@ def crear_responsable(request):
             last_updated_by=request.user,  # Asignar el usuario actualmente autenticado
         )
         messages.success(
-            request, 'Se ha creado exitosamente el siguiente responsable cc '+cc+' nombre: '+name)
+            request, 'Se ha creado exitosamente el siguiente responsable cc '+cc+' nombre: '+name+', correo: '+mail)
         return HttpResponse('Se ha creado exitosamente el siguiente responsable: '+name, status=200)
         
 
@@ -505,7 +509,7 @@ def crear_ubicacion(request):
 
         # Verifica si ya existe un registro con el mismo nombre de la asignatura y la misma facultad
         if Ubicaciones.objects.filter(Q(name=name) & Q(facultad=facultad)).exists():
-            messages.error(request, f'Ya existe  en la facultad {facultad} una ubicación con nombre: {name}')
+            messages.error(request, 'Ya existe  una ubicación con nombre: '+name+', facultad: '+str(facultad))
             return HttpResponse('Error al insertar en la base de datos', status=400)
 
         asignatura = Ubicaciones.objects.create(
@@ -515,7 +519,7 @@ def crear_ubicacion(request):
             last_updated_by=request.user,  # Asignar el usuario actualmente autenticado
         )
         
-        messages.success(request, f'Se ha creado exitosamente en la facultad {facultad}, la asignatura/ubicación con nombre: {name}')
+        messages.success(request, 'Se ha creado exitosamente la asignatura/ubicación con nombre: '+name+', facultad: '+str(facultad))
         return HttpResponse('Inserción exitosa', status=200)
 
     laboratorio = request.user.lab
@@ -823,10 +827,12 @@ def registrar_entrada(request):
             location = None
             return HttpResponse("La ubicación "+nlocation +" no se encuentra en la base de datos, favor crearlo primero.", status=400)
         
+        correo = request.POST.get('correo')
+        
         manager = request.POST.get('manager')
         nmanager = manager
         try:
-            nameManager = Responsables.objects.get(name=manager)
+            nameManager = Responsables.objects.get(name=manager, mail=correo)
             manager = nameManager
         except Responsables.DoesNotExist:
             messages.error(request, "El responsable "+nmanager +
@@ -860,6 +866,7 @@ def registrar_entrada(request):
             return HttpResponse("Por favor seleccione una ubicación en almacén primero", status=400)       
         
         destination_id = request.POST.get('destination')
+
         if not destination_id.isdigit():
             messages.error(request, 'Por favor seleccione un destino primero')
             return HttpResponse("Por favor seleccione una destino en almacén primero", status=400)
@@ -1057,7 +1064,12 @@ def registrar_entrada(request):
                              nReactivo+', cantidad '+weight+' '+unit)
             return HttpResponse('Se ha registrado de manera exitosa el ingreso del: ' +
                              nReactivo+', cantidad '+weight+' '+unit, status=200)
-    laboratorio = request.user.lab        
+    laboratorio = request.user.lab
+    # Obtener la fecha de hoy
+    today = date.today()
+    # Calcular la fecha ayer
+    yesterday = today - timedelta(days=1)
+    tomorrow = today + timedelta(days=1)        
     context = {
                 'reactivos': Reactivos.objects.all(),
                 'responsables': Responsables.objects.all(),
@@ -1069,6 +1081,8 @@ def registrar_entrada(request):
                 'usuarios': User.objects.all(),
                 'laboratorio': laboratorio,
                 'usuarios': User.objects.all(),
+                'tomorrow': tomorrow,
+                'yesterday': yesterday,
             }
         
     return render(request, 'reactivos/registrar_entrada.html', context)
@@ -1414,8 +1428,12 @@ class EntradasListView(LoginRequiredMixin,ListView):
 
         # Obtener los parámetros de filtrado
         lab = request.GET.get('lab')
-        # name = request.GET.get('name')
-        # trademark = request.GET.get('trademark')
+        name = request.GET.get('name')
+        location = request.GET.get('location')
+        destination = request.GET.get('destination')
+        created_by = request.GET.get('created_by')
+
+       
         
         # si el valor de lab viene de sesión superusuario o ADMINISTRADOR lab=0 cambiar por lab=''
         if lab=='0':
@@ -1423,14 +1441,27 @@ class EntradasListView(LoginRequiredMixin,ListView):
 
         # Guardar los valores de filtrado en la sesión
         request.session['filtered_lab'] = lab
-        # request.session['filtered_name'] = name
-        # request.session['filtered_trademark'] = trademark
+        request.session['filtered_name'] = name
+        request.session['filtered_location'] = location
+        request.session['filtered_destination'] = destination
+        request.session['filtered_created_by'] = created_by
         
 
         return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
+        # Obtener la fecha de hoy
+        today = date.today()
+        # Calcular la fecha hace un mes hacia atrás
+        one_month_ago = today - timedelta(days=30)
+
+        # Agregar la fecha al contexto
+        context['one_month_ago'] = one_month_ago
+
+        # Agregar la fecha de hoy al contexto
+        context['today'] = today
 
         unique_labs_ids = Entradas.objects.values('lab').distinct()
         unique_labs = Laboratorios.objects.filter(id__in=unique_labs_ids)
@@ -1487,78 +1518,99 @@ class EntradasListView(LoginRequiredMixin,ListView):
         location = self.request.GET.get('location')
         destination= self.request.GET.get('destination')
         created_by= self.request.GET.get('created_by')
-        
 
-        
+         # Obtener las fechas de inicio y fin de la solicitud GET
+        start_date = self.request.GET.get('start_date')
+        end_date = self.request.GET.get('end_date')
+                
         
 
         # si el valor de lab viene de sesión superusuario o ADMINISTRADOR lab=0 cambiar por lab=''
         if lab=='0':
              lab=None
+        # Validar y convertir las fechas
+        try:
+            if start_date:
+                start_date = make_aware(datetime.strptime(start_date, '%Y-%m-%d'))
+            if end_date:
+                end_date = make_aware(datetime.strptime(end_date, '%Y-%m-%d'))
+        except ValueError:
+            # Manejar errores de formato de fecha aquí si es necesario
+            pass
+
+        
+        # Realiza la filtración de acuerdo a las fechas
+        if start_date:
+            queryset = queryset.filter(date_create__gt=start_date)
+        elif end_date:
+            queryset = queryset.filter(date_create__lt=end_date)
+        elif start_date and end_date:
+            queryset = queryset.filter(date_create__gt=start_date,date_create__lt=end_date)
+
              
         
-        if lab and name and destination and location and created_by:
-            queryset = queryset.filter(lab=lab, name=name, destination=destination, location=location, created_by=created_by, is_active=True)
-        elif lab and name and destination and location:
-            queryset = queryset.filter(lab=lab, name=name, destination=destination, location=location, is_active=True)
-        elif lab and name and destination and created_by:
-            queryset = queryset.filter(lab=lab, name=name, destination=destination, created_by=created_by, is_active=True)
-        elif lab and name and location and created_by:
-            queryset = queryset.filter(lab=lab, name=name, location=location, created_by=created_by, is_active=True)
-        elif lab and destination and location and created_by:
-            queryset = queryset.filter(lab=lab, destination=destination, location=location, created_by=created_by, is_active=True)
-        elif name and destination and location and created_by:
-            queryset = queryset.filter(name=name, destination=destination, location=location, created_by=created_by, is_active=True)
-        elif lab and name and destination:
-            queryset = queryset.filter(lab=lab, name=name, destination=destination, is_active=True)
-        elif lab and name and location:
-            queryset = queryset.filter(lab=lab, name=name, location=location, is_active=True)
-        elif lab and name and created_by:
-            queryset = queryset.filter(lab=lab, name=name, created_by=created_by, is_active=True)
-        elif lab and destination and location:
-            queryset = queryset.filter(lab=lab, destination=destination, location=location, is_active=True)
-        elif lab and destination and created_by:
-            queryset = queryset.filter(lab=lab, destination=destination, created_by=created_by, is_active=True)
-        elif lab and location and created_by:
-            queryset = queryset.filter(lab=lab, location=location, created_by=created_by, is_active=True)
-        elif name and destination and location:
-            queryset = queryset.filter(name=name, destination=destination, location=location, is_active=True)
-        elif name and destination and created_by:
-            queryset = queryset.filter(name=name, destination=destination, created_by=created_by, is_active=True)
-        elif name and location and created_by:
-            queryset = queryset.filter(name=name, location=location, created_by=created_by, is_active=True)
-        elif destination and location and created_by:
-            queryset = queryset.filter(destination=destination, location=location, created_by=created_by, is_active=True)
-        elif location and created_by:
-            queryset = queryset.filter(location=location, created_by=created_by, is_active=True)
-        elif destination and created_by:
-            queryset = queryset.filter(destination=destination, created_by=created_by, is_active=True)
-        elif destination and location:
-            queryset = queryset.filter(destination=destination, location=location, is_active=True)
-        elif name and created_by:
-            queryset = queryset.filter(name=name, created_by=created_by, is_active=True)
-        elif name and location:
-            queryset = queryset.filter(name=name, location=location, is_active=True)
-        elif name and destination:
-            queryset = queryset.filter(name=name, destination=destination, is_active=True)
-        elif lab and created_by:
-            queryset = queryset.filter(lab=lab, created_by=created_by, is_active=True)
-        elif lab and location:
-            queryset = queryset.filter(lab=lab, location=location, is_active=True)
-        elif lab and destination:
-            queryset = queryset.filter(lab=lab, destination=destination, is_active=True)
-        elif lab and name:
-            queryset = queryset.filter(lab=lab, name=name, is_active=True)
-        elif lab:
-            queryset = queryset.filter(lab=lab, is_active=True)
-        elif name:
-            queryset = queryset.filter(name=name, is_active=True)
-        elif destination:
-            queryset = queryset.filter(destination=destination, is_active=True)
-        elif location:
-            queryset = queryset.filter(location=location, is_active=True)
-        elif created_by:
-            queryset = queryset.filter(created_by=created_by, is_active=True)
+        # if lab and name and destination and location and created_by:
+        #     queryset = queryset.filter(lab=lab, name=name, destination=destination, location=location, created_by=created_by, is_active=True)
+        # elif lab and name and destination and location:
+        #     queryset = queryset.filter(lab=lab, name=name, destination=destination, location=location, is_active=True)
+        # elif lab and name and destination and created_by:
+        #     queryset = queryset.filter(lab=lab, name=name, destination=destination, created_by=created_by, is_active=True)
+        # elif lab and name and location and created_by:
+        #     queryset = queryset.filter(lab=lab, name=name, location=location, created_by=created_by, is_active=True)
+        # elif lab and destination and location and created_by:
+        #     queryset = queryset.filter(lab=lab, destination=destination, location=location, created_by=created_by, is_active=True)
+        # elif name and destination and location and created_by:
+        #     queryset = queryset.filter(name=name, destination=destination, location=location, created_by=created_by, is_active=True)
+        # elif lab and name and destination:
+        #     queryset = queryset.filter(lab=lab, name=name, destination=destination, is_active=True)
+        # elif lab and name and location:
+        #     queryset = queryset.filter(lab=lab, name=name, location=location, is_active=True)
+        # elif lab and name and created_by:
+        #     queryset = queryset.filter(lab=lab, name=name, created_by=created_by, is_active=True)
+        # elif lab and destination and location:
+        #     queryset = queryset.filter(lab=lab, destination=destination, location=location, is_active=True)
+        # elif lab and destination and created_by:
+        #     queryset = queryset.filter(lab=lab, destination=destination, created_by=created_by, is_active=True)
+        # elif lab and location and created_by:
+        #     queryset = queryset.filter(lab=lab, location=location, created_by=created_by, is_active=True)
+        # elif name and destination and location:
+        #     queryset = queryset.filter(name=name, destination=destination, location=location, is_active=True)
+        # elif name and destination and created_by:
+        #     queryset = queryset.filter(name=name, destination=destination, created_by=created_by, is_active=True)
+        # elif name and location and created_by:
+        #     queryset = queryset.filter(name=name, location=location, created_by=created_by, is_active=True)
+        # elif destination and location and created_by:
+        #     queryset = queryset.filter(destination=destination, location=location, created_by=created_by, is_active=True)
+        # elif location and created_by:
+        #     queryset = queryset.filter(location=location, created_by=created_by, is_active=True)
+        # elif destination and created_by:
+        #     queryset = queryset.filter(destination=destination, created_by=created_by, is_active=True)
+        # elif destination and location:
+        #     queryset = queryset.filter(destination=destination, location=location, is_active=True)
+        # elif name and created_by:
+        #     queryset = queryset.filter(name=name, created_by=created_by, is_active=True)
+        # elif name and location:
+        #     queryset = queryset.filter(name=name, location=location, is_active=True)
+        # elif name and destination:
+        #     queryset = queryset.filter(name=name, destination=destination, is_active=True)
+        # elif lab and created_by:
+        #     queryset = queryset.filter(lab=lab, created_by=created_by, is_active=True)
+        # elif lab and location:
+        #     queryset = queryset.filter(lab=lab, location=location, is_active=True)
+        # elif lab and destination:
+        #     queryset = queryset.filter(lab=lab, destination=destination, is_active=True)
+        # elif lab and name:
+        #     queryset = queryset.filter(lab=lab, name=name, is_active=True)
+        # elif lab:
+        #     queryset = queryset.filter(lab=lab, is_active=True)
+        # elif name:
+        #     queryset = queryset.filter(name=name, is_active=True)
+        # elif destination:
+        #     queryset = queryset.filter(destination=destination, is_active=True)
+        # elif location:
+        #     queryset = queryset.filter(location=location, is_active=True)
+        # elif created_by:
+        #     queryset = queryset.filter(created_by=created_by, is_active=True)
         else:
             queryset = queryset.filter(is_active=True)
 
@@ -1743,6 +1795,38 @@ class GuardarPerPageView(LoginRequiredMixin,View):
 
         return redirect(url)
     
+class GuardarPerPageViewIn(LoginRequiredMixin,View):
+    def get(self, request, *args, **kwargs):
+        per_page = kwargs.get('per_page')
+        request.session['per_page'] = per_page
+
+        # Redirigir a la página de inventario con los parámetros de filtrado actuales
+        filtered_lab = request.session.get('filtered_lab')
+        filtered_name = request.session.get('filtered_name')
+        filtered_location = request.session.get('filtered_location')
+        filtered_destination = request.session.get('filtered_destination')
+        filtered_created_by = request.session.get('filtered_created_by')
+        
+        url = reverse('reactivos:listado_entradas')
+        params = {}
+        if filtered_lab:
+            params['lab'] = filtered_lab
+        if filtered_name:
+            params['name'] = filtered_name
+
+        if filtered_location:
+            params['location'] = filtered_name
+        if filtered_destination:
+            params['destination'] = filtered_name
+        if filtered_created_by:
+            params['created_by'] = filtered_name
+        
+        
+        if params:
+            url += '?' + urlencode(params)
+
+        return redirect(url)
+    
 # La vista "crear_unidades" se encarga de gestionar la creación de unidades. Esta vista toma los datos del formulario 
 # existente en el template "crear_unidades.html" y realiza las operaciones necesarias en la base de datos utilizando 
 # el modelo "Unidades". El objetivo es garantizar la unicidad de los registros, lo que implica verificar si la unidad
@@ -1830,7 +1914,7 @@ class SelectOptionsByLabAPI(LoginRequiredMixin,View):
                 entradas = entradas.filter(lab=lab)
 
         names = entradas.values('name', 'name__name').distinct().order_by('name__name')
-        locations = entradas.values('location', 'location__name').distinct().order_by('location__name')
+        locations = entradas.values('location', 'location__name','location__facultad__name').distinct().order_by('location__name')
         destinations = entradas.values('destination','destination__name').distinct().order_by('destination__name')
         created_bys = entradas.values('created_by','created_by__first_name','created_by__last_name').distinct().order_by('created_by__first_name')
 

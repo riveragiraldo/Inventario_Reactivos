@@ -320,7 +320,7 @@ class Entradas(models.Model):
     reference = models.CharField(max_length=255, verbose_name='Referencia')
     weight = models.DecimalField(max_digits=15, decimal_places=2, verbose_name="Cantidad de entrada")
     order = models.CharField(max_length=255,  verbose_name='Orden No.')
-    date_order = models.DateTimeField(verbose_name='Fecha de orden',null=True, blank=True)
+    date_order = models.DateField(verbose_name='Fecha de orden',null=True, blank=True)
     manager = models.ForeignKey(Responsables, on_delete=models.CASCADE,
                                 related_name='responsable', verbose_name='Responsable')
     observations = models.TextField(

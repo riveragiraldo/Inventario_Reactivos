@@ -76,6 +76,7 @@
                     <label class="form-label" for="lab" name="Laboratorio: ">Laboratorio:</label>
 
                     {% if request.user|has_group:"COORDINADOR" or request.user|has_group:"TECNICO" %}
+                    <div id="add_reagent_btn"></div>
                     <select name="lab" class="form-control" required="" id="lab">
                         {% for lab in laboratorios %}
 
@@ -157,8 +158,7 @@
                     <label class="form-label" for="edate" name="Vencimiento: ">*Vencimiento:</label>
                     <input type="date" class="form-control" name="edate" id="edate"
                         value="{{ date.tomorrow|date:'Y-m-d' }}" required
-                        title="Registre una fecha futura (hasta 31/12/2100)"
-                        >
+                        title="Registre una fecha futura (hasta 31/12/2100)" min="{{ tomorrow|date:'Y-m-d' }}">
 
                 </div>
 
@@ -174,7 +174,7 @@
                         name="weight" required min="0" max="100000000" pattern="^(?:[1-9]\d{0,7}|100000000)$"
                         title="Ingrese un valor entero positivo sin puntos ni comas (máximo 100000000)">
                 </div>
-                
+
 
                 <div class="col-md-2" id="unitBlock">
                     <label class="form-label" for="unit" name="Unidad: ">*Unidades:</label>
@@ -182,11 +182,11 @@
                 </div>
                 <!-- Agregar el checkbox para Control de Stock -->
                 <div class="col-md-12">
-                    
+
                     <input type="checkbox" id="controlMinStock" name="controlMinStock" checked>
                     <input type="hidden" name="minStockControl" id="minStockControl" value="" readonly required>
                     <label for="minStockControl" name="Control de Stock Mínimo:">Control de Stock Mínimo</label>
-                    
+
                 </div>
 
                 <div class="col-md-3" id="minStockBlock">
@@ -204,8 +204,9 @@
 
                 <div class="col-md-6">
                     <label class="form-label" for="orderdate" name="Fecha de orden:">Fecha de orden:</label>
-                    <input type="date" class="form-control" name="orderdate" id="orderdate" title="Fecha de la orden">
-                </div>  
+                    <input type="date" class="form-control" name="orderdate" id="orderdate" title="Fecha de la orden"
+                        max="{{ yesterday|date:'Y-m-d' }}">
+                </div>
 
 
                 <div class="col-md-6">
@@ -219,13 +220,15 @@
                     <div class="input-group">
                         <input type="text" name="location" class="form-control" id="location" required
                             placeholder="Asignatura/Ubicación Destino">
+                        <input type="hidden" name="facultad" class="form-control" id="facultad" placeholder="Facultad"
+                            readonly>
                         <button type="button" id="add_location_btn" class="btn btn-secondary"
                             title="Agregar Asignatura/Ubicación">+
                             </Address></button>
                     </div>
                 </div>
 
-                <input type="hidden" name="facultad" class="form-control" id="facultad" placeholder="Facultad" readonly>
+
 
 
 
@@ -244,6 +247,8 @@
                     <div class="input-group">
                         <input type="text" name="manager" class="form-control" id="manager" required
                             placeholder="Responsable del insumo">
+                        <input type="hidden" name="correo" class="form-control" id="correo"
+                            placeholder="Correo Responsable" readonly>
                         <button type="button" id="add_manager_btn" class="btn btn-secondary"
                             title="Agregar Responsable">+
                             </Address></button>
@@ -314,6 +319,7 @@
             {% endif %}
 
         </div>
+
 
 
         {% endblock %}

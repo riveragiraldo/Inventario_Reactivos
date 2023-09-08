@@ -40,6 +40,10 @@
         labDefault = "0"
     </script>
     {% endif %}
+    <script>
+        today="{{ today|date:'Y-m-d' }}"
+        oneMonthAgo="{{ one_month_ago|date:'Y-m-d' }}"
+    </script>
     <link rel="stylesheet" href="{% static 'inventoryStyles.css' %}">
     <script src="{% static 'paginationInventoryControl.js' %}"></script>
     <!-- Llama Script que controla la paginación -->
@@ -56,6 +60,8 @@
     <!-- Llama Script que resalta los controles de paginación -->
     <script src="{% static 'updateUrl.js' %}"></script>
     <!-- Llama Script que actualiza URL -->
+    <script src="{% static 'validateLapse.js' %}"></script>
+    <!-- Llama Script que actualiza URL -->
     {% endblock %}
 </head>
 
@@ -63,7 +69,7 @@
     {% block content %}
     <div class="row">
         <div class="col-md-9 mx-auto">
-            <h1>Inventario Reactivos</h1>
+            <h1>Listado de registros de entrada</h1>
             <br>
 
             <form method="get" onsubmit="guardarValoresSelect()">
@@ -142,6 +148,24 @@
                         </select>
                     </div>
 
+                    <div class="col-md-2 d-flex flex-column align-items-left">
+                        <label for="start_date">Fecha Inicial:</label>
+                        <input type="date" id="start_date" name="start_date" class="form-control" value="{{ one_month_ago|date:'Y-m-d' }}" max="{{ today|date:'Y-m-d' }}">
+                        <span class="validation-message" id="start-date-validation" style="color: red;">La fecha incial debe ser igual o anterior a "{{ today|date:'Y-m-d' }}".</span>
+                    </div>
+                    
+                    <div class="col-md-2 d-flex flex-column align-items-left">
+                        <label for="end_date">Fecha Final:</label>
+                        <input type="date" id="end_date" name="end_date" class="form-control" value="{{ today|date:'Y-m-d' }}" max="{{ today|date:'Y-m-d' }}">
+                        <span class="validation-message" id="end-date-validation" style="color: red;">La fecha incial debe ser igual o anterior a "{{ today|date:'Y-m-d' }}"</span>
+                    </div>
+                    <script>
+                        
+                    </script>
+                    
+                    
+                    
+
                     <div class="col-md-4 d-flex align-items-end">
                         <button id="boton-buscar" type="submit" class="btn btn-primary">Buscar</button>
                     </div>
@@ -157,11 +181,11 @@
                 Ver&nbsp;
                 <div class="btn-group btn-group-toggle" data-toggle="buttons">
 
-                    <a href="{% url 'reactivos:GuardarPerPage' per_page=10 %}" class="btn btn-secondary btn-sm"
+                    <a href="{% url 'reactivos:GuardarPerPageIn' per_page=10 %}" class="btn btn-secondary btn-sm"
                         id="per-page-10">10</a>
-                    <a href="{% url 'reactivos:GuardarPerPage' per_page=20 %}" class="btn btn-secondary btn-sm"
+                    <a href="{% url 'reactivos:GuardarPerPageIn' per_page=20 %}" class="btn btn-secondary btn-sm"
                         id="per-page-20">20</a>
-                    <a href="{% url 'reactivos:GuardarPerPage' per_page=50 %}" class="btn btn-secondary btn-sm"
+                    <a href="{% url 'reactivos:GuardarPerPageIn' per_page=50 %}" class="btn btn-secondary btn-sm"
                         id="per-page-50">50</a>
 
                 </div>&nbsp;Registros por página
@@ -261,10 +285,7 @@
                         {% endif %}
                     </span>
                 </div>
-
-
-
-
+                
                 <!-- Información de paginación -->
                 <div class="pagination-info">
                     Mostrando {{ page_obj.start_index }} - {{ page_obj.end_index }} de {{ paginator.count }} registros
@@ -302,16 +323,6 @@
             lastPageLink.href = baseUrl + '&page=' + totalPages;
 
             '{% endif %}'
-
-
-
-
-
-
-
-
-
-
         });
     </script>
     {% endblock %}
