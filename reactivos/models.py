@@ -12,6 +12,7 @@ class User(AbstractUser):
     email = models.EmailField('Correo Electrónico', unique=True)
     lab = models.ForeignKey('reactivos.Laboratorios', on_delete=models.CASCADE, related_name='lab_users', verbose_name='laboratorio', null=True)
     rol = models.ForeignKey('reactivos.Rol', on_delete=models.CASCADE, blank=True, related_name='rol_user', verbose_name='Rol',null=True)
+    acceptDataProcessing=models.BooleanField(default=False,verbose_name="Acepta tratamiento de datos")
     last_update = models.DateTimeField(auto_now=True,verbose_name='Última Actualización',)
     user_create = models.ForeignKey('reactivos.User', on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Creado por', related_name='user_User')
     last_updated_by = models.ForeignKey('reactivos.User', on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Actualizado por',related_name='updateby_User',)
@@ -171,10 +172,11 @@ class Laboratorios(models.Model):
 
 # Modelo para tabla Responsables en base de datos Reactivos
 class Responsables(models.Model):
-    cc=models.IntegerField(verbose_name="Cédula")
+    cc = models.BigIntegerField(verbose_name="Cédula",)
     name = models.CharField(max_length=255, verbose_name="Nombre Responsable")
     mail = models.EmailField(max_length=255, verbose_name="Email")
     phone = models.CharField(max_length=15, verbose_name="Teléfono")
+    acceptDataProcessing=models.BooleanField(default=False,verbose_name="Acepta tratamiento de datos")
     is_active = models.BooleanField(default=True)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Usuario')
     date_create = models.DateTimeField(auto_now_add=True,verbose_name='Fecha registro',)

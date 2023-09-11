@@ -68,9 +68,16 @@
                     <label class="form-label" for="lab" name="Laboratorio: ">Laboratorio:</label>
 
                     {% if request.user|has_group:"COORDINADOR" or request.user|has_group:"TECNICO" %}
-                    <input type="text" class="form-control" name="lab" id="lab"
-                        placeholder="Laboratorio al que pertence" title="Laboratorio al que pertence" required
-                        value="{{ laboratorio }}" style="border: none; box-shadow: none;" readonly />
+                    <select name="lab" class="form-control" required="" id="lab">
+                        {% for lab in laboratorios %}
+
+                        {% if lab.id == laboratorio.id %}
+                        <option value="{{ lab.name }}" selected="">{{ lab.name }}</option>
+
+                        {% endif %}
+
+                        {% endfor %}
+                    </select>
                     {% endif %}
                     {% if request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
                     <select name="lab" class="form-control" required="" id="lab">
@@ -162,7 +169,7 @@
                     </div>
                 </div>
                 <input type="hidden" name="facultad" class="form-control" id="facultad" placeholder="Facultad" readonly>
-                
+
                 <div class="col-md-6">
                     <label class="form-label" for="destination" name="Destino: ">*Destino:</label>
                     <select name="destination" id="destination" class="form-control" required>
@@ -178,6 +185,8 @@
                     <div class="input-group">
                         <input type="text" name="manager" class="form-control" id="manager" required
                             placeholder="Responsable del insumo">
+                        <input type="hidden" name="correo" class="form-control" id="correo"
+                            placeholder="Correo Responsable" readonly>
                         <button type="button" id="add_manager_btn" class="btn btn-secondary"
                             title="Agregar Responsable">+
                             </Address></button>

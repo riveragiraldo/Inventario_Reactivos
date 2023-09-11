@@ -342,6 +342,13 @@ def crear_responsable(request):
         prefix = request.POST.get('prefix')
         cc = request.POST.get('cc')
 
+        #Obtener Acepta Política
+        acceptDataProcessing = request.POST.get('acceptDataProcessing')
+        if acceptDataProcessing=="Acepta":
+            acceptDataProcessing=True
+        elif acceptDataProcessing=="":
+            acceptDataProcessing=False
+
         # Añadir la secuencia de escape "\+" al prefijo
         if prefix.startswith("+"):
             prefix = "\\" + prefix
@@ -387,6 +394,7 @@ def crear_responsable(request):
             mail=mail,
             created_by=request.user,  # Asignar el usuario actualmente autenticado
             last_updated_by=request.user,  # Asignar el usuario actualmente autenticado
+            acceptDataProcessing=acceptDataProcessing,
         )
         messages.success(
             request, 'Se ha creado exitosamente el siguiente responsable cc '+cc+' nombre: '+name+', correo: '+mail)
@@ -1142,9 +1150,10 @@ def registrar_salida(request):
             return HttpResponse("La ubicación "+nlocation +" no se encuentra en la base de datos, favor crearlo primero.", status=400)
         
         manager = request.POST.get('manager')
+        correo = request.POST.get('correo')
         nmanager = manager
         try:
-            nameManager = Responsables.objects.get(name=manager)
+            nameManager = Responsables.objects.get(name=manager, mail=correo)
             manager = nameManager
         except Responsables.DoesNotExist:
             messages.error(request, "El responsable "+nmanager +
@@ -1660,9 +1669,15 @@ class CrearUsuario(LoginRequiredMixin, CreateView):
         reset_url = f"{protocol}://{domain}{reset_link}"
 
         subject = _('Bienvenido a la Gestión de Insumos Químicos')
+        if user.acceptDataProcessing:
+            aceptapolitica='Acepta'
+        else:
+            aceptapolitica='No acepta'
+
         context = {
             'user': user,
             'reset_url': reset_url,
+            'aceptapolitica':aceptapolitica,
         }
         message = render_to_string('registration/registro_exitoso_email.html', context)
         plain_message = strip_tags(message)
@@ -1721,9 +1736,11 @@ class CrearUsuario(LoginRequiredMixin, CreateView):
             
             return HttpResponse('Contraseña no cumple', status=400)
         
+        
         # Agrega los campos adicionales al usuario antes de guardarlo en la base de datos
 
         user = form.save(commit=False)
+        user.acceptDataProcessing = form.cleaned_data['acceptDataProcessing']
         user.rol = form.cleaned_data['rol']
         user.lab = form.cleaned_data['lab']
         user.id_number = form.cleaned_data['id_number']
@@ -1732,6 +1749,8 @@ class CrearUsuario(LoginRequiredMixin, CreateView):
         user.username = form.cleaned_data['username']
         # Asignar el usuario actual al campo user_create
         user.user_create = self.request.user
+        # Asignar el usuario actual al campo last_updated_by
+        user.last_updated_by = self.request.user
         
         # Guarda el usuario en la base de datos
         user.save()
