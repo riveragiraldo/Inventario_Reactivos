@@ -27,19 +27,19 @@
 
   {% load static %}
 
-  <link rel="stylesheet" href="{% static 'stylesShowSpinner.css' %}">
+  <link rel="stylesheet" href="{% static 'inventarioreac/stylesShowSpinner.css' %}">
   <!-- Estilos para el letrero de la mitad del spinner -->
-  <link rel="stylesheet" href="{% static 'stylesIcon.css' %}"><!-- Estilos para organizar íconos -->
-  <link rel="stylesheet" href="{% static 'stylesCheckBox.css' %}">
+  <link rel="stylesheet" href="{% static 'inventarioreac/stylesIcon.css' %}"><!-- Estilos para organizar íconos -->
+  <link rel="stylesheet" href="{% static 'inventarioreac/stylesCheckBox.css' %}">
   <!-- Estilos para organizar la políca de tratamiento de datos -->
 
-  <script src="{% static 'clearFds.js' %}"></script>
+  <script src="{% static 'inventarioreac/clearFds.js' %}"></script>
   <!-- Llama Script que borra los campos del formulario cuando se ejecuta cualquier acción -->
-  <script src="{% static 'pushPrefix.js' %}" defer></script>
+  <script src="{% static 'inventarioreac/pushPrefix.js' %}" defer></script>
   <!-- Llama Script que inserta banderas y prefijos -->
-  <script src="{% static 'sendInfo.js' %}" defer></script>
+  <script src="{% static 'inventarioreac/sendInfo.js' %}" defer></script>
   <!-- Llama Script al final genera alerta informativa con los datos que se va enviar al servidor y acepta-->
-  <script src="{% static 'putValueAccpet.js' %}" defer></script>
+  <script src="{% static 'inventarioreac/putValueAccept.js' %}" defer></script>
   <!-- Llama Script que coloca valor al check de acepta -->
   {% endblock %}
 </head>
@@ -83,7 +83,7 @@
             <label class="form-label" for="phone" name="Teléfono: "><br>Teléfono:</label>
             <div id="phone-input-wrapper" class="input-with-icon">
               <span class="input-icon">
-                <img src="{% static 'Images/phone.png' %}" alt="Icono de teléfono" class="input-icon-img">
+                <img src="{% static 'inventarioreac/Images/phone.png' %}" alt="Icono de teléfono" class="input-icon-img">
               </span>
               <input type="text" class="form-control" placeholder="Escribe número telefónico" name="phone" required
                 id="phone" pattern="[0-9]{10,13}"
@@ -97,7 +97,7 @@
             <label class="form-label" for="mail" name="Correo Electrónico: "><br>Correo Electrónico:</label>
             <div class="input-with-icon">
               <span class="input-icon">
-                <img src="{% static 'Images/email.png' %}" alt="Icono de correo electrónico" class="input-icon-img">
+                <img src="{% static 'inventarioreac/Images/email.png' %}" alt="Icono de correo electrónico" class="input-icon-img">
               </span>
               <input type="email" class="form-control" placeholder="Email" name="mail" required id="mail"
                 pattern="^[a-zA-Z0-9.-_]+@[a-zA-Z]+\.[a-zA-Z]{2,}(?:\.[a-zA-Z]+)?$"

@@ -40,21 +40,21 @@
         labDefault = "0"
     </script>
     {% endif %}
-    <link rel="stylesheet" href="{% static 'inventoryStyles.css' %}">
-    <script src="{% static 'paginationInventoryControl.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'inventarioreac/inventoryStyles.css' %}">
+    <script src="{% static 'inventarioreac/paginationInventoryControl.js' %}"></script>
     <!-- Llama Script que controla la paginación -->
-    <script src="{% static 'selectControl.js' %}" defer></script>
+    <script src="{% static 'inventarioreac/selectControl.js' %}" defer></script>
     <!-- Llama Script que controla los select según el inventario -->
-    <script src="{% static 'holdSelect.js' %}" defer></script>
+    <script src="{% static 'inventarioreac/holdSelect.js' %}" defer></script>
     <!-- Llama Script que controla los select según el inventario -->
-    <script src="{% static 'highlightPaginationControl.js' %}" defer></script>
+    <script src="{% static 'inventarioreac/highlightPaginationControl.js' %}" defer></script>
     <!-- Llama Script que resalta los controles de paginación -->
     <script>var inventarioUrl = "{% url 'reactivos:inventario' %}";</script>
-    <script src="{% static 'sortByControl.js' %}" defer></script>
+    <script src="{% static 'inventarioreac/sortByControl.js' %}" defer></script>
     <!-- Llama Script que envía datos de ordenamiento de registros -->
-    <script src="{% static 'openDetailReactive.js' %}" defer></script>
+    <script src="{% static 'inventarioreac/openDetailReactive.js' %}" defer></script>
     <!-- Llama Script que resalta los controles de paginación -->
-    <script src="{% static 'updateUrl.js' %}" ></script>
+    <script src="{% static 'inventarioreac/updateUrl.js' %}" ></script>
     <!-- Llama Script que actualiza URL -->
     {% endblock %}
 </head>
@@ -181,7 +181,7 @@
                         <td title="Fecha de vencimiento del reactivo {{ item.name }}">{{ item.edate }}</td>
                         <!-- Modifica el evento click de la imagen para mostrar SweetAlert -->
                         <td>
-                            <img src="{% static 'Images/moreInfo.ico' %}" alt="" width="18" height="18"
+                            <img src="{% static 'inventarioreac/Images/moreInfo.ico' %}" alt="" width="18" height="18"
                                 class="detalle-reactivo" data-reactivo-id="{{ item.id }}"
                                 data-reactivo-name="{{ item.name }}" data-reactivo-code="{{ item.name.code }}"
                                 data-reactivo-cas="{{ item.name.cas }}" data-reactivo-trademark="{{ item.trademark }}"

@@ -25,7 +25,7 @@
 
 <body>
     {% block content %}
-    
+
     <div class="container">
         <div class="row">
             <div class="col-md-12">
@@ -47,6 +47,19 @@
             <div class="col-lg-4 col-md-6 mb-3">
                 <a href="/admin/" target="_blank" class="btn btn-primary btn-block">Admin</a>
             </div>
+            <div class="col-lg-4 col-md-6 mb-3">
+                <a href="/laboratorios/crear/" target="_blank" class="btn btn-primary btn-block">Crear Laboratorios</a>
+            </div>
+            {% if request.user.is_superuser %}
+            <div class="col-lg-4 col-md-6 mb-3">
+                <a href="/roles/crear/" target="_blank" class="btn btn-primary btn-block">Crear Roles</a>
+            </div>
+
+            {% endif %}
+            <div class="col-lg-4 col-md-6 mb-3">
+                <a href="/usuarios/crear/" target="_blank" class="btn btn-primary btn-block">Crear Usuarios</a>
+            </div>
+
             {% if request.user|has_group:"COORDINADOR" or request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
             <div class="col-lg-4 col-md-6 mb-3">
                 <a href="/unidades/crear/" target="_blank" class="btn btn-primary btn-block">Crear Unidades</a>
@@ -78,15 +91,14 @@
             <div class="col-lg-4 col-md-6 mb-3">
                 <a href="/destinos/crear/" target="_blank" class="btn btn-primary btn-block">Crear Destinos</a>
             </div>
+
+
             <div class="col-lg-4 col-md-6 mb-3">
-                <a href="/laboratorios/crear/" target="_blank" class="btn btn-primary btn-block">Crear Laboratorios</a>
+                <a href="/reactivos/crear/" target="_blank" class="btn btn-primary btn-block">Crear Reactivos</a>
             </div>
             <div class="col-lg-4 col-md-6 mb-3">
                 <a href="/ubicaciones_almacen/crear/" target="_blank" class="btn btn-primary btn-block">Crear
                     Ubicaciones en Almacén</a>
-            </div>
-            <div class="col-lg-4 col-md-6 mb-3">
-                <a href="/reactivos/crear/" target="_blank" class="btn btn-primary btn-block">Crear Reactivos</a>
             </div>
             <div class="col-lg-4 col-md-6 mb-3">
                 <a href="/reactivos/registrar_entrada/" target="_blank" class="btn btn-primary btn-block">Registrar
@@ -99,34 +111,26 @@
             <div class="col-lg-4 col-md-6 mb-3">
                 <a href="/reactivos/inventario/" target="_blank" class="btn btn-primary btn-block">Ver inventario</a>
             </div>
-            <div class="col-lg-4 col-md-6 mb-3">
+            <!-- <div class="col-lg-4 col-md-6 mb-3">
                 <a  target="_blank" class="btn btn-primary btn-block" onclick="updateLink()">Detalle
                     Reactivo Sin Uso Aún</a>
-            </div>
-            
+            </div> -->
+
             <div class="col-lg-4 col-md-6 mb-3">
                 <a href="/password_change/" target="_blank" class="btn btn-primary btn-block">Cambiar Contraseña</a>
             </div>
             <div class="col-lg-4 col-md-6 mb-3">
-                <a href="/logout/" target="_blank" class="btn btn-primary btn-block">Cerrar Sesión  </a>
+                <a href="/logout/" target="_blank" class="btn btn-primary btn-block">Cerrar Sesión </a>
             </div>
             <div class="col-lg-4 col-md-6 mb-3">
-                <a href="/password_reset/" target="_blank" class="btn btn-primary btn-block">Olvidó su contraseña  </a>
+                <a href="/password_reset/" target="_blank" class="btn btn-primary btn-block">Olvidó su contraseña </a>
             </div>
-            {% if request.user.is_superuser %}
-            <div class="col-lg-4 col-md-6 mb-3">
-                <a href="/roles/crear/" target="_blank" class="btn btn-primary btn-block">Crear Roles</a>
-            </div>
-            
-            {% endif %}
-            <div class="col-lg-4 col-md-6 mb-3">
-                <a href="/usuarios/crear/" target="_blank" class="btn btn-primary btn-block">Crear Usuarios</a>
-            </div>
-            <div class="col-lg-4 col-md-6 mb-3">
+            <!-- <div class="col-lg-4 col-md-6 mb-3">
                 <a href="/usuarios/listado/" target="_blank" class="btn btn-primary btn-block">Listado de Usuarios</a>
-            </div>
+            </div> -->
             <div class="col-lg-4 col-md-6 mb-3">
-                <a href="/reactivos/listado_entradas/" target="_blank" class="btn btn-primary btn-block">Listado de Entradas</a>
+                <a href="/reactivos/listado_entradas/" target="_blank" class="btn btn-primary btn-block">Listado de
+                    Entradas</a>
             </div>
         </div>
     </div>
