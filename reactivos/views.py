@@ -1528,98 +1528,101 @@ class EntradasListView(LoginRequiredMixin,ListView):
         destination= self.request.GET.get('destination')
         created_by= self.request.GET.get('created_by')
 
-         # Obtener las fechas de inicio y fin de la solicitud GET
-        start_date = self.request.GET.get('start_date')
-        end_date = self.request.GET.get('end_date')
                 
         
 
         # si el valor de lab viene de sesión superusuario o ADMINISTRADOR lab=0 cambiar por lab=''
         if lab=='0':
              lab=None
+        # Obtener las fechas de inicio y fin de la solicitud GET
+        start_date = self.request.GET.get('start_date')
+        end_date = self.request.GET.get('end_date')
+        
         # Validar y convertir las fechas
         try:
             if start_date:
                 start_date = make_aware(datetime.strptime(start_date, '%Y-%m-%d'))
             if end_date:
-                end_date = make_aware(datetime.strptime(end_date, '%Y-%m-%d'))
+                end_date = make_aware(datetime.strptime(end_date, '%Y-%m-%d').replace(hour=23, minute=59, second=59))
         except ValueError:
             # Manejar errores de formato de fecha aquí si es necesario
             pass
 
+        print(start_date)
+        print(end_date)
         
         # Realiza la filtración de acuerdo a las fechas
         if start_date:
-            queryset = queryset.filter(date_create__gt=start_date)
-        elif end_date:
-            queryset = queryset.filter(date_create__lt=end_date)
+            queryset = queryset.filter(date_create__gte=start_date)
+        if end_date:
+            queryset = queryset.filter(date_create__lte=end_date)
         elif start_date and end_date:
-            queryset = queryset.filter(date_create__gt=start_date,date_create__lt=end_date)
+            queryset = queryset.filter(date_create__gte=start_date,date_create__lte=end_date)
 
              
         
-        # if lab and name and destination and location and created_by:
-        #     queryset = queryset.filter(lab=lab, name=name, destination=destination, location=location, created_by=created_by, is_active=True)
-        # elif lab and name and destination and location:
-        #     queryset = queryset.filter(lab=lab, name=name, destination=destination, location=location, is_active=True)
-        # elif lab and name and destination and created_by:
-        #     queryset = queryset.filter(lab=lab, name=name, destination=destination, created_by=created_by, is_active=True)
-        # elif lab and name and location and created_by:
-        #     queryset = queryset.filter(lab=lab, name=name, location=location, created_by=created_by, is_active=True)
-        # elif lab and destination and location and created_by:
-        #     queryset = queryset.filter(lab=lab, destination=destination, location=location, created_by=created_by, is_active=True)
-        # elif name and destination and location and created_by:
-        #     queryset = queryset.filter(name=name, destination=destination, location=location, created_by=created_by, is_active=True)
-        # elif lab and name and destination:
-        #     queryset = queryset.filter(lab=lab, name=name, destination=destination, is_active=True)
-        # elif lab and name and location:
-        #     queryset = queryset.filter(lab=lab, name=name, location=location, is_active=True)
-        # elif lab and name and created_by:
-        #     queryset = queryset.filter(lab=lab, name=name, created_by=created_by, is_active=True)
-        # elif lab and destination and location:
-        #     queryset = queryset.filter(lab=lab, destination=destination, location=location, is_active=True)
-        # elif lab and destination and created_by:
-        #     queryset = queryset.filter(lab=lab, destination=destination, created_by=created_by, is_active=True)
-        # elif lab and location and created_by:
-        #     queryset = queryset.filter(lab=lab, location=location, created_by=created_by, is_active=True)
-        # elif name and destination and location:
-        #     queryset = queryset.filter(name=name, destination=destination, location=location, is_active=True)
-        # elif name and destination and created_by:
-        #     queryset = queryset.filter(name=name, destination=destination, created_by=created_by, is_active=True)
-        # elif name and location and created_by:
-        #     queryset = queryset.filter(name=name, location=location, created_by=created_by, is_active=True)
-        # elif destination and location and created_by:
-        #     queryset = queryset.filter(destination=destination, location=location, created_by=created_by, is_active=True)
-        # elif location and created_by:
-        #     queryset = queryset.filter(location=location, created_by=created_by, is_active=True)
-        # elif destination and created_by:
-        #     queryset = queryset.filter(destination=destination, created_by=created_by, is_active=True)
-        # elif destination and location:
-        #     queryset = queryset.filter(destination=destination, location=location, is_active=True)
-        # elif name and created_by:
-        #     queryset = queryset.filter(name=name, created_by=created_by, is_active=True)
-        # elif name and location:
-        #     queryset = queryset.filter(name=name, location=location, is_active=True)
-        # elif name and destination:
-        #     queryset = queryset.filter(name=name, destination=destination, is_active=True)
-        # elif lab and created_by:
-        #     queryset = queryset.filter(lab=lab, created_by=created_by, is_active=True)
-        # elif lab and location:
-        #     queryset = queryset.filter(lab=lab, location=location, is_active=True)
-        # elif lab and destination:
-        #     queryset = queryset.filter(lab=lab, destination=destination, is_active=True)
-        # elif lab and name:
-        #     queryset = queryset.filter(lab=lab, name=name, is_active=True)
-        # elif lab:
-        #     queryset = queryset.filter(lab=lab, is_active=True)
-        # elif name:
-        #     queryset = queryset.filter(name=name, is_active=True)
-        # elif destination:
-        #     queryset = queryset.filter(destination=destination, is_active=True)
-        # elif location:
-        #     queryset = queryset.filter(location=location, is_active=True)
-        # elif created_by:
-        #     queryset = queryset.filter(created_by=created_by, is_active=True)
+        if lab and name and destination and location and created_by:
+            queryset = queryset.filter(lab=lab, name=name, destination=destination, location=location, created_by=created_by, is_active=True)
+        elif lab and name and destination and location:
+            queryset = queryset.filter(lab=lab, name=name, destination=destination, location=location, is_active=True)
+        elif lab and name and destination and created_by:
+            queryset = queryset.filter(lab=lab, name=name, destination=destination, created_by=created_by, is_active=True)
+        elif lab and name and location and created_by:
+            queryset = queryset.filter(lab=lab, name=name, location=location, created_by=created_by, is_active=True)
+        elif lab and destination and location and created_by:
+            queryset = queryset.filter(lab=lab, destination=destination, location=location, created_by=created_by, is_active=True)
+        elif name and destination and location and created_by:
+            queryset = queryset.filter(name=name, destination=destination, location=location, created_by=created_by, is_active=True)
+        elif lab and name and destination:
+            queryset = queryset.filter(lab=lab, name=name, destination=destination, is_active=True)
+        elif lab and name and location:
+            queryset = queryset.filter(lab=lab, name=name, location=location, is_active=True)
+        elif lab and name and created_by:
+            queryset = queryset.filter(lab=lab, name=name, created_by=created_by, is_active=True)
+        elif lab and destination and location:
+            queryset = queryset.filter(lab=lab, destination=destination, location=location, is_active=True)
+        elif lab and destination and created_by:
+            queryset = queryset.filter(lab=lab, destination=destination, created_by=created_by, is_active=True)
+        elif lab and location and created_by:
+            queryset = queryset.filter(lab=lab, location=location, created_by=created_by, is_active=True)
+        elif name and destination and location:
+            queryset = queryset.filter(name=name, destination=destination, location=location, is_active=True)
+        elif name and destination and created_by:
+            queryset = queryset.filter(name=name, destination=destination, created_by=created_by, is_active=True)
+        elif name and location and created_by:
+            queryset = queryset.filter(name=name, location=location, created_by=created_by, is_active=True)
+        elif destination and location and created_by:
+            queryset = queryset.filter(destination=destination, location=location, created_by=created_by, is_active=True)
+        elif location and created_by:
+            queryset = queryset.filter(location=location, created_by=created_by, is_active=True)
+        elif destination and created_by:
+            queryset = queryset.filter(destination=destination, created_by=created_by, is_active=True)
+        elif destination and location:
+            queryset = queryset.filter(destination=destination, location=location, is_active=True)
+        elif name and created_by:
+            queryset = queryset.filter(name=name, created_by=created_by, is_active=True)
+        elif name and location:
+            queryset = queryset.filter(name=name, location=location, is_active=True)
+        elif name and destination:
+            queryset = queryset.filter(name=name, destination=destination, is_active=True)
+        elif lab and created_by:
+            queryset = queryset.filter(lab=lab, created_by=created_by, is_active=True)
+        elif lab and location:
+            queryset = queryset.filter(lab=lab, location=location, is_active=True)
+        elif lab and destination:
+            queryset = queryset.filter(lab=lab, destination=destination, is_active=True)
+        elif lab and name:
+            queryset = queryset.filter(lab=lab, name=name, is_active=True)
+        elif lab:
+            queryset = queryset.filter(lab=lab, is_active=True)
+        elif name:
+            queryset = queryset.filter(name=name, is_active=True)
+        elif destination:
+            queryset = queryset.filter(destination=destination, is_active=True)
+        elif location:
+            queryset = queryset.filter(location=location, is_active=True)
+        elif created_by:
+            queryset = queryset.filter(created_by=created_by, is_active=True)
         else:
             queryset = queryset.filter(is_active=True)
 

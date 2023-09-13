@@ -13,7 +13,7 @@ if (currentUrl.endsWith('/reactivos/inventario/')) {
 // Verificar si la URL no tiene parámetros de búsqueda
 if (currentUrl.endsWith('/reactivos/listado_entradas/')) {
     // Modificar la URL agregando los parámetros de búsqueda deseados
-    const newUrl = currentUrl + '?lab='+labDefault+'&name=&location=&destination=&location=&created_by=&start_date='+oneMonthAgo+'&end_date='+today;
+    const newUrl = currentUrl + '?lab='+labDefault+'&name=&location=&destination=&location=&created_by=&start_date=&end_date=';
 
     // Redirigir a la nueva URL
     window.location.href = newUrl;

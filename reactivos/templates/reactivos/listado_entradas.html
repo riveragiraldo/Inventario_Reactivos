@@ -42,7 +42,7 @@
     {% endif %}
     <script>
         today="{{ today|date:'Y-m-d' }}"
-        oneMonthAgo="{{ one_month_ago|date:'Y-m-d' }}"
+        // oneMonthAgo="{{ one_month_ago|date:'Y-m-d' }}"
     </script>
     <link rel="stylesheet" href="{% static 'inventarioreac/inventoryStyles.css' %}">
     <script src="{% static 'inventarioreac/paginationInventoryControl.js' %}"></script>
@@ -68,7 +68,7 @@
 <body>
     {% block content %}
     <div class="row">
-        <div class="col-md-9 mx-auto">
+        <div class="col-md-10 mx-auto">
             <h1>Listado de registros de entrada</h1>
             <br>
 
@@ -150,7 +150,7 @@
 
                     <div class="col-md-2 d-flex flex-column align-items-left">
                         <label for="start_date">Fecha Inicial:</label>
-                        <input type="date" id="start_date" name="start_date" class="form-control" value="{{ one_month_ago|date:'Y-m-d' }}" max="{{ today|date:'Y-m-d' }}">
+                        <input type="date" id="start_date" name="start_date" class="form-control"  max="{{ today|date:'Y-m-d' }}">
                         <span class="validation-message" id="start-date-validation" style="color: red;">La fecha incial debe ser igual o anterior a "{{ today|date:'Y-m-d' }}".</span>
                     </div>
                     
