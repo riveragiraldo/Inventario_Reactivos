@@ -20,16 +20,16 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.min.css">
 
     {% load static %}
-    <link rel="stylesheet" href="{% static 'inventoryStyles.css' %}">
-    <script src="{% static 'paginationInventoryControl.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'inventarioreac/inventoryStyles.css' %}">
+    <script src="{% static 'inventarioreac/paginationInventoryControl.js' %}"></script>
     <!-- Llama Script que controla la paginación -->
     
-    <script src="{% static 'highlightPaginationControl.js' %}" defer></script>
+    <script src="{% static 'inventarioreac/highlightPaginationControl.js' %}" defer></script>
     <!-- Llama Script que resalta los controles de paginación -->
     <script>var inventarioUrl = "{% url 'reactivos:inventario' %}";</script>
-    <script src="{% static 'sortByControl.js' %}" defer></script>
+    <script src="{% static 'inventarioreac/sortByControl.js' %}" defer></script>
     <!-- Llama Script que envía datos de ordenamiento de registros -->
-    <script src="{% static 'openDetailReactive.js' %}" defer></script>
+    <script src="{% static 'inventarioreac/openDetailReactive.js' %}" defer></script>
     <!-- Llama Script que resalta los controles de paginación -->
     {% endblock %}
 </head>

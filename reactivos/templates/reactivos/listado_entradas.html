@@ -40,21 +40,27 @@
         labDefault = "0"
     </script>
     {% endif %}
-    <link rel="stylesheet" href="{% static 'inventoryStyles.css' %}">
-    <script src="{% static 'paginationInventoryControl.js' %}"></script>
+    <script>
+        today="{{ today|date:'Y-m-d' }}"
+        oneMonthAgo="{{ one_month_ago|date:'Y-m-d' }}"
+    </script>
+    <link rel="stylesheet" href="{% static 'inventarioreac/inventoryStyles.css' %}">
+    <script src="{% static 'inventarioreac/paginationInventoryControl.js' %}"></script>
     <!-- Llama Script que controla la paginación -->
-    <script src="{% static 'selectControlIn.js' %}" defer></script>
+    <script src="{% static 'inventarioreac/selectControlIn.js' %}" defer></script>
     <!-- Llama Script que controla los select según el inventario -->
-    <script src="{% static 'holdSelectIn.js' %}" defer></script>
+    <script src="{% static 'inventarioreac/holdSelectIn.js' %}" defer></script>
     <!-- Llama Script que controla los select según el inventario -->
-    <script src="{% static 'highlightPaginationControl.js' %}" defer></script>
+    <script src="{% static 'inventarioreac/highlightPaginationControl.js' %}" defer></script>
     <!-- Llama Script que resalta los controles de paginación -->
     <script>var inventarioUrl = "{% url 'reactivos:inventario' %}";</script>
-    <script src="{% static 'sortByControl.js' %}" defer></script>
+    <script src="{% static 'inventarioreac/sortByControl.js' %}" defer></script>
     <!-- Llama Script que envía datos de ordenamiento de registros -->
-    <script src="{% static 'openDetailIn.js' %}" defer></script>
+    <script src="{% static 'inventarioreac/openDetailIn.js' %}" defer></script>
     <!-- Llama Script que resalta los controles de paginación -->
-    <script src="{% static 'updateUrl.js' %}"></script>
+    <script src="{% static 'inventarioreac/updateUrl.js' %}"></script>
+    <!-- Llama Script que actualiza URL -->
+    <script src="{% static 'inventarioreac/validateLapse.js' %}"></script>
     <!-- Llama Script que actualiza URL -->
     {% endblock %}
 </head>
@@ -154,36 +160,7 @@
                         <span class="validation-message" id="end-date-validation" style="color: red;">La fecha incial debe ser igual o anterior a "{{ today|date:'Y-m-d' }}"</span>
                     </div>
                     <script>
-                        document.addEventListener('DOMContentLoaded', function () {
-                            const startDateInput = document.getElementById('start_date');
-                            const endDateInput = document.getElementById('end_date');
-                            const startDateValidation = document.getElementById('start-date-validation');
-                            const endDateValidation = document.getElementById('end-date-validation');
-                    
-                            // Oculta los mensajes de validación al cargar la página
-                            startDateValidation.style.display = 'none';
-                            endDateValidation.style.display = 'none';
-                    
-                            startDateInput.addEventListener('input', function () {
-                                const selectedStartDate = new Date(startDateInput.value);
-                                const today = new Date();
-                                if (selectedStartDate > today) {
-                                    startDateValidation.style.display = 'block';
-                                } else {
-                                    startDateValidation.style.display = 'none';
-                                }
-                            });
-                    
-                            endDateInput.addEventListener('input', function () {
-                                const selectedEndDate = new Date(endDateInput.value);
-                                const today = new Date();
-                                if (selectedEndDate > today) {
-                                    endDateValidation.style.display = 'block';
-                                } else {
-                                    endDateValidation.style.display = 'none';
-                                }
-                            });
-                        });
+                        
                     </script>
                     
                     
@@ -263,7 +240,7 @@
                         <td title="Responsable del registro">{{ item.created_by.first_name }} {{ item.created_by.last_name }}</td>
                         <!-- Modifica el evento click de la imagen para mostrar SweetAlert -->
                         <td>
-                            <img src="{% static 'Images/moreInfo.ico' %}" alt="" width="18" height="18"
+                            <img src="{% static 'inventarioreac/Images/moreInfo.ico' %}" alt="" width="18" height="18"
                                 class="detalle-reactivo" data-reactivo-id="{{ item.id }}"
                                 data-reactivo-name="{{ item.name }}" data-reactivo-order="{{ item.order }}"
                                 data-reactivo-date="{{ item.date_create|date:'d/m/Y' }}"

@@ -21,11 +21,11 @@
 
   {% load static %}
 
-  <link rel="stylesheet" href="{% static 'stylesShowSpinner.css' %}">
+  <link rel="stylesheet" href="{% static 'inventarioreac/stylesShowSpinner.css' %}">
   <!-- Estilos para el letrero de la mitad del spinner -->
-  <script src="{% static 'clearFds.js' %}"></script>
+  <script src="{% static 'inventarioreac/clearFds.js' %}"></script>
   <!-- Llama Script que borra los campos del formulario cuando se ejecuta cualquier acción -->
-  <script src="{% static 'sendInfo.js' %}" defer></script>
+  <script src="{% static 'inventarioreac/sendInfo.js' %}" defer></script>
   <!-- Llama Script al final genera alerta informativa con los datos que se va enviar al servidor y acepta-->
 
   {% endblock %}
@@ -85,10 +85,26 @@
             window.onload = function () {
               var mensaje = '{{ message|safe }}';
               alert(mensaje)
-              var location = mensaje.split(": ")[1];
+              // Expresión regular para extraer el nombre y el correo
+              var regex = /nombre: (.*?), facultad: (.*?$)/;
+
+              // Ejecutar la expresión regular en el mensaje
+              var matches = mensaje.match(regex);
+
+              if (matches) {
+                var location = matches[1]; // Captura el nombre
+                var facultad = matches[2]; // Captura el correo
+                console.log(location)
+                console.log(facultad)
+
+
+              } else {
+                console.log('No se encontró información de nombre y correo en el mensaje.');
+              }
               setTimeout(function () {
 
                 window.opener.document.querySelector("#location").value = location;
+                window.opener.document.querySelector("#facultad").value = facultad;
                 window.close();
 
               }, 500);

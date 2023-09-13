@@ -23,16 +23,20 @@
 
   {% load static %}
 
-  <link rel="stylesheet" href="{% static 'stylesShowSpinner.css' %}">
+  <link rel="stylesheet" href="{% static 'inventarioreac/stylesShowSpinner.css' %}">
   <!-- Estilos para el letrero de la mitad del spinner -->
-  <script src="{% static 'sendInfo.js' %}" defer></script>
+  <link rel="stylesheet" href="{% static 'inventarioreac/stylesCheckBox.css' %}">
+  <!-- Estilos para organizar la políca de tratamiento de datos -->
+  <script src="{% static 'inventarioreac/sendInfo.js' %}" defer></script>
   <!-- Llama Script al final genera alerta informativa con los datos que se va enviar al servidor y acepta-->
-  <script src="{% static 'validatePass.js' %}" defer></script>
+  <script src="{% static 'inventarioreac/validatePass.js' %}" defer></script>
   <!-- Llama Script al final que verifica los requisitos mínimos del password además de la igualdad de estos-->
-  <script src="{% static 'showHidePass.js' %}" defer></script>
+  <script src="{% static 'inventarioreac/showHidePass.js' %}" defer></script>
   <!-- Llama Script al final que muestra u oculta el password en los campos correspondientes-->
-  <script src="{% static 'callPopUp.js' %}" defer></script>
+  <script src="{% static 'inventarioreac/callPopUp.js' %}" defer></script>
   <!-- Llama Script al final llama las ventanas emergentes -->
+  <script src="{% static 'inventarioreac/putValueAccept.js' %}" defer></script>
+  <!-- Llama Script que coloca valor al check de acepta -->
   {% endblock %}
 
 </head>
@@ -94,17 +98,19 @@
             <button type="button" id="add_rol_btn" class="btn btn-secondary" title="Agregar Rol">+</button>
             {% endif %}
           </div>
+          <div id="add_rol_btn"></div>
           {% endif %}
 
           {% if request.user|has_group:"COORDINADOR" %}
           <select name="rol" class="form-control" required="" id="id_rol">
             <option value="" selected="">---------</option>
             {% for rol in roles %}
-            {% if not rol.name == "ADMINISTRADOR" %}
+            {% if rol.name == "TECNICO" %}
             <option value="{{ rol.id }}">{{ rol.name }}</option>
             {% endif %}
             {% endfor %}
           </select>
+          <div id="add_rol_btn"></div>
           {% endif %}
         </div>
 
@@ -115,6 +121,7 @@
           <div class="input-group">
             {{ form.lab }}
             <button type="button" id="add_lab_btn" class="btn btn-secondary" title="Agregar Laboratorio">+</button>
+            
           </div>
           {% endif %}
 
@@ -129,6 +136,7 @@
             {% endif %}
             {% endfor %}
           </select>
+          <div id="add_lab_btn"></div>
           {% endif %}
         </div>
 
@@ -156,16 +164,39 @@
               </span>
             </div>
             <div id="password2-validation-msg" class="validation-msg" style="color: red;"></div>
+
           </div>
           <input type="hidden" name="wf" class="form-control" value="user_create" id="wf">
+        </div>
+        <div class="form-group">
+          
+
+            <div class="politicaTratamiento">
+              
+                {{ form.acceptDataProcessing }}
+              <label for="acceptDataProcessing" class="politica-label"
+                name="Acepta política de tratamiento de datos personales: ">
+                <p class="politica">
+                  DE ACUERDO CON LA
+                  <a href="https://unal.edu.co/tratamiento-de-datos-personales" target="_blank">
+                    LEY 1581 DE 2012 DE PROTECCIÓN DE DATOS PERSONALES</a>, HE LEÍDO, ENTENDIDO Y ACEPTO, LOS TÉRMINOS
+                  DESCRITOS EN LA POLÍTICA DE TRATAMIENTO DE DATOS PERSONALES.<br><br>
+                </p>
+              </label>
+            </div>
+            
 
 
-          <br>
-          <div class="card-footer">
-            <a href='{% url "reactivos:listado_usuarios" %}' class="btn btn-danger">Cancelar</a>
-            <input type="button" value="Crear Usuario" class="btn btn-primary" id="open_confirm_in">
+          
+        </div>
 
-          </div>
+
+        <br>
+        <div class="card-footer">
+          <a href='{% url "reactivos:listado_usuarios" %}' class="btn btn-danger">Cancelar</a>
+          <input type="button" value="Crear Usuario" class="btn btn-primary" id="open_confirm_in">
+
+        </div>
       </form>
     </div>
   </div>

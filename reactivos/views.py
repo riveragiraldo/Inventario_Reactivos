@@ -342,6 +342,13 @@ def crear_responsable(request):
         prefix = request.POST.get('prefix')
         cc = request.POST.get('cc')
 
+        #Obtener Acepta Política
+        acceptDataProcessing = request.POST.get('acceptDataProcessing')
+        if acceptDataProcessing=="Acepta":
+            acceptDataProcessing=True
+        elif acceptDataProcessing=="":
+            acceptDataProcessing=False
+
         # Añadir la secuencia de escape "\+" al prefijo
         if prefix.startswith("+"):
             prefix = "\\" + prefix
@@ -356,8 +363,9 @@ def crear_responsable(request):
         if Responsables.objects.filter(cc=cc).exists():
             responsablecc = Responsables.objects.get(cc=cc)
             responsable_name = responsablecc.name
+            responsable_mail = responsablecc.mail
             messages.error(
-                request, 'Ya existe un responsable el número de cédula registrada: '+responsable_name)
+                request, 'Ya existe un responsable el número de cédula registrada, su nombre: '+responsable_name+', correo: '+responsable_mail)
             return HttpResponse('Error al insertar en la base de datos', status=400)
            
 
@@ -365,15 +373,17 @@ def crear_responsable(request):
         if Responsables.objects.filter(phone=phone).exists():
             responsablename = Responsables.objects.get(phone=phone)
             responsable_name = responsablename.name
+            responsable_mail = responsablename.mail
             messages.error(
-                request, 'Ya existe una responsable con el telefono registrado: '+responsable_name)
+                request, 'Ya existe una responsable con el telefono registrado, su nombre: '+responsable_name+', correo: '+responsable_mail)
             return HttpResponse('Error al insertar en la base de datos', status=400)
 
         if Responsables.objects.filter(mail=mail).exists():
             responsablename = Responsables.objects.get(mail=mail)
             responsable_name = responsablename.name
+            responsable_mail = responsablename.mail
             messages.error(
-                request, 'Ya existe una responsable con el email registrado: '+responsable_name)
+                request, 'Ya existe una responsable con el email registrado, su nombre: '+responsable_name+', correo: '+responsable_mail)
             return HttpResponse('Error al insertar en la base de datos', status=400)
 
         responsable = Responsables.objects.create(
@@ -384,9 +394,10 @@ def crear_responsable(request):
             mail=mail,
             created_by=request.user,  # Asignar el usuario actualmente autenticado
             last_updated_by=request.user,  # Asignar el usuario actualmente autenticado
+            acceptDataProcessing=acceptDataProcessing,
         )
         messages.success(
-            request, 'Se ha creado exitosamente el siguiente responsable cc '+cc+' nombre: '+name)
+            request, 'Se ha creado exitosamente el siguiente responsable cc '+cc+' nombre: '+name+', correo: '+mail)
         return HttpResponse('Se ha creado exitosamente el siguiente responsable: '+name, status=200)
         
 
@@ -506,7 +517,7 @@ def crear_ubicacion(request):
 
         # Verifica si ya existe un registro con el mismo nombre de la asignatura y la misma facultad
         if Ubicaciones.objects.filter(Q(name=name) & Q(facultad=facultad)).exists():
-            messages.error(request, f'Ya existe  en la facultad {facultad} una ubicación con nombre: {name}')
+            messages.error(request, 'Ya existe  una ubicación con nombre: '+name+', facultad: '+str(facultad))
             return HttpResponse('Error al insertar en la base de datos', status=400)
 
         asignatura = Ubicaciones.objects.create(
@@ -516,7 +527,7 @@ def crear_ubicacion(request):
             last_updated_by=request.user,  # Asignar el usuario actualmente autenticado
         )
         
-        messages.success(request, f'Se ha creado exitosamente en la facultad {facultad}, la asignatura/ubicación con nombre: {name}')
+        messages.success(request, 'Se ha creado exitosamente la asignatura/ubicación con nombre: '+name+', facultad: '+str(facultad))
         return HttpResponse('Inserción exitosa', status=200)
 
     laboratorio = request.user.lab
@@ -824,10 +835,12 @@ def registrar_entrada(request):
             location = None
             return HttpResponse("La ubicación "+nlocation +" no se encuentra en la base de datos, favor crearlo primero.", status=400)
         
+        correo = request.POST.get('correo')
+        
         manager = request.POST.get('manager')
         nmanager = manager
         try:
-            nameManager = Responsables.objects.get(name=manager)
+            nameManager = Responsables.objects.get(name=manager, mail=correo)
             manager = nameManager
         except Responsables.DoesNotExist:
             messages.error(request, "El responsable "+nmanager +
@@ -861,6 +874,7 @@ def registrar_entrada(request):
             return HttpResponse("Por favor seleccione una ubicación en almacén primero", status=400)       
         
         destination_id = request.POST.get('destination')
+
         if not destination_id.isdigit():
             messages.error(request, 'Por favor seleccione un destino primero')
             return HttpResponse("Por favor seleccione una destino en almacén primero", status=400)
@@ -1058,7 +1072,12 @@ def registrar_entrada(request):
                              nReactivo+', cantidad '+weight+' '+unit)
             return HttpResponse('Se ha registrado de manera exitosa el ingreso del: ' +
                              nReactivo+', cantidad '+weight+' '+unit, status=200)
-    laboratorio = request.user.lab        
+    laboratorio = request.user.lab
+    # Obtener la fecha de hoy
+    today = date.today()
+    # Calcular la fecha ayer
+    yesterday = today - timedelta(days=1)
+    tomorrow = today + timedelta(days=1)        
     context = {
                 'reactivos': Reactivos.objects.all(),
                 'responsables': Responsables.objects.all(),
@@ -1070,6 +1089,8 @@ def registrar_entrada(request):
                 'usuarios': User.objects.all(),
                 'laboratorio': laboratorio,
                 'usuarios': User.objects.all(),
+                'tomorrow': tomorrow,
+                'yesterday': yesterday,
             }
         
     return render(request, 'reactivos/registrar_entrada.html', context)
@@ -1129,9 +1150,10 @@ def registrar_salida(request):
             return HttpResponse("La ubicación "+nlocation +" no se encuentra en la base de datos, favor crearlo primero.", status=400)
         
         manager = request.POST.get('manager')
+        correo = request.POST.get('correo')
         nmanager = manager
         try:
-            nameManager = Responsables.objects.get(name=manager)
+            nameManager = Responsables.objects.get(name=manager, mail=correo)
             manager = nameManager
         except Responsables.DoesNotExist:
             messages.error(request, "El responsable "+nmanager +
@@ -1647,9 +1669,15 @@ class CrearUsuario(LoginRequiredMixin, CreateView):
         reset_url = f"{protocol}://{domain}{reset_link}"
 
         subject = _('Bienvenido a la Gestión de Insumos Químicos')
+        if user.acceptDataProcessing:
+            aceptapolitica='Acepta'
+        else:
+            aceptapolitica='No acepta'
+
         context = {
             'user': user,
             'reset_url': reset_url,
+            'aceptapolitica':aceptapolitica,
         }
         message = render_to_string('registration/registro_exitoso_email.html', context)
         plain_message = strip_tags(message)
@@ -1708,9 +1736,11 @@ class CrearUsuario(LoginRequiredMixin, CreateView):
             
             return HttpResponse('Contraseña no cumple', status=400)
         
+        
         # Agrega los campos adicionales al usuario antes de guardarlo en la base de datos
 
         user = form.save(commit=False)
+        user.acceptDataProcessing = form.cleaned_data['acceptDataProcessing']
         user.rol = form.cleaned_data['rol']
         user.lab = form.cleaned_data['lab']
         user.id_number = form.cleaned_data['id_number']
@@ -1719,6 +1749,8 @@ class CrearUsuario(LoginRequiredMixin, CreateView):
         user.username = form.cleaned_data['username']
         # Asignar el usuario actual al campo user_create
         user.user_create = self.request.user
+        # Asignar el usuario actual al campo last_updated_by
+        user.last_updated_by = self.request.user
         
         # Guarda el usuario en la base de datos
         user.save()

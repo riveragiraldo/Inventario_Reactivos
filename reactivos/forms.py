@@ -95,6 +95,14 @@ class FormularioUsuario(forms.ModelForm):
                                          'class': 'form-control',
                                          'required':'required'
                                          }))
+    acceptDataProcessing = forms.BooleanField(required=True,
+                                              widget=forms.CheckboxInput(attrs={
+                                                  'required':'required',
+                                                  'id':'acceptDataProcessing',
+                                                  'name':'acceptDataProcessing',
+                                                  'unchecked':'unchecked',
+                                                
+                                              }))
     
     email = forms.EmailField(label='Correo Electrónico', required=True, widget=forms.EmailInput(
         attrs={

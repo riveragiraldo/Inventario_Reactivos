@@ -80,7 +80,7 @@ class Laboratorioadmin(admin.ModelAdmin):
 # Inclusión de el modelo RESPONSABLES en la consola de administración de Django
 @admin.register(Responsables)
 class Responsableadmin(admin.ModelAdmin):
-    list_display=('id','name','mail','phone','is_active','cc','created_by', 'date_create','last_update','last_updated_by',)
+    list_display=('id','name','mail','phone','is_active','cc','acceptDataProcessing','created_by', 'date_create','last_update','last_updated_by',)
     ordering=('id',)
 
 # Inclusión de el modelo ALMACENAMIENTO en la consola de administración de Django
@@ -129,7 +129,7 @@ class Inventarioadmin(admin.ModelAdmin):
 
 class UserAdmin(BaseUserAdmin):
     # Especifica los campos a mostrar en la lista de usuarios en el admin
-    list_display = ('id','first_name', 'last_name','rol','email', 'lab','is_active','user_create', 'date_joined','last_update','last_updated_by','id_number','phone_number',)
+    list_display = ('id','first_name', 'last_name','acceptDataProcessing','rol','email', 'lab','is_active','user_create', 'date_joined','last_update','last_updated_by','id_number','phone_number',)
     list_editable = ['first_name', 'last_name','email','lab', 'rol',]
     ordering=('id',)
 

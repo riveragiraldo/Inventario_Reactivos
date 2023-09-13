@@ -21,19 +21,19 @@
 
     {% load static %}
 
-    <link rel="stylesheet" href="{% static 'stylesShowSpinner.css' %}">
+    <link rel="stylesheet" href="{% static 'inventarioreac/stylesShowSpinner.css' %}">
     <!-- Estilos para el letrero de la mitad del spinner -->
-    <script src="{% static 'clearFds.js' %}"></script>
+    <script src="{% static 'inventarioreac/clearFds.js' %}"></script>
     <!-- Llama Script que borra los campos del formulario cuando se ejecuta cualquier acción -->
-    <script src="{% static 'codeconst.js' %}" defer></script>
+    <script src="{% static 'inventarioreac/codeconst.js' %}" defer></script>
     <!-- Llama Script que concatena los campos color - number y sub-number para crear code -->
-    <script src="{% static 'callPopUp.js' %}" defer></script>
+    <script src="{% static 'inventarioreac/callPopUp.js' %}" defer></script>
     <!-- Llama Script al final llama las ventanas emergentes -->
-    <script src="{% static 'hideButtonsReactive.js' %}" defer></script>
+    <script src="{% static 'inventarioreac/hideButtonsReactive.js' %}" defer></script>
     <!-- Llama Script al final oculta botones si la página se muestra como emergente -->
-    <script src="{% static 'sendInfo.js' %}" defer></script>
+    <script src="{% static 'inventarioreac/sendInfo.js' %}" defer></script>
     <!-- Llama Script al final genera alerta informativa con los datos que se va enviar al servidor y acepta-->
-    <script src="{% static 'validateSubnumber.js' %}" defer></script>
+    <script src="{% static 'inventarioreac/validateSubnumber.js' %}" defer></script>
     <!-- Llama Script al final genera alerta cuando no se escribe bien el subnumero-->
     {% endblock %}
 </head>

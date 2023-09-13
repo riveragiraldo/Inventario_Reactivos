@@ -20,11 +20,11 @@
 
   {% load static %}
 
-  <link rel="stylesheet" href="{% static 'stylesShowSpinner.css' %}">
+  <link rel="stylesheet" href="{% static 'inventarioreac/stylesShowSpinner.css' %}">
   <!-- Estilos para el letrero de la mitad del spinner -->
-  <script src="{% static 'sendInfo.js' %}" defer></script>
+  <script src="{% static 'inventarioreac/sendInfo.js' %}" defer></script>
   <!-- Llama Script al final genera alerta informativa con los datos que se va enviar al servidor y acepta-->
-  <script src="{% static 'clearFds.js' %}"></script>
+  <script src="{% static 'inventarioreac/clearFds.js' %}"></script>
   <!-- Llama Script que borra los campos del formulario cuando se ejecuta cualquier acción -->
   {% endblock %}
 
@@ -85,14 +85,21 @@
             var edate = window.opener.document.getElementById("edate").value;
             var reference = window.opener.document.getElementById("reference").value;
             var weight = window.opener.document.getElementById("weight").value;
+            var controlMinStock = window.opener.document.getElementById("controlMinStock").checked;
+            var minStockControl = window.opener.document.getElementById("minStockControl").value;
             var minstock = window.opener.document.getElementById("minstock").value;
             var order = window.opener.document.getElementById("order").value;
+            var orderdate = window.opener.document.getElementById("orderdate").value;
             var nproject = window.opener.document.getElementById("nproject").value;
             var location = window.opener.document.getElementById("location").value;
             var destination = window.opener.document.getElementById("destination").value;
+            var facultad = window.opener.document.getElementById("facultad").value;
             var manager = window.opener.document.getElementById("manager").value;
+            var correo = window.opener.document.getElementById("correo").value;
             var wlocation = window.opener.document.getElementById("wlocation").value;
             var observations = window.opener.document.getElementById("observations").value;
+            console.log(minStockControl)
+            console.log(controlMinStock)
 
             // Recargar la página padre
             window.opener.location.replace(window.opener.location.href);
@@ -122,9 +129,19 @@
               window.opener.document.querySelector("#reference").value = reference;
               window.opener.document.querySelector("#weight").value = weight;
               window.opener.document.querySelector("#minstock").value = minstock;
+              window.opener.document.querySelector("#minStockControl").value = minStockControl;
+              window.opener.document.querySelector("#controlMinStock").checked = controlMinStock;
+              if (controlMinStock) {
+                window.opener.mostrarBloques();
+              } else {
+                window.opener.ocultarBloques();
+              }
+
               window.opener.document.querySelector("#order").value = order;
+              window.opener.document.querySelector("#orderdate").value = orderdate;
               window.opener.document.querySelector("#nproject").value = nproject;
               window.opener.document.querySelector("#location").value = location;
+              window.opener.document.querySelector("#facultad").value = facultad;
 
               //Actualiza Select destination
               var destination_new = window.opener.document.querySelector("#destination");
@@ -132,6 +149,7 @@
               destination_new.setAttribute("selected", true);
 
               window.opener.document.querySelector("#manager").value = manager;
+              window.opener.document.querySelector("#correo").value = correo;
               window.opener.document.querySelector("#observations").innerHTML = observations;
 
               //Retardo permite que se ejecute función de actualización de select ubicación en almacén de acuerdo al laboratorio  
@@ -146,7 +164,7 @@
                 var lab_new = window.opener.document.querySelector("#lab");
                 lab_new.value = lab;
                 lab_new.setAttribute("selected", true);
-                window.close();
+                // window.close();
               }, 300)
             }, 2500);
           };

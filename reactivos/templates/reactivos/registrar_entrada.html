@@ -27,30 +27,30 @@
 
     {% load static %}
 
-    <link rel="stylesheet" href="{% static 'stylesShowSpinner.css' %}">
+    <link rel="stylesheet" href="{% static 'inventarioreac/stylesShowSpinner.css' %}">
     <!-- Estilos para el letrero de la mitad del spinner -->
-    <script src="{% static 'autocompletein.js' %}"></script>
+    <script src="{% static 'inventarioreac/autocompletein.js' %}"></script>
     <!-- Llama Script Autocompleta campo nombre, responsable y ubicacion -->
-    <script src="{% static 'UpdateDate.js' %}"></script>
+    <script src="{% static 'inventarioreac/UpdateDate.js' %}"></script>
     <!-- Llama Script  coloca fecha y hora actual -->
-    <script src="{% static 'clearFds.js' %}"></script>
+    <script src="{% static 'inventarioreac/clearFds.js' %}"></script>
     <!-- Llama Script  borrar campos despues de una transacción -->
-    <script src="{% static 'UpdateFields.js' %}"></script>
+    <script src="{% static 'inventarioreac/UpdateFields.js' %}"></script>
     <!-- Llama Script  actualizar campos según el nombre -->
-    <script src="{% static 'hideMinStock.js' %}" defer></script>
+    <script src="{% static 'inventarioreac/hideMinStock.js' %}" defer></script>
     <!-- Llama Script  que oculta el campo stock mínimo -->
-    <script src="{% static 'callPopUp.js' %}" defer></script>
+    <script src="{% static 'inventarioreac/callPopUp.js' %}" defer></script>
     <!-- Llama Script al final abre ventanas emergentes -->
-    <script src="{% static 'sendInfo.js' %}" defer></script>
+    <script src="{% static 'inventarioreac/sendInfo.js' %}" defer></script>
     <!-- Llama Script al final crea alerta informativa y envía datos -->
-    <script src="{% static 'updateWlocation.js' %}"></script>
+    <script src="{% static 'inventarioreac/updateWlocation.js' %}"></script>
     <!-- Llama Script al final actualiza select ubicaciones en almacén según laboratorio -->
-    <script src="{% static 'validateMinStock.js' %}" defer></script>
+    <script src="{% static 'inventarioreac/validateMinStock.js' %}" defer></script>
     <!-- Llama Script  que valida que el stock mínimo sea inferior a la cantidad -->
-    <script src="{% static 'validateEdate.js' %}" defer></script>
+    <script src="{% static 'inventarioreac/validateEdate.js' %}" defer></script>
     <!-- Llama Script  que valida que el que la fecha de vencimiento sea futura -->
 
-    <link rel="stylesheet" href="{% static 'styles.css' %}">
+    <link rel="stylesheet" href="{% static 'inventarioreac/styles.css' %}">
 
     {% endblock %}
 
@@ -158,8 +158,7 @@
                     <label class="form-label" for="edate" name="Vencimiento: ">*Vencimiento:</label>
                     <input type="date" class="form-control" name="edate" id="edate"
                         value="{{ date.tomorrow|date:'Y-m-d' }}" required
-                        title="Registre una fecha futura (hasta 31/12/2100)"
-                        >
+                        title="Registre una fecha futura (hasta 31/12/2100)" min="{{ tomorrow|date:'Y-m-d' }}">
 
                 </div>
 
@@ -175,7 +174,7 @@
                         name="weight" required min="0" max="100000000" pattern="^(?:[1-9]\d{0,7}|100000000)$"
                         title="Ingrese un valor entero positivo sin puntos ni comas (máximo 100000000)">
                 </div>
-                
+
 
                 <div class="col-md-2" id="unitBlock">
                     <label class="form-label" for="unit" name="Unidad: ">*Unidades:</label>
@@ -183,11 +182,11 @@
                 </div>
                 <!-- Agregar el checkbox para Control de Stock -->
                 <div class="col-md-12">
-                    
+
                     <input type="checkbox" id="controlMinStock" name="controlMinStock" checked>
                     <input type="hidden" name="minStockControl" id="minStockControl" value="" readonly required>
                     <label for="minStockControl" name="Control de Stock Mínimo:">Control de Stock Mínimo</label>
-                    
+
                 </div>
 
                 <div class="col-md-3" id="minStockBlock">
@@ -205,8 +204,9 @@
 
                 <div class="col-md-6">
                     <label class="form-label" for="orderdate" name="Fecha de orden:">Fecha de orden:</label>
-                    <input type="date" class="form-control" name="orderdate" id="orderdate" title="Fecha de la orden">
-                </div>  
+                    <input type="date" class="form-control" name="orderdate" id="orderdate" title="Fecha de la orden"
+                        max="{{ yesterday|date:'Y-m-d' }}">
+                </div>
 
 
                 <div class="col-md-6">
@@ -220,13 +220,15 @@
                     <div class="input-group">
                         <input type="text" name="location" class="form-control" id="location" required
                             placeholder="Asignatura/Ubicación Destino">
+                        <input type="hidden" name="facultad" class="form-control" id="facultad" placeholder="Facultad"
+                            readonly>
                         <button type="button" id="add_location_btn" class="btn btn-secondary"
                             title="Agregar Asignatura/Ubicación">+
                             </Address></button>
                     </div>
                 </div>
 
-                <input type="hidden" name="facultad" class="form-control" id="facultad" placeholder="Facultad" readonly>
+
 
 
 
@@ -245,6 +247,8 @@
                     <div class="input-group">
                         <input type="text" name="manager" class="form-control" id="manager" required
                             placeholder="Responsable del insumo">
+                        <input type="hidden" name="correo" class="form-control" id="correo"
+                            placeholder="Correo Responsable" readonly>
                         <button type="button" id="add_manager_btn" class="btn btn-secondary"
                             title="Agregar Responsable">+
                             </Address></button>
@@ -315,6 +319,7 @@
             {% endif %}
 
         </div>
+
 
 
         {% endblock %}

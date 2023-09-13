@@ -27,16 +27,20 @@
 
   {% load static %}
 
-  <link rel="stylesheet" href="{% static 'stylesShowSpinner.css' %}">
+  <link rel="stylesheet" href="{% static 'inventarioreac/stylesShowSpinner.css' %}">
   <!-- Estilos para el letrero de la mitad del spinner -->
-  <link rel="stylesheet" href="{% static 'stylesIcon.css' %}"><!-- Estilos para organizar íconos -->
+  <link rel="stylesheet" href="{% static 'inventarioreac/stylesIcon.css' %}"><!-- Estilos para organizar íconos -->
+  <link rel="stylesheet" href="{% static 'inventarioreac/stylesCheckBox.css' %}">
+  <!-- Estilos para organizar la políca de tratamiento de datos -->
 
-  <script src="{% static 'clearFds.js' %}"></script>
+  <script src="{% static 'inventarioreac/clearFds.js' %}"></script>
   <!-- Llama Script que borra los campos del formulario cuando se ejecuta cualquier acción -->
-  <script src="{% static 'pushPrefix.js' %}" defer></script>
+  <script src="{% static 'inventarioreac/pushPrefix.js' %}" defer></script>
   <!-- Llama Script que inserta banderas y prefijos -->
-  <script src="{% static 'sendInfo.js' %}" defer></script>
+  <script src="{% static 'inventarioreac/sendInfo.js' %}" defer></script>
   <!-- Llama Script al final genera alerta informativa con los datos que se va enviar al servidor y acepta-->
+  <script src="{% static 'inventarioreac/putValueAccept.js' %}" defer></script>
+  <!-- Llama Script que coloca valor al check de acepta -->
   {% endblock %}
 </head>
 
@@ -53,7 +57,7 @@
       <form method="post" class="row g-3" id="responsable_form" name="form">
         {% csrf_token %}
 
-        <div class="col-md-3">
+        <div class="col-md-5">
           <div class="col-md-12">
             <label class="form-label" for="cc" name="Cédula de ciudadanía: ">Cédula de ciudadanía:</label>
             <input type="text" class="form-control" placeholder="Ingresa tu número de cédula" name="cc" required id="cc"
@@ -79,7 +83,7 @@
             <label class="form-label" for="phone" name="Teléfono: "><br>Teléfono:</label>
             <div id="phone-input-wrapper" class="input-with-icon">
               <span class="input-icon">
-                <img src="{% static 'Images/phone.png' %}" alt="Icono de teléfono" class="input-icon-img">
+                <img src="{% static 'inventarioreac/Images/phone.png' %}" alt="Icono de teléfono" class="input-icon-img">
               </span>
               <input type="text" class="form-control" placeholder="Escribe número telefónico" name="phone" required
                 id="phone" pattern="[0-9]{10,13}"
@@ -93,14 +97,37 @@
             <label class="form-label" for="mail" name="Correo Electrónico: "><br>Correo Electrónico:</label>
             <div class="input-with-icon">
               <span class="input-icon">
-                <img src="{% static 'Images/email.png' %}" alt="Icono de correo electrónico" class="input-icon-img">
+                <img src="{% static 'inventarioreac/Images/email.png' %}" alt="Icono de correo electrónico" class="input-icon-img">
               </span>
               <input type="email" class="form-control" placeholder="Email" name="mail" required id="mail"
                 pattern="^[a-zA-Z0-9.-_]+@[a-zA-Z]+\.[a-zA-Z]{2,}(?:\.[a-zA-Z]+)?$"
                 title="Ingrese una dirección de correo electrónico válida (max 40 caracteres)" maxlength="40">
             </div>
           </div>
+
+
+          <div class="col-md-12">
+            <br>
+
+            <div class="politicaTratamiento">
+              <input type="checkbox" id="acceptDataProcessing" name="acceptDataProcessing" unchecked required
+                value="">
+              <label for="acceptDataProcessing" class="politica-label"
+                name="Acepta política de tratamiento de datos personales: ">
+                <p class="politica">
+                  DE ACUERDO CON LA
+                  <a href="https://unal.edu.co/tratamiento-de-datos-personales" target="_blank">
+                    LEY 1581 DE 2012 DE PROTECCIÓN DE DATOS PERSONALES</a>, HE LEÍDO, ENTENDIDO Y ACEPTO, LOS TÉRMINOS
+                  DESCRITOS EN LA POLÍTICA DE TRATAMIENTO DE DATOS PERSONALES.<br><br>
+                </p>
+              </label>
+            </div>
+            
+
+
+          </div>
         </div>
+
 
         <div class="col-md-12">
           <div class="col-md-2 mt-3">
@@ -110,11 +137,13 @@
             <input type="reset" value="Limpiar Campos" class="btn btn-primary">
           </div>
         </div>
+    </div>
+  </div>
 
-      </form>
-      {% if messages %}
-      {% for message in messages %}
-      <!-- Este script no puede ser invocado como un archivo externo. Después de recibir una respuesta del servidor, se
+  </form>
+  {% if messages %}
+  {% for message in messages %}
+  <!-- Este script no puede ser invocado como un archivo externo. Después de recibir una respuesta del servidor, se
     verifica si la ventana actual es emergente. En caso afirmativo, se muestra una alerta de confirmación o de
     error,se obtienen los valores de los campos de la ventana principal, se recarga la página para actualizar la
     selección y se vuelven a escribir o seleccionar los valores previamente ingresados. Si se agregó un nuevo
@@ -122,52 +151,66 @@
     correspondiente. Luego, la ventana emergente se cerrará. Si la ventana no es emergente, se mostrará una alerta
     de éxito o error según corresponda. -->
 
-      <script>
-        if (window.opener) {
+  <script>
+    if (window.opener) {
 
-          // Si es una ventana emergente, hacer algo y luego cerrar la ventana
-          window.onload = function () {
-            var mensaje = '{{ message|safe }}';
-            alert(mensaje)
-            var manager = mensaje.split(": ")[1];
-            setTimeout(function () {
+      // Si es una ventana emergente, hacer algo y luego cerrar la ventana
+      window.onload = function () {
+        var mensaje = '{{ message|safe }}';
+        alert(mensaje)
+        // Expresión regular para extraer el nombre y el correo
+        var regex = /nombre: (.*?), correo: (.*?$)/;
 
-              window.opener.document.querySelector("#manager").value = manager;
-              window.close();
+        // Ejecutar la expresión regular en el mensaje
+        var matches = mensaje.match(regex);
 
-            }, 500);
-          };
+        if (matches) {
+          var manager = matches[1]; // Captura el nombre
+          var correo = matches[2]; // Captura el correo
 
+
+        } else {
+          console.log('No se encontró información de nombre y correo en el mensaje.');
         }
-        else {
-          window.onload = function () {
+        setTimeout(function () {
 
-            var messageText = '{{ message|safe }}';
+          window.opener.document.querySelector("#manager").value = manager;
+          window.opener.document.querySelector("#correo").value = correo;
+          window.close();
 
-            var alertType = 'info';  // Tipo de alerta predeterminado para mensajes habituales
+        }, 500);
+      };
 
-            // Verificar el contenido del mensaje para asignar el tipo de alerta adecuado
-            if (messageText.includes('Se ha creado exitosamente')) {
-              alertType = 'success';
-            } else if (messageText.includes('Por favor seleccione') || messageText.includes('Ya existe') || messageText.includes('Solo se permiten registros ')) {
-              alertType = 'warning';
-            }
+    }
+    else {
+      window.onload = function () {
 
-            // Mostrar la notificación con SweetAlert2
-            Swal.fire({
-              icon: alertType,
-              title: 'Mensaje del servidor',
-              text: messageText,
-              confirmButtonText: 'Aceptar'
-            });
-          };
+        var messageText = '{{ message|safe }}';
+
+        var alertType = 'info';  // Tipo de alerta predeterminado para mensajes habituales
+
+        // Verificar el contenido del mensaje para asignar el tipo de alerta adecuado
+        if (messageText.includes('Se ha creado exitosamente')) {
+          alertType = 'success';
+        } else if (messageText.includes('Por favor seleccione') || messageText.includes('Ya existe') || messageText.includes('Solo se permiten registros ')) {
+          alertType = 'warning';
         }
 
-      </script>
-      {% endfor %}
-      {% endif %}
-    </div>
-    {% endblock %}
+        // Mostrar la notificación con SweetAlert2
+        Swal.fire({
+          icon: alertType,
+          title: 'Mensaje del servidor',
+          text: messageText,
+          confirmButtonText: 'Aceptar'
+        });
+      };
+    }
+
+  </script>
+  {% endfor %}
+  {% endif %}
+
+  {% endblock %}
 </body>
 
 </html>
