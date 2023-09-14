@@ -1441,8 +1441,9 @@ class EntradasListView(LoginRequiredMixin,ListView):
         location = request.GET.get('location')
         destination = request.GET.get('destination')
         created_by = request.GET.get('created_by')
-
-       
+        # Obtener las fechas de inicio y fin de la solicitud GET
+        start_date = self.request.GET.get('start_date')
+        end_date = self.request.GET.get('end_date')  
         
         # si el valor de lab viene de sesión superusuario o ADMINISTRADOR lab=0 cambiar por lab=''
         if lab=='0':
@@ -1454,6 +1455,8 @@ class EntradasListView(LoginRequiredMixin,ListView):
         request.session['filtered_location'] = location
         request.session['filtered_destination'] = destination
         request.session['filtered_created_by'] = created_by
+        request.session['filtered_start_date'] = start_date
+        request.session['filtered_end_date'] = end_date
         
 
         return super().get(request, *args, **kwargs)
@@ -1527,6 +1530,9 @@ class EntradasListView(LoginRequiredMixin,ListView):
         location = self.request.GET.get('location')
         destination= self.request.GET.get('destination')
         created_by= self.request.GET.get('created_by')
+        # Obtener las fechas de inicio y fin de la solicitud GET
+        start_date = self.request.GET.get('start_date')
+        end_date = self.request.GET.get('end_date')
 
                 
         
@@ -1534,9 +1540,7 @@ class EntradasListView(LoginRequiredMixin,ListView):
         # si el valor de lab viene de sesión superusuario o ADMINISTRADOR lab=0 cambiar por lab=''
         if lab=='0':
              lab=None
-        # Obtener las fechas de inicio y fin de la solicitud GET
-        start_date = self.request.GET.get('start_date')
-        end_date = self.request.GET.get('end_date')
+        
         
         # Validar y convertir las fechas
         try:
@@ -1548,8 +1552,6 @@ class EntradasListView(LoginRequiredMixin,ListView):
             # Manejar errores de formato de fecha aquí si es necesario
             pass
 
-        print(start_date)
-        print(end_date)
         
         # Realiza la filtración de acuerdo a las fechas
         if start_date:
@@ -1828,6 +1830,8 @@ class GuardarPerPageViewIn(LoginRequiredMixin,View):
         filtered_location = request.session.get('filtered_location')
         filtered_destination = request.session.get('filtered_destination')
         filtered_created_by = request.session.get('filtered_created_by')
+        filtered_start_date = request.session.get('filtered_start_date')
+        filtered_end_date = request.session.get('filtered_end_date')
         
         url = reverse('reactivos:listado_entradas')
         params = {}
@@ -1837,11 +1841,15 @@ class GuardarPerPageViewIn(LoginRequiredMixin,View):
             params['name'] = filtered_name
 
         if filtered_location:
-            params['location'] = filtered_name
+            params['location'] = filtered_location
         if filtered_destination:
-            params['destination'] = filtered_name
+            params['destination'] = filtered_destination
         if filtered_created_by:
-            params['created_by'] = filtered_name
+            params['created_by'] = filtered_created_by
+        if filtered_start_date:
+            params['start_date'] = filtered_start_date
+        if filtered_end_date:
+            params['end_date'] = filtered_end_date
         
         
         if params:
@@ -2122,7 +2130,7 @@ def export_to_excel(request):
 
     # Ruta al archivo de imagen del logotipo
 
-    logo_path = finders.find('Images/escudoUnal_black.png')
+    logo_path = finders.find('inventarioreac/Images/escudoUnal_black.png')
 
     # Cargar la imagen y procesarla con pillow
     pil_image = PILImage.open(logo_path)
@@ -2260,6 +2268,323 @@ def export_to_excel(request):
 
     return response
 
+# Utilizando los valores filtrados en el template inventario.html, y guardados en los datos de sesión, se crea el archivo de Excel 
+# correspondiente e se introducen los valores desde la tabla del modelo Inventarios. Además, se aplican formatos a los encabezados, se 
+# coloca un título, la fecha de creación y el logo. También se ajustan los anchos de columna y las alturas de fila, y se añaden filtros 
+# a los encabezados en caso de que el usuario lo solicite
+@login_required
+def export_to_excel_input(request):
+    # Obtener los valores filtrados almacenados en la sesión del usuario
+    lab = request.session.get('filtered_lab')
+    name = request.session.get('filtered_name')
+    location = request.session.get('filtered_location')
+    destination = request.session.get('filtered_destination')
+    created_by = request.session.get('filtered_created_by')
+    start_date = request.session.get('filtered_start_date')
+    end_date = request.session.get('filtered_end_date')
+    
+    
+    # Validar y convertir las fechas
+    try:
+        if start_date:
+            start_date = make_aware(datetime.strptime(start_date, '%Y-%m-%d'))
+        if end_date:
+            end_date = make_aware(datetime.strptime(end_date, '%Y-%m-%d').replace(hour=23, minute=59, second=59))
+    except ValueError:
+            # Manejar errores de formato de fecha aquí si es necesario
+        pass
+
+    queryset = Entradas.objects.all()
+    #Filtra según los valores previos de filtro en los selectores
+
+        
+    # Realiza la filtración de acuerdo a las fechas
+    if start_date:
+        queryset = queryset.filter(date_create__gte=start_date)
+    if end_date:
+        queryset = queryset.filter(date_create__lte=end_date)
+    elif start_date and end_date:
+        queryset = queryset.filter(date_create__gte=start_date,date_create__lte=end_date)
+    
+    if lab and name and destination and location and created_by:
+            queryset = queryset.filter(lab=lab, name=name, destination=destination, location=location, created_by=created_by, is_active=True)
+    elif lab and name and destination and location:
+        queryset = queryset.filter(lab=lab, name=name, destination=destination, location=location, is_active=True)
+    elif lab and name and destination and created_by:
+        queryset = queryset.filter(lab=lab, name=name, destination=destination, created_by=created_by, is_active=True)
+    elif lab and name and location and created_by:
+        queryset = queryset.filter(lab=lab, name=name, location=location, created_by=created_by, is_active=True)
+    elif lab and destination and location and created_by:
+        queryset = queryset.filter(lab=lab, destination=destination, location=location, created_by=created_by, is_active=True)
+    elif name and destination and location and created_by:
+        queryset = queryset.filter(name=name, destination=destination, location=location, created_by=created_by, is_active=True)
+    elif lab and name and destination:
+        queryset = queryset.filter(lab=lab, name=name, destination=destination, is_active=True)
+    elif lab and name and location:
+        queryset = queryset.filter(lab=lab, name=name, location=location, is_active=True)
+    elif lab and name and created_by:
+        queryset = queryset.filter(lab=lab, name=name, created_by=created_by, is_active=True)
+    elif lab and destination and location:
+        queryset = queryset.filter(lab=lab, destination=destination, location=location, is_active=True)
+    elif lab and destination and created_by:
+        queryset = queryset.filter(lab=lab, destination=destination, created_by=created_by, is_active=True)
+    elif lab and location and created_by:
+        queryset = queryset.filter(lab=lab, location=location, created_by=created_by, is_active=True)
+    elif name and destination and location:
+        queryset = queryset.filter(name=name, destination=destination, location=location, is_active=True)
+    elif name and destination and created_by:
+        queryset = queryset.filter(name=name, destination=destination, created_by=created_by, is_active=True)
+    elif name and location and created_by:
+        queryset = queryset.filter(name=name, location=location, created_by=created_by, is_active=True)
+    elif destination and location and created_by:
+        queryset = queryset.filter(destination=destination, location=location, created_by=created_by, is_active=True)
+    elif location and created_by:
+        queryset = queryset.filter(location=location, created_by=created_by, is_active=True)
+    elif destination and created_by:
+        queryset = queryset.filter(destination=destination, created_by=created_by, is_active=True)
+    elif destination and location:
+        queryset = queryset.filter(destination=destination, location=location, is_active=True)
+    elif name and created_by:
+        queryset = queryset.filter(name=name, created_by=created_by, is_active=True)
+    elif name and location:
+        queryset = queryset.filter(name=name, location=location, is_active=True)
+    elif name and destination:
+        queryset = queryset.filter(name=name, destination=destination, is_active=True)
+    elif lab and created_by:
+        queryset = queryset.filter(lab=lab, created_by=created_by, is_active=True)
+    elif lab and location:
+        queryset = queryset.filter(lab=lab, location=location, is_active=True)
+    elif lab and destination:
+        queryset = queryset.filter(lab=lab, destination=destination, is_active=True)
+    elif lab and name:
+        queryset = queryset.filter(lab=lab, name=name, is_active=True)
+    elif lab:
+        queryset = queryset.filter(lab=lab, is_active=True)
+    elif name:
+        queryset = queryset.filter(name=name, is_active=True)
+    elif destination:
+        queryset = queryset.filter(destination=destination, is_active=True)
+    elif location:
+        queryset = queryset.filter(location=location, is_active=True)
+    elif created_by:
+        queryset = queryset.filter(created_by=created_by, is_active=True)
+    else:
+        queryset = queryset.filter(is_active=True)
+    queryset = queryset.order_by('id')
+        
+
+    workbook = openpyxl.Workbook()
+    sheet = workbook.active
+
+    # Ruta al archivo de imagen del logotipo
+
+    logo_path = finders.find('inventarioreac/Images/escudoUnal_black.png')
+
+    # Cargar la imagen y procesarla con pillow
+    pil_image = PILImage.open(logo_path)
+
+    # Crear un objeto Image de openpyxl a partir de la imagen procesada
+    image = ExcelImage(pil_image)
+
+    # Anclar la imagen a la celda A1
+    sheet.add_image(image, 'A1')
+
+    # Obtener la fecha actual
+    fecha_creacion = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+
+    # Unificar las celdas A1, B1, C1 y D1
+    sheet.merge_cells('C1:F1')
+
+    sheet['C1'] = 'Listado de movimientos de Entrada'
+    sheet['C2'] = 'Fecha de Creación: '+fecha_creacion
+    sheet['A4'] = 'Consecutivo'
+    sheet['B4'] = 'Fecha y hora de registro'
+    sheet['C4'] = 'Nombre del reactivo'
+    sheet['D4'] = 'Código'
+    sheet['E4'] = 'CAS'
+    sheet['F4'] = 'Marca'
+    sheet['G4'] = 'Referencia'
+    sheet['H4'] = 'Cantidad'
+    sheet['I4'] = 'Unidad'
+    sheet['J4'] = 'Laboratorio'
+    sheet['K4'] = 'Orden de Compra'
+    sheet['L4'] = 'Fecha de orden'
+    sheet['M4'] = 'Proyecto'
+    sheet['N4'] = 'Valor de la compra'
+    sheet['O4'] = 'Destino'
+    sheet['P4'] = 'Responsable'
+    sheet['Q4'] = 'Asignatura'
+    sheet['R4'] = 'Facultad'
+    sheet['S4'] = 'Registrado por'
+    sheet['T4'] = 'Actualizado por'
+    sheet['U4'] = 'Fecha y hora de última Actualización'
+    sheet['V4'] = 'Observaciones'
+    
+    
+
+    # Establecer la altura de la fila 1 y 2 a 30 y fila 3 a 25
+    sheet.row_dimensions[1].height = 30
+    sheet.row_dimensions[2].height = 30
+    sheet.row_dimensions[3].height = 25
+
+    # Establecer estilo de celda para A1
+
+    cell_A1 = sheet['C1']
+    cell_A1.font = Font(bold=True, size=16)
+
+    # Configurar los estilos de borde
+    thin_border = Border(left=Side(style='thin'), right=Side(
+    style='thin'), top=Side(style='thin'), bottom=Side(style='thin'))
+
+    # Establecer el estilo de las celdas A2:D3
+    bold_font = Font(bold=True)
+
+    # Establecer el ancho de la columna A a 13
+    sheet.column_dimensions['A'].width = 13
+
+    # Establecer el ancho de la columna B a 23
+    sheet.column_dimensions['B'].width = 23
+
+    # Establecer el ancho de la columna C a 40
+    sheet.column_dimensions['C'].width = 40
+
+    # Establecer el ancho de la columna D a 9
+    sheet.column_dimensions['D'].width = 9
+
+    # Establecer el ancho de la columna E a 10
+    sheet.column_dimensions['E'].width = 10
+
+    # Establecer el ancho de la columna F a 14
+    sheet.column_dimensions['F'].width = 14
+
+    # Establecer el ancho de la columna G a 12
+    sheet.column_dimensions['G'].width = 12
+
+    # Establecer el ancho de la columna H a 10
+    sheet.column_dimensions['H'].width = 10
+
+    # Establecer el ancho de la columna I a 9
+    sheet.column_dimensions['I'].width = 9
+
+    # Establecer el ancho de la columna J a 51
+    sheet.column_dimensions['J'].width = 51
+
+    # Establecer el ancho de la columna K a 18
+    sheet.column_dimensions['K'].width = 18
+
+    # Establecer el ancho de la columna L a 16
+    sheet.column_dimensions['L'].width = 16
+
+    # Establecer el ancho de la columna M a 10
+    sheet.column_dimensions['M'].width = 10
+
+    # Establecer el ancho de la columna N a 19
+    sheet.column_dimensions['N'].width = 19
+
+    # Establecer el ancho de la columna O a 14
+    sheet.column_dimensions['O'].width = 14
+
+    # Establecer el ancho de la columna P a 28
+    sheet.column_dimensions['P'].width = 28
+
+    # Establecer el ancho de la columna Q a 37
+    sheet.column_dimensions['Q'].width = 37
+
+    # Establecer el ancho de la columna R a 36
+    sheet.column_dimensions['R'].width = 36
+
+    # Establecer el ancho de la columna S a 29
+    sheet.column_dimensions['S'].width = 29
+
+    # Establecer el ancho de la columna T a 29
+    sheet.column_dimensions['T'].width = 29
+
+    # Establecer el ancho de la columna U a 34
+    sheet.column_dimensions['U'].width = 34
+
+    # Establecer el ancho de la columna V a 60
+    sheet.column_dimensions['V'].width = 60
+
+      
+    
+
+    row = 4
+    # Aplicar el estilo de borde a las celdas de la fila actual
+    for col in range(1, 23):
+        sheet.cell(row=row, column=col).border = thin_border
+        sheet.cell(row=row, column=col).font = bold_font
+
+    row = 5
+    for item in queryset:
+        if not item.date_order:
+            item.date_order=''
+        sheet.cell(row=row, column=1).value = item.id
+        sheet.cell(row=row, column=2).value = str((item.date_create).strftime('%d/%m/%Y %H:%M:%S'))
+        sheet.cell(row=row, column=3).value = item.name.name
+        sheet.cell(row=row, column=4).value = item.name.code
+        sheet.cell(row=row, column=5).value = item.name.cas
+        sheet.cell(row=row, column=6).value = item.trademark.name
+        sheet.cell(row=row, column=7).value = item.reference
+        sheet.cell(row=row, column=8).value = item.weight
+        sheet.cell(row=row, column=9).value = item.name.unit.name
+        sheet.cell(row=row, column=10).value = item.lab.name
+        sheet.cell(row=row, column=11).value = item.order
+        sheet.cell(row=row, column=12).value = str(item.date_order)
+        sheet.cell(row=row, column=13).value = item.nproject
+        sheet.cell(row=row, column=14).value = item.price
+        sheet.cell(row=row, column=15).value = item.destination.name
+        sheet.cell(row=row, column=16).value = item.manager.name
+        sheet.cell(row=row, column=17).value = item.location.name
+        sheet.cell(row=row, column=18).value = item.location.facultad.name
+        sheet.cell(row=row, column=19).value = item.created_by.first_name+' '+item.created_by.last_name
+        sheet.cell(row=row, column=20).value = item.last_updated_by.first_name+' '+item.last_updated_by.last_name
+        sheet.cell(row=row, column=21).value = str((item.last_update).strftime('%d/%m/%Y %H:%M:%S'))
+        sheet.cell(row=row, column=22).value = item.observations
+
+               
+        # Aplicar el estilo de borde a las celdas de la fila actual
+        for col in range(1, 23):
+            sheet.cell(row=row, column=col).border = thin_border
+
+        row += 1
+
+    # Obtén el rango de las columnas de la tabla
+    start_column = 1
+    end_column = 22
+    start_row = 4
+    end_row = row - 1
+
+    # Convertir los números de las columnas en letras de columna
+    start_column_letter = get_column_letter(start_column)
+    end_column_letter = get_column_letter(end_column)
+
+    # Rango de la tabla con el formato "A4:I{n}", donde n es el número de filas en la tabla
+    table_range = f"{start_column_letter}{start_row}:{end_column_letter}{end_row}"
+
+    # Agregar filtros solo a las columnas de la tabla
+    sheet.auto_filter.ref = table_range
+
+    # Establecer fondo blanco desde la celda A1 hasta el final de la tabla
+
+    fill = PatternFill(fill_type="solid", fgColor=WHITE)
+    start_cell = sheet['A1']
+    end_column_letter = get_column_letter(end_column+1)
+    end_row = row+1
+    end_cell = sheet[end_column_letter + str(end_row)]
+    table_range = start_cell.coordinate + ':' + end_cell.coordinate
+
+    for row in sheet[table_range]:
+        for cell in row:
+            cell.fill = fill
+
+    response = HttpResponse(
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename=Registro_Entradas.xlsx'
+
+    workbook.save(response)
+
+    return response
+
 # Utilizando los valores filtrados en el template inventario.html, y guardados en los datos de sesión, se crea el archivo PDF 
 # correspondiente e se introducen los valores desde la tabla del modelo Inventarios. Además, se aplican formatos a los encabezados, se 
 # coloca un título, la fecha de creación y el logo. También se ajustan los anchos de columna y las alturas de fila
@@ -2310,7 +2635,7 @@ def export_to_pdf(request):
     header_y = 580
 
     # Cargar la imagen del logotipo
-    logo_path = finders.find('Images/escudoUnal_black.png')
+    logo_path = finders.find('inventarioreac/Images/escudoUnal_black.png')
 
     # Cargar la imagen del logotipo y redimensionarla
     # Cargar la imagen del logotipo

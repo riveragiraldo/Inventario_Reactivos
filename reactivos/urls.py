@@ -40,6 +40,7 @@ urlpatterns = [
     path('api/referencesbytrademark/', ReferencesByTrademarkAPI.as_view(), name='select-updatereferences'),
     path('api/wlocations/', WlocationsAPI.as_view(), name='select-wlocations'),   
     path('exportar-excel/', views.export_to_excel, name='export_to_excel'),
+    path('export2xlsxinput/', views.export_to_excel_input, name='export_to_excel_input'),
     path('export_to_pdf/', views.export_to_pdf, name='export_to_pdf'),
     path('guardar-per-page/<int:per_page>/', GuardarPerPageView.as_view(), name='GuardarPerPage'),
     path('guardar-per-page-in/<int:per_page>/', GuardarPerPageViewIn.as_view(), name='GuardarPerPageIn'),
