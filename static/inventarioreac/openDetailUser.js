@@ -13,16 +13,16 @@ document.querySelectorAll('.created_by_cell').forEach(element => {
         const userCreateDatejoined = this.getAttribute('date_user_datejoined');
         const userCreateLastlogin = this.getAttribute('date_user_lastlogin');
         const userCreateType = this.getAttribute('date_user_type');
+        const userCreateVist = this.getAttribute('date_user_vist');
 
         
-        const creador = obtenerInformacionCreador(userCreateName,reactiveCreateName,reactiveCreateDate,userCreateId,userCreateUsername,userCreateMail,userCreatePhone,userCreateLab,userCreateRol,userCreateDatejoined,userCreateLastlogin,userCreateType);
-        console.log(creador)
+        const creador = obtenerInformacionCreador(userCreateName,reactiveCreateName,reactiveCreateDate,userCreateId,userCreateUsername,userCreateMail,userCreatePhone,userCreateLab,userCreateRol,userCreateDatejoined,userCreateLastlogin,userCreateType,userCreateVist);
         mostrarSweetAlertUserCreate(creador);
     });
 });
 
 // Función para obtener la información del reactivo basado en su ID (puedes hacer la solicitud al servidor)
-function obtenerInformacionCreador(name,reactive,date_create,id,username,mail,phone,lab,rol,datejoined,lastlogin,type) {
+function obtenerInformacionCreador(name,reactive,date_create,id,username,mail,phone,lab,rol,datejoined,lastlogin,type,vist) {
 
     const create = {
         name: name,
@@ -36,7 +36,8 @@ function obtenerInformacionCreador(name,reactive,date_create,id,username,mail,ph
         rol:rol,
         datejoined:datejoined,
         lastlogin:lastlogin,
-        type:type
+        type:type,
+        vist:vist
 
 
     };
@@ -51,7 +52,7 @@ function mostrarSweetAlertUserCreate(create) {
         html: `
             <div class="card" style="text-align: left;">
                 <div class="card-header">
-                    Detalle usuario que ${create.type} la entrada de  ${create.reactive} el ${create.date_create}
+                    Detalle usuario que ${create.type} ${create.vist} de  ${create.reactive} el ${create.date_create}
                 </div>
                 <br>
                 <div class="card-body">

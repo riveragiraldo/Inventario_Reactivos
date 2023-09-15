@@ -257,6 +257,7 @@
                         date_user_datejoined="{{ item.created_by.date_joined }}"
                         date_user_lastlogin="{{ item.created_by.last_login }}"
                         date_user_type="crea"
+                        date_user_vist="la entrada de inventario"
                         >
                         {{ item.created_by.first_name }} {{ item.created_by.last_name }}
                         </td>
@@ -272,7 +273,11 @@
                         date_user_rol="{{ item.last_updated_by.rol }}"
                         date_user_datejoined="{{ item.last_updated_by.date_joined }}"
                         date_user_lastlogin="{{ item.last_updated_by.last_login }}"
-                        date_user_type="actualiza">{{ item.last_updated_by.first_name }} {{ item.last_updated_by.last_name }}</td>
+                        date_user_type="actualiza"
+                        date_user_vist="la entrada de inventario"
+                        >{{ item.last_updated_by.first_name }} {{ item.last_updated_by.last_name }}
+                    </td>
+                        
                         <!-- Modifica el evento click de la imagen para mostrar SweetAlert -->
                         <td>
                             <img src="{% static 'inventarioreac/Images/moreInfo.ico' %}" alt="" width="18" height="18"

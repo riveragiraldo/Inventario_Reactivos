@@ -15,13 +15,17 @@ document.querySelectorAll('.detalle-reactivo').forEach(element => {
         const reactivoRespel = this.getAttribute('data-reactivo-respel');
         const reactivoSga = this.getAttribute('data-reactivo-sga');
         const reactivoState = this.getAttribute('data-reactivo-state');
-        const reactivo = obtenerInformacionReactivo(reactivoId, reactivoName, reactivoCode, reactivoCas, reactivoTrademark, reactivoReference, reactivoQuantity, reactivoUnit, reactivoWlocation, reactivoLab,reactivoEdate,reactivoRespel,reactivoSga,reactivoState);
+        const reactivoCreateBy = this.getAttribute('data-reactivo-create_by');
+        const reactivoLastUpdate = this.getAttribute('data-reactivo-lastupdate');
+        const reactivoLastUpdateBy = this.getAttribute('data-reactivo-update_by');
+        const reactivoDateCreate = this.getAttribute('data-reactivo-date_create');
+        const reactivo = obtenerInformacionReactivo(reactivoId, reactivoName, reactivoCode, reactivoCas, reactivoTrademark, reactivoReference, reactivoQuantity, reactivoUnit, reactivoWlocation, reactivoLab,reactivoEdate,reactivoRespel,reactivoSga,reactivoState,reactivoCreateBy,reactivoLastUpdate,reactivoLastUpdateBy,reactivoDateCreate);
         mostrarSweetAlert(reactivo);
     });
 });
 
 // Función para obtener la información del reactivo basado en su ID (puedes hacer la solicitud al servidor)
-function obtenerInformacionReactivo(reactivo, name, code, cas, trademark, reference, quantity, unit, wlocation,lab,edate,respel,sga,state) {
+function obtenerInformacionReactivo(reactivo, name, code, cas, trademark, reference, quantity, unit, wlocation,lab,edate,respel,sga,state,create_by,last_update,update_by,date_create) {
 
     const inventario = {
         id: reactivo,
@@ -37,7 +41,11 @@ function obtenerInformacionReactivo(reactivo, name, code, cas, trademark, refere
         edate: edate,
         wlocation: wlocation,
         lab: lab,
-        state: state
+        state: state,
+        create_by: create_by,
+        last_update: last_update,
+        update_by: update_by,
+        date_create: date_create,
     };
     return inventario;
 }
@@ -73,6 +81,14 @@ function mostrarSweetAlert(inventario) {
                         <li><strong>Fecha de vencimiento:</strong> ${inventario.edate}</li>
                         <li><strong>Ubicación en almacén:</strong> ${inventario.wlocation}</li>
                         <li><strong>Laboratorio:</strong> ${inventario.lab}</li>
+                    </ul>
+                    <br>
+                    <h5>Detalle del registro:</h5>
+                    <ul class="list-unstyled">
+                    <li><strong>Fecha de registro:</strong> ${inventario.date_create}</li>
+                    <li><strong>Responsable del registro:</strong> ${inventario.create_by}</li>
+                    <li><strong>Última modificación:</strong> ${inventario.last_update}</li>
+                    <li><strong>Última actualización por:</strong> ${inventario.update_by}</li>
                     </ul>
                 </div>
             </div>

@@ -2125,6 +2125,8 @@ def export_to_excel(request):
     else:
         queryset = queryset.filter(is_active=True)
 
+    queryset = queryset.order_by('id')
+
     workbook = openpyxl.Workbook()
     sheet = workbook.active
 
@@ -2149,20 +2151,25 @@ def export_to_excel(request):
 
     sheet['C1'] = 'Inventario de insumos'
     sheet['C2'] = 'Fecha de Creación: '+fecha_creacion
-    sheet['A4'] = 'Código'
-    sheet['B4'] = 'CAS'
-    sheet['C4'] = 'Reactivo'
-    sheet['D4'] = 'Marca'
-    sheet['E4'] = 'Cantidad'
-    sheet['F4'] = 'Referencia'
-    sheet['G4'] = 'Unidad'
-    sheet['H4'] = 'Ubicación'
-    sheet['I4'] = 'Laboratorio'
-    sheet['J4'] = 'Vencimiento'
+    sheet['A4'] = 'Consecutivo'
+    sheet['B4'] = 'Código'
+    sheet['C4'] = 'CAS'
+    sheet['D4'] = 'Reactivo'
+    sheet['E4'] = 'Marca'
+    sheet['F4'] = 'Cantidad'
+    sheet['G4'] = 'Referencia'
+    sheet['H4'] = 'Unidad'
+    sheet['I4'] = 'Ubicación'
+    sheet['J4'] = 'Laboratorio'
+    sheet['K4'] = 'Vencimiento'
+    sheet['L4'] = 'Registrado por'
+    sheet['M4'] = 'Fecha y hora de Registro'
+    sheet['N4'] = 'Actualizado por'
+    sheet['O4'] = 'Fecha y hora de última Actualización'
 
     # Establecer la altura de la fila 1 y 2 a 30
-    sheet.row_dimensions[1].height = 30
-    sheet.row_dimensions[2].height = 30
+    sheet.row_dimensions[1].height = 35
+    sheet.row_dimensions[2].height = 35
 
     # Establecer estilo de celda para A1
 
@@ -2177,63 +2184,79 @@ def export_to_excel(request):
     bold_font = Font(bold=True)
 
     # Establecer el ancho de la columna A a 16
-    sheet.column_dimensions['A'].width = 16
+    sheet.column_dimensions['A'].width = 9
 
     # Establecer el ancho de la columna B a 10
-    sheet.column_dimensions['B'].width = 10
+    sheet.column_dimensions['B'].width = 9
 
-    # Establecer el ancho de la columna C a 36
-    sheet.column_dimensions['C'].width = 36
+    # Establecer el ancho de la columna B a6
+    sheet.column_dimensions['C'].width = 19
 
-    # Establecer el ancho de la columna D a 11
-    sheet.column_dimensions['D'].width = 11
+    # Establecer el ancho de la columna C a1
+    sheet.column_dimensions['D'].width = 40
 
-    # Establecer el ancho de la columna E a 10
-    sheet.column_dimensions['E'].width = 10
+    # Establecer el ancho de la columna D a0
+    sheet.column_dimensions['E'].width = 14
 
-    # Establecer el ancho de la columna F a 10
+    # Establecer el ancho de la columna E a0
     sheet.column_dimensions['F'].width = 10
 
-    # Establecer el ancho de la columna G a 10
-    sheet.column_dimensions['G'].width = 10
+    # Establecer el ancho de la columna F a0
+    sheet.column_dimensions['G'].width = 12
 
-    # Establecer el ancho de la columna H a 12
-    sheet.column_dimensions['H'].width = 12
+    # Establecer el ancho de la columna G a2
+    sheet.column_dimensions['H'].width = 9
 
-    # Establecer el ancho de la columna I a 14
-    sheet.column_dimensions['I'].width = 14
+    # Establecer el ancho de la columna H a4
+    sheet.column_dimensions['I'].width = 34
 
-    # Establecer el ancho de la columna J a 13
-    sheet.column_dimensions['J'].width = 13
+    # Establecer el ancho de la columna I a3
+    sheet.column_dimensions['J'].width = 51
+    # Establecer el ancho de la columna J a9
+    sheet.column_dimensions['K'].width = 13
+    # Establecer el ancho de la columna K a9
+    sheet.column_dimensions['M'].width = 23
+    # Establecer el ancho de la columna M a1
+    sheet.column_dimensions['L'].width = 29
+    # Establecer el ancho de la columna L a1
+    sheet.column_dimensions['N'].width = 29
+    # Establecer el ancho de la columna N a1
+    sheet.column_dimensions['M'].width = 23
+    sheet.column_dimensions['O'].width = 34
 
     row = 4
     # Aplicar el estilo de borde a las celdas de la fila actual
-    for col in range(1, 11):
+    for col in range(1, 16):
         sheet.cell(row=row, column=col).border = thin_border
         sheet.cell(row=row, column=col).font = bold_font
 
     row = 5
     for item in queryset:
-        sheet.cell(row=row, column=1).value = item.name.code
-        sheet.cell(row=row, column=2).value = item.name.cas
-        sheet.cell(row=row, column=3).value = item.name.name
-        sheet.cell(row=row, column=4).value = item.trademark.name
-        sheet.cell(row=row, column=5).value = item.reference
-        sheet.cell(row=row, column=6).value = item.weight
-        sheet.cell(row=row, column=7).value = item.name.unit.name
-        sheet.cell(row=row, column=8).value = item.wlocation.name
-        sheet.cell(row=row, column=9).value = item.lab.name
-        sheet.cell(row=row, column=10).value = item.edate
+        sheet.cell(row=row, column=1).value = item.id
+        sheet.cell(row=row, column=2).value = item.name.code
+        sheet.cell(row=row, column=3).value = item.name.cas
+        sheet.cell(row=row, column=4).value = item.name.name
+        sheet.cell(row=row, column=5).value = item.trademark.name
+        sheet.cell(row=row, column=6).value = item.reference
+        sheet.cell(row=row, column=7).value = item.weight
+        sheet.cell(row=row, column=8).value = item.name.unit.name
+        sheet.cell(row=row, column=9).value = item.wlocation.name
+        sheet.cell(row=row, column=10).value = item.lab.name
+        sheet.cell(row=row, column=11).value = item.edate
+        sheet.cell(row=row, column=12).value = item.created_by.first_name+' '+item.created_by.last_name
+        sheet.cell(row=row, column=13).value = str((item.date_create).strftime('%d/%m/%Y %H:%M:%S'))
+        sheet.cell(row=row, column=14).value = item.last_updated_by.first_name+' '+item.last_updated_by.last_name
+        sheet.cell(row=row, column=15).value = str((item.last_update).strftime('%d/%m/%Y %H:%M:%S'))
 
         # Aplicar el estilo de borde a las celdas de la fila actual
-        for col in range(1, 11):
+        for col in range(1, 16):
             sheet.cell(row=row, column=col).border = thin_border
 
         row += 1
 
     # Obtén el rango de las columnas de la tabla
     start_column = 1
-    end_column = 10
+    end_column = 15
     start_row = 4
     end_row = row - 1
 
