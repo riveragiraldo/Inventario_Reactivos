@@ -198,7 +198,7 @@
             <table class="table" id="tabla-inventario">
                 <thead>
                     <tr>
-                        <th class="sortable-header" data-column="0" title="Ordenar por Consecutivo">Consecutivo</th>
+                        <th class="sortable-header" data-column="0" title="Ordenar por Consecutivo">Id entrada</th>
                         <th class="sortable-header" data-column="1" title="Ordenar por fecha">Fecha Creación</th>
                         <th class="sortable-header" data-column="2" title="Ordenar por nombre">Nombre</th>
                         <th class="sortable-header" data-column="3" title="Ordenar por marca">Marca</th>
@@ -214,10 +214,12 @@
                         </th>
                         <th class="sortable-header" data-column="13" title="Facultad">Facultad</th>
                         <th class="sortable-header" data-column="14" title="Ordenar por Responsable del Registro">
-                            Registrado por</th>
-                            <th class="sortable-header" data-column="15" title="Ordenar por Última Actualización por">
-                                Última Actuakización</th>
+                            Usuario registra</th>
+                        <th class="sortable-header" data-column="15" title="Ordenar por Última Actualización por">
+                            Usuario actualiza</th>
                         <th class="sortable-header" title="Visualización de detalle (no ordena)">Ver detalle</th>
+                        <th class="sortable-header" title="Acciones con el registro (no ordena)" >Acciones<p style="color: transparent;">***********</p>
+                        </th>
                     </tr>
                 </thead>
 
@@ -225,7 +227,7 @@
                 <tbody>
                     {% for item in object_list %}
                     <tr class="table-row">
-                        <td title="Consecutivo">{{ item.id }}</td>
+                        <td title="Número de registro de la entrada">{{ item.id }}</td>
                         <td title="Fecha de entrada">{{ item.date_create|date:"d/m/Y" }}</td>
                         <td title="Reactivo">{{ item.name }}</td>
                         <td title="Marca">{{ item.trademark }}</td>
@@ -293,6 +295,17 @@
                                 data-reactivo-lastupdate="{{ item.last_update }}"
                                 data-reactivo-update_by="{{ item.last_updated_by.first_name }} {{ item.last_updated_by.last_name }}"
                                 title="Más información sobre el registro de entrada de: {{ item.name }}">
+                        </td>
+                        <td >
+                            <a href="{% url 'reactivos:registrar_entrada' %}" target="_blank">
+                                <img src="{% static 'inventarioreac/Images/add_register.png' %}" alt="" width="18" height="18" title="Agregar una nueva entrada de reactivo">
+                            </a>
+                            <a href="">
+                                <img src="{% static 'inventarioreac/Images/edit_register.png' %}" alt="" width="18" height="18" title="Editar registro número {{ item.id }}">
+                            </a>
+                            <a href="">
+                                <img src="{% static 'inventarioreac/Images/delete_register.png' %}" alt="" width="18" height="18" title="Borrar registro número {{ item.id }}">
+                            </a>
                         </td>
 
                     </tr>
