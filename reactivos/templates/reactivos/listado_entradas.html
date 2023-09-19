@@ -41,7 +41,7 @@
     </script>
     {% endif %}
     <script>
-        today="{{ today|date:'Y-m-d' }}"
+        today = "{{ today|date:'Y-m-d' }}"
         // oneMonthAgo="{{ one_month_ago|date:'Y-m-d' }}"
     </script>
     <link rel="stylesheet" href="{% static 'inventarioreac/inventoryStyles.css' %}">
@@ -130,13 +130,13 @@
                         <select id="location" name="location" class="form-control">
                             <option value="">Todas</option>
                             {% for item in unique_locations %}
-                            
+
                             <option value="{{ item.id }}">{{ item.name }} - {{item.facultad}}</option>
-                            
+
                             {% endfor %}
                         </select>
                     </div>
-                   
+
 
 
                     <div class="col-md-4 d-flex flex-column align-items-left">
@@ -151,21 +151,25 @@
 
                     <div class="col-md-2 d-flex flex-column align-items-left">
                         <label for="start_date">Fecha Inicial:</label>
-                        <input type="date" id="start_date" name="start_date" class="form-control"  max="{{ today|date:'Y-m-d' }}">
-                        <span class="validation-message" id="start-date-validation" style="color: red;">La fecha incial debe ser igual o anterior a "{{ today|date:'Y-m-d' }}".</span>
+                        <input type="date" id="start_date" name="start_date" class="form-control"
+                            max="{{ today|date:'Y-m-d' }}">
+                        <span class="validation-message" id="start-date-validation" style="color: red;">La fecha incial
+                            debe ser igual o anterior a "{{ today|date:'Y-m-d' }}".</span>
                     </div>
-                    
+
                     <div class="col-md-2 d-flex flex-column align-items-left">
                         <label for="end_date">Fecha Final:</label>
-                        <input type="date" id="end_date" name="end_date" class="form-control" value="{{ today|date:'Y-m-d' }}" max="{{ today|date:'Y-m-d' }}">
-                        <span class="validation-message" id="end-date-validation" style="color: red;">La fecha incial debe ser igual o anterior a "{{ today|date:'Y-m-d' }}"</span>
+                        <input type="date" id="end_date" name="end_date" class="form-control"
+                            value="{{ today|date:'Y-m-d' }}" max="{{ today|date:'Y-m-d' }}">
+                        <span class="validation-message" id="end-date-validation" style="color: red;">La fecha incial
+                            debe ser igual o anterior a "{{ today|date:'Y-m-d' }}"</span>
                     </div>
                     <script>
-                        
+
                     </script>
-                    
-                    
-                    
+
+
+
 
                     <div class="col-md-4 d-flex align-items-end">
                         <button id="boton-buscar" type="submit" class="btn btn-primary">Buscar</button>
@@ -218,7 +222,8 @@
                         <th class="sortable-header" data-column="15" title="Ordenar por Última Actualización por">
                             Usuario actualiza</th>
                         <th class="sortable-header" title="Visualización de detalle (no ordena)">Ver detalle</th>
-                        <th class="sortable-header" title="Acciones con el registro (no ordena)" >Acciones<p style="color: transparent;">***********</p>
+                        <th class="sortable-header" title="Acciones con el registro (no ordena)">Acciones<p
+                                style="color: transparent;">***********</p>
                         </th>
                     </tr>
                 </thead>
@@ -239,45 +244,42 @@
                         <td title="Número de proyecto {{ item.name }}">{{ item.nproject }}</td>
                         <td title="Valor Ingreso {{ item.name }}">{{ item.price }}</td>
                         <td title="Destino de ingreso {{ item.name }}">{{ item.destination }}</td>
-                        <td title="Correo: {{ item.manager.mail }} Teléfono: {{ item.manager.phone }}"> 
+                        <td title="Correo: {{ item.manager.mail }} Teléfono: {{ item.manager.phone }}">
                             {{ item.manager }}
                         </td>
                         <td title="Ubicación de ingreso {{ item.name }}">{{ item.location }}</td>
                         <td title="Facultad de ingreso {{ item.name }}">{{ item.location.facultad }}</td>
-                        <td  class="created_by_cell" title="Más información de: {{ item.created_by.first_name }} {{ item.created_by.last_name }}"
-                        date_user_create="{{ item.created_by.first_name }} {{ item.created_by.last_name }}"
-                        data-reactivo-name="{{ item.name }}"
-                        data-reactivo-date="{{ item.date_create|date:'d/m/Y' }}"
-                        date_user_id="{{ item.created_by.id_number }}"
-                        date_user_username="{{ item.created_by.username }}"
-                        date_user_mail="{{ item.created_by.email }}"
-                        date_user_phone="{{ item.created_by.phone_number }}"
-                        date_user_lab="{{ item.created_by.lab }}"
-                        date_user_rol="{{ item.created_by.rol }}"
-                        date_user_datejoined="{{ item.created_by.date_joined }}"
-                        date_user_lastlogin="{{ item.created_by.last_login }}"
-                        date_user_type="crea"
-                        date_user_vist="la entrada de inventario"
-                        >
-                        {{ item.created_by.first_name }} {{ item.created_by.last_name }}
+                        <td class="created_by_cell"
+                            title="Más información de: {{ item.created_by.first_name }} {{ item.created_by.last_name }}"
+                            date_user_create="{{ item.created_by.first_name }} {{ item.created_by.last_name }}"
+                            data-reactivo-name="{{ item.name }}"
+                            data-reactivo-date="{{ item.date_create|date:'d/m/Y' }}"
+                            date_user_id="{{ item.created_by.id_number }}"
+                            date_user_username="{{ item.created_by.username }}"
+                            date_user_mail="{{ item.created_by.email }}"
+                            date_user_phone="{{ item.created_by.phone_number }}"
+                            date_user_lab="{{ item.created_by.lab }}" date_user_rol="{{ item.created_by.rol }}"
+                            date_user_datejoined="{{ item.created_by.date_joined }}"
+                            date_user_lastlogin="{{ item.created_by.last_login }}" date_user_type="crea"
+                            date_user_vist="la entrada de inventario">
+                            {{ item.created_by.first_name }} {{ item.created_by.last_name }}
                         </td>
-                        <td class="created_by_cell" title="Más información de: {{ item.last_updated_by.first_name }} {{ item.last_updated_by.last_name }}"
-                        date_user_create="{{ item.last_updated_by.first_name }} {{ item.last_updated_by.last_name }}"
-                        data-reactivo-name="{{ item.name }}"
-                        data-reactivo-date="{{ item.last_update|date:'d/m/Y' }}"
-                        date_user_id="{{ item.last_updated_by.id_number }}"
-                        date_user_username="{{ item.last_updated_by.username }}"
-                        date_user_mail="{{ item.last_updated_by.email }}"
-                        date_user_phone="{{ item.last_updated_by.phone_number }}"
-                        date_user_lab="{{ item.last_updated_by.lab }}"
-                        date_user_rol="{{ item.last_updated_by.rol }}"
-                        date_user_datejoined="{{ item.last_updated_by.date_joined }}"
-                        date_user_lastlogin="{{ item.last_updated_by.last_login }}"
-                        date_user_type="actualiza"
-                        date_user_vist="la entrada de inventario"
-                        >{{ item.last_updated_by.first_name }} {{ item.last_updated_by.last_name }}
-                    </td>
-                        
+                        <td class="created_by_cell"
+                            title="Más información de: {{ item.last_updated_by.first_name }} {{ item.last_updated_by.last_name }}"
+                            date_user_create="{{ item.last_updated_by.first_name }} {{ item.last_updated_by.last_name }}"
+                            data-reactivo-name="{{ item.name }}"
+                            data-reactivo-date="{{ item.last_update|date:'d/m/Y' }}"
+                            date_user_id="{{ item.last_updated_by.id_number }}"
+                            date_user_username="{{ item.last_updated_by.username }}"
+                            date_user_mail="{{ item.last_updated_by.email }}"
+                            date_user_phone="{{ item.last_updated_by.phone_number }}"
+                            date_user_lab="{{ item.last_updated_by.lab }}"
+                            date_user_rol="{{ item.last_updated_by.rol }}"
+                            date_user_datejoined="{{ item.last_updated_by.date_joined }}"
+                            date_user_lastlogin="{{ item.last_updated_by.last_login }}" date_user_type="actualiza"
+                            date_user_vist="la entrada de inventario">{{ item.last_updated_by.first_name }} {{item.last_updated_by.last_name }}
+                        </td>
+
                         <!-- Modifica el evento click de la imagen para mostrar SweetAlert -->
                         <td>
                             <img src="{% static 'inventarioreac/Images/moreInfo.ico' %}" alt="" width="18" height="18"
@@ -301,15 +303,43 @@
                                 data-reactivo-update_by="{{ item.last_updated_by.first_name }} {{ item.last_updated_by.last_name }}"
                                 title="Más información sobre el registro de entrada de: {{ item.name }}">
                         </td>
-                        <td >
-                            <a href="{% url 'reactivos:registrar_entrada' %}" target="_blank">
-                                <img src="{% static 'inventarioreac/Images/add_register.png' %}" alt="" width="18" height="18" title="Agregar una nueva entrada de reactivo">
+                        <td>
+                            <a href="javascript:void(0);" onclick="openPopup('{% url 'reactivos:registrar_entrada' %}')" >
+                                <img src="{% static 'inventarioreac/Images/add_register.png' %}" alt="" width="18"
+                                    height="18" title="Agregar una nueva entrada de reactivo">
                             </a>
-                            <a href="">
+
+                            <script>
+                                function openPopup(url) {
+                                  // Define las dimensiones y otras opciones de la ventana emergente
+                                  var width = 800;
+                                  var height = 600;
+                                  var left = (window.innerWidth - width) / 2;
+                                  var top = (window.innerHeight - height) / 2;
+                                  var options = 'toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=' + width + ',height=' + height + ',top=' + top + ',left=' + left;
+                                
+                                  // Abre la ventana emergente con la URL proporcionada
+                                  window.open(url, 'popup', options);
+                                }
+                                </script>
+                            <a href="javascript:void(0);" onclick="openEditForm({{ item.id }})">
                                 <img src="{% static 'inventarioreac/Images/edit_register.png' %}" alt="" width="18" height="18" title="Editar registro número {{ item.id }}">
                             </a>
+                            
+                            
+                            <script>
+                            function openEditForm(itemId) {
+    // Construye la URL del formulario de edición con el ID del elemento
+    var editUrl = '/reactivos/editar_entrada/' + itemId + '/';
+    
+    // Abre una nueva ventana emergente con el formulario de edición
+    window.open(editUrl, '_blank', 'width=600,height=800');
+}
+
+                            </script>
                             <a href="">
-                                <img src="{% static 'inventarioreac/Images/delete_register.png' %}" alt="" width="18" height="18" title="Borrar registro número {{ item.id }}">
+                                <img src="{% static 'inventarioreac/Images/delete_register.png' %}" alt="" width="18"
+                                    height="18" title="Borrar registro número {{ item.id }}">
                             </a>
                         </td>
 
@@ -328,7 +358,7 @@
                         <a href="" id="previous-page-link">Anterior</a>
                         {% endif %}
 
-                        <span class="current-page">Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}.</span>
+                        <span class="current-page">Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages}}.</span>
 
                         {% if page_obj.has_next %}
                         <a href="" id="next-page-link">Siguiente</a>
@@ -336,7 +366,7 @@
                         {% endif %}
                     </span>
                 </div>
-                
+
                 <!-- Información de paginación -->
                 <div class="pagination-info">
                     Mostrando {{ page_obj.start_index }} - {{ page_obj.end_index }} de {{ paginator.count }} registros
@@ -350,6 +380,8 @@
 
         </div>
     </div>
+
+    
     <!-- Este script no puede ser llamado de manera independiente ya que tiene muchas variables provenientes del servidor -->
     <script>
         document.addEventListener('DOMContentLoaded', function () {

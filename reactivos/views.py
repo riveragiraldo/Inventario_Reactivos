@@ -93,6 +93,7 @@ import base64
 from urllib.parse import urlencode
 from functools import wraps
 from django.utils.timezone import make_aware
+from django.template.defaultfilters import date as django_date
 
 
 
@@ -1033,10 +1034,18 @@ def registrar_entrada(request):
 
         except Inventarios.DoesNotExist:
             weight = request.POST.get('weight')
+        
+        try:
+            nuevo_inventario = Inventarios.objects.filter(
+                name=name, trademark=trademark, reference=reference, lab=lab).first()
+            
+        except Inventarios.DoesNotExist:
+            weight = request.POST.get('weight')
                        
         if name:
 
-            
+            inventario=nuevo_inventario.id
+            inventario=get_object_or_404(Inventarios,id=inventario)
             weight = request.POST.get('weight')
             order = request.POST.get('order')
             order = estandarizar_nombre(order)
@@ -1048,6 +1057,7 @@ def registrar_entrada(request):
             nproject = request.POST.get('nproject')
             nproject = estandarizar_nombre(nproject)
             price = request.POST.get('price')
+            
             
 
             entrada = Entradas.objects.create(
@@ -1064,6 +1074,7 @@ def registrar_entrada(request):
                 price=price,
                 destination=destination,
                 lab=lab,
+                inventario=inventario,
                 created_by=request.user,  # Asignar el usuario actualmente autenticado
                 last_updated_by=request.user,  # Asignar el usuario actualmente autenticado
             )
@@ -1094,6 +1105,63 @@ def registrar_entrada(request):
             }
         
     return render(request, 'reactivos/registrar_entrada.html', context)
+
+
+@login_required
+def editar_entrada(request, pk):
+    
+    # Recupera la entrada o muestra una página de error 404 si no se encuentra
+    
+    entrada = get_object_or_404(Entradas, pk=pk)
+    precio = int(entrada.price)
+    # Formatear la fecha en el formato "YYYY-MM-DD"
+    vdate = django_date(entrada.inventario.edate, "Y-m-d")
+    if entrada.inventario.minStockControl:
+        controlMinStock="Activo"
+        minStockControl="checked"
+    else:
+        controlMinStock="Inactivo"
+        minStockControl="unchecked"
+    
+    weight = int(entrada.weight)
+    minstock = int(entrada.inventario.minstock)
+    date_order=django_date(entrada.date_order, "Y-m-d")
+    
+
+
+    laboratorio = request.user.lab
+    # Obtener la fecha de hoy
+    today = date.today()
+    # Calcular la fecha ayer
+    yesterday = today - timedelta(days=1)
+    tomorrow = today + timedelta(days=1)
+    
+    context = {
+        'entrada': entrada,
+        'precio':precio,
+        'reactivos': Reactivos.objects.all(),
+        'vdate':vdate,
+        'controlMinStock':controlMinStock,
+        'minStockControl':minStockControl,
+        'weight':weight,
+        'minstock':minstock,
+        'date_order':date_order,
+
+        'responsables': Responsables.objects.all(),
+        'marcas': Marcas.objects.all(),
+        'ubicaiones': Ubicaciones.objects.all(),
+        'destinos':Destinos.objects.all(),
+        'laboratorios':Laboratorios.objects.all(),
+        'wubicaciones':Almacenamiento.objects.all(),
+        'usuarios': User.objects.all(),
+        'laboratorio': laboratorio,
+        'usuarios': User.objects.all(),
+        'tomorrow': tomorrow,
+        'yesterday': yesterday,
+    }
+
+    return render(request, 'reactivos/editar_entrada.html', context)
+
 # La vista "registrar_salida" se encarga de gestionar el registro de transacciones de salida en el aplicativo de insumos de la base de 
 # datos. Los datos se obtienen del formulario presente en el template "registrar_salida.html" y se utilizan el modelo "Salidas" para 
 # realizar las operaciones correspondientes de inserción de registros.
@@ -2931,7 +2999,7 @@ def estandarizar_nombre(nombre):
     nombre = re.sub('[óÓ]', 'O', nombre)  # Reemplazar ó y Ó por O
     nombre = re.sub('[úÚ]', 'U', nombre)  # Reemplazar ú y Ú por U
     nombre = re.sub('[ñÑ]', 'N', nombre)  # Reemplazar ñ y Ñ por N
-    nombre = re.sub('[^A-Za-z0-9@ .,()_-]', '', nombre)  # Eliminar caracteres especiales excepto números y espacios
+    nombre = re.sub('[^A-Za-z0-9@ .,()_-%]', '', nombre)  # Eliminar caracteres especiales excepto números y espacios
     return nombre
 
 

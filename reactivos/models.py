@@ -335,6 +335,7 @@ class Entradas(models.Model):
     destination=models.ForeignKey(Destinos, on_delete=models.CASCADE, verbose_name='Destino')
     lab=models.ForeignKey(Laboratorios, on_delete=models.CASCADE, related_name='labs', verbose_name='Laboratorio')
     is_active = models.BooleanField(default=True)
+    inventario=models.ForeignKey('reactivos.Inventarios', on_delete=models.CASCADE, related_name='inv', verbose_name='Id_Inventario', blank=True, null=True)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Usuario')
     date_create = models.DateTimeField(auto_now_add=True,verbose_name='Fecha registro',)
     last_update = models.DateTimeField(auto_now=True,verbose_name='Última Actualización')

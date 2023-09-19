@@ -23,6 +23,7 @@ urlpatterns = [
     path('responsables/crear/', crear_responsable, name='crear_responsable'),
     path('reactivos/registrar_salida/', registrar_salida, name='registrar_salida'),
     path('reactivos/registrar_entrada/', registrar_entrada, name='registrar_entrada'),
+    path('reactivos/editar_entrada/<int:pk>/', editar_entrada, name='editar_entrada'),
     path('reactivos/inventario/', InventarioListView.as_view(), name='inventario'),
     path('reactivos/listado_entradas/', EntradasListView.as_view(), name='listado_entradas'),
     path('roles/crear/', CrearRoles.as_view(), name='crear_roles'),

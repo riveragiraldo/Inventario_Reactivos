@@ -1,0 +1,345 @@
+{% extends "webtemplate.html" %}
+{% load has_group %}
+<!doctype html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Registro entrada de reactivos{% endblock %}</title>
+    {% block head %}
+    <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe" crossorigin="anonymous"
+        defer></script> -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.13.0/jquery-ui.min.js"></script>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.0/themes/smoothness/jquery-ui.css">
+    <!-- Incluir SweetAlert2 desde CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.min.css">
+    <!-- Agrega el enlace al CDN de spin.js antes de tu script -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/spin.js/2.3.2/spin.min.js"></script>
+
+    {% load static %}
+
+    <link rel="stylesheet" href="{% static 'inventarioreac/stylesShowSpinner.css' %}">
+    <!-- Estilos para el letrero de la mitad del spinner -->
+    <script src="{% static 'inventarioreac/autocompletein.js' %}"></script>
+    <!-- Llama Script Autocompleta campo nombre, responsable y ubicacion -->
+    <script src="{% static 'inventarioreac/UpdateDate.js' %}"></script>
+    <!-- Llama Script  coloca fecha y hora actual -->
+    <script src="{% static 'inventarioreac/clearFds.js' %}"></script>
+    <!-- Llama Script  borrar campos despues de una transacción -->
+    <script src="{% static 'inventarioreac/UpdateFields.js' %}"></script>
+    <!-- Llama Script  actualizar campos según el nombre -->
+    <script src="{% static 'inventarioreac/hideMinStock.js' %}" defer></script>
+    <!-- Llama Script  que oculta el campo stock mínimo -->
+    <script src="{% static 'inventarioreac/callPopUp.js' %}" defer></script>
+    <!-- Llama Script al final abre ventanas emergentes -->
+    <script src="{% static 'inventarioreac/sendInfo.js' %}" defer></script>
+    <!-- Llama Script al final crea alerta informativa y envía datos -->
+    <script src="{% static 'inventarioreac/updateWlocation.js' %}"></script>
+    <!-- Llama Script al final actualiza select ubicaciones en almacén según laboratorio -->
+    <script src="{% static 'inventarioreac/validateMinStock.js' %}" defer></script>
+    <!-- Llama Script  que valida que el stock mínimo sea inferior a la cantidad -->
+    <script src="{% static 'inventarioreac/validateEdate.js' %}" defer></script>
+    <!-- Llama Script  que valida que el que la fecha de vencimiento sea futura -->
+    <script src="{% static 'inventarioreac/controlSelectores.js' %}" defer></script>
+    <!-- Llama Script  que inserta valores actuales de los selectores -->
+
+    <link rel="stylesheet" href="{% static 'inventarioreac/styles.css' %}">
+    <script>
+        var ubicacion_almacen = '{{ entrada.inventario.wlocation.id }}';
+        var laboratorio='{{ entrada.lab }}'
+        var marca = '{{ entrada.trademark.id }}'
+    </script>
+    
+
+    {% endblock %}
+
+</head>
+
+<body>
+    {% block content %}
+    <div class="col-md-6 mx-auto">
+
+        <div class="container mt-5">
+            <h1>Registrar entrada de reactivos</h1>
+            <!-- HTML para mostrar el spinner -->
+            <p id="message"></p>
+            <div id="spinner"></div>
+
+            <form method="post" class="row g-3" id="in_form" name="form">
+                {% csrf_token %}
+                <div class="col-md-12">
+                    <label class="form-label">Fecha: </label>
+                    <span id="currentDate"></span>
+                </div>
+                <div class="col-md-12">
+                    <label class="form-label" for="lab" name="Laboratorio: ">Laboratorio:</label>
+
+                    {% if request.user|has_group:"COORDINADOR" or request.user|has_group:"TECNICO" %}
+                    <div id="add_reagent_btn"></div>
+                    <select name="lab" class="form-control" required="" id="lab" value="{{ entrada.name }}">
+                        {% for lab in laboratorios %}
+
+                        {% if lab.id == laboratorio.id %}
+                        <option value="{{ lab.name }}" selected="">{{ lab.name }}</option>
+
+                        {% endif %}
+
+                        {% endfor %}
+                    </select>
+                    {% endif %}
+                    {% if request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
+                    <select name="lab" class="form-control" required="" id="lab">
+                        <option value="" selected="">Seleccione</option>
+                        {% for lab in laboratorios %}
+
+                        <option value="{{ lab.name }}">{{ lab.name }}</option>
+
+                        {% endfor %}
+                    </select>
+                    {% endif %}
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label" for="name" name="Nombre: ">*Nombre: "Cód. - Nom. - CAS"</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" name="name" id="name" placeholder="Nombre, CI o CAS"
+                            title="Se puede filtrar por nombre, CI o CAS" required value="{{ entrada.name }}" />
+                        {% if request.user|has_group:"COORDINADOR" or request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
+                        <button type="button" id="add_reagent_btn" class="btn btn-secondary" title="Agregar Reactivo">+
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="col-md-2">
+                    <label class="form-label" for="code" name="Código: ">*Código:</label>
+                    <input type="text" name="code" class="form-control" id="code" readonly placeholder="Cód. Interno"
+                        value="{{ entrada.name.code }}">
+                </div>
+
+                <div class="col-md-2">
+                    <label class="form-label" for="cas" name="CAS: ">*CAS:</label>
+                    <input type="text" name="cas" class="form-control" value="{{ entrada.name.cas }}" id="cas" readonly
+                        placeholder="Cód. CAS">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label" for="is_liquid" name="Estado: ">*Estado:</label>
+                    <input type="text" name="is_liquid" class="form-control" value="{{ entrada.name.state }}"
+                        id="is_liquid" readonly placeholder="Estado">
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label" for="price" name="Valor: ">*Valor:</label>
+                    <div class="input-group">
+                        <span class="input-group-text">$</span>
+                        <input type="number" class="form-control" placeholder="Valor en COP" name="price" required
+                            id="price" min="0" max="1000000000" pattern="^(?:[1-9]\d{0,8}|1000000000)$"
+                            title="Ingrese un valor entero positivo sin puntos ni comas (máximo $ 1000000000)"
+                            value="{{ precio }}">
+
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label" for="trademark" name="Marca: ">*Marca:</label>
+                    <div class="input-group">
+                        <select name="trademark" id="trademark" class="form-control" required>
+                            <option value="">Seleccione</option>
+                            {% for marca in marcas %}
+                            <option value="{{ marca.id }}">{{ marca.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <button type="button" id="add_trademark_btn" class="btn btn-secondary" title="Agregar Marca">+
+                            </Address></button>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label" for="edate" name="Vencimiento: ">*Vencimiento:</label>
+                    <input type="date" class="form-control" name="edate" id="edate" value="{{ vdate }}" required
+                        title="Registre una fecha futura (hasta 31/12/2100)" min="{{ tomorrow|date:'Y-m-d' }}"
+                        value="{{ entrada.inventario.edate }}">
+
+                </div>
+
+                <div class="col-md-3" id="referenceBlock">
+                    <label class="form-label" for="reference" name="Referencia: ">*Referencia:</label>
+                    <input type="text" class="form-control" placeholder="Ref. reactivo" name="reference" id="reference"
+                        value="{{ entrada.inventario.reference }}" required>
+                </div>
+
+                <div class="col-md-4" id="weightBlock">
+                    <label class="form-label" for="weight" name="Cantidad Ingreso: ">*Cantidad:</label>
+                    <input type="number" step="any" class="form-control" placeholder="Cant. reactivo" id="weight"
+                        name="weight" required min="0" max="100000000" pattern="^(?:[1-9]\d{0,7}|100000000)$"
+                        title="Ingrese un valor entero positivo sin puntos ni comas (máximo 100000000)"
+                        value="{{ weight }}">
+                </div>
+
+
+                <div class="col-md-2" id="unitBlock">
+                    <label class="form-label" for="unit" name="Unidad: ">*Unidades:</label>
+                    <input type="text" name="unit" class="form-control" value="{{ entrada.name.unit }}" id="unit"
+                        readonly>
+                </div>
+                <!-- Agregar el checkbox para Control de Stock -->
+                <div class="col-md-12">
+
+                    <input type="checkbox" id="controlMinStock" name="controlMinStock" {{minStockControl}}>
+                    <input type="hidden" name="minStockControl" id="minStockControl" value="{{ controlMinStock }}"
+                        readonly required>
+                    <label for="minStockControl" name="Control de Stock Mínimo:">Control de Stock Mínimo</label>
+
+                </div>
+
+                <div class="col-md-3" id="minStockBlock">
+                    <label class="form-label" for="minstock" name="Stock mínimo: ">*Min Stock:</label>
+                    <input type="number" step="any" class="form-control" placeholder="Stock Mínimo" id="minstock"
+                        name="minstock" min="0" max="100000" pattern="^(?:[1-9]\d{0,4}|100000)$"
+                        title="Ingrese un valor entero positivo sin puntos ni comas (máximo 100000)"
+                        value="{{ minstock }}">
+
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label" for="order" name="Orden: ">Número de orden:</label>
+                    <input type="text" name="order" class="form-control" id="order" placeholder="Orden Número"
+                        value="{{ entrada.order }}">
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label" for="orderdate" name="Fecha de orden:">Fecha de orden:</label>
+                    <input type="date" class="form-control" name="orderdate" id="orderdate" title="Fecha de la orden"
+                        max="{{ yesterday|date:'Y-m-d' }}" value="{{ date_order }}">
+                </div>
+
+
+                <div class="col-md-6">
+                    <label class="form-label" for="nproject" name="Proyecto No.: ">Número de proyecto:</label>
+                    <input type="text" name="nproject" class="form-control" id="nproject" placeholder="Proyecto Número"
+                        value="{{ entrada.nproject }}">
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label" for="location"
+                        name="Asignatura Ubicación: ">*Asignatura/Ubicación:</label>
+                    <div class="input-group">
+                        <input type="text" name="location" class="form-control" id="location" required
+                            placeholder="Asignatura/Ubicación Destino" value="{{ entrada.location }}">
+                        <input type="hidden" name="facultad" class="form-control" id="facultad" placeholder="Facultad"
+                            readonly value="{{ entrada.location.facultad }}">
+                        <button type="button" id="add_location_btn" class="btn btn-secondary"
+                            title="Agregar Asignatura/Ubicación">+
+                            </Address></button>
+                    </div>
+                </div>
+
+
+
+
+
+                <div class="col-md-6">
+                    <label class="form-label" for="destination" name="Destino: ">*Destino:</label>
+                    <select name="destination" id="destination" class="form-control" required>
+                        <option value="{{ entrada.destination.id }}">{{ entrada.destination }}</option>
+                        {% for destino in destinos %}
+                        <option value="{{ destino.id }}">{{ destino.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label" for="manager" name="Responsable: ">*Responsable:</label>
+                    <div class="input-group">
+                        <input type="text" name="manager" class="form-control" id="manager" required
+                            placeholder="Responsable del insumo" value="{{ entrada.manager }}">
+                        <input type="hidden" name="correo" class="form-control" id="correo"
+                            placeholder="Correo Responsable" readonly value="{{ entrada.manager.mail }}">
+                        <button type="button" id="add_manager_btn" class="btn btn-secondary"
+                            title="Agregar Responsable">+
+                            </Address></button>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label" for="wlocation" name="Ubicación física: ">*Ubicación en almacén:</label>
+                    <div class="input-group">
+                        <select name="wlocation" id="wlocation" class="form-control" required>
+                            <option value="{{ entrada.inventario.wlocation.id }}" selected="">{{
+                                entrada.inventario.wlocation }}</option>
+                            {% for wubicacion in wubicaciones %}
+                            <option value="{{ wubicacion.id }}">{{ wubicacion.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <button type="button" id="add_wlocation_btn" class="btn btn-secondary"
+                            title="Agregar ubicación en Almacén">+
+                            </Address></button>
+                    </div>
+                </div>
+
+                <div class="col-md-12">
+                    <label class="form-label" for="observations" name="Observaciones: ">Observaciones:</label>
+                    <textarea name="observations" class="form-control" placeholder="Escriba sus observaciones" rows="2"
+                        id="observations">{{ entrada.observations }}</textarea>
+                </div>
+
+                <input type="hidden" name="wf" class="form-control" value="entrada" id="wf">
+                <!-- identificador para saber que tipo de ventana es -->
+
+                <div class="col-md-6">
+                    <input type="button" value="Registrar entrada Reactivo" class="btn btn-primary"
+                        id="open_confirm_in">
+                </div>
+
+                <div class="col-md-6">
+                    <button type="reset" class="btn btn-primary" id="limpiarCampos">Limpiar
+                        campos</button>
+                </div>
+
+            </form>
+            {% if messages %}
+            {% for message in messages %}
+            <!-- Este script no puede ser invocado como un archivo externo, mostrará una alerta de éxito o error según
+            corresponda. -->
+            <script>
+
+                window.onload = function () {
+                    var messageText = '{{ message }}';
+                    var alertType = 'info';  // Tipo de alerta predeterminado para mensajes habituales
+
+                    // Verificar el contenido del mensaje para asignar el tipo de alerta adecuado
+                    if (messageText.includes('el ingreso del insumo')) {
+                        alertType = 'success';
+                    } else if (messageText.includes('Por favor seleccione') || messageText.includes('no se encuentra en la base de datos') || messageText.includes('fecha válida') || messageText.includes('Solo se permiten')) {
+                        alertType = 'warning';
+                    }
+
+                    // Mostrar la notificación con SweetAlert2
+                    Swal.fire({
+                        icon: alertType,
+                        title: 'Mensaje del servidor',
+                        text: messageText,
+                        confirmButtonText: 'Aceptar'
+                    });
+                };
+            </script>
+            {% endfor %}
+            {% endif %}
+
+        </div>
+
+
+
+        {% endblock %}
+</body>
+
+</html>
