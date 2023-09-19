@@ -143,28 +143,77 @@ function enviarInformacion(formData, csrfToken) {
         body: formData
     })
         .then(response => {
-            if (response.ok) {
-                // La solicitud se realizó con éxito
-                console.log('Datos enviados correctamente');
-                //window.location.reload();
+            if (response.status == 500) {
+                respuesta = "Error en el servidor, consulte soporte técnico"
+                return respuesta
+            }
+            if (response.status == 500) {
+                respuesta = "Error en el servidor, consulte soporte técnico"
+                return respuesta
             }
             else {
-                // La solicitud falló
-                console.error('Error al enviar los datos');
+
+
+                if (response.ok) {
+                    // La solicitud se realizó con éxito
+                    console.log('Datos enviados correctamente');
+                    //window.location.reload();
+
+
+                }
+                else {
+                    // La solicitud falló
+                    console.error('Error al enviar los datos');
+                }
+                respuesta = response.text()
+                return respuesta
             }
+
         })
+
+
         .then(data => {
             // Se recibió una respuesta exitosa, procesar los datos y mostrar mensajes
             console.log('Respuesta del servidor:', data);
-            // Realiza cualquier acción adicional que desees después de recibir los datos
-            // Ocultar el spinner después de recibir la respuesta del servidor
-            alert('Hola')
 
-
-            // Recargar la página después de 700 ms
             setTimeout(() => {
-                window.location.reload();
+                hideSpinner()
+                var messageText = data;
+
+                var alertType = 'info';  // Tipo de alerta predeterminado para mensajes habituales
+
+                // Verificar el contenido del mensaje para asignar el tipo de alerta adecuado
+                if (messageText.includes('el ingreso del insumo')) {
+                    alertType = 'success';
+                } else if (messageText.includes('Por favor seleccione') || messageText.includes('no se encuentra en la base de datos') || messageText.includes('fecha válida') || messageText.includes('Solo se permiten')) {
+                    alertType = 'warning';
+                }
+
+                // Mostrar la alerta SweetAlert
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Datos enviados correctamente',
+                    text: 'Haga clic en Aceptar para continuar',
+                    confirmButtonText: 'Aceptar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Verificar si la ventana actual es una ventana emergente
+                        if (window.opener) {
+                            // Actualizar la ventana padre
+                            window.opener.location.reload();
+
+                            // Cerrar la ventana actual después de un retraso
+                            setTimeout(() => {
+                                window.close();
+                            }, 200);
+                        }
+                    }
+                });
+
             }, 700);
+            // Verificar si la ventana actual es una ventana emergente
+
+
 
         })
         .catch(error => {
@@ -193,9 +242,9 @@ function obtenerDatosFormulario() {
             campo.name === 'csrfmiddlewaretoken' ||
             campo.id === 'wf' ||
             campo.id === 'stock' ||
-            campo.id === 'prefix'||
+            campo.id === 'prefix' ||
             campo.id === 'password1' ||
-            campo.id === 'password2'||
+            campo.id === 'password2' ||
             campo.id === 'controlMinStock'
 
         ) {

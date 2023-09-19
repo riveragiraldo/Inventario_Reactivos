@@ -234,7 +234,7 @@
                     <tr class="table-row">
                         <td title="Número de registro de la entrada">{{ item.id }}</td>
                         <td title="Fecha de entrada">{{ item.date_create|date:"d/m/Y" }}</td>
-                        <td title="Reactivo">{{ item.name }}</td>
+                        <td title="Reactivo: {{ item.name }}, Id Inventario: {{ item.inventario.id }}, Cantidad:{{ item.inventario.weight }} ">{{ item.name }}</td>
                         <td title="Marca">{{ item.trademark }}</td>
                         <td title="Referencia ">{{ item.reference }}</td>
                         <td title="Cantidad  de {{ item.name }}">{{ item.weight|floatformat:1 }} {{ item.name.unit }}

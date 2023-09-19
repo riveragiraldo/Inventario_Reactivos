@@ -94,6 +94,7 @@ from urllib.parse import urlencode
 from functools import wraps
 from django.utils.timezone import make_aware
 from django.template.defaultfilters import date as django_date
+from django.http import Http404
 
 
 
@@ -1109,10 +1110,253 @@ def registrar_entrada(request):
 
 @login_required
 def editar_entrada(request, pk):
-    
+       
     # Recupera la entrada o muestra una página de error 404 si no se encuentra
-    
     entrada = get_object_or_404(Entradas, pk=pk)
+
+     
+    if request.method == 'POST':
+        # Recolección y validación de datos paar edición de registro de entrada
+        # lab
+        lab = request.POST.get('lab')
+        if not lab:
+            return HttpResponse('No fue posible realizar la edición de su registro: no seleccionó un laboratorio válido, por favor verifique.', status=400)
+        
+        nlab = lab
+        try:
+            namelab = Laboratorios.objects.get(name=lab)
+            lab = namelab
+        except Laboratorios.DoesNotExist:
+            lab = None
+            return HttpResponse("El Laboratorio "+nlab +
+                           " no se encuentra en la base de datos, favor crearlo primero.", status=400)
+        
+        #name (reactivo)
+        name = request.POST.get('name')
+        nReactivo = name
+        try:
+            nameReactivo = Reactivos.objects.get(name=name)
+            name = nameReactivo
+        except Reactivos.DoesNotExist:
+            name = None
+            return HttpResponse("El reactivo "+nReactivo +" no se encuentra en la base de datos, favor crearlo primero.", status=400)
+        
+        #ubicación y asignatura
+        facultad = request.POST.get('facultad')
+        facultad=get_object_or_404(Facultades, name=facultad)
+        location = request.POST.get('location')
+        nlocation = location
+        try:
+            nameLocation = Ubicaciones.objects.get(name=location, facultad=facultad)
+            location = nameLocation
+
+        except Ubicaciones.DoesNotExist:
+            location = None
+            return HttpResponse("La ubicación "+nlocation +" no se encuentra en la base de datos, favor crearlo primero.", status=400)
+        
+        # Responsable y correo
+        correo = request.POST.get('correo')
+        manager = request.POST.get('manager')
+        nmanager = manager
+        try:
+            nameManager = Responsables.objects.get(name=manager, mail=correo)
+            manager = nameManager
+        except Responsables.DoesNotExist:
+            manager = None
+            return HttpResponse("El responsable "+nmanager +
+                           " no se encuentra en la base de datos, favor crearlo primero.", status=400)
+        #Marca        
+        trademark_id = request.POST.get('trademark')
+        if not trademark_id.isdigit():
+            return HttpResponse("Por favor selrccione una marca primero.", status=400)
+        try:
+            nameMarca = Marcas.objects.get(id=trademark_id)
+            trademark = nameMarca
+        except ObjectDoesNotExist:
+            trademark = None
+            return HttpResponse("La Marca no se encuentra en la base de datos, favor crearlo primero.", status=400)
+        
+        # Destino
+        destination_id = request.POST.get('destination')
+        if not destination_id.isdigit():
+            messages.error(request, 'Por favor seleccione un destino primero')
+            return HttpResponse("Por favor seleccione una destino en almacén primero", status=400)
+        try:
+            namedestino = Destinos.objects.get(id=destination_id)
+            destination = namedestino
+        except ObjectDoesNotExist:
+            destination = None
+            return HttpResponse("Por favor seleccione un destino primero", status=400)
+        # Referencias
+        reference = request.POST.get('reference')
+        reference = estandarizar_nombre(reference)
+        
+        # Precio - verificar que el valor sea positivo
+        price = request.POST.get('price')
+        price_number=float(price)
+        if price_number<=0:
+            return HttpResponse("Solo se permiten registros con precios positivos", status=400)
+        
+        # Cantidad
+        weight = request.POST.get('weight')
+        weight_number=float(weight)
+        if weight_number<=0:
+            return HttpResponse("Error de cantidades al insertar en la base de datos", status=400)
+        # Orden de compra
+        order = request.POST.get('order')
+        order = estandarizar_nombre(order)
+        # Fecha de orden de compra
+        orderdate = request.POST.get('orderdate')
+        orderdate = parse_date(orderdate)
+        # Observaciones
+        observations = request.POST.get('observations')
+        observations = estandarizar_nombre(observations)
+        # Unidades (Solo para la respuesta del servidor)
+        unit = request.POST.get('unit')
+        # Nuemero de proyecto
+        nproject = request.POST.get('nproject')
+        nproject = estandarizar_nombre(nproject)
+
+         #Ubicación en Almacen
+        wlocation_id = request.POST.get('wlocation')
+        if not wlocation_id.isdigit():
+            messages.error(request, 'Por favor seleccione una ubicación en almacén primero')
+            return HttpResponse(" no se encuentra en la base de datos, favor crearlo primero.", status=400)
+        try:
+            nameWlocation = Almacenamiento.objects.get(id=wlocation_id)
+            wlocation = nameWlocation
+        except ObjectDoesNotExist:
+            wlocation = None
+            messages.error(request, 'Por favor seleccione una ubicación en almacén primero')
+            return HttpResponse("Por favor seleccione una ubicación en almacén primero", status=400)
+        
+        #Fecha de Vencimiento
+        edate = request.POST.get('edate')
+        # Convertir la cadena de texto en un objeto de fecha
+        edate = parse_date(edate)
+
+        # Obtener la fecha actual
+        today = datetime.now().date()
+        # Obtener la fecha futura (mañana)
+        tomorrow = today + timedelta(days=1)
+
+        # Obtener la fecha máxima permitida (31/12/2100)
+        max_date = datetime(2100, 12, 31).date()
+
+        # Verificar si la fecha de vencimiento es válida
+        if not tomorrow <= edate <= max_date:
+		    # Fecha no válida, mostrar el mensaje de error
+            tomorrow = tomorrow.strftime('%d/%m/%Y')
+            mensaje='Por favor ingrese una fecha válida entre '+str(tomorrow)+' y 31/12/2100'
+            messages.error(request, mensaje)
+            return HttpResponse("Error de cantidades al insertar en la base de datos", status=400)        
+        
+        
+        # Obtener minStockControl
+        minStockControl = request.POST.get('minStockControl')
+        if minStockControl=="Activo":
+            minStockControl=True
+        elif minStockControl=="Inactivo":
+            minStockControl=False
+            
+        #verificar que el valor sea positivo
+        minstock = request.POST.get('minstock')
+        if minstock=='':
+            minstock=0
+
+        minstock_number=float(minstock)
+        if minstock_number<0:
+            messages.error(request, 'Solo se permiten registros con stock mínimo positivo')
+            return HttpResponse("Error de cantidades al insertar en la base de datos", status=400)
+
+
+        # Restar entrada anterior de Inventario
+        id_inv=entrada.inventario.id
+        inventario= get_object_or_404(Inventarios,id=id_inv)
+        inventario_anterior=inventario.weight
+        cantidad_restada=inventario_anterior-(entrada.weight)
+        inventario.weight=cantidad_restada
+        inventario.save()
+        
+        # Verificar si los nuevos valores de Lab, Name, Traderk, y Reference coincidan con algún regitro en el inventario
+        try:
+            inventario_existente = Inventarios.objects.filter(
+                name=name, trademark=trademark, reference=reference, lab=lab).first()
+            # si coincidenden los datos se actualiza registro
+            if inventario_existente:
+                # Si el reactivo ya existe y está activo(cantidad>0), sumar el peso obtenido del formulario al peso existente
+                if inventario_existente.is_active == True:
+                    # Si el reactivo ya existe, sumar el peso obtenido del formulario al peso existente
+                    
+                    inventario_existente.weight += int(weight)
+                    inventario_existente.edate = edate
+                    inventario_existente.minstock = minstock
+                    inventario_existente.wlocation = wlocation
+                    inventario_existente.minStockControl = minStockControl
+                    inventario_existente.minstock = minstock
+                    inventario_existente.last_updated_by = request.user
+                    inventario_existente.save()
+                # Si el reactivo ya existe y NO está activo(cantidad00), poner is_active=True y sumar el peso obtenido del formulario al peso existente    
+                else:
+                    inventario_existente.is_active= True
+                    inventario_existente.weight += int(weight)
+                    inventario_existente.edate = edate
+                    inventario_existente.minstock = minstock
+                    inventario_existente.wlocation = wlocation
+                    inventario_existente.minStockControl = minStockControl
+                    inventario_existente.minstock = minstock
+                    inventario_existente.last_updated_by = request.user
+                    inventario_existente.save()
+            else:
+                inventario = Inventarios.objects.create(
+                    name=name,
+                    trademark=trademark,
+                    weight=weight,
+                    reference=reference,
+                    lab=lab,
+                    wlocation=wlocation,
+                    minStockControl=minStockControl,
+                    minstock=minstock,
+                    edate=edate,
+                    created_by=request.user,  # Asignar el usuario actualmente autenticado
+                    last_updated_by=request.user,  # Asignar el usuario actualmente autenticado
+                    )
+
+
+        # Si no existe en la base de datos se creará un nuevo registro de inventario
+        except Inventarios.DoesNotExist:
+            print('Hola los valore no coinciden')
+            
+        entrada.name = name
+        entrada.trademark = trademark
+        entrada.reference = reference
+        entrada.weight = weight
+        entrada.location = location
+        entrada.order = order
+        entrada.date_order = orderdate
+        entrada.manager = manager
+        entrada.observations = observations
+        entrada.nproject = nproject
+        entrada.price = price
+        entrada.destination = destination
+        entrada.lab = lab
+        entrada.inventario=inventario
+        entrada.last_updated_by=request.user
+
+        # Guarda los cambios en la entrada existente
+        entrada.save()
+
+        # Envía una respuesta de éxito (puedes personalizar el mensaje según tu necesidad)
+        return HttpResponse('Se ha editado de manera exitosa la entrada del: ' +
+                            nReactivo+', cantidad '+weight+' '+unit, status=200)
+
+    #----------------------------------------------------------------------#
+
+        
+    
+    
+    # Contexto para incluir valores previos en el template
+    
     precio = int(entrada.price)
     # Formatear la fecha en el formato "YYYY-MM-DD"
     vdate = django_date(entrada.inventario.edate, "Y-m-d")
@@ -1127,8 +1371,6 @@ def editar_entrada(request, pk):
     minstock = int(entrada.inventario.minstock)
     date_order=django_date(entrada.date_order, "Y-m-d")
     
-
-
     laboratorio = request.user.lab
     # Obtener la fecha de hoy
     today = date.today()
@@ -1158,6 +1400,7 @@ def editar_entrada(request, pk):
         'usuarios': User.objects.all(),
         'tomorrow': tomorrow,
         'yesterday': yesterday,
+        'messages': messages.get_messages(request),
     }
 
     return render(request, 'reactivos/editar_entrada.html', context)
@@ -2999,7 +3242,7 @@ def estandarizar_nombre(nombre):
     nombre = re.sub('[óÓ]', 'O', nombre)  # Reemplazar ó y Ó por O
     nombre = re.sub('[úÚ]', 'U', nombre)  # Reemplazar ú y Ú por U
     nombre = re.sub('[ñÑ]', 'N', nombre)  # Reemplazar ñ y Ñ por N
-    nombre = re.sub('[^A-Za-z0-9@ .,()_-%]', '', nombre)  # Eliminar caracteres especiales excepto números y espacios
+    nombre = re.sub('[^A-Za-z0-9@ .,()%_-]', '', nombre)  # Eliminar caracteres especiales excepto números y espacios
     return nombre
 
 

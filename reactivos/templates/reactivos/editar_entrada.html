@@ -6,7 +6,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{% block title %}Registro entrada de reactivos{% endblock %}</title>
+    <title>{% block title %}Edición entrada de reactivos{% endblock %}</title>
     {% block head %}
     <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet"
@@ -41,7 +41,7 @@
     <!-- Llama Script  que oculta el campo stock mínimo -->
     <script src="{% static 'inventarioreac/callPopUp.js' %}" defer></script>
     <!-- Llama Script al final abre ventanas emergentes -->
-    <script src="{% static 'inventarioreac/sendInfo.js' %}" defer></script>
+    <script src="{% static 'inventarioreac/sendInfoEdit.js' %}" defer></script>
     <!-- Llama Script al final crea alerta informativa y envía datos -->
     <script src="{% static 'inventarioreac/updateWlocation.js' %}"></script>
     <!-- Llama Script al final actualiza select ubicaciones en almacén según laboratorio -->
@@ -69,7 +69,7 @@
     <div class="col-md-6 mx-auto">
 
         <div class="container mt-5">
-            <h1>Registrar entrada de reactivos</h1>
+            <h1>Editar entrada de reactivos</h1>
             <!-- HTML para mostrar el spinner -->
             <p id="message"></p>
             <div id="spinner"></div>
@@ -306,7 +306,13 @@
                 </div>
 
             </form>
-            {% if messages %}
+            {% if http_response %}
+            <!-- Código para manejar la respuesta HTTP específica -->
+            <script>
+            alert('Hello')
+            
+            </script>
+            {% elif messages %}
             {% for message in messages %}
             <!-- Este script no puede ser invocado como un archivo externo, mostrará una alerta de éxito o error según
             corresponda. -->

@@ -63,7 +63,7 @@ $(document).ready(function () {
 
 $(document).ready(function () {
     $("#location").autocomplete({
-        source: "autocomplete_location/",
+        source: "/autocomplete_location/",
         minLength: 2,
         select: function (event, ui) {
             // Muestra el nombre y correo electrónico en la lista desplegable
@@ -98,7 +98,7 @@ $(document).ready(function () {
 
     $(document).ready(function () {
         $("#manager").autocomplete({
-            source: "autocomplete_manager/",
+            source: "/autocomplete_manager/",
             minLength: 2,
             select: function (event, ui) {
                 // Muestra el nombre y correo electrónico en la lista desplegable
