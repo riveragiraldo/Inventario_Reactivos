@@ -1107,6 +1107,8 @@ def registrar_entrada(request):
         
     return render(request, 'reactivos/registrar_entrada.html', context)
 
+# Esta vista edita el registro de entrada, además según los valores edita a su vez el modelo Inventarios
+# de manera que una afectación en la entrada, afecta directamente el inventario
 
 @login_required
 def editar_entrada(request, pk):
@@ -1199,8 +1201,8 @@ def editar_entrada(request, pk):
         
         # Cantidad
         weight = request.POST.get('weight')
-        weight_number=float(weight)
-        if weight_number<=0:
+        weight=float(weight)
+        if weight<=0:
             return HttpResponse("Error de cantidades al insertar en la base de datos", status=400)
         # Orden de compra
         order = request.POST.get('order')
@@ -1404,8 +1406,50 @@ def editar_entrada(request, pk):
     }
 
     return render(request, 'reactivos/editar_entrada.html', context)
+# Funcionalidad para eliminar registros de entrada, además de esto debe restar del inventario la cantidad sumada
+# Al correspondiente resgistro, además si llega a cero debe inactivar el registro
 
-# La vista "registrar_salida" se encarga de gestionar el registro de transacciones de salida en el aplicativo de insumos de la base de 
+@login_required
+def eliminar_entrada(request, pk):
+    # Obtén la entrada correspondiente al PK o muestra una página de error 404 si no se encuentra
+    entrada = get_object_or_404(Entradas, pk=pk)
+    # se usará para establecer mensaje adicional si el inventario llega a cero
+    warning=''
+    
+    # Guarda el nombre de la entrada antes de eliminarla para el mensaje
+    nombre_entrada = entrada.name
+
+    # # Guarda cantidad y registro de inventario antes de eliminar para restar del inventario
+    cantidad_entrada = entrada.weight
+    id_inventario = entrada.inventario.id
+    inventario = get_object_or_404(Inventarios, id=id_inventario)
+    if inventario.weight<cantidad_entrada:
+        return HttpResponse('No se puede eliminar el registro ya que esta acción hace que el inventario sea menor que 0',200)
+    else:
+        inventario.weight=inventario.weight-cantidad_entrada
+        if inventario.weight==0:
+            warning= ' Con esta acción el inventario a llegado a 0 por favor verifique y comuniquese con su coordinador.'
+            inventario.is_active=False
+            ## Enviar correo
+        elif inventario.minStockControl and inventario.weight>0 and inventario.weight<=inventario.minstock:
+            warning= ' Con esta acción el inventario a llegado por debajo al inventario mínimo por favor verifique y comuniquese con su coordinador.'    
+    
+    
+        
+        
+    
+    inventario.save()    
+    # Elimina el registro
+    entrada.delete()
+    
+    # Construye el mensaje de éxito
+    mensaje = f'Se ha eliminado a petición del usuario el registro número {pk} reactivo "{nombre_entrada}" de manera exitosa.'
+    mensaje = mensaje+warning
+    print(mensaje)
+    return HttpResponse(mensaje,200)
+    
+
+    # La vista "registrar_salida" se encarga de gestionar el registro de transacciones de salida en el aplicativo de insumos de la base de 
 # datos. Los datos se obtienen del formulario presente en el template "registrar_salida.html" y se utilizan el modelo "Salidas" para 
 # realizar las operaciones correspondientes de inserción de registros.
 # En esta vista se verifica la existencia de los campos de entrada que son foráneos en la base de datos. En caso de que alguno de estos 
@@ -1652,7 +1696,6 @@ class InventarioListView(LoginRequiredMixin,ListView):
                
         laboratorio = self.request.user.lab
         
-    
         context['usuarios'] = User.objects.all()
         context['laboratorio'] = laboratorio
         context['laboratorios'] = Laboratorios.objects.all()
@@ -1734,6 +1777,7 @@ class EntradasListView(LoginRequiredMixin,ListView):
     template_name = "reactivos/listado_entradas.html"
     paginate_by = 10
     
+    
     @check_group_permission(groups_required=['COORDINADOR', 'ADMINISTRADOR'])
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
@@ -1794,9 +1838,8 @@ class EntradasListView(LoginRequiredMixin,ListView):
 
         unique_locations_ids = Entradas.objects.values(
             'location').distinct()
-        unique_locations = Ubicaciones.objects.filter(id__in=unique_locations_ids)
         
-               
+        unique_locations = Ubicaciones.objects.filter(id__in=unique_locations_ids)
         laboratorio = self.request.user.lab
         
     

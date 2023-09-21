@@ -55,10 +55,15 @@
     <link rel="stylesheet" href="{% static 'inventarioreac/styles.css' %}">
     <script>
         var ubicacion_almacen = '{{ entrada.inventario.wlocation.id }}';
-        var laboratorio='{{ entrada.lab }}'
+        var laboratorio = '{{ entrada.lab }}'
         var marca = '{{ entrada.trademark.id }}'
+        // Agrega un evento de clic al botón "Cancelar"
+        function cerrarVentanaEmergente() {
+            window.close(); // Cierra la ventana emergente
+        }
+
     </script>
-    
+
 
     {% endblock %}
 
@@ -301,45 +306,11 @@
                 </div>
 
                 <div class="col-md-6">
-                    <button type="reset" class="btn btn-primary" id="limpiarCampos">Limpiar
-                        campos</button>
+                    <button type="button" class="btn btn-primary" id="cancelar" onclick="cerrarVentanaEmergente()">Cancelar</button>
                 </div>
 
             </form>
-            {% if http_response %}
-            <!-- Código para manejar la respuesta HTTP específica -->
-            <script>
-            alert('Hello')
-            
-            </script>
-            {% elif messages %}
-            {% for message in messages %}
-            <!-- Este script no puede ser invocado como un archivo externo, mostrará una alerta de éxito o error según
-            corresponda. -->
-            <script>
 
-                window.onload = function () {
-                    var messageText = '{{ message }}';
-                    var alertType = 'info';  // Tipo de alerta predeterminado para mensajes habituales
-
-                    // Verificar el contenido del mensaje para asignar el tipo de alerta adecuado
-                    if (messageText.includes('el ingreso del insumo')) {
-                        alertType = 'success';
-                    } else if (messageText.includes('Por favor seleccione') || messageText.includes('no se encuentra en la base de datos') || messageText.includes('fecha válida') || messageText.includes('Solo se permiten')) {
-                        alertType = 'warning';
-                    }
-
-                    // Mostrar la notificación con SweetAlert2
-                    Swal.fire({
-                        icon: alertType,
-                        title: 'Mensaje del servidor',
-                        text: messageText,
-                        confirmButtonText: 'Aceptar'
-                    });
-                };
-            </script>
-            {% endfor %}
-            {% endif %}
 
         </div>
 

@@ -234,7 +234,9 @@
                     <tr class="table-row">
                         <td title="Número de registro de la entrada">{{ item.id }}</td>
                         <td title="Fecha de entrada">{{ item.date_create|date:"d/m/Y" }}</td>
-                        <td title="Reactivo: {{ item.name }}, Id Inventario: {{ item.inventario.id }}, Cantidad:{{ item.inventario.weight }} ">{{ item.name }}</td>
+                        <td
+                            title="Reactivo: {{ item.name }}, Id Inventario: {{ item.inventario.id }}, Cantidad en inventario:{{ item.inventario.weight }} ">
+                            {{ item.name }}</td>
                         <td title="Marca">{{ item.trademark }}</td>
                         <td title="Referencia ">{{ item.reference }}</td>
                         <td title="Cantidad  de {{ item.name }}">{{ item.weight|floatformat:1 }} {{ item.name.unit }}
@@ -277,7 +279,8 @@
                             date_user_rol="{{ item.last_updated_by.rol }}"
                             date_user_datejoined="{{ item.last_updated_by.date_joined }}"
                             date_user_lastlogin="{{ item.last_updated_by.last_login }}" date_user_type="actualiza"
-                            date_user_vist="la entrada de inventario">{{ item.last_updated_by.first_name }} {{item.last_updated_by.last_name }}
+                            date_user_vist="la entrada de inventario">{{ item.last_updated_by.first_name }}
+                            {{item.last_updated_by.last_name }}
                         </td>
 
                         <!-- Modifica el evento click de la imagen para mostrar SweetAlert -->
@@ -304,43 +307,122 @@
                                 title="Más información sobre el registro de entrada de: {{ item.name }}">
                         </td>
                         <td>
-                            <a href="javascript:void(0);" onclick="openPopup('{% url 'reactivos:registrar_entrada' %}')" >
+                            <a href="javascript:void(0);"
+                                onclick="openPopup('{% url 'reactivos:registrar_entrada' %}')">
                                 <img src="{% static 'inventarioreac/Images/add_register.png' %}" alt="" width="18"
                                     height="18" title="Agregar una nueva entrada de reactivo">
                             </a>
 
                             <script>
                                 function openPopup(url) {
-                                  // Define las dimensiones y otras opciones de la ventana emergente
-                                  var width = 800;
-                                  var height = 600;
-                                  var left = (window.innerWidth - width) / 2;
-                                  var top = (window.innerHeight - height) / 2;
-                                  var options = 'toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=' + width + ',height=' + height + ',top=' + top + ',left=' + left;
-                                
-                                  // Abre la ventana emergente con la URL proporcionada
-                                  window.open(url, 'popup', options);
+                                    // Define las dimensiones y otras opciones de la ventana emergente
+                                    var width = 800;
+                                    var height = 600;
+                                    var left = (window.innerWidth - width) / 2;
+                                    var top = (window.innerHeight - height) / 2;
+                                    var options = 'toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=' + width + ',height=' + height + ',top=' + top + ',left=' + left;
+
+                                    // Abre la ventana emergente con la URL proporcionada
+                                    window.open(url, 'popup', options);
                                 }
-                                </script>
+                            </script>
                             <a href="javascript:void(0);" onclick="openEditForm({{ item.id }})">
-                                <img src="{% static 'inventarioreac/Images/edit_register.png' %}" alt="" width="18" height="18" title="Editar registro número {{ item.id }}">
+                                <img src="{% static 'inventarioreac/Images/edit_register.png' %}" alt="" width="18"
+                                    height="18" title="Editar registro número {{ item.id }}">
                             </a>
-                            
-                            
+
+
                             <script>
-                            function openEditForm(itemId) {
-    // Construye la URL del formulario de edición con el ID del elemento
-    var editUrl = '/reactivos/editar_entrada/' + itemId + '/';
-    
-    // Abre una nueva ventana emergente con el formulario de edición
-    window.open(editUrl, '_blank', 'width=600,height=800');
-}
+                                function openEditForm(itemId) {
+                                    // Construye la URL del formulario de edición con el ID del elemento
+                                    var editUrl = '/reactivos/editar_entrada/' + itemId + '/';
+
+                                    // Abre una nueva ventana emergente con el formulario de edición
+                                    window.open(editUrl, '_blank', 'width=600,height=800');
+                                }
 
                             </script>
-                            <a href="">
+                            <a href="javascript:void(0);" onclick="confirmDelete({{ item.id }}, '{{ item.name }}')">
                                 <img src="{% static 'inventarioreac/Images/delete_register.png' %}" alt="" width="18"
                                     height="18" title="Borrar registro número {{ item.id }}">
                             </a>
+                            
+                            <script>
+                                function confirmDelete(itemId, itemName) {
+                                    // Muestra una Sweet Alert de confirmación
+                                    Swal.fire({
+                                        title: '¿Está seguro que desea eliminar el registro número:'+itemId+' "' + itemName + '"?',
+                                        icon: 'warning',
+                                        showCancelButton: true,
+                                        confirmButtonText: 'Sí',
+                                        cancelButtonText: 'No',
+                                    }).then((result) => {
+                                        if (result.isConfirmed) {
+                                            // Si el usuario hace clic en "Sí", realiza una solicitud AJAX para eliminar la entrada
+                                            var deleteUrl = '/reactivos/eliminar_entrada/' + itemId + '/';
+                                            
+                                            fetch(deleteUrl, {
+                                                method: 'POST', // O el método HTTP que estés utilizando
+                                                headers: {
+                                                    'X-CSRFToken': getCookie('csrftoken'), // Asegúrate de incluir el token CSRF si estás utilizando Django
+                                                },
+                                            })
+                                            .then(response => {
+                                                // Verificar el estado de la respuesta y capturar el mensaje
+                                                if (response.ok) {
+                                                    return response.text();
+                                                } else {
+                                                    throw new Error('Error al eliminar el registro');
+                                                }
+                                            })
+                                            .then(data => {
+                                                icono = 'warning'
+
+                                                // Mostrar el mensaje de éxito
+                                                Swal.fire({
+                                                    icon: icono,
+                                                    title: 'Mensaje del servidor',
+                                                    text: data,
+                                                }).then(() => {
+                                                    // Recargar la página o realizar otras acciones si es necesario
+                                                    location.reload(); // Recarga la página después de eliminar
+                                                });
+                                            })
+                                            .catch(error => {
+                                                // Manejar errores de la solicitud AJAX
+                                                Swal.fire({
+                                                    icon: 'error',
+                                                    title: 'Error',
+                                                    text: 'Ocurrió un error al eliminar el registro',
+                                                });
+                                                location.reload();
+                                            });
+                                        } else {
+                                            // Si el usuario hace clic en "No", cierra la Sweet Alert
+                                            Swal.close();
+                                        }
+                                    });
+                                }
+                            
+                                // Función para obtener el token CSRF de las cookies
+                                function getCookie(name) {
+                                    var cookieValue = null;
+                                    if (document.cookie && document.cookie !== '') {
+                                        var cookies = document.cookie.split(';');
+                                        for (var i = 0; i < cookies.length; i++) {
+                                            var cookie = cookies[i].trim();
+                                            // Buscar el nombre de la cookie
+                                            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                                                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    return cookieValue;
+                                }
+                            </script>
+
+
                         </td>
 
                     </tr>
@@ -381,7 +463,7 @@
         </div>
     </div>
 
-    
+
     <!-- Este script no puede ser llamado de manera independiente ya que tiene muchas variables provenientes del servidor -->
     <script>
         document.addEventListener('DOMContentLoaded', function () {
@@ -408,6 +490,10 @@
             '{% endif %}'
         });
     </script>
+
+
+
+
     {% endblock %}
 </body>
 

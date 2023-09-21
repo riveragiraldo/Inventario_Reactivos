@@ -1,3 +1,4 @@
+
 // Opciones del Spinner
 const opts = {
     lines: 16, // número de líneas
@@ -147,10 +148,7 @@ function enviarInformacion(formData, csrfToken) {
                 respuesta = "Error en el servidor, consulte soporte técnico"
                 return respuesta
             }
-            if (response.status == 500) {
-                respuesta = "Error en el servidor, consulte soporte técnico"
-                return respuesta
-            }
+            
             else {
 
 
@@ -193,7 +191,7 @@ function enviarInformacion(formData, csrfToken) {
                 Swal.fire({
                     icon: 'success',
                     title: 'Datos enviados correctamente',
-                    text: 'Haga clic en Aceptar para continuar',
+                    text: data+' Haga clic en Aceptar para continuar',
                     confirmButtonText: 'Aceptar'
                 }).then((result) => {
                     if (result.isConfirmed) {
