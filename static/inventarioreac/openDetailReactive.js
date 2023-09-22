@@ -90,11 +90,19 @@ function mostrarSweetAlert(inventario) {
                     <li><strong>Última modificación:</strong> ${inventario.last_update}</li>
                     <li><strong>Última actualización por:</strong> ${inventario.update_by}</li>
                     </ul>
+                    <br>
+                    <h5>Información Adicional fichas de seguridad:</h5>
+                    <ul class="list-unstyled">
+                    <li><strong>Merck Millipore:</strong> <a  href="https://www.merckmillipore.com/CO/es" target="_blank">Click aquí</a></li>
+                    <li><strong>Carl Roth:</strong> <a  href="https://www.carlroth.com/com/en/" target="_blank">Click aquí</a></li>
+                    <li><strong>Echa:</strong> <a  href="https://echa.europa.eu/es/home" target="_blank">Click aquí</a></li>
+                    <li><strong>PubChem:</strong> <a  href="https://pubchem.ncbi.nlm.nih.gov/" target="_blank">Click aquí</a></li>
+                    </ul>
                 </div>
             </div>
         `,
         showConfirmButton: true,
-        confirmButtonText: 'Aceptar',
+        confirmButtonText: 'Cerrar',
         customClass: 'custom-swal-class' // Clase CSS personalizada para dar estilo a la alerta
     });
 }
