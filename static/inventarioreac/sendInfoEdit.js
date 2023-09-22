@@ -181,16 +181,18 @@ function enviarInformacion(formData, csrfToken) {
                 var alertType = 'info';  // Tipo de alerta predeterminado para mensajes habituales
 
                 // Verificar el contenido del mensaje para asignar el tipo de alerta adecuado
-                if (messageText.includes('el ingreso del insumo')) {
-                    alertType = 'success';
-                } else if (messageText.includes('Por favor seleccione') || messageText.includes('no se encuentra en la base de datos') || messageText.includes('fecha válida') || messageText.includes('Solo se permiten')) {
+                if (messageText.includes('Por favor seleccione') || messageText.includes('no se encuentra en la base de datos') || messageText.includes('fecha válida') || messageText.includes('Solo se permiten')|| messageText.includes('pero la cantidad en inventario')) {
                     alertType = 'warning';
+                } else if (messageText.includes('de manera exitosa')) {
+                    alertType = 'success';
+                } else if (messageText.includes('el inventario sea menor que 0') ) {
+                    alertType = 'error';
                 }
 
                 // Mostrar la alerta SweetAlert
                 Swal.fire({
-                    icon: 'success',
-                    title: 'Datos enviados correctamente',
+                    icon: alertType,
+                    title: 'Respuesta del servidor',
                     text: data+' Haga clic en Aceptar para continuar',
                     confirmButtonText: 'Aceptar'
                 }).then((result) => {

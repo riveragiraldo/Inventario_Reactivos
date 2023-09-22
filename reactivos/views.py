@@ -1115,6 +1115,7 @@ def editar_entrada(request, pk):
        
     # Recupera la entrada o muestra una página de error 404 si no se encuentra
     entrada = get_object_or_404(Entradas, pk=pk)
+    warning = ''
 
      
     if request.method == 'POST':
@@ -1276,39 +1277,46 @@ def editar_entrada(request, pk):
         id_inv=entrada.inventario.id
         inventario= get_object_or_404(Inventarios,id=id_inv)
         inventario_anterior=inventario.weight
-        cantidad_restada=inventario_anterior-(entrada.weight)
+        entrada_anterior=entrada.weight
+        cantidad_restada=inventario_anterior-(entrada_anterior)
         inventario.weight=cantidad_restada
         inventario.save()
         
-        # Verificar si los nuevos valores de Lab, Name, Traderk, y Reference coincidan con algún regitro en el inventario
+        
+        # Verificar si los nuevos valores de Lab, Name, Trademark, y Reference coincidan con algún regitro en el inventario
         try:
             inventario_existente = Inventarios.objects.filter(
                 name=name, trademark=trademark, reference=reference, lab=lab).first()
             # si coincidenden los datos se actualiza registro
             if inventario_existente:
-                # Si el reactivo ya existe y está activo(cantidad>0), sumar el peso obtenido del formulario al peso existente
-                if inventario_existente.is_active == True:
-                    # Si el reactivo ya existe, sumar el peso obtenido del formulario al peso existente
+                # Suma al inventario exitente (ya restado cantidad anterior) el nuevo valor de cantidad en la edición
+                inventario_existente.weight += int(weight)
+                # Si el inventario queda menor a 0 devulve los cambios en este y retorna
+                if inventario_existente.weight<0:
+                    inventario_existente.weight -= int(weight)
+                    inventario_existente.weight += entrada_anterior
+                    inventario_existente.save()
+                    return HttpResponse('No se puede realizar la edición del registro ya que esta hace que el inventario sea menor que 0', 400)
+
+                inventario_existente.is_active= True
+                inventario_existente.edate = edate
+                inventario_existente.minstock = minstock
+                inventario_existente.wlocation = wlocation
+                inventario_existente.minStockControl = minStockControl
+                inventario_existente.minstock = minstock
+                inventario_existente.last_updated_by = request.user
+
+                # Si después de realizar el proceso de actualización el inventario queda en 0 inactiva y pasa alerta
+                if inventario_existente.weight == 0:
+                    inventario_existente.is_active = False
+                    warning=' pero la cantidad en inventario a llegado a 0, por favor verifique y comuniquese con el coordinador de área'
                     
-                    inventario_existente.weight += int(weight)
-                    inventario_existente.edate = edate
-                    inventario_existente.minstock = minstock
-                    inventario_existente.wlocation = wlocation
-                    inventario_existente.minStockControl = minStockControl
-                    inventario_existente.minstock = minstock
-                    inventario_existente.last_updated_by = request.user
-                    inventario_existente.save()
                 # Si el reactivo ya existe y NO está activo(cantidad00), poner is_active=True y sumar el peso obtenido del formulario al peso existente    
-                else:
-                    inventario_existente.is_active= True
-                    inventario_existente.weight += int(weight)
-                    inventario_existente.edate = edate
-                    inventario_existente.minstock = minstock
-                    inventario_existente.wlocation = wlocation
-                    inventario_existente.minStockControl = minStockControl
-                    inventario_existente.minstock = minstock
-                    inventario_existente.last_updated_by = request.user
-                    inventario_existente.save()
+                if inventario_existente.minStockControl and inventario_existente.weight > 0 and float(inventario_existente.weight) <= float(inventario_existente.minstock):
+                    warning=' pero la cantidad en inventario quedó por debajo del mínimo, por favor verifique y comuniquese con el coordinador de área'
+
+                    
+                
             else:
                 inventario = Inventarios.objects.create(
                     name=name,
@@ -1323,11 +1331,12 @@ def editar_entrada(request, pk):
                     created_by=request.user,  # Asignar el usuario actualmente autenticado
                     last_updated_by=request.user,  # Asignar el usuario actualmente autenticado
                     )
+            inventario_existente.save()
 
 
         # Si no existe en la base de datos se creará un nuevo registro de inventario
         except Inventarios.DoesNotExist:
-            print('Hola los valore no coinciden')
+            print('Hola los valores no coinciden')
             
         entrada.name = name
         entrada.trademark = trademark
@@ -1347,10 +1356,11 @@ def editar_entrada(request, pk):
 
         # Guarda los cambios en la entrada existente
         entrada.save()
+        mensaje=f'Se ha editado de manera exitosa la entrada del: {nReactivo} , cantidad {weight} {unit}'
+        mensaje+=warning
 
         # Envía una respuesta de éxito (puedes personalizar el mensaje según tu necesidad)
-        return HttpResponse('Se ha editado de manera exitosa la entrada del: ' +
-                            nReactivo+', cantidad '+weight+' '+unit, status=200)
+        return HttpResponse(mensaje, status=200)
 
     #----------------------------------------------------------------------#
 
@@ -1402,11 +1412,12 @@ def editar_entrada(request, pk):
         'usuarios': User.objects.all(),
         'tomorrow': tomorrow,
         'yesterday': yesterday,
-        'messages': messages.get_messages(request),
+        
     }
 
     return render(request, 'reactivos/editar_entrada.html', context)
-# Funcionalidad para eliminar registros de entrada, además de esto debe restar del inventario la cantidad sumada
+
+# Funcionalidad para eliminar (No lo elimina, lo inactiva)registros de entrada, además de esto debe restar del inventario la cantidad sumada
 # Al correspondiente resgistro, además si llega a cero debe inactivar el registro
 
 @login_required
@@ -1427,20 +1438,20 @@ def eliminar_entrada(request, pk):
         return HttpResponse('No se puede eliminar el registro ya que esta acción hace que el inventario sea menor que 0',200)
     else:
         inventario.weight=inventario.weight-cantidad_entrada
+        inventario.last_updated_by=request.user
         if inventario.weight==0:
             warning= ' Con esta acción el inventario a llegado a 0 por favor verifique y comuniquese con su coordinador.'
             inventario.is_active=False
             ## Enviar correo
         elif inventario.minStockControl and inventario.weight>0 and inventario.weight<=inventario.minstock:
             warning= ' Con esta acción el inventario a llegado por debajo al inventario mínimo por favor verifique y comuniquese con su coordinador.'    
-    
-    
-        
-        
+     
     
     inventario.save()    
-    # Elimina el registro
-    entrada.delete()
+    # Elimina el registro lo inactiva, no lo elimina y además actualiza el usuario que realiza la acción
+    entrada.is_active=False
+    entrada.last_updated_by=request.user
+    entrada.save()
     
     # Construye el mensaje de éxito
     mensaje = f'Se ha eliminado a petición del usuario el registro número {pk} reactivo "{nombre_entrada}" de manera exitosa.'
