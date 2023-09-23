@@ -59,7 +59,7 @@ function updateSelectOptionsByLab() {
 
     // Realizar una solicitud AJAX para obtener las opciones actualizadas
     const xhr = new XMLHttpRequest();
-    xhr.open('GET', `/api/in/selectoptionsbylab?lab=${selectedLab}`);
+    xhr.open('GET', `/api/out/selectoptionsbylab?lab=${selectedLab}`);
     xhr.onload = function () {
         if (xhr.status === 200) {
             const response = JSON.parse(xhr.responseText);

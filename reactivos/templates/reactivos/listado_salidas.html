@@ -45,7 +45,7 @@
     <link rel="stylesheet" href="{% static 'inventarioreac/inventoryStyles.css' %}">
     <script src="{% static 'inventarioreac/paginationInventoryControl.js' %}"></script>
     <!-- Llama Script que controla la paginación -->
-    <script src="{% static 'inventarioreac/selectControlIn.js' %}" defer></script>
+    <script src="{% static 'inventarioreac/selectControlOut.js' %}" defer></script>
     <!-- Llama Script que controla los select según el inventario -->
     <script src="{% static 'inventarioreac/holdSelectIn.js' %}" defer></script>
     <!-- Llama Script que controla los select según el inventario -->
@@ -54,7 +54,7 @@
     <script>var inventarioUrl = "{% url 'reactivos:inventario' %}";</script>
     <script src="{% static 'inventarioreac/sortByControl.js' %}" ></script>
     <!-- Llama Script que envía datos de ordenamiento de registros -->
-    <script src="{% static 'inventarioreac/openDetailIn.js' %}" defer></script>
+    <script src="{% static 'inventarioreac/openDetailOut.js' %}" defer></script>
     <script src="{% static 'inventarioreac/openDetailUser.js' %}" defer></script>
     <!-- Llama Script que resalta los controles de paginación -->
     <script src="{% static 'inventarioreac/updateUrl.js' %}"></script>
@@ -222,7 +222,7 @@
                         date_user_lab="{{ item.created_by.lab }}" date_user_rol="{{ item.created_by.rol }}"
                         date_user_datejoined="{{ item.created_by.date_joined }}"
                         date_user_lastlogin="{{ item.created_by.last_login }}" date_user_type="crea"
-                        date_user_vist="la entrada de inventario">
+                        date_user_vist="la salida de inventario">
                         {{ item.created_by.first_name }} {{ item.created_by.last_name }}
                     </td>
 
@@ -239,7 +239,7 @@
                         date_user_rol="{{ item.last_updated_by.rol }}"
                         date_user_datejoined="{{ item.last_updated_by.date_joined }}"
                         date_user_lastlogin="{{ item.last_updated_by.last_login }}" date_user_type="actualiza"
-                        date_user_vist="la entrada de inventario">{{ item.last_updated_by.first_name }} {{item.last_updated_by.last_name }}
+                        date_user_vist="la salida de inventario">{{ item.last_updated_by.first_name }} {{item.last_updated_by.last_name }}
                     </td>
 
                     <!-- Modifica el evento click de la imagen para mostrar SweetAlert -->
@@ -267,7 +267,8 @@
                             data-reactivo-create_by="{{ item.created_by.first_name }} {{ item.created_by.last_name }}"
                             data-reactivo-lastupdate="{{ item.last_update }}"
                             data-reactivo-update_by="{{ item.last_updated_by.first_name }} {{ item.last_updated_by.last_name }}"
-                            title="Más información sobre el registro de entrada de: {{ item.name }}">
+                            data-reactivo-id_inventario="{{ item.inventario.id }}"
+                            title="Más información sobre el registro de salida de: {{ item.name }}">
                     </td>
 
                     <td>
@@ -318,7 +319,7 @@
 
         <br>
         <!-- Opciones de exportación -->
-        <a href="{% url 'reactivos:export_to_excel_input' %}" class="btn btn-primary">Exportar a Excel</a>
+        <a href="{% url 'reactivos:export_to_excel_output' %}" class="btn btn-primary">Exportar a Excel</a>
     </div>
     
     <!-- Este script no puede ser llamado de manera independiente ya que tiene muchas variables provenientes del servidor -->

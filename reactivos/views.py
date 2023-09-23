@@ -2550,7 +2550,7 @@ class NamesTrademarksAndReferencesByLabAPI(LoginRequiredMixin,View):
 # Devuelve valores de name, trademark y reference para ser insertados los select correspondientes en el template Inventarios al modificar 
 # el select name
 
-class SelectOptionsByLabAPI(LoginRequiredMixin,View):
+class SelectOptionsByLabIN(LoginRequiredMixin,View):
     def get(self, request):
         lab = request.GET.get('lab')
 
@@ -2574,6 +2574,32 @@ class SelectOptionsByLabAPI(LoginRequiredMixin,View):
 
         return JsonResponse(select_option_list, safe=False)
 
+# Devuelve valores de name, trademark y reference para ser insertados los select correspondientes en el template Inventarios al modificar 
+# el select name
+
+class SelectOptionsByLabOUT(LoginRequiredMixin,View):
+    def get(self, request):
+        lab = request.GET.get('lab')
+
+        salidas = Salidas.objects.all()
+
+        if lab:
+            if lab!='0':
+                salidas = salidas.filter(lab=lab)
+
+        names = salidas.values('name', 'name__name').distinct().order_by('name__name')
+        locations = salidas.values('location', 'location__name','location__facultad__name').distinct().order_by('location__name')
+        destinations = salidas.values('destination','destination__name').distinct().order_by('destination__name')
+        created_bys = salidas.values('created_by','created_by__first_name','created_by__last_name').distinct().order_by('created_by__first_name')
+
+        select_option_list = {
+            'names': list(names),
+            'locations': list(locations),
+            'destinations': list(destinations),
+            'created_bys': list(created_bys)
+        }
+
+        return JsonResponse(select_option_list, safe=False)
 
     
 # Devuelve valores de trademark y reference para ser insertados los select correspondientes en el template Inventarios al modificar 
@@ -2908,7 +2934,7 @@ def export_to_excel(request):
 
     return response
 
-# Utilizando los valores filtrados en el template inventario.html, y guardados en los datos de sesión, se crea el archivo de Excel 
+# Utilizando los valores filtrados en el template listado_entradas.html, y guardados en los datos de sesión, se crea el archivo de Excel 
 # correspondiente e se introducen los valores desde la tabla del modelo Inventarios. Además, se aplican formatos a los encabezados, se 
 # coloca un título, la fecha de creación y el logo. También se ajustan los anchos de columna y las alturas de fila, y se añaden filtros 
 # a los encabezados en caso de que el usuario lo solicite
@@ -3220,6 +3246,301 @@ def export_to_excel_input(request):
     response = HttpResponse(
         content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     response['Content-Disposition'] = 'attachment; filename=Registro_Entradas.xlsx'
+
+    workbook.save(response)
+
+    return response
+# Utilizando los valores filtrados en el template listado_salidas.html, y guardados en los datos de sesión, se crea el archivo de Excel 
+# correspondiente e se introducen los valores desde la tabla del modelo Inventarios. Además, se aplican formatos a los encabezados, se 
+# coloca un título, la fecha de creación y el logo. También se ajustan los anchos de columna y las alturas de fila, y se añaden filtros 
+# a los encabezados en caso de que el usuario lo solicite
+@login_required
+def export_to_excel_output(request):
+    # Obtener los valores filtrados almacenados en la sesión del usuario
+    lab = request.session.get('filtered_lab')
+    name = request.session.get('filtered_name')
+    location = request.session.get('filtered_location')
+    destination = request.session.get('filtered_destination')
+    created_by = request.session.get('filtered_created_by')
+    start_date = request.session.get('filtered_start_date')
+    end_date = request.session.get('filtered_end_date')
+    
+    
+    # Validar y convertir las fechas
+    try:
+        if start_date:
+            start_date = make_aware(datetime.strptime(start_date, '%Y-%m-%d'))
+        if end_date:
+            end_date = make_aware(datetime.strptime(end_date, '%Y-%m-%d').replace(hour=23, minute=59, second=59))
+    except ValueError:
+            # Manejar errores de formato de fecha aquí si es necesario
+        pass
+
+    queryset = Salidas.objects.all()
+    #Filtra según los valores previos de filtro en los selectores
+
+        
+    # Realiza la filtración de acuerdo a las fechas
+    if start_date:
+        queryset = queryset.filter(date_create__gte=start_date)
+    if end_date:
+        queryset = queryset.filter(date_create__lte=end_date)
+    elif start_date and end_date:
+        queryset = queryset.filter(date_create__gte=start_date,date_create__lte=end_date)
+    
+    if lab and name and destination and location and created_by:
+            queryset = queryset.filter(lab=lab, name=name, destination=destination, location=location, created_by=created_by, is_active=True)
+    elif lab and name and destination and location:
+        queryset = queryset.filter(lab=lab, name=name, destination=destination, location=location, is_active=True)
+    elif lab and name and destination and created_by:
+        queryset = queryset.filter(lab=lab, name=name, destination=destination, created_by=created_by, is_active=True)
+    elif lab and name and location and created_by:
+        queryset = queryset.filter(lab=lab, name=name, location=location, created_by=created_by, is_active=True)
+    elif lab and destination and location and created_by:
+        queryset = queryset.filter(lab=lab, destination=destination, location=location, created_by=created_by, is_active=True)
+    elif name and destination and location and created_by:
+        queryset = queryset.filter(name=name, destination=destination, location=location, created_by=created_by, is_active=True)
+    elif lab and name and destination:
+        queryset = queryset.filter(lab=lab, name=name, destination=destination, is_active=True)
+    elif lab and name and location:
+        queryset = queryset.filter(lab=lab, name=name, location=location, is_active=True)
+    elif lab and name and created_by:
+        queryset = queryset.filter(lab=lab, name=name, created_by=created_by, is_active=True)
+    elif lab and destination and location:
+        queryset = queryset.filter(lab=lab, destination=destination, location=location, is_active=True)
+    elif lab and destination and created_by:
+        queryset = queryset.filter(lab=lab, destination=destination, created_by=created_by, is_active=True)
+    elif lab and location and created_by:
+        queryset = queryset.filter(lab=lab, location=location, created_by=created_by, is_active=True)
+    elif name and destination and location:
+        queryset = queryset.filter(name=name, destination=destination, location=location, is_active=True)
+    elif name and destination and created_by:
+        queryset = queryset.filter(name=name, destination=destination, created_by=created_by, is_active=True)
+    elif name and location and created_by:
+        queryset = queryset.filter(name=name, location=location, created_by=created_by, is_active=True)
+    elif destination and location and created_by:
+        queryset = queryset.filter(destination=destination, location=location, created_by=created_by, is_active=True)
+    elif location and created_by:
+        queryset = queryset.filter(location=location, created_by=created_by, is_active=True)
+    elif destination and created_by:
+        queryset = queryset.filter(destination=destination, created_by=created_by, is_active=True)
+    elif destination and location:
+        queryset = queryset.filter(destination=destination, location=location, is_active=True)
+    elif name and created_by:
+        queryset = queryset.filter(name=name, created_by=created_by, is_active=True)
+    elif name and location:
+        queryset = queryset.filter(name=name, location=location, is_active=True)
+    elif name and destination:
+        queryset = queryset.filter(name=name, destination=destination, is_active=True)
+    elif lab and created_by:
+        queryset = queryset.filter(lab=lab, created_by=created_by, is_active=True)
+    elif lab and location:
+        queryset = queryset.filter(lab=lab, location=location, is_active=True)
+    elif lab and destination:
+        queryset = queryset.filter(lab=lab, destination=destination, is_active=True)
+    elif lab and name:
+        queryset = queryset.filter(lab=lab, name=name, is_active=True)
+    elif lab:
+        queryset = queryset.filter(lab=lab, is_active=True)
+    elif name:
+        queryset = queryset.filter(name=name, is_active=True)
+    elif destination:
+        queryset = queryset.filter(destination=destination, is_active=True)
+    elif location:
+        queryset = queryset.filter(location=location, is_active=True)
+    elif created_by:
+        queryset = queryset.filter(created_by=created_by, is_active=True)
+    else:
+        queryset = queryset.filter(is_active=True)
+    queryset = queryset.order_by('id')
+        
+
+    workbook = openpyxl.Workbook()
+    sheet = workbook.active
+
+    # Ruta al archivo de imagen del logotipo
+
+    logo_path = finders.find('inventarioreac/Images/escudoUnal_black.png')
+
+    # Cargar la imagen y procesarla con pillow
+    pil_image = PILImage.open(logo_path)
+
+    # Crear un objeto Image de openpyxl a partir de la imagen procesada
+    image = ExcelImage(pil_image)
+
+    # Anclar la imagen a la celda A1
+    sheet.add_image(image, 'A1')
+
+    # Obtener la fecha actual
+    fecha_creacion = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+
+    # Unificar las celdas A1, B1, C1 y D1
+    sheet.merge_cells('C1:F1')
+
+    sheet['C1'] = 'Listado de movimientos de Salida'
+    sheet['C2'] = 'Fecha de Creación: '+fecha_creacion
+    sheet['A4'] = 'Consecutivo'
+    sheet['B4'] = 'Fecha y hora de registro'
+    sheet['C4'] = 'Nombre del reactivo'
+    sheet['D4'] = 'Código'
+    sheet['E4'] = 'CAS'
+    sheet['F4'] = 'Marca'
+    sheet['G4'] = 'Referencia'
+    sheet['H4'] = 'Cantidad'
+    sheet['I4'] = 'Unidad'
+    sheet['J4'] = 'Laboratorio'
+    sheet['K4'] = 'Destino'
+    sheet['L4'] = 'Responsable'
+    sheet['M4'] = 'Asignatura'
+    sheet['N4'] = 'Facultad'
+    sheet['O4'] = 'Registrado por'
+    sheet['P4'] = 'Actualizado por'
+    sheet['Q4'] = 'Fecha y hora de última Actualización'
+    sheet['R4'] = 'Observaciones'
+    
+    
+
+    # Establecer la altura de la fila 1 y 2 a 30 y fila 3 a 25
+    sheet.row_dimensions[1].height = 30
+    sheet.row_dimensions[2].height = 30
+    sheet.row_dimensions[3].height = 25
+
+    # Establecer estilo de celda para A1
+
+    cell_A1 = sheet['C1']
+    cell_A1.font = Font(bold=True, size=16)
+
+    # Configurar los estilos de borde
+    thin_border = Border(left=Side(style='thin'), right=Side(
+    style='thin'), top=Side(style='thin'), bottom=Side(style='thin'))
+
+    # Establecer el estilo de las celdas A2:D3
+    bold_font = Font(bold=True)
+
+    # Establecer el ancho de la columna A a 13
+    sheet.column_dimensions['A'].width = 13
+
+    # Establecer el ancho de la columna B a 23
+    sheet.column_dimensions['B'].width = 23
+
+    # Establecer el ancho de la columna C a 40
+    sheet.column_dimensions['C'].width = 40
+
+    # Establecer el ancho de la columna D a 9
+    sheet.column_dimensions['D'].width = 9
+
+    # Establecer el ancho de la columna E a 10
+    sheet.column_dimensions['E'].width = 10
+
+    # Establecer el ancho de la columna F a 14
+    sheet.column_dimensions['F'].width = 14
+
+    # Establecer el ancho de la columna G a 12
+    sheet.column_dimensions['G'].width = 12
+
+    # Establecer el ancho de la columna H a 10
+    sheet.column_dimensions['H'].width = 10
+
+    # Establecer el ancho de la columna I a 9
+    sheet.column_dimensions['I'].width = 9
+
+    # Establecer el ancho de la columna J a 35
+    sheet.column_dimensions['J'].width = 35
+
+    # Establecer el ancho de la columna K a 18
+    sheet.column_dimensions['K'].width = 18
+
+    # Establecer el ancho de la columna L a 28
+    sheet.column_dimensions['L'].width = 28
+
+    # Establecer el ancho de la columna M a 26
+    sheet.column_dimensions['M'].width = 26
+
+    # Establecer el ancho de la columna N a 36
+    sheet.column_dimensions['N'].width = 36
+
+    # Establecer el ancho de la columna O a 29
+    sheet.column_dimensions['O'].width = 29
+
+    # Establecer el ancho de la columna P a 29
+    sheet.column_dimensions['P'].width = 29
+
+    # Establecer el ancho de la columna Q a 34
+    sheet.column_dimensions['Q'].width = 34
+
+    # Establecer el ancho de la columna R a 45
+    sheet.column_dimensions['R'].width = 45
+
+    # Establecer el ancho de la columna S a 29
+    sheet.column_dimensions['S'].width = 29
+    
+    row = 4
+    # Aplicar el estilo de borde a las celdas de la fila actual
+    for col in range(1, 19):
+        sheet.cell(row=row, column=col).border = thin_border
+        sheet.cell(row=row, column=col).font = bold_font
+
+    row = 5
+    for item in queryset:
+        
+        sheet.cell(row=row, column=1).value = item.id
+        sheet.cell(row=row, column=2).value = str((item.date_create).strftime('%d/%m/%Y %H:%M:%S'))
+        sheet.cell(row=row, column=3).value = item.name.name
+        sheet.cell(row=row, column=4).value = item.name.code
+        sheet.cell(row=row, column=5).value = item.name.cas
+        sheet.cell(row=row, column=6).value = item.trademark.name
+        sheet.cell(row=row, column=7).value = item.reference
+        sheet.cell(row=row, column=8).value = item.weight
+        sheet.cell(row=row, column=9).value = item.name.unit.name
+        sheet.cell(row=row, column=10).value = item.lab.name
+        sheet.cell(row=row, column=11).value = item.destination.name
+        sheet.cell(row=row, column=12).value = item.manager.name
+        sheet.cell(row=row, column=13).value = item.location.name
+        sheet.cell(row=row, column=14).value = item.location.facultad.name
+        sheet.cell(row=row, column=15).value = item.created_by.first_name+' '+item.created_by.last_name
+        sheet.cell(row=row, column=16).value = item.last_updated_by.first_name+' '+item.last_updated_by.last_name
+        sheet.cell(row=row, column=17).value = str((item.last_update).strftime('%d/%m/%Y %H:%M:%S'))
+        sheet.cell(row=row, column=18).value = item.observations
+
+               
+        # Aplicar el estilo de borde a las celdas de la fila actual
+        for col in range(1, 19):
+            sheet.cell(row=row, column=col).border = thin_border
+
+        row += 1
+
+    # Obtén el rango de las columnas de la tabla
+    start_column = 1
+    end_column = 18
+    start_row = 4
+    end_row = row - 1
+
+    # Convertir los números de las columnas en letras de columna
+    start_column_letter = get_column_letter(start_column)
+    end_column_letter = get_column_letter(end_column)
+
+    # Rango de la tabla con el formato "A4:I{n}", donde n es el número de filas en la tabla
+    table_range = f"{start_column_letter}{start_row}:{end_column_letter}{end_row}"
+
+    # Agregar filtros solo a las columnas de la tabla
+    sheet.auto_filter.ref = table_range
+
+    # Establecer fondo blanco desde la celda A1 hasta el final de la tabla
+
+    fill = PatternFill(fill_type="solid", fgColor=WHITE)
+    start_cell = sheet['A1']
+    end_column_letter = get_column_letter(end_column+1)
+    end_row = row+1
+    end_cell = sheet[end_column_letter + str(end_row)]
+    table_range = start_cell.coordinate + ':' + end_cell.coordinate
+
+    for row in sheet[table_range]:
+        for cell in row:
+            cell.fill = fill
+
+    response = HttpResponse(
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename=Registro_Salidas.xlsx'
 
     workbook.save(response)
 
