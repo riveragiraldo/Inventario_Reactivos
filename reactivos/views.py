@@ -1609,9 +1609,18 @@ def registrar_salida(request):
 
         except Inventarios.DoesNotExist:
             weight = request.POST.get('weight')
+
+        try:
+            nuevo_inventario = Inventarios.objects.filter(
+                name=name, trademark=trademark, reference=reference, lab=lab).first()
+            
+        except Inventarios.DoesNotExist:
+            weight = request.POST.get('weight')
                        
         if name:
 
+            inventario=nuevo_inventario.id
+            inventario=get_object_or_404(Inventarios,id=inventario)
             reference = request.POST.get('reference')
             weight = request.POST.get('weight')
             observations = request.POST.get('observations')
@@ -1620,6 +1629,7 @@ def registrar_salida(request):
             
 
             salida = Salidas.objects.create(
+                inventario=inventario,
                 name=name,
                 trademark=trademark,
                 reference=reference,
@@ -1782,7 +1792,7 @@ class ListadoUsuarios(LoginRequiredMixin, ListView):
 
 
     
-
+# Muestra el listado de salidas
 class EntradasListView(LoginRequiredMixin,ListView):
     model = Entradas
     template_name = "reactivos/listado_entradas.html"
@@ -1997,6 +2007,209 @@ class EntradasListView(LoginRequiredMixin,ListView):
         queryset = queryset.order_by('id')
         return queryset
     
+# Muestra el listado de salidas
+class SalidasListView(LoginRequiredMixin,ListView):
+    model = Salidas
+    template_name = "reactivos/listado_salidas.html"
+    paginate_by = 10
+    
+    
+    @check_group_permission(groups_required=['COORDINADOR', 'ADMINISTRADOR'])
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        # Obtener el número de registros por página de la sesión del usuario
+        per_page = request.session.get('per_page')
+        if per_page:
+            self.paginate_by = int(per_page)
+        else:
+            self.paginate_by = 10  # Valor predeterminado si no hay variable de sesión
+
+        # Obtener los parámetros de filtrado
+        lab = request.GET.get('lab')
+        name = request.GET.get('name')
+        location = request.GET.get('location')
+        destination = request.GET.get('destination')
+        created_by = request.GET.get('created_by')
+        # Obtener las fechas de inicio y fin de la solicitud GET
+        start_date = self.request.GET.get('start_date')
+        end_date = self.request.GET.get('end_date')  
+        
+        # si el valor de lab viene de sesión superusuario o ADMINISTRADOR lab=0 cambiar por lab=''
+        if lab=='0':
+            lab=''
+
+        # Guardar los valores de filtrado en la sesión
+        request.session['filtered_lab'] = lab
+        request.session['filtered_name'] = name
+        request.session['filtered_location'] = location
+        request.session['filtered_destination'] = destination
+        request.session['filtered_created_by'] = created_by
+        request.session['filtered_start_date'] = start_date
+        request.session['filtered_end_date'] = end_date
+        
+
+        return super().get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # Obtener la fecha de hoy
+        today = date.today()
+        # Calcular la fecha hace un mes hacia atrás
+        one_month_ago = today - timedelta(days=30)
+
+        # Agregar la fecha al contexto
+        context['one_month_ago'] = one_month_ago
+
+        # Agregar la fecha de hoy al contexto
+        context['today'] = today
+
+        unique_labs_ids = Entradas.objects.values('lab').distinct()
+        unique_labs = Laboratorios.objects.filter(id__in=unique_labs_ids)
+
+        unique_names_ids = Entradas.objects.values('name').distinct()
+        unique_names = Reactivos.objects.filter(id__in=unique_names_ids)
+
+        unique_locations_ids = Entradas.objects.values(
+            'location').distinct()
+        
+        unique_locations = Ubicaciones.objects.filter(id__in=unique_locations_ids)
+        laboratorio = self.request.user.lab
+        
+    
+        context['usuarios'] = User.objects.all()
+        context['laboratorio'] = laboratorio
+        context['laboratorios'] = Laboratorios.objects.all()
+        context['shools'] = Facultades.objects.all()
+        context['destinations'] = Destinos.objects.all()
+        context['created_bys'] = UserModel.objects.all()
+        
+
+        context['unique_labs'] = unique_labs
+        context['unique_names'] = unique_names
+        context['unique_locations'] = unique_locations
+        
+
+        
+
+        # Obtener la lista de inventarios
+        entradas = context['object_list']
+        # Recorrer los entradas y cambiar el formato de la fecha
+        
+               
+        context['object_list'] = entradas
+        return context
+    
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        lab = self.request.GET.get('lab')
+        name = self.request.GET.get('name')
+        location = self.request.GET.get('location')
+        destination= self.request.GET.get('destination')
+        created_by= self.request.GET.get('created_by')
+        # Obtener las fechas de inicio y fin de la solicitud GET
+        start_date = self.request.GET.get('start_date')
+        end_date = self.request.GET.get('end_date')
+
+                
+        
+
+        # si el valor de lab viene de sesión superusuario o ADMINISTRADOR lab=0 cambiar por lab=''
+        if lab=='0':
+             lab=None
+        
+        
+        # Validar y convertir las fechas
+        try:
+            if start_date:
+                start_date = make_aware(datetime.strptime(start_date, '%Y-%m-%d'))
+            if end_date:
+                end_date = make_aware(datetime.strptime(end_date, '%Y-%m-%d').replace(hour=23, minute=59, second=59))
+        except ValueError:
+            # Manejar errores de formato de fecha aquí si es necesario
+            pass
+
+        
+        # Realiza la filtración de acuerdo a las fechas
+        if start_date:
+            queryset = queryset.filter(date_create__gte=start_date)
+        if end_date:
+            queryset = queryset.filter(date_create__lte=end_date)
+        elif start_date and end_date:
+            queryset = queryset.filter(date_create__gte=start_date,date_create__lte=end_date)
+
+             
+        
+        if lab and name and destination and location and created_by:
+            queryset = queryset.filter(lab=lab, name=name, destination=destination, location=location, created_by=created_by, is_active=True)
+        elif lab and name and destination and location:
+            queryset = queryset.filter(lab=lab, name=name, destination=destination, location=location, is_active=True)
+        elif lab and name and destination and created_by:
+            queryset = queryset.filter(lab=lab, name=name, destination=destination, created_by=created_by, is_active=True)
+        elif lab and name and location and created_by:
+            queryset = queryset.filter(lab=lab, name=name, location=location, created_by=created_by, is_active=True)
+        elif lab and destination and location and created_by:
+            queryset = queryset.filter(lab=lab, destination=destination, location=location, created_by=created_by, is_active=True)
+        elif name and destination and location and created_by:
+            queryset = queryset.filter(name=name, destination=destination, location=location, created_by=created_by, is_active=True)
+        elif lab and name and destination:
+            queryset = queryset.filter(lab=lab, name=name, destination=destination, is_active=True)
+        elif lab and name and location:
+            queryset = queryset.filter(lab=lab, name=name, location=location, is_active=True)
+        elif lab and name and created_by:
+            queryset = queryset.filter(lab=lab, name=name, created_by=created_by, is_active=True)
+        elif lab and destination and location:
+            queryset = queryset.filter(lab=lab, destination=destination, location=location, is_active=True)
+        elif lab and destination and created_by:
+            queryset = queryset.filter(lab=lab, destination=destination, created_by=created_by, is_active=True)
+        elif lab and location and created_by:
+            queryset = queryset.filter(lab=lab, location=location, created_by=created_by, is_active=True)
+        elif name and destination and location:
+            queryset = queryset.filter(name=name, destination=destination, location=location, is_active=True)
+        elif name and destination and created_by:
+            queryset = queryset.filter(name=name, destination=destination, created_by=created_by, is_active=True)
+        elif name and location and created_by:
+            queryset = queryset.filter(name=name, location=location, created_by=created_by, is_active=True)
+        elif destination and location and created_by:
+            queryset = queryset.filter(destination=destination, location=location, created_by=created_by, is_active=True)
+        elif location and created_by:
+            queryset = queryset.filter(location=location, created_by=created_by, is_active=True)
+        elif destination and created_by:
+            queryset = queryset.filter(destination=destination, created_by=created_by, is_active=True)
+        elif destination and location:
+            queryset = queryset.filter(destination=destination, location=location, is_active=True)
+        elif name and created_by:
+            queryset = queryset.filter(name=name, created_by=created_by, is_active=True)
+        elif name and location:
+            queryset = queryset.filter(name=name, location=location, is_active=True)
+        elif name and destination:
+            queryset = queryset.filter(name=name, destination=destination, is_active=True)
+        elif lab and created_by:
+            queryset = queryset.filter(lab=lab, created_by=created_by, is_active=True)
+        elif lab and location:
+            queryset = queryset.filter(lab=lab, location=location, is_active=True)
+        elif lab and destination:
+            queryset = queryset.filter(lab=lab, destination=destination, is_active=True)
+        elif lab and name:
+            queryset = queryset.filter(lab=lab, name=name, is_active=True)
+        elif lab:
+            queryset = queryset.filter(lab=lab, is_active=True)
+        elif name:
+            queryset = queryset.filter(name=name, is_active=True)
+        elif destination:
+            queryset = queryset.filter(destination=destination, is_active=True)
+        elif location:
+            queryset = queryset.filter(location=location, is_active=True)
+        elif created_by:
+            queryset = queryset.filter(created_by=created_by, is_active=True)
+        else:
+            queryset = queryset.filter(is_active=True)
+
+            
+        queryset = queryset.order_by('id')
+        return queryset
 
 
 #Listado Usuarios
@@ -2221,6 +2434,45 @@ class GuardarPerPageViewIn(LoginRequiredMixin,View):
             url += '?' + urlencode(params)
 
         return redirect(url)
+    
+class GuardarPerPageViewOut(LoginRequiredMixin,View):
+    def get(self, request, *args, **kwargs):
+        per_page = kwargs.get('per_page')
+        request.session['per_page'] = per_page
+
+        # Redirigir a la página de inventario con los parámetros de filtrado actuales
+        filtered_lab = request.session.get('filtered_lab')
+        filtered_name = request.session.get('filtered_name')
+        filtered_location = request.session.get('filtered_location')
+        filtered_destination = request.session.get('filtered_destination')
+        filtered_created_by = request.session.get('filtered_created_by')
+        filtered_start_date = request.session.get('filtered_start_date')
+        filtered_end_date = request.session.get('filtered_end_date')
+        
+        url = reverse('reactivos:listado_salidas')
+        params = {}
+        if filtered_lab:
+            params['lab'] = filtered_lab
+        if filtered_name:
+            params['name'] = filtered_name
+
+        if filtered_location:
+            params['location'] = filtered_location
+        if filtered_destination:
+            params['destination'] = filtered_destination
+        if filtered_created_by:
+            params['created_by'] = filtered_created_by
+        if filtered_start_date:
+            params['start_date'] = filtered_start_date
+        if filtered_end_date:
+            params['end_date'] = filtered_end_date
+        
+        
+        if params:
+            url += '?' + urlencode(params)
+
+        return redirect(url)
+    
     
 # La vista "crear_unidades" se encarga de gestionar la creación de unidades. Esta vista toma los datos del formulario 
 # existente en el template "crear_unidades.html" y realiza las operaciones necesarias en la base de datos utilizando 

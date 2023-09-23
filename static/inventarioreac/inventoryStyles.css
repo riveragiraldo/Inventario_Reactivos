@@ -94,4 +94,10 @@ tr.table-row:hover {
     /* Fondo tenue al pasar el cursor por encima de la fila */
 }
 
+/* Agrega un estilo para resaltar las celdas de reactivo vencido */
+.reactivo-vencido {
+    background-color: #FFCCCC; /* Cambia el color de fondo */
+    color: #FF0000; /* Cambia el color del texto */
+    font-weight: bold; /* Hace que el texto sea más audaz */
+}
 

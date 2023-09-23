@@ -7,7 +7,7 @@
 
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{% block title %}Listado de entradas{% endblock %}</title>
+    <title>{% block title %}Listado de salidas{% endblock %}</title>
     {% block head %}
     <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
@@ -52,7 +52,7 @@
     <script src="{% static 'inventarioreac/highlightPaginationControl.js' %}" defer></script>
     <!-- Llama Script que resalta los controles de paginación -->
     <script>var inventarioUrl = "{% url 'reactivos:inventario' %}";</script>
-    <script src="{% static 'inventarioreac/sortByControl.js' %}" defer></script>
+    <script src="{% static 'inventarioreac/sortByControl.js' %}" ></script>
     <!-- Llama Script que envía datos de ordenamiento de registros -->
     <script src="{% static 'inventarioreac/openDetailIn.js' %}" defer></script>
     <script src="{% static 'inventarioreac/openDetailUser.js' %}" defer></script>
@@ -70,7 +70,7 @@
     {% block content %}
     <div class="row">
         <div class="col-md-10 mx-auto">
-            <h1>Listado de registros de entrada</h1>
+            <h1>Listado de registros de salidas</h1>
             <br>
 
             <form method="get" onsubmit="guardarValoresSelect()">
@@ -164,9 +164,9 @@
             <div class="d-flex justify-content-between">
                 <div>Ver&nbsp;
                     <div class="btn-group btn-group-toggle" data-toggle="buttons">
-                        <a href="{% url 'reactivos:GuardarPerPageIn' per_page=10 %}" class="btn btn-secondary btn-sm" id="per-page-10">10</a>
-                        <a href="{% url 'reactivos:GuardarPerPageIn' per_page=20 %}" class="btn btn-secondary btn-sm" id="per-page-20">20</a>
-                        <a href="{% url 'reactivos:GuardarPerPageIn' per_page=50 %}" class="btn btn-secondary btn-sm" id="per-page-50">50</a>
+                        <a href="{% url 'reactivos:GuardarPerPageOut' per_page=10 %}" class="btn btn-secondary btn-sm" id="per-page-10">10</a>
+                        <a href="{% url 'reactivos:GuardarPerPageOut' per_page=20 %}" class="btn btn-secondary btn-sm" id="per-page-20">20</a>
+                        <a href="{% url 'reactivos:GuardarPerPageOut' per_page=50 %}" class="btn btn-secondary btn-sm" id="per-page-50">50</a>
                     </div>&nbsp;Registros por página
                 </div>
             </div>
@@ -178,22 +178,19 @@
             
             <thead>
                 <tr>
-                    <th class="sortable-header" data-column="0" data-column-name="id" title="Ordenar por Consecutivo">Id entrada</th>
+                    <th class="sortable-header" data-column="0" data-column-name="id" title="Ordenar por Consecutivo">Id salida</th>
                     <th class="sortable-header" data-column="1" data-column-name="date" title="Ordenar por fecha">Fecha Creación</th>
                     <th class="sortable-header" data-column="2" title="Ordenar por nombre">Nombre</th>
                     <th class="sortable-header" data-column="3" title="Ordenar por marca">Marca</th>
                     <th class="sortable-header" data-column="4" title="Ordenar por referencia">Referencia</th>
                     <th class="sortable-header" data-column="5" title="Ordenar por cantidad">Cantidad</th>
                     <th class="sortable-header" data-column="6" title="Ordenar por laboratorio">Laboratorio</th>
-                    <th class="sortable-header" data-column="7" title="Ordenar por Orden">Orden</th>
-                    <th class="sortable-header" data-column="8" title="Ordenar por Proyecto">Proyecto</th>
-                    <th class="sortable-header" data-column="9" title="Ordenar por Valor">Valor</th>
-                    <th class="sortable-header" data-column="10" title="Ordenar por Destino">Destino</th>
-                    <th class="sortable-header" data-column="11" title="Ordenar por Responsable">Responsable</th>
-                    <th class="sortable-header" data-column="12" title="Ordenar por Asignatura/Ubicación">Asignatura</th>
-                    <th class="sortable-header" data-column="13" title="Facultad">Facultad</th>
-                    <th class="sortable-header" data-column="14" title="Ordenar por Responsable del Registro">Usuario registra</th>
-                    <th class="sortable-header" data-column="15" title="Ordenar por Última Actualización por">Usuario actualiza</th>
+                    <th class="sortable-header" data-column="7" title="Ordenar por Destino">Destino</th>
+                    <th class="sortable-header" data-column="8" title="Ordenar por Responsable">Responsable</th>
+                    <th class="sortable-header" data-column="9" title="Ordenar por Asignatura/Ubicación">Asignatura</th>
+                    <th class="sortable-header" data-column="10" title="Facultad">Facultad</th>
+                    <th class="sortable-header" data-column="11" title="Ordenar por Responsable del Registro">Usuario registra</th>
+                    <th class="sortable-header" data-column="12" title="Ordenar por Última Actualización por">Usuario actualiza</th>
                     <th class="sortable-header" title="Visualización de detalle (no ordena)">Ver detalle</th>
                     <th class="sortable-header" title="Acciones con el registro (no ordena)">Acciones<p style="color: transparent;">***********</p></th>
                 </tr>
@@ -202,16 +199,13 @@
             <tbody>
                 {% for item in object_list %}
                 <tr class="table-row">
-                    <td title="Número de registro de la entrada">{{ item.id }}</td>
-                    <td title="Fecha de entrada">{{ item.date_create|date:"d/m/Y" }}</td>
+                    <td title="Número de registro de la entrada">{{ item.id }} </td>
+                    <td title="Fecha de salida">{{ item.date_create|date:"d/m/Y" }}</td>
                     <td title="Reactivo: {{ item.name }}, Id Inventario: {{ item.inventario.id }}, Cantidad en inventario:{{ item.inventario.weight }} ">{{ item.name }}</td>
                     <td title="Marca">{{ item.trademark }}</td>
                     <td title="Referencia ">{{ item.reference }}</td>
                     <td title="Cantidad  de {{ item.name }}">{{ item.weight|floatformat:1 }} {{ item.name.unit }}</td>
                     <td title="Laboratorio al que pertenece el reactivo {{ item.name }}">{{ item.lab }}</td>
-                    <td title="Orden {{ item.name }}">{{ item.order }} de {{ item.date_order }}</td>
-                    <td title="Número de proyecto {{ item.name }}">{{ item.nproject }}</td>
-                    <td title="Valor Ingreso {{ item.name }}">{{ item.price }}</td>
                     <td title="Destino de ingreso {{ item.name }}">{{ item.destination }}</td>
                     <td title="Correo: {{ item.manager.mail }} Teléfono: {{ item.manager.phone }}">{{ item.manager }}</td>
                     <td title="Ubicación de ingreso {{ item.name }}">{{ item.location }}</td>
@@ -279,9 +273,9 @@
                     <td>
                         <!-- Agregar -->
                         <a href="javascript:void(0);"
-                            onclick="openPopupAdd('{% url 'reactivos:registrar_entrada' %}')">
+                            onclick="openPopupAdd('{% url 'reactivos:registrar_salida' %}')">
                             <img src="{% static 'inventarioreac/Images/add_register.png' %}" alt="" width="18"
-                                height="18" title="Agregar una nueva entrada de reactivo">
+                                height="18" title="Agregar una nueva salida de reactivo">
                         </a>
                         <!-- Editar -->
                         <a href="javascript:void(0);" onclick="openEditFormIn({{ item.id }})">

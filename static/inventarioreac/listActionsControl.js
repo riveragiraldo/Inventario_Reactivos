@@ -1,5 +1,5 @@
 // Abre formulario de agregar entrada de reactvi
-function openPopupAddIn(url) {
+function openPopupAdd(url) {
     // Define las dimensiones y otras opciones de la ventana emergente
     var width = 800;
     var height = 600;

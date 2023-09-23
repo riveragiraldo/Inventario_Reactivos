@@ -370,6 +370,7 @@ class Salidas(models.Model):
     location = models.ForeignKey(
         Ubicaciones, on_delete=models.CASCADE, related_name='location', verbose_name='Ubicación')
     lab=models.ForeignKey(Laboratorios, on_delete=models.CASCADE, related_name='lab', verbose_name='Laboratorio')
+    inventario=models.ForeignKey('reactivos.Inventarios', on_delete=models.CASCADE, related_name='inventory', verbose_name='Id_Inventario', blank=True, null=True)
     is_active = models.BooleanField(default=True)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Usuario')
     date_create = models.DateTimeField(auto_now_add=True,verbose_name='Fecha registro',)

@@ -18,3 +18,12 @@ if (currentUrl.endsWith('/reactivos/listado_entradas/')) {
     // Redirigir a la nueva URL
     window.location.href = newUrl;
 }
+
+// Verificar si la URL no tiene parámetros de búsqueda
+if (currentUrl.endsWith('/reactivos/listado_salidas/')) {
+    // Modificar la URL agregando los parámetros de búsqueda deseados
+    const newUrl = currentUrl + '?lab='+labDefault+'&name=&location=&destination=&location=&created_by=&start_date=&end_date=';
+
+    // Redirigir a la nueva URL
+    window.location.href = newUrl;
+}

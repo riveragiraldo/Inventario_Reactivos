@@ -55,8 +55,10 @@
     <script src="{% static 'inventarioreac/openDetailReactive.js' %}" defer></script>
     <script src="{% static 'inventarioreac/openDetailUser.js' %}" defer></script>
     <!-- Llama Script que resalta los controles de paginación -->
-    <script src="{% static 'inventarioreac/updateUrl.js' %}" ></script>
+    <script src="{% static 'inventarioreac/updateUrl.js' %}"></script>
     <!-- Llama Script que actualiza URL -->
+    <script src="{% static 'inventarioreac/validateEDateReagent.js' %}" defer></script>
+    <!-- Llama Script que verifica la fecha de vencimiento de los reactivos -->
     {% endblock %}
 </head>
 
@@ -151,7 +153,8 @@
             <table class="table" id="tabla-inventario">
                 <thead>
                     <tr>
-                        <th class="sortable-header" data-column="0" title="Ordenar por Consecutivo">Id</th>
+                        <th class="sortable-header" data-column="0" data-column-name="id"
+                            title="Ordenar por Consecutivo">Id</th>
                         <th class="sortable-header" data-column="1" title="Ordenar por código">Código</th>
                         <th class="sortable-header" data-column="2" title="Ordenar por cas">CAS</th>
                         <th class="sortable-header" data-column="3" title="Ordenar por nombre">Nombre</th>
@@ -161,7 +164,8 @@
                         <th class="sortable-header" data-column="7" title="Ordenar por unidad">Unidad</th>
                         <th class="sortable-header" data-column="8" title="Ordenar por ubicación">Ubicación</th>
                         <th class="sortable-header" data-column="9" title="Ordenar por laboratorio">Laboratorio</th>
-                        <th class="sortable-header" data-column="10" title="Ordenar por fecha de vencimiento">Vencimiento
+                        <th class="sortable-header" data-column="10" data-column-name="date"
+                            title="Ordenar por fecha de vencimiento">Vencimiento
                         </th>
                         <th class="sortable-header" data-column="11" title="Ordenar por Responsable del Registro">
                             Usuario registra</th>
@@ -185,40 +189,38 @@
                         <td title="Unidad">{{ item.name.unit }}</td>
                         <td title="Ubicación en almacén de {{ item.name }}">{{ item.wlocation }}</td>
                         <td title="Labratorio al que pertenece el reactivo {{ item.name }}">{{ item.lab }}</td>
-                        <td title="Fecha de vencimiento del reactivo {{ item.name }}">{{ item.edate }}</td>
-                        <td  class="created_by_cell" title="Más información de: {{ item.created_by.first_name }} {{ item.created_by.last_name }}"
-                        date_user_create="{{ item.created_by.first_name }} {{ item.created_by.last_name }}"
-                        data-reactivo-name="{{ item.name }}"
-                        data-reactivo-date="{{ item.date_create|date:'d/m/Y' }}"
-                        date_user_id="{{ item.created_by.id_number }}"
-                        date_user_username="{{ item.created_by.username }}"
-                        date_user_mail="{{ item.created_by.email }}"
-                        date_user_phone="{{ item.created_by.phone_number }}"
-                        date_user_lab="{{ item.created_by.lab }}"
-                        date_user_rol="{{ item.created_by.rol }}"
-                        date_user_datejoined="{{ item.created_by.date_joined }}"
-                        date_user_lastlogin="{{ item.created_by.last_login }}"
-                        date_user_type="crea"
-                        date_user_vist="el registro de inventario"
-                        >
-                        {{ item.created_by.first_name }} {{ item.created_by.last_name }}
+                        <td title="Fecha de vencimiento del reactivo {{ item.name }}"
+                            data-reactivo-name="{{ item.name }}" data-reactivo-edate="{{ item.edate }}">{{ item.edate }}
                         </td>
-                        <td class="created_by_cell" title="Más información de: {{ item.last_updated_by.first_name }} {{ item.last_updated_by.last_name }}"
-                        date_user_create="{{ item.last_updated_by.first_name }} {{ item.last_updated_by.last_name }}"
-                        data-reactivo-name="{{ item.name }}"
-                        data-reactivo-date="{{ item.last_update|date:'d/m/Y' }}"
-                        date_user_id="{{ item.last_updated_by.id_number }}"
-                        date_user_username="{{ item.last_updated_by.username }}"
-                        date_user_mail="{{ item.last_updated_by.email }}"
-                        date_user_phone="{{ item.last_updated_by.phone_number }}"
-                        date_user_lab="{{ item.last_updated_by.lab }}"
-                        date_user_rol="{{ item.last_updated_by.rol }}"
-                        date_user_datejoined="{{ item.last_updated_by.date_joined }}"
-                        date_user_lastlogin="{{ item.last_updated_by.last_login }}"
-                        date_user_type="actualiza"
-                        date_user_vist="el registro de inventario"
-                        >{{ item.last_updated_by.first_name }} {{ item.last_updated_by.last_name }}</td>
-                        
+                        <td class="created_by_cell"
+                            title="Más información de: {{ item.created_by.first_name }} {{ item.created_by.last_name }}"
+                            date_user_create="{{ item.created_by.first_name }} {{ item.created_by.last_name }}"
+                            data-reactivo-name="{{ item.name }}"
+                            data-reactivo-date="{{ item.date_create|date:'d/m/Y' }}"
+                            date_user_id="{{ item.created_by.id_number }}"
+                            date_user_username="{{ item.created_by.username }}"
+                            date_user_mail="{{ item.created_by.email }}"
+                            date_user_phone="{{ item.created_by.phone_number }}"
+                            date_user_lab="{{ item.created_by.lab }}" date_user_rol="{{ item.created_by.rol }}"
+                            date_user_datejoined="{{ item.created_by.date_joined }}"
+                            date_user_lastlogin="{{ item.created_by.last_login }}" date_user_type="crea"
+                            date_user_vist="el registro de inventario">{{ item.created_by.first_name }} {{ item.created_by.last_name }}
+                        </td>
+                        <td class="created_by_cell"
+                            title="Más información de: {{ item.last_updated_by.first_name }} {{ item.last_updated_by.last_name }}"
+                            date_user_create="{{ item.last_updated_by.first_name }} {{ item.last_updated_by.last_name }}"
+                            data-reactivo-name="{{ item.name }}"
+                            data-reactivo-date="{{ item.last_update|date:'d/m/Y' }}"
+                            date_user_id="{{ item.last_updated_by.id_number }}"
+                            date_user_username="{{ item.last_updated_by.username }}"
+                            date_user_mail="{{ item.last_updated_by.email }}"
+                            date_user_phone="{{ item.last_updated_by.phone_number }}"
+                            date_user_lab="{{ item.last_updated_by.lab }}"
+                            date_user_rol="{{ item.last_updated_by.rol }}"
+                            date_user_datejoined="{{ item.last_updated_by.date_joined }}"
+                            date_user_lastlogin="{{ item.last_updated_by.last_login }}" date_user_type="actualiza"
+                            date_user_vist="el registro de inventario">{{ item.last_updated_by.first_name }} {{item.last_updated_by.last_name }}</td>
+
                         <!-- Modifica el evento click de la imagen para mostrar SweetAlert -->
                         <td>
                             <img src="{% static 'inventarioreac/Images/moreInfo.ico' %}" alt="" width="18" height="18"
@@ -249,21 +251,21 @@
                 <div class="pagination">
                     <span class="step-links">
                         {% if page_obj.has_previous %}
-                            <a href="" id="first-page-link">Primera</a>
-                            <a href="" id="previous-page-link">Anterior</a>
+                        <a href="" id="first-page-link">Primera</a>
+                        <a href="" id="previous-page-link">Anterior</a>
                         {% endif %}
-                
+
                         <span class="current-page">Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}.</span>
-                
+
                         {% if page_obj.has_next %}
-                            <a href="" id="next-page-link">Siguiente</a>
-                            <a href="" id="last-page-link">Última</a>
+                        <a href="" id="next-page-link">Siguiente</a>
+                        <a href="" id="last-page-link">Última</a>
                         {% endif %}
                     </span>
                 </div>
-                
-                
-                
+
+
+
 
                 <!-- Información de paginación -->
                 <div class="pagination-info">
@@ -279,40 +281,40 @@
         </div>
     </div>
     <!-- Este script no puede ser llamado de manera independiente ya que tiene muchas variables provenientes del servidor -->
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const baseUrl = window.location.href;
-        const currentPage = '{{ page_obj.number }}';
-        const nextPage = parseInt(currentPage)+1
-        const previousPage = parseInt(currentPage)-1
-        const totalPages = '{{ page_obj.paginator.num_pages }}';
-        
-        
-        '{% if page_obj.has_previous %}'
-        const firstPageLink = document.getElementById('first-page-link');
-        const previousPageLink = document.getElementById('previous-page-link');
-        firstPageLink.href = baseUrl+'&page=1';
-        previousPageLink.href = baseUrl+'&page='+previousPage;
-        '{% endif %}'
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const baseUrl = window.location.href;
+            const currentPage = '{{ page_obj.number }}';
+            const nextPage = parseInt(currentPage) + 1
+            const previousPage = parseInt(currentPage) - 1
+            const totalPages = '{{ page_obj.paginator.num_pages }}';
 
-        '{% if page_obj.has_next %}'
-        const nextPageLink = document.getElementById('next-page-link');
-        const lastPageLink = document.getElementById('last-page-link');
-        nextPageLink.href = baseUrl+'&page='+nextPage;
-        lastPageLink.href = baseUrl+'&page='+totalPages;
 
-        '{% endif %}'
-        
-    
-        
-        
-        
-        
-        
-        
+            '{% if page_obj.has_previous %}'
+            const firstPageLink = document.getElementById('first-page-link');
+            const previousPageLink = document.getElementById('previous-page-link');
+            firstPageLink.href = baseUrl + '&page=1';
+            previousPageLink.href = baseUrl + '&page=' + previousPage;
+            '{% endif %}'
 
-        
-    });
+            '{% if page_obj.has_next %}'
+            const nextPageLink = document.getElementById('next-page-link');
+            const lastPageLink = document.getElementById('last-page-link');
+            nextPageLink.href = baseUrl + '&page=' + nextPage;
+            lastPageLink.href = baseUrl + '&page=' + totalPages;
+
+            '{% endif %}'
+
+
+
+
+
+
+
+
+
+
+        });
     </script>
     {% endblock %}
 </body>
