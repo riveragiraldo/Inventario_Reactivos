@@ -49,6 +49,8 @@
     <!-- Llama Script  que valida que el stock mínimo sea inferior a la cantidad -->
     <script src="{% static 'inventarioreac/validateEdate.js' %}" defer></script>
     <!-- Llama Script  que valida que el que la fecha de vencimiento sea futura -->
+    <script src="{% static 'inventarioreac/cancelButtonFunction.js' %}" defer></script>
+    <!-- Llama Script  que coloca función al botón cancelar -->
 
     <link rel="stylesheet" href="{% static 'inventarioreac/styles.css' %}">
 
@@ -285,9 +287,11 @@
                 </div>
 
                 <div class="col-md-6">
-                    <button type="reset" class="btn btn-primary" id="limpiarCampos">Limpiar
-                        campos</button>
+                    <button type="button" class="btn btn-primary" onclick="limpiarCampos('in_form')">Cancelar</button>
                 </div>
+                
+                
+                
 
             </form>
             {% if messages %}

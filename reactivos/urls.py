@@ -22,6 +22,7 @@ urlpatterns = [
     path('ubicaciones/crear/', crear_ubicacion, name='crear_ubicacion'),
     path('responsables/crear/', crear_responsable, name='crear_responsable'),
     path('reactivos/registrar_salida/', registrar_salida, name='registrar_salida'),
+    path('reactivos/editar_salida/<int:pk>/', editar_salida, name='editar salida'),
     path('reactivos/registrar_entrada/', registrar_entrada, name='registrar_entrada'),
     path('reactivos/editar_entrada/<int:pk>/', editar_entrada, name='editar_entrada'),
     path('reactivos/eliminar_entrada/<int:pk>/', eliminar_entrada, name='eliminar_entrada'),

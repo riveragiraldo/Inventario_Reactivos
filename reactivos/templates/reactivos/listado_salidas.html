@@ -63,6 +63,7 @@
     <!-- Llama Script que actualiza URL -->
     <script src="{% static 'inventarioreac/listActionsControl.js' %}" defer></script>
     <!-- Llama Script que controla las acciones de la lista -->
+    
     {% endblock %}
 </head>
 
@@ -279,7 +280,7 @@
                                 height="18" title="Agregar una nueva salida de reactivo">
                         </a>
                         <!-- Editar -->
-                        <a href="javascript:void(0);" onclick="openEditFormIn({{ item.id }})">
+                        <a href="javascript:void(0);" onclick="openEditFormOut({{ item.id }})">
                             <img src="{% static 'inventarioreac/Images/edit_register.png' %}" alt="" width="18"
                                 height="18" title="Editar registro número {{ item.id }}">
                         </a>

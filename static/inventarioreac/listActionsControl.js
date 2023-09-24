@@ -21,6 +21,16 @@ function openEditFormIn(itemId) {
     window.open(editUrl, '_blank', 'width=600,height=800');
 }
 
+//Abre formulario de Edición  registro de salida de reactivo
+
+function openEditFormOut(itemId) {
+    // Construye la URL del formulario de edición con el ID del elemento
+    var editUrl = '/reactivos/editar_salida/' + itemId + '/';
+
+    // Abre una nueva ventana emergente con el formulario de edición
+    window.open(editUrl, '_blank', 'width=600,height=800');
+}
+
 // SOlicitud para eliminar el registro correspondiente
 function confirmDeleteIn(itemId, itemName) {
     // Muestra una Sweet Alert de confirmación

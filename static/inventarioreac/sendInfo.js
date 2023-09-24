@@ -158,7 +158,7 @@ function enviarInformacion(formData, csrfToken) {
             console.log('Respuesta del servidor:', data);
             // Realiza cualquier acción adicional que desees después de recibir los datos
             // Ocultar el spinner después de recibir la respuesta del servidor
-            alert('Hola')
+            
 
 
             // Recargar la página después de 700 ms

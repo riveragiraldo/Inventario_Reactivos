@@ -1417,6 +1417,37 @@ def editar_entrada(request, pk):
 
     return render(request, 'reactivos/editar_entrada.html', context)
 
+# Esta vista edita el registro de salidas, además según los valores edita a su vez el modelo Inventarios
+# de manera que una afectación en la salida, afecta directamente el inventario
+
+@login_required
+def editar_salida(request, pk):
+    #----------------------------------------------------------------------#    
+    # Contexto para incluir valores previos en el template
+    # Recupera la entrada o muestra una página de error 404 si no se encuentra
+    salida = get_object_or_404(Salidas, pk=pk)
+    
+    weight = int(salida.weight)
+
+    laboratorio = request.user.lab
+    
+    context = {
+        'salida': salida,
+        'reactivos': Reactivos.objects.all(),
+        'weight':weight,
+        'responsables': Responsables.objects.all(),
+        'marcas': Marcas.objects.all(),
+        'ubicaiones': Ubicaciones.objects.all(),
+        'destinos':Destinos.objects.all(),
+        'laboratorios':Laboratorios.objects.all(),
+        'wubicaciones':Almacenamiento.objects.all(),
+        'usuarios': User.objects.all(),
+        'laboratorio': laboratorio,
+        'usuarios': User.objects.all(),        
+    }
+
+    return render(request, 'reactivos/editar_salida.html', context)
+
 # Funcionalidad para eliminar (No lo elimina, lo inactiva)registros de entrada, además de esto debe restar del inventario la cantidad sumada
 # Al correspondiente resgistro, además si llega a cero debe inactivar el registro
 

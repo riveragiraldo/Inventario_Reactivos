@@ -51,16 +51,16 @@
     <!-- Llama Script  que valida que el que la fecha de vencimiento sea futura -->
     <script src="{% static 'inventarioreac/controlSelectores.js' %}" defer></script>
     <!-- Llama Script  que inserta valores actuales de los selectores -->
+    <script src="{% static 'inventarioreac/cancelButtonFunction.js' %}" defer></script>
+    <!-- Llama Script  que coloca función al botón cancelar -->
 
     <link rel="stylesheet" href="{% static 'inventarioreac/styles.css' %}">
     <script>
         var ubicacion_almacen = '{{ entrada.inventario.wlocation.id }}';
         var laboratorio = '{{ entrada.lab }}'
         var marca = '{{ entrada.trademark.id }}'
-        // Agrega un evento de clic al botón "Cancelar"
-        function cerrarVentanaEmergente() {
-            window.close(); // Cierra la ventana emergente
-        }
+        var destino = '{{ entrada.destination.id }}'
+        
 
     </script>
 
@@ -255,7 +255,7 @@
                 <div class="col-md-6">
                     <label class="form-label" for="destination" name="Destino: ">*Destino:</label>
                     <select name="destination" id="destination" class="form-control" required>
-                        <option value="{{ entrada.destination.id }}">{{ entrada.destination }}</option>
+                        <option value="">Seleccione</option>
                         {% for destino in destinos %}
                         <option value="{{ destino.id }}">{{ destino.name }}</option>
                         {% endfor %}
@@ -306,8 +306,9 @@
                 </div>
 
                 <div class="col-md-6">
-                    <button type="button" class="btn btn-primary" id="cancelar" onclick="cerrarVentanaEmergente()">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="limpiarCampos('in_form')">Cancelar</button>
                 </div>
+                
 
             </form>
 
