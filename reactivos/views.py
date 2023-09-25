@@ -1107,6 +1107,211 @@ def registrar_entrada(request):
         
     return render(request, 'reactivos/registrar_entrada.html', context)
 
+# La vista "registrar_salida" se encarga de gestionar el registro de transacciones de salida en el aplicativo de insumos de la base de 
+# datos. Los datos se obtienen del formulario presente en el template "registrar_salida.html" y se utilizan el modelo "Salidas" para 
+# realizar las operaciones correspondientes de inserción de registros.
+# En esta vista se verifica la existencia de los campos de entrada que son foráneos en la base de datos. En caso de que alguno de estos 
+# campos sea tomado como un nombre o un ID, se convierten en una instancia del modelo foráneo correspondiente. Luego, se realiza una 
+# verificación en la tabla "Inventarios" para comprobar si existe algún registro que coincida con los campos "lab", "name", "trademark" 
+# y "reference".
+#Si se encuentra una coincidencia en "Inventarios", se resta el valor del campo "weight" del registro existente. Si no hay una 
+# coincidencia, se impide el registro tanto en la tabla "Inventarios" como en la tabla "Salidas". Además, se verifica que el campo 
+# "weight" sea mayor o igual para permitir la transacción. En caso contrario, se muestra un mensaje de error. Adicionalmente, si el 
+# campo "weight" llega a cero después de realizar el registro, se muestra un mensaje indicando que el insumo ha alcanzado el valor de cero.
+#Finalmente, se realiza la creación del registro de salida en la base de datos utilizando el modelo "Salidas".
+@login_required
+def registrar_salida(request):
+
+    if request.method == 'POST': 
+        warning=""
+
+        laboratorio = request.POST.get('lab')
+        if not laboratorio:
+            messages.error(request, 'No fue posible realizar su registro: no seleccionó un laboratorio válido, por favor verifique.')
+            return HttpResponse("Error al consultar en la base de datos", status=400)
+
+        #Verificar que el peso sea positvo
+        weight = request.POST.get('weight')
+        weight_number=float(weight)
+        if weight_number<=0:
+            messages.error(request, 'Solo se permiten registros de cantidades positivas')
+            return HttpResponse("Error de cantidades al insertar en la base de datos", status=400)
+        
+        name = request.POST.get('name')
+        nReactivo = name
+        try:
+            nameReactivo = Reactivos.objects.get(name=name)
+            name = nameReactivo
+        except Reactivos.DoesNotExist:
+            messages.error(request, "El reactivo "+nReactivo +
+                           " no se encuentra en la base de datos, favor crearlo primero.")
+            name = None
+            return HttpResponse("El reactivo "+nReactivo +" no se encuentra en la base de datos, favor crearlo primero.", status=400)
+
+        facultad = request.POST.get('facultad')
+        facultad=get_object_or_404(Facultades, name=facultad)
+        
+        location = request.POST.get('location')
+        nlocation = location
+        try:
+            nameLocation = Ubicaciones.objects.get(name=location,facultad=facultad)
+            location = nameLocation
+        except Ubicaciones.DoesNotExist:
+            messages.error(request, "La ubicación "+nlocation +
+                           " no se encuentra en la base de datos, favor crearlo primero.")
+            location = None
+            return HttpResponse("La ubicación "+nlocation +" no se encuentra en la base de datos, favor crearlo primero.", status=400)
+        
+        manager = request.POST.get('manager')
+        correo = request.POST.get('correo')
+        nmanager = manager
+        try:
+            nameManager = Responsables.objects.get(name=manager, mail=correo)
+            manager = nameManager
+        except Responsables.DoesNotExist:
+            messages.error(request, "El responsable "+nmanager +
+                           " no se encuentra en la base de datos, favor crearlo primero.")
+            manager = None
+            return HttpResponse("El responsable "+nmanager +
+                           " no se encuentra en la base de datos, favor crearlo primero.", status=400)
+        
+        trademark_id = request.POST.get('trademark')
+        if not trademark_id.isdigit():
+            messages.error(request, 'No fue posible realizar su registro: no seleccionó una marca, por favor verifique.')
+            return HttpResponse("Error al insertar en la base de datos", status=400)
+                     
+
+        try:
+            nameMarca = Marcas.objects.get(id=trademark_id)
+            trademark = nameMarca
+        except ObjectDoesNotExist:
+            trademark = None
+            messages.error(request, 'La marca no coincide, por favor revise.')
+            return redirect('reactivos:registrar_salida')
+
+        destination_id = request.POST.get('destination')
+        if not destination_id.isdigit():
+            messages.error(request, 'No fue posible realizar su registro: no seleccionó un destino, por favor verifique.')
+            return HttpResponse("Error al insertar en la base de datos", status=400)
+        try:
+            namedestino = Destinos.objects.get(id=destination_id)
+            destination = namedestino
+        except ObjectDoesNotExist:
+            destination = None
+            messages.error(request, 'Por favor seleccione un destino primero')
+            return redirect('reactivos:registrar_salida')
+        
+        lab = request.POST.get('lab')
+        nlab = lab
+        try:
+            namelab = Laboratorios.objects.get(name=lab)
+            lab = namelab
+        except Laboratorios.DoesNotExist:
+            messages.error(request, "El Laboratorio "+nlab +
+                           " no se encuentra en la base de datos, favor crearlo primero.")
+            lab = None
+            return HttpResponse("El responsable "+nlab +
+                           " no se encuentra en la base de datos, favor crearlo primero.", status=400)
+        
+        reference = request.POST.get('reference')
+        if not reference:
+            messages.error(request, 'No fue posible realizar su registro: no seleccionó una referencia, por favor verifique.')
+            return HttpResponse("Error al consultar en la base de datos", status=400)
+        
+        # Verificar si el reactivo ya existe en la tabla de inventarios
+        try:
+            inventario_existente = Inventarios.objects.filter(
+                name=name, trademark=trademark, reference=reference, lab=lab).first()
+
+            if inventario_existente:
+                
+                weight = request.POST.get('weight')
+                weight=Decimal(weight)
+                unit = request.POST.get('unit')
+                #Verificar si la cantidad actual sea mayor o igual a cantidad registrada
+                if inventario_existente.weight>=weight:
+                    inventario_existente.weight -= int(weight)
+                    inventario_existente.last_updated_by = request.user
+                    inventario_existente.save()
+                    #Verificación después de restar en la tabla llegue a cero y ponga en warning la alerta que 
+                    # posteriormente se enviará al usuario informando
+                    if inventario_existente.weight == 0:
+                        inventario_existente.is_active = False  # Asignar False a la columna is_active
+                        inventario_existente.last_updated_by = request.user
+                        inventario_existente.save()
+                        warning=", pero el inventario actual ha llegado a 0. Favor informar al coordinador de laboratorio."
+                    laboratorio_quimica = Laboratorios.objects.get(name="LABORATORIO DE QUIMICA")
+                    if (inventario_existente.weight<=inventario_existente.minstock) and inventario_existente.minStockControl==True and inventario_existente.weight>0:
+
+                        warning=", pero el inventario actual es menor o igual que el stock mínimo para este reactivo. Favor informar al coordinador de laboratorio."
+
+                else:
+                    inventario_existente.weight=int(inventario_existente.weight)
+                    messages.error(request, "No es posible realizar la salida del reactivo "+inventario_existente.name.name+": Inventario actual: " + str(inventario_existente.weight) + ", " + unit + " Cantidad solicitada: " + str(weight) + " " + unit)
+                    return HttpResponse("Error de cantidades al insertar en la base de datos", status=400)
+            else:
+                
+                messages.error(request, "Los valor seleccionados (Reactivo, Marca o referencia) no corresponden a un insumo existente en el inventario, verifique de nuevo")
+                return HttpResponse("Error al insertar en la base de datos", status=400)
+
+        except Inventarios.DoesNotExist:
+            weight = request.POST.get('weight')
+
+        try:
+            nuevo_inventario = Inventarios.objects.filter(
+                name=name, trademark=trademark, reference=reference, lab=lab).first()
+            
+        except Inventarios.DoesNotExist:
+            weight = request.POST.get('weight')
+                       
+        if name:
+
+            inventario=nuevo_inventario.id
+            inventario=get_object_or_404(Inventarios,id=inventario)
+            reference = request.POST.get('reference')
+            weight = request.POST.get('weight')
+            observations = request.POST.get('observations')
+            observations = estandarizar_nombre(observations)
+            unit = request.POST.get('unit')
+            
+
+            salida = Salidas.objects.create(
+                inventario=inventario,
+                name=name,
+                trademark=trademark,
+                reference=reference,
+                weight=weight,
+                location=location,
+                manager=manager,
+                observations=observations,
+                destination=destination,
+                lab=lab,
+                created_by=request.user,  # Asignar el usuario actualmente autenticado
+                last_updated_by=request.user,  # Asignar el usuario actualmente autenticado
+            )
+
+            messages.success(request, 'Se ha registrado de manera exitosa la salida del insumo del insumo: ' +
+                             nReactivo+', cantidad '+weight+' '+unit+warning)
+            return HttpResponse('Se ha registrado de manera exitosa la salida del insumo : ' +
+                             nReactivo+', cantidad '+weight+' '+unit+warning, status=200)
+    laboratorio = request.user.lab
+
+    context = {
+                'laboratorio':laboratorio,
+                'usuarios': User.objects.all(),
+                'reactivos': Reactivos.objects.all(),
+                'responsables': Responsables.objects.all(),
+                'marcas': Marcas.objects.all(),
+                'ubicaiones': Ubicaciones.objects.all(),
+                'destinos':Destinos.objects.all(),
+                'referencias':Inventarios.objects.all(),
+                'laboratorios':Laboratorios.objects.all(),
+            }
+        
+    return render(request, 'reactivos/registrar_salida.html', context)
+
+
+
 # Esta vista edita el registro de entrada, además según los valores edita a su vez el modelo Inventarios
 # de manera que una afectación en la entrada, afecta directamente el inventario
 
@@ -1316,7 +1521,7 @@ def editar_entrada(request, pk):
                     warning=' pero la cantidad en inventario quedó por debajo del mínimo, por favor verifique y comuniquese con el coordinador de área'
 
                     
-                
+            # Si no existe en la base de datos se creará un nuevo registro de inventario    
             else:
                 inventario = Inventarios.objects.create(
                     name=name,
@@ -1334,7 +1539,7 @@ def editar_entrada(request, pk):
             inventario_existente.save()
 
 
-        # Si no existe en la base de datos se creará un nuevo registro de inventario
+        
         except Inventarios.DoesNotExist:
             print('Hola los valores no coinciden')
             
@@ -1533,18 +1738,18 @@ def editar_salida(request, pk):
             if inventario_existente:
                 # Eliminar la salida anterior
                 # Obtener salida anterior
-                salida_anterior=salida.weight 
-                print('Salida anterior: '+str(salida_anterior))
+                salida_anterior=salida.weight
+                
                 # Obtener inventario anterior
                 inventario_anterior=salida.inventario.weight 
-                print('Inventario Anterior '+str(inventario_anterior))
+                
                 # Eliminar Salida Anterior
                 inventario_restado= inventario_anterior+salida_anterior
-                print('Inventario Sumado '+str(inventario_restado))
+                
                 
                 # Restar del inventario anterior la salida actual
                 inventario_existente.weight=inventario_restado-int(weight)
-                print('Nuevo inventario: '+str(inventario_existente.weight))
+                
                 # si el inventario quedó menor que 0 devolver error
                 if inventario_existente.weight < 0:
                     return HttpResponse("No se puede realizar la edición del registro ya esta hace que el inventario sea menor que 0.", 400)
@@ -1655,212 +1860,51 @@ def eliminar_entrada(request, pk):
     # Construye el mensaje de éxito
     mensaje = f'Se ha eliminado a petición del usuario el registro número {pk} reactivo "{nombre_entrada}" de manera exitosa.'
     mensaje = mensaje+warning
-    print(mensaje)
-    return HttpResponse(mensaje,200)
     
+    return HttpResponse(mensaje,200)
 
-    # La vista "registrar_salida" se encarga de gestionar el registro de transacciones de salida en el aplicativo de insumos de la base de 
-# datos. Los datos se obtienen del formulario presente en el template "registrar_salida.html" y se utilizan el modelo "Salidas" para 
-# realizar las operaciones correspondientes de inserción de registros.
-# En esta vista se verifica la existencia de los campos de entrada que son foráneos en la base de datos. En caso de que alguno de estos 
-# campos sea tomado como un nombre o un ID, se convierten en una instancia del modelo foráneo correspondiente. Luego, se realiza una 
-# verificación en la tabla "Inventarios" para comprobar si existe algún registro que coincida con los campos "lab", "name", "trademark" 
-# y "reference".
-#Si se encuentra una coincidencia en "Inventarios", se resta el valor del campo "weight" del registro existente. Si no hay una 
-# coincidencia, se impide el registro tanto en la tabla "Inventarios" como en la tabla "Salidas". Además, se verifica que el campo 
-# "weight" sea mayor o igual para permitir la transacción. En caso contrario, se muestra un mensaje de error. Adicionalmente, si el 
-# campo "weight" llega a cero después de realizar el registro, se muestra un mensaje indicando que el insumo ha alcanzado el valor de cero.
-#Finalmente, se realiza la creación del registro de salida en la base de datos utilizando el modelo "Salidas".
+# Funcionalidad para eliminar (No lo elimina, lo inactiva)registros de entrada, además de esto debe restar del inventario la cantidad sumada
+# Al correspondiente resgistro, además si llega a cero debe inactivar el registro
+
 @login_required
-def registrar_salida(request):
+def eliminar_salida(request, pk):
+    # Obtener la salida correspondiente al PK o muestra una página de error 404 si no se encuentra
+    salida = get_object_or_404(Salidas, pk=pk)
+    # se usará para establecer mensaje adicional si el inventario llega a cero
+    warning=''
+    
+    # Guarda el nombre de la entrada antes de eliminarla para el mensaje
+    nombre_salida = salida.name
 
-    if request.method == 'POST': 
-        warning=""
-
-        laboratorio = request.POST.get('lab')
-        if not laboratorio:
-            messages.error(request, 'No fue posible realizar su registro: no seleccionó un laboratorio válido, por favor verifique.')
-            return HttpResponse("Error al consultar en la base de datos", status=400)
-
-        #Verificar que el peso sea positvo
-        weight = request.POST.get('weight')
-        weight_number=float(weight)
-        if weight_number<=0:
-            messages.error(request, 'Solo se permiten registros de cantidades positivas')
-            return HttpResponse("Error de cantidades al insertar en la base de datos", status=400)
-        
-        name = request.POST.get('name')
-        nReactivo = name
-        try:
-            nameReactivo = Reactivos.objects.get(name=name)
-            name = nameReactivo
-        except Reactivos.DoesNotExist:
-            messages.error(request, "El reactivo "+nReactivo +
-                           " no se encuentra en la base de datos, favor crearlo primero.")
-            name = None
-            return HttpResponse("El reactivo "+nReactivo +" no se encuentra en la base de datos, favor crearlo primero.", status=400)
-
-        facultad = request.POST.get('facultad')
-        facultad=get_object_or_404(Facultades, name=facultad)
-        
-        location = request.POST.get('location')
-        nlocation = location
-        try:
-            nameLocation = Ubicaciones.objects.get(name=location,facultad=facultad)
-            location = nameLocation
-        except Ubicaciones.DoesNotExist:
-            messages.error(request, "La ubicación "+nlocation +
-                           " no se encuentra en la base de datos, favor crearlo primero.")
-            location = None
-            return HttpResponse("La ubicación "+nlocation +" no se encuentra en la base de datos, favor crearlo primero.", status=400)
-        
-        manager = request.POST.get('manager')
-        correo = request.POST.get('correo')
-        nmanager = manager
-        try:
-            nameManager = Responsables.objects.get(name=manager, mail=correo)
-            manager = nameManager
-        except Responsables.DoesNotExist:
-            messages.error(request, "El responsable "+nmanager +
-                           " no se encuentra en la base de datos, favor crearlo primero.")
-            manager = None
-            return HttpResponse("El responsable "+nmanager +
-                           " no se encuentra en la base de datos, favor crearlo primero.", status=400)
-        
-        trademark_id = request.POST.get('trademark')
-        if not trademark_id.isdigit():
-            messages.error(request, 'No fue posible realizar su registro: no seleccionó una marca, por favor verifique.')
-            return HttpResponse("Error al insertar en la base de datos", status=400)
-                     
-
-        try:
-            nameMarca = Marcas.objects.get(id=trademark_id)
-            trademark = nameMarca
-        except ObjectDoesNotExist:
-            trademark = None
-            messages.error(request, 'La marca no coincide, por favor revise.')
-            return redirect('reactivos:registrar_salida')
-
-        destination_id = request.POST.get('destination')
-        if not destination_id.isdigit():
-            messages.error(request, 'No fue posible realizar su registro: no seleccionó un destino, por favor verifique.')
-            return HttpResponse("Error al insertar en la base de datos", status=400)
-        try:
-            namedestino = Destinos.objects.get(id=destination_id)
-            destination = namedestino
-        except ObjectDoesNotExist:
-            destination = None
-            messages.error(request, 'Por favor seleccione un destino primero')
-            return redirect('reactivos:registrar_salida')
-        
-        lab = request.POST.get('lab')
-        nlab = lab
-        try:
-            namelab = Laboratorios.objects.get(name=lab)
-            lab = namelab
-        except Laboratorios.DoesNotExist:
-            messages.error(request, "El Laboratorio "+nlab +
-                           " no se encuentra en la base de datos, favor crearlo primero.")
-            lab = None
-            return HttpResponse("El responsable "+nlab +
-                           " no se encuentra en la base de datos, favor crearlo primero.", status=400)
-        
-        reference = request.POST.get('reference')
-        if not reference:
-            messages.error(request, 'No fue posible realizar su registro: no seleccionó una referencia, por favor verifique.')
-            return HttpResponse("Error al consultar en la base de datos", status=400)
-        
-        # Verificar si el reactivo ya existe en la tabla de inventarios
-        try:
-            inventario_existente = Inventarios.objects.filter(
-                name=name, trademark=trademark, reference=reference, lab=lab).first()
-
-            if inventario_existente:
-                
-                weight = request.POST.get('weight')
-                weight=Decimal(weight)
-                unit = request.POST.get('unit')
-                #Verificar si la cantidad actual sea mayor o igual a cantidad registrada
-                if inventario_existente.weight>=weight:
-                    inventario_existente.weight -= int(weight)
-                    inventario_existente.last_updated_by = request.user
-                    inventario_existente.save()
-                    #Verificación después de restar en la tabla llegue a cero y ponga en warning la alerta que 
-                    # posteriormente se enviará al usuario informando
-                    if inventario_existente.weight == 0:
-                        inventario_existente.is_active = False  # Asignar False a la columna is_active
-                        inventario_existente.last_updated_by = request.user
-                        inventario_existente.save()
-                        warning=", pero el inventario actual ha llegado a 0. Favor informar al coordinador de laboratorio."
-                    laboratorio_quimica = Laboratorios.objects.get(name="LABORATORIO DE QUIMICA")
-                    if (inventario_existente.weight<=inventario_existente.minstock) and inventario_existente.minStockControl==True and inventario_existente.weight>0:
-
-                        warning=", pero el inventario actual es menor o igual que el stock mínimo para este reactivo. Favor informar al coordinador de laboratorio."
-
-                else:
-                    inventario_existente.weight=int(inventario_existente.weight)
-                    messages.error(request, "No es posible realizar la salida del reactivo "+inventario_existente.name.name+": Inventario actual: " + str(inventario_existente.weight) + ", " + unit + " Cantidad solicitada: " + str(weight) + " " + unit)
-                    return HttpResponse("Error de cantidades al insertar en la base de datos", status=400)
-            else:
-                
-                messages.error(request, "Los valor seleccionados (Reactivo, Marca o referencia) no corresponden a un insumo existente en el inventario, verifique de nuevo")
-                return HttpResponse("Error al insertar en la base de datos", status=400)
-
-        except Inventarios.DoesNotExist:
-            weight = request.POST.get('weight')
-
-        try:
-            nuevo_inventario = Inventarios.objects.filter(
-                name=name, trademark=trademark, reference=reference, lab=lab).first()
-            
-        except Inventarios.DoesNotExist:
-            weight = request.POST.get('weight')
-                       
-        if name:
-
-            inventario=nuevo_inventario.id
-            inventario=get_object_or_404(Inventarios,id=inventario)
-            reference = request.POST.get('reference')
-            weight = request.POST.get('weight')
-            observations = request.POST.get('observations')
-            observations = estandarizar_nombre(observations)
-            unit = request.POST.get('unit')
-            
-
-            salida = Salidas.objects.create(
-                inventario=inventario,
-                name=name,
-                trademark=trademark,
-                reference=reference,
-                weight=weight,
-                location=location,
-                manager=manager,
-                observations=observations,
-                destination=destination,
-                lab=lab,
-                created_by=request.user,  # Asignar el usuario actualmente autenticado
-                last_updated_by=request.user,  # Asignar el usuario actualmente autenticado
-            )
-
-            messages.success(request, 'Se ha registrado de manera exitosa la salida del insumo del insumo: ' +
-                             nReactivo+', cantidad '+weight+' '+unit+warning)
-            return HttpResponse('Se ha registrado de manera exitosa la salida del insumo : ' +
-                             nReactivo+', cantidad '+weight+' '+unit+warning, status=200)
-    laboratorio = request.user.lab
-
-    context = {
-                'laboratorio':laboratorio,
-                'usuarios': User.objects.all(),
-                'reactivos': Reactivos.objects.all(),
-                'responsables': Responsables.objects.all(),
-                'marcas': Marcas.objects.all(),
-                'ubicaiones': Ubicaciones.objects.all(),
-                'destinos':Destinos.objects.all(),
-                'referencias':Inventarios.objects.all(),
-                'laboratorios':Laboratorios.objects.all(),
-            }
-        
-    return render(request, 'reactivos/registrar_salida.html', context)
+    # # Guarda cantidad y registro de inventario antes de eliminar para sumar al inventario
+    cantidad_salida = salida.weight
+    id_inventario = salida.inventario.id
+    inventario = get_object_or_404(Inventarios, id=id_inventario)
+    nuevo_posible_inventario=inventario.weight+cantidad_salida
+    if nuevo_posible_inventario<0:
+        return HttpResponse('No se puede eliminar el registro ya que esta acción hace que el inventario sea menor que 0',200)
+    else:
+        inventario.weight=nuevo_posible_inventario
+        inventario.last_updated_by=request.user
+        if inventario.weight==0:
+            warning= ' Pero con esta acción el inventario a llegado a 0 por favor verifique y comuniquese con su coordinador.'
+            inventario.is_active=False
+            ## Enviar correo
+        elif inventario.minStockControl and inventario.weight>0 and inventario.weight<=inventario.minstock:
+            warning= ' Pero con esta acción el inventario a llegado por debajo al inventario mínimo por favor verifique y comuniquese con su coordinador.'    
+     
+    
+    inventario.save()    
+    # Elimina el registro lo inactiva, no lo elimina y además actualiza el usuario que realiza la acción
+    salida.is_active=False
+    salida.last_updated_by=request.user
+    salida.save()
+    
+    # Construye el mensaje de éxito
+    mensaje = f'Se ha eliminado a petición del usuario el registro número {pk} reactivo "{nombre_salida}" de manera exitosa.'
+    mensaje = mensaje+warning
+    
+    return HttpResponse(mensaje,200)
 
 # La vista "inventario" se encarga de obtener los valores de la tabla del modelo "Inventario" y los envía al template "inventario.html"
 # Además, recibe los valores filtrados desde el template, especificando qué elementos se desean mostrar en la lista. Estos valores 

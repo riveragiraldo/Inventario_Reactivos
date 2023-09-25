@@ -26,6 +26,7 @@ urlpatterns = [
     path('reactivos/registrar_entrada/', registrar_entrada, name='registrar_entrada'),
     path('reactivos/editar_entrada/<int:pk>/', editar_entrada, name='editar_entrada'),
     path('reactivos/eliminar_entrada/<int:pk>/', eliminar_entrada, name='eliminar_entrada'),
+    path('reactivos/eliminar_salida/<int:pk>/', eliminar_salida, name='eliminar_salida'),
     path('reactivos/inventario/', InventarioListView.as_view(), name='inventario'),
     path('reactivos/listado_entradas/', EntradasListView.as_view(), name='listado_entradas'),
     path('reactivos/listado_salidas/', SalidasListView.as_view(), name='listado_salidas'),
