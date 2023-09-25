@@ -1422,6 +1422,174 @@ def editar_entrada(request, pk):
 
 @login_required
 def editar_salida(request, pk):
+    # Recupera la entrada o muestra una página de error 404 si no se encuentra
+    salida = get_object_or_404(Salidas, pk=pk)
+    if request.method == 'POST': 
+        # Alerta blanco en caso de mensajes adicionales
+        warning=""
+        # Tomar datos y realizar validaciones
+
+        # Laboratorio
+        laboratorio = request.POST.get('lab')
+        if not laboratorio:
+            messages.error(request, 'No fue posible realizar su registro: no seleccionó un laboratorio válido, por favor verifique.')
+            return HttpResponse("Error al consultar en la base de datos", status=400)
+        
+        nlab = laboratorio
+        try:
+            namelab = Laboratorios.objects.get(name=laboratorio)
+            laboratorio = namelab
+        except Laboratorios.DoesNotExist:
+            messages.error(request, "El Laboratorio "+nlab +
+                           " no se encuentra en la base de datos, favor crearlo primero.")
+            laboratorio = None
+            return HttpResponse("El responsable "+nlab +
+                           " no se encuentra en la base de datos, favor crearlo primero.", status=400)
+
+        # Cantidad Verificar que el peso sea positvo
+        weight = request.POST.get('weight')
+        weight_number=float(weight)
+        if weight_number<=0:
+            messages.error(request, 'Solo se permiten registros de cantidades positivas')
+            return HttpResponse("Error de cantidades al insertar en la base de datos", status=400)
+        
+        name = request.POST.get('name')
+        nReactivo = name
+        try:
+            nameReactivo = Reactivos.objects.get(name=name)
+            name = nameReactivo
+        except Reactivos.DoesNotExist:
+            messages.error(request, "El reactivo "+nReactivo +
+                           " no se encuentra en la base de datos, favor crearlo primero.")
+            name = None
+            return HttpResponse("El reactivo "+nReactivo +" no se encuentra en la base de datos, favor crearlo primero.", status=400)
+        
+        # Ubicación y Facultad
+        facultad = request.POST.get('facultad')
+        facultad=get_object_or_404(Facultades, name=facultad)
+        
+        location = request.POST.get('location')
+        nlocation = location
+        try:
+            nameLocation = Ubicaciones.objects.get(name=location,facultad=facultad)
+            location = nameLocation
+        except Ubicaciones.DoesNotExist:
+            messages.error(request, "La ubicación "+nlocation +
+                           " no se encuentra en la base de datos, favor crearlo primero.")
+            location = None
+            return HttpResponse("La ubicación "+nlocation +" no se encuentra en la base de datos, favor crearlo primero.", status=400)
+        
+        # Responsable y correo
+        manager = request.POST.get('manager')
+        correo = request.POST.get('correo')
+        nmanager = manager
+        try:
+            nameManager = Responsables.objects.get(name=manager, mail=correo)
+            manager = nameManager
+        except Responsables.DoesNotExist:
+            messages.error(request, "El responsable "+nmanager +
+                           " no se encuentra en la base de datos, favor crearlo primero.")
+            manager = None
+            return HttpResponse("El responsable "+nmanager +
+                           " no se encuentra en la base de datos, favor crearlo primero.", status=400)
+        #Marca        
+        trademark_id = request.POST.get('trademark')
+        if not trademark_id.isdigit():
+            return HttpResponse("Por favor selrccione una marca primero.", status=400)
+        try:
+            nameMarca = Marcas.objects.get(id=trademark_id)
+            trademark = nameMarca
+        except ObjectDoesNotExist:
+            trademark = None
+            return HttpResponse("La Marca no se encuentra en la base de datos, favor crearlo primero.", status=400)
+        
+        # Referencia
+        reference = request.POST.get('reference')
+        if not reference:
+            messages.error(request, 'No fue posible realizar su registro: no seleccionó una referencia, por favor verifique.')
+            return HttpResponse("Error al consultar en la base de datos", status=400)
+        
+        # Destino
+        destination_id = request.POST.get('destination')
+        if not destination_id.isdigit():
+            messages.error(request, 'No fue posible realizar su registro: no seleccionó un destino, por favor verifique.')
+            return HttpResponse("Error al insertar en la base de datos", status=400)
+        try:
+            namedestino = Destinos.objects.get(id=destination_id)
+            destination = namedestino
+        except ObjectDoesNotExist:
+            destination = None
+            messages.error(request, 'Por favor seleccione un destino primero')
+            return redirect('reactivos:registrar_salida')
+        
+        # Observaciones
+        observations = request.POST.get('observations')
+        observations = estandarizar_nombre(observations)
+             
+        # Verificar si el reactivo ya existe en la tabla de inventarios
+        try:
+            inventario_existente = Inventarios.objects.filter(name=name, trademark=trademark, reference=reference, lab=laboratorio).first()
+
+            if inventario_existente:
+                # Eliminar la salida anterior
+                # Obtener salida anterior
+                salida_anterior=salida.weight 
+                print('Salida anterior: '+str(salida_anterior))
+                # Obtener inventario anterior
+                inventario_anterior=salida.inventario.weight 
+                print('Inventario Anterior '+str(inventario_anterior))
+                # Eliminar Salida Anterior
+                inventario_restado= inventario_anterior+salida_anterior
+                print('Inventario Sumado '+str(inventario_restado))
+                
+                # Restar del inventario anterior la salida actual
+                inventario_existente.weight=inventario_restado-int(weight)
+                print('Nuevo inventario: '+str(inventario_existente.weight))
+                # si el inventario quedó menor que 0 devolver error
+                if inventario_existente.weight < 0:
+                    return HttpResponse("No se puede realizar la edición del registro ya esta hace que el inventario sea menor que 0.", 400)
+                 
+                else:
+                    inventario_existente.is_active=True
+                    # Si el inventario es mayor o igual a 0 verificar si este llega a 0
+                    if inventario_existente.weight==0:
+                        warning=', pero esta a hecho que el inventario llegue a "Cero", por favor verifique e informe al coordinador de laboratorio'
+                        inventario_existente.is_active=False
+                        # correo
+                        # Si el inventario es mayor o igual a 0 verificar si está por debajo del control de stock mínimo
+                    elif inventario_existente.minStockControl and inventario_existente.weight<=inventario_existente.minstock:
+                        warning=', pero esta a hecho que el inventario llegue a una cantidad inferior al "Inventario Mínimo", por favor verifique e informe al coordinador de laboratorio'
+                        # correo
+                    # Actualizar el resto de datos del inventario
+                    inventario_existente.last_updated_by=request.user
+                    inventario_existente.save()                
+            else:
+                return HttpResponse("No se puede realizar la edición de la salida ya que los valor seleccionados (Laboratorio, Reactivo, Marca o referencia) no corresponden a un insumo existente en el inventario, verifique de nuevo", status=400)
+
+        except Inventarios.DoesNotExist:
+            print('Inventario no coincide')
+
+        
+        # Actualizar tomar unidades del inventario para el mensaje        
+        
+        unit=inventario_existente.name.unit
+        # Actualizar datos de entrada 
+        inventario=get_object_or_404(Inventarios, id=inventario_existente.id)    
+        salida.inventario=inventario
+        salida.name=name
+        salida.trademark=trademark
+        salida.reference=reference
+        salida.weight=weight
+        salida.location=location
+        salida.manager=manager
+        salida.observations=observations
+        salida.destination=destination
+        salida.lab=laboratorio
+        salida.created_by=request.user  # Asignar el usuario actualmente autenticado
+        salida.save()
+        
+        mensaje=f'Se ha editado de manera exitosa la salida del insumo : {salida.name} cantidad: {salida.weight} {unit}{warning}.'
+        return HttpResponse(mensaje, status=200)
     #----------------------------------------------------------------------#    
     # Contexto para incluir valores previos en el template
     # Recupera la entrada o muestra una página de error 404 si no se encuentra

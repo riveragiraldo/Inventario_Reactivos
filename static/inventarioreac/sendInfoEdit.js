@@ -181,7 +181,7 @@ function enviarInformacion(formData, csrfToken) {
                 var alertType = 'info';  // Tipo de alerta predeterminado para mensajes habituales
 
                 // Verificar el contenido del mensaje para asignar el tipo de alerta adecuado
-                if (messageText.includes('Por favor seleccione') || messageText.includes('no se encuentra en la base de datos') || messageText.includes('fecha válida') || messageText.includes('Solo se permiten')|| messageText.includes('pero la cantidad en inventario')) {
+                if (messageText.includes('Por favor seleccione') || messageText.includes('no se encuentra en la base de datos') || messageText.includes('fecha válida') || messageText.includes('Solo se permiten')|| messageText.includes('pero la cantidad en inventario')|| messageText.includes('pero esta a hecho que')) {
                     alertType = 'warning';
                 } else if (messageText.includes('de manera exitosa')) {
                     alertType = 'success';
