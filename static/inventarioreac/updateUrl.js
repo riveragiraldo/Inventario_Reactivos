@@ -27,3 +27,12 @@ if (currentUrl.endsWith('/reactivos/listado_salidas/')) {
     // Redirigir a la nueva URL
     window.location.href = newUrl;
 }
+
+// Verificar si la URL no tiene parámetros de búsqueda
+if (currentUrl.endsWith('/reactivos/listado_reactivos/')) {
+    // Modificar la URL agregando los parámetros de búsqueda deseados
+    const newUrl = currentUrl + '?name=';
+
+    // Redirigir a la nueva URL
+    window.location.href = newUrl;
+}

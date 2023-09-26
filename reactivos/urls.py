@@ -30,6 +30,7 @@ urlpatterns = [
     path('reactivos/inventario/', InventarioListView.as_view(), name='inventario'),
     path('reactivos/listado_entradas/', EntradasListView.as_view(), name='listado_entradas'),
     path('reactivos/listado_salidas/', SalidasListView.as_view(), name='listado_salidas'),
+    path('reactivos/listado_reactivos/', ReactivosListView.as_view(), name='listado_reactivos'),
     path('roles/crear/', CrearRoles.as_view(), name='crear_roles'),
     path('get-value/', get_value, name='get_value'),
     path('autocomplete/', autocomplete, name='autocomplete'),
@@ -50,6 +51,7 @@ urlpatterns = [
     path('guardar-per-page/<int:per_page>/', GuardarPerPageView.as_view(), name='GuardarPerPage'),
     path('guardar-per-page-in/<int:per_page>/', GuardarPerPageViewIn.as_view(), name='GuardarPerPageIn'),
     path('guardar-per-page-out/<int:per_page>/', GuardarPerPageViewOut.as_view(), name='GuardarPerPageOut'),
+    path('guardar-per-page-reactivo/<int:per_page>/', GuardarPerPageViewReactivo.as_view(), name='GuardarPerPageReactivo'),
     path("obtener_stock/", obtener_stock, name="obtener_stock"),
     path('templates/webtemplate/', webtemplate, name='webtemplate'),
     

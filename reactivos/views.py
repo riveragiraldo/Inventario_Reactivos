@@ -2454,6 +2454,64 @@ class SalidasListView(LoginRequiredMixin,ListView):
         queryset = queryset.order_by('id')
         return queryset
 
+# Muestra el listado de reactivos
+class ReactivosListView(LoginRequiredMixin,ListView):
+    model = Reactivos
+    template_name = "reactivos/listado_reactivos.html"
+    paginate_by = 10
+    
+    
+    @check_group_permission(groups_required=['COORDINADOR', 'ADMINISTRADOR', 'TECNICO'])
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        # Obtener el número de registros por página de la sesión del usuario
+        per_page = request.session.get('per_page')
+        if per_page:
+            self.paginate_by = int(per_page)
+        else:
+            self.paginate_by = 10  # Valor predeterminado si no hay variable de sesión
+
+        # Obtener los parámetros de filtrado
+        
+        #name = self.request.GET.get('name')
+        
+        # Guardar los valores de filtrado en la sesión
+        
+        # request.session['filtered_name'] = name
+        
+
+        return super().get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        laboratorio = self.request.user.lab
+        
+        context['usuarios'] = User.objects.all()
+        context['laboratorio'] = laboratorio
+        
+        # Obtener la lista de inventarios
+        reactivos = context['object_list']
+        if hasattr(self, 'no_results_message'):
+            context['no_results_message'] = self.no_results_message
+               
+        context['object_list'] = reactivos
+        return context
+    
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        name = self.request.GET.get('name')
+        if name:
+            queryset = queryset.filter(name=name)
+            
+        queryset = queryset.order_by('id')
+        # Verificar si no se encontraron resultados
+        if not queryset.exists():
+            self.no_results_message = 'No hay reactivos que coincidan con el criterio de búsqueda: "'+name+'"'
+        return queryset
+
 
 #Listado Usuarios
 class ListadoUsuarios(LoginRequiredMixin, ListView):
@@ -2715,7 +2773,25 @@ class GuardarPerPageViewOut(LoginRequiredMixin,View):
             url += '?' + urlencode(params)
 
         return redirect(url)
-    
+
+class GuardarPerPageViewReactivo(LoginRequiredMixin,View):
+    def get(self, request, *args, **kwargs):
+        per_page = kwargs.get('per_page')
+        request.session['per_page'] = per_page
+
+        # Redirigir a la página de inventario con los parámetros de filtrado actuales
+        filtered_name = request.session.get('filtered_name')
+        
+        url = reverse('reactivos:listado_reactivos')
+        params = {}
+        if filtered_name:
+            params['name'] = filtered_name
+        
+        if params:
+            url += '?' + urlencode(params)
+
+        return redirect(url)
+
     
 # La vista "crear_unidades" se encarga de gestionar la creación de unidades. Esta vista toma los datos del formulario 
 # existente en el template "crear_unidades.html" y realiza las operaciones necesarias en la base de datos utilizando 

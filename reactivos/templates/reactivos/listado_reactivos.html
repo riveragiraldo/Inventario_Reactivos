@@ -1,0 +1,328 @@
+{% extends "webtemplate.html" %}
+{% load has_group %}
+<!doctype html>
+<html lang="es">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Listado de reactivos{% endblock %}</title>
+    {% block head %}
+    <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe" crossorigin="anonymous"
+        defer>
+        </script> -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.13.0/jquery-ui.min.js"></script>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.0/themes/smoothness/jquery-ui.css">
+
+    <!-- Incluir SweetAlert2 desde CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.min.css">
+
+    {% load static %}
+    {% if request.user|has_group:"COORDINADOR" or request.user|has_group:"TECNICO" %}
+    {% for lab in laboratorios %}
+    {% if lab.id == laboratorio.id %}
+
+    <script>
+        labDefault = '{{ lab.id }}'
+    </script>
+    {% endif %}
+    {% endfor %}
+    {% endif %}
+
+    {% if request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
+
+    <script>
+        labDefault = "0"
+    </script>
+    {% endif %}
+    <script>
+        today = "{{ today|date:'Y-m-d' }}"
+        // oneMonthAgo="{{ one_month_ago|date:'Y-m-d' }}"
+    </script>
+    <link rel="stylesheet" href="{% static 'inventarioreac/inventoryStyles.css' %}">
+    <script src="{% static 'inventarioreac/paginationInventoryControl.js' %}"></script>
+    <!-- Llama Script que controla la paginación -->
+
+    <script src="{% static 'inventarioreac/holdInput.js' %}" defer></script>
+    <!-- Llama Script que sostiene la input despues de la busqueda -->
+
+    <script src="{% static 'inventarioreac/highlightPaginationControl.js' %}" defer></script>
+    <!-- Llama Script que resalta los controles de paginación -->
+    <script>var inventarioUrl = "{% url 'reactivos:inventario' %}";</script>
+    <script src="{% static 'inventarioreac/sortByControl.js' %}"></script>
+    <!-- Llama Script que envía datos de ordenamiento de registros -->
+    <script src="{% static 'inventarioreac/openDetailReagent.js' %}" defer></script>
+    <script src="{% static 'inventarioreac/openDetailUser.js' %}" defer></script>
+    <!-- Llama Script que resalta los controles de paginación -->
+    <script src="{% static 'inventarioreac/updateUrl.js' %}"></script>
+    <!-- Llama Script que actualiza URL -->
+    <script src="{% static 'inventarioreac/autocompleteReactivos.js' %}"></script>
+    <!-- Llama Script que coloca una lista autocompletable de reactivos sobre el campo name -->
+
+    <script src="{% static 'inventarioreac/listActionsControl.js' %}" defer></script>
+    <!-- Llama Script que controla las acciones de la lista -->
+    <script src="{% static 'inventarioreac/clearFieldsFind.js' %}" defer></script>
+    <!-- Llama Script que Limpia la búsqueda -->
+
+    {% endblock %}
+</head>
+
+<body>
+    {% block content %}
+    <div class="row">
+        <div class="col-md-10 mx-auto">
+            <h1>Listado de Reactivos</h1>
+            <br>
+
+            <form method="get" onsubmit="guardarValoresSelect()" name="listadoReactivos">
+
+                <div class="row justify-content-between">
+
+
+
+                    <div class="col-md-4 d-flex flex-column align-items-left">
+                        <label for="name">Nombre de Reactivo:</label>
+                        <input type="text" id="name" name="name" class="form-control" title="Introduzca el nombre del reactivo, código o CAS">
+                    </div>
+
+                    <div class="col-md-2 d-flex align-items-left">
+                        <div class="col-md-10">
+                            <label style="color: transparent;">Buscar</label>
+                        </div>
+                        <div class="col-md-2">
+                            <button id="boton-buscar" type="submit" class="btn btn-primary">Buscar</button>
+                        </div>
+                    </div>
+                    <div class="col-md-2 d-flex align-items-left">
+                        <div class="col-md-10">
+                            <label style="color: transparent;">Buscar</label>
+                        </div>
+                        <div class="col-md-2">
+                            <button type="button" class="btn btn-primary"
+                                onclick="limpiarCampos('listadoReactivos')">Limpiar
+                                búsqueda</button>
+                        </div>
+                    </div>
+                </div>
+        </div>
+
+    </div>
+
+    <br>
+
+    <div class="col-md-11 mx-auto">
+        <!-- Control de paginación -->
+        <div class="d-flex justify-content-between">
+            <div>Ver&nbsp;
+                <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                    <a href="{% url 'reactivos:GuardarPerPageReactivo' per_page=10 %}" class="btn btn-secondary btn-sm"
+                        id="per-page-10">10</a>
+                    <a href="{% url 'reactivos:GuardarPerPageReactivo' per_page=20 %}" class="btn btn-secondary btn-sm"
+                        id="per-page-20">20</a>
+                    <a href="{% url 'reactivos:GuardarPerPageReactivo' per_page=50 %}" class="btn btn-secondary btn-sm"
+                        id="per-page-50">50</a>
+                </div>&nbsp;Registros por página
+            </div>
+        </div>
+    </div>
+    </form>
+    <br>
+    <div class="table-responsive">
+        <table class="table" id="tabla-inventario">
+
+            <thead>
+                <tr>
+                    <th class="sortable-header" data-column="0" data-column-name="id" title="Ordenar por Consecutivo">Id
+                        reactivo</th>
+                    <th class="sortable-header" data-column="1" title="Ordenar por nombre">Nombre</th>
+                    <th class="sortable-header" data-column="2" title="Ordenar por código">Código</th>
+                    <th class="sortable-header" data-column="3" title="Ordenar por CAS"><p
+                        style="color: transparent;">************</p>CAS
+                    </th>
+                    <th class="sortable-header" data-column="4" title="Ordenar por Respel">Clasificación Respel</th>
+                    <th class="sortable-header" data-column="5" title="Ordenar por codificación SGA">Codificación SGA
+                    </th>
+                    <th class="sortable-header" data-column="6" title="Ordenar por Estado">Estado</th>
+                    <th class="sortable-header" data-column="7" title="Ordenar por Unidades">Unidad</th>
+                    <th class="sortable-header" data-column="8" title="Ordenar por Responsable del registro">Usuario que
+                        registra</th>
+                    <th class="sortable-header" data-column="9" data-column-name="date"
+                        title="Ordenar por fecha de creación">Fecha de creación</th>
+                    <th class="sortable-header" data-column="10" title="Ordenar por actualizado por">Usuario que
+                        actualiza</th>
+                    <th class="sortable-header" data-column="11" data-column-name="date"
+                        title="Ordenar por fecha de última actualización">Fecha de actualización</th>
+                    <th class="sortable-header" data-column="12" title="Ordenar por Estado">Activo</th>
+                    <th class="sortable-header" title="Visualización de detalle (no ordena)">Ver detalle</th>
+                    <th class="sortable-header" title="Acciones con el registro (no ordena)"><p
+                        style="color: transparent;">***********</p>Acciones
+                    </th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for item in object_list %}
+                <tr class="table-row">
+                    <td title="Consecutivo">{{ item.id }} </td>
+                    <td title="Nombre del reactivo {{ item.name }}">{{ item.name }}</td>
+                    <td title="Código interno reactivo {{ item.name }}">{{ item.code }}</td>
+                    <td title="CAS {{ item.name }}">{{ item.cas }}</td>
+                    <td title="Clasificación Respel {{ item.name }}">{{ item.respel }}</td>
+                    <td title="Codificación SGA {{ item.name }}">{{ item.sga }}</td>
+                    <td title="Estado del reactivo {{ item.name }}">{{ item.state }}</td>
+                    <td title="Unidad de medida {{ item.name }}">{{ item.unit }}</td>
+                    <td class="created_by_cell"
+                        title="Más información de: {{ item.created_by.first_name }} {{ item.created_by.last_name }}"
+                        date_user_create="{{ item.created_by.first_name }} {{ item.created_by.last_name }}"
+                        data-reactivo-name="{{ item.name }}" data-reactivo-date="{{ item.date_create|date:'d/m/Y' }}"
+                        date_user_id="{{ item.created_by.id_number }}"
+                        date_user_username="{{ item.created_by.username }}" date_user_mail="{{ item.created_by.email }}"
+                        date_user_phone="{{ item.created_by.phone_number }}" date_user_lab="{{ item.created_by.lab }}"
+                        date_user_rol="{{ item.created_by.rol }}"
+                        date_user_datejoined="{{ item.created_by.date_joined }}"
+                        date_user_lastlogin="{{ item.created_by.last_login }}" date_user_type="crea"
+                        date_user_vist="el reactivo">
+                        {{ item.created_by.first_name }} {{ item.created_by.last_name }}
+                    </td>
+                    <td title="Fecha de creación de {{ item.name }}">{{ item.date_create|date:"d/m/Y" }}</td>
+
+                    <td class="created_by_cell"
+                        title="Más información de: {{ item.last_updated_by.first_name }} {{ item.last_updated_by.last_name }}"
+                        date_user_create="{{ item.last_updated_by.first_name }} {{ item.last_updated_by.last_name }}"
+                        data-reactivo-name="{{ item.name }}" data-reactivo-date="{{ item.last_update|date:'d/m/Y' }}"
+                        date_user_id="{{ item.last_updated_by.id_number }}"
+                        date_user_username="{{ item.last_updated_by.username }}"
+                        date_user_mail="{{ item.last_updated_by.email }}"
+                        date_user_phone="{{ item.last_updated_by.phone_number }}"
+                        date_user_lab="{{ item.last_updated_by.lab }}" date_user_rol="{{ item.last_updated_by.rol }}"
+                        date_user_datejoined="{{ item.last_updated_by.date_joined }}"
+                        date_user_lastlogin="{{ item.last_updated_by.last_login }}" date_user_type="actualiza"
+                        date_user_vist="el reactivo">{{ item.last_updated_by.first_name }}
+                        {{item.last_updated_by.last_name }}
+                    </td>
+                    <td title="Fecha de actualización de {{ item.name }}">{{ item.last_update|date:"d/m/Y" }}</td>
+                    <td title="Estado de registro de {{ item.name }}">{% if item.is_active %}
+                        <img src="{% static 'inventarioreac/Images/active_icon.png' %}" alt="" width="15" height="15"
+                            title="Activo en base de datos">
+                        {% else %}
+                        <img src="{% static 'inventarioreac/Images/inactive_icon.png' %}" alt="" width="15" height="15"
+                            title="Inactivo en base de datos">
+                        {% endif %}
+                    </td>
+
+                    <!-- Modifica el evento click de la imagen para mostrar SweetAlert -->
+                    <td>
+                        <img src="{% static 'inventarioreac/Images/moreInfo.ico' %}" alt="" width="18" height="18"
+                            class="detalle-reactivo" data-reactivo-id="{{ item.id }}"
+                            data-reactivo-name="{{ item.name }}" data-reactivo-color="{{ item.color }}"
+                            data-reactivo-number="{{ item.number }}" data-reactivo-subnumber="{{ item.subnumber }}"
+                            data-reactivo-code="{{ item.code }}" data-reactivo-cas="{{ item.cas }}"
+                            data-reactivo-respel="{{ item.respel }}" data-reactivo-sga="{{ item.sga }}"
+                            data-reactivo-state="{{item.state }}" 
+                            data-reactivo-unit="{{ item.unit }}"
+                            data-reactivo-active="{% if item.is_active %}
+                            Activo
+                            {% else %}
+                            Inactivo
+                            {% endif %}"
+                            data-reactivo-date_create="{{ item.date_create }}"
+                            data-reactivo-create_by="{{ item.created_by.first_name }} {{ item.created_by.last_name }}"
+                            data-reactivo-lastupdate="{{ item.last_update }}"
+                            data-reactivo-update_by="{{ item.last_updated_by.first_name }} {{ item.last_updated_by.last_name }}"
+                            title="Más información sobre el registro de salida de: {{ item.name }}">
+                    </td>
+
+                    <td>
+                        <!-- Agregar -->
+                        <a href="javascript:void(0);" onclick="openPopupAdd('{% url 'reactivos:registrar_salida' %}')">
+                            <img src="{% static 'inventarioreac/Images/add_register.png' %}" alt="" width="18"
+                                height="18" title="Agregar una nueva salida de reactivo">
+                        </a>
+                        <!-- Editar -->
+                        <a href="javascript:void(0);" onclick="openEditFormOut({{ item.id }})">
+                            <img src="{% static 'inventarioreac/Images/edit_register.png' %}" alt="" width="18"
+                                height="18" title="Editar registro número {{ item.id }}">
+                        </a>
+                        <!-- Eliminar -->
+                        <a href="javascript:void(0);" onclick="confirmDeleteOut({{ item.id }}, '{{ item.name }}')">
+                            <img src="{% static 'inventarioreac/Images/delete_register.png' %}" alt="" width="18"
+                                height="18" title="Borrar registro número {{ item.id }}">
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% if no_results_message %}
+        <div class="alert alert-warning">
+            {{ no_results_message }}
+        </div>
+        {% endif %}
+
+        <br>
+        <div class="d-flex justify-content-between">
+            <!-- Controles de navegación de página -->
+            <div class="pagination">
+                <span class="step-links">
+                    {% if page_obj.has_previous %}
+                    <a href="" id="first-page-link">Primera</a>
+                    <a href="" id="previous-page-link">Anterior</a>
+                    {% endif %}
+                    <span class="current-page">Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages}}.</span>
+
+                    {% if page_obj.has_next %}
+                    <a href="" id="next-page-link">Siguiente</a>
+                    <a href="" id="last-page-link">Última</a>
+                    {% endif %}
+                </span>
+            </div>
+            <!-- Información de paginación -->
+            <div class="pagination-info">
+                Mostrando {{ page_obj.start_index }} - {{ page_obj.end_index }} de {{ paginator.count }} registros
+            </div>
+        </div>
+
+        <br>
+        <!-- Opciones de exportación -->
+        <a href="{% url 'reactivos:export_to_excel_output' %}" class="btn btn-primary">Exportar a Excel</a>
+    </div>
+
+    <!-- Este script no puede ser llamado de manera independiente ya que tiene muchas variables provenientes del servidor -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const baseUrl = window.location.href;
+            const currentPage = '{{ page_obj.number }}';
+            const nextPage = parseInt(currentPage) + 1
+            const previousPage = parseInt(currentPage) - 1
+            const totalPages = '{{ page_obj.paginator.num_pages }}';
+
+
+            '{% if page_obj.has_previous %}'
+            const firstPageLink = document.getElementById('first-page-link');
+            const previousPageLink = document.getElementById('previous-page-link');
+            firstPageLink.href = baseUrl + '&page=1';
+            previousPageLink.href = baseUrl + '&page=' + previousPage;
+            '{% endif %}'
+
+            '{% if page_obj.has_next %}'
+            const nextPageLink = document.getElementById('next-page-link');
+            const lastPageLink = document.getElementById('last-page-link');
+            nextPageLink.href = baseUrl + '&page=' + nextPage;
+            lastPageLink.href = baseUrl + '&page=' + totalPages;
+
+            '{% endif %}'
+        });
+    </script>
+
+    {% endblock %}
+</body>
+
+</html>
