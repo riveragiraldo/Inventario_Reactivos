@@ -17,14 +17,15 @@ document.querySelectorAll('.detalle-reactivo').forEach(element => {
         const reactivoCreateBy = this.getAttribute('data-reactivo-create_by');
         const reactivoLastUpdate = this.getAttribute('data-reactivo-lastupdate');
         const reactivoLastUpdateBy = this.getAttribute('data-reactivo-update_by');
+        const reactivoLabsAndWeight = this.getAttribute('data-reactivo-labs_and_weight');
         
-        const reactivo = obtenerInformacionReactivo(reactivoId, reactivoName, reactivoColor, reactivoNumber, reactivoSubNumber, reactivoCode, reactivoCas, reactivoRespel,reactivoSGA,reactivoState,reactivoUnit,reactivoIsActive,reactivoDateCreate,reactivoCreateBy,reactivoLastUpdate,reactivoLastUpdateBy);
+        const reactivo = obtenerInformacionReactivo(reactivoId, reactivoName, reactivoColor, reactivoNumber, reactivoSubNumber, reactivoCode, reactivoCas, reactivoRespel,reactivoSGA,reactivoState,reactivoUnit,reactivoIsActive,reactivoDateCreate,reactivoCreateBy,reactivoLastUpdate,reactivoLastUpdateBy,reactivoLabsAndWeight);
         mostrarSweetAlert(reactivo);
     });
 });
 
 // Función para obtener la información del reactivo basado en su ID (puedes hacer la solicitud al servidor)
-function obtenerInformacionReactivo(id, name, color, number, subnumber, code, cas, respel,sga,state,unit,is_active,date_create,create_by,last_update,update_by) {
+function obtenerInformacionReactivo(id, name, color, number, subnumber, code, cas, respel,sga,state,unit,is_active,date_create,create_by,last_update,update_by,labsandweight) {
 
     const reactivo = {
         id: id,
@@ -43,6 +44,7 @@ function obtenerInformacionReactivo(id, name, color, number, subnumber, code, ca
         create_by: create_by,
         last_update: last_update,
         update_by: update_by,
+        labsandweight:labsandweight
 
     };
     return reactivo;
@@ -55,18 +57,11 @@ function mostrarSweetAlert(reactivo) {
         title: `Reactivo  ${reactivo.name}`,
         html: `
             <div class="card" style="text-align: left;">
-                <div class="card-header">
-                    Detalle del reactivo ${reactivo.name}
-                </div>
-                <br>
-                <div class="card-body">
+                    <div class="card-body">
                     <h5>Información principal:</h5>
                     <ul class="list-unstyled">
                         <li><strong>Id de registro salida:</strong> ${reactivo.id}</li>
                         <li><strong>Nombre:</strong> ${reactivo.name}</li>
-                        <li><strong>Color:</strong> ${reactivo.color}</li>
-                        <li><strong>Número:</strong> ${reactivo.number}</li>
-                        <li><strong>Subnumero:</strong> ${reactivo.number}</li>
                         <li><strong>Código:</strong> ${reactivo.code}</li>
                         <li><strong>CAS:</strong> ${reactivo.cas}</li>
                         <li><strong>Clasificación Respel:</strong> ${reactivo.respel}</li>
@@ -77,12 +72,15 @@ function mostrarSweetAlert(reactivo) {
                     <br>
                     <h5>Información adicional:</h5>
                     <ul class="list-unstyled">
-                        <li><strong>Estado:</strong> ${reactivo.is_active}</li>
                         <li><strong>Fecha de registro:</strong> ${reactivo.date_create}</li>
                         <li><strong>Responsable del registro:</strong> ${reactivo.create_by}</li>
                         <li><strong>Última modificación:</strong> ${reactivo.last_update}</li>
-                        <li><strong>Última actualización por:</strong> ${reactivo.update_by}</li>
-                        
+                        <li><strong>Última actualización por:</strong> ${reactivo.update_by}</li></ul>
+                        <br>
+                    <h5>Existencia en Laboratorios:</h5>
+                    <ul class="list-unstyled">
+                        ${reactivo.labsandweight}
+                        <a href='/export2xlsxlab/'>Ver información de Laboratorios</a>
                     </ul>
                 </div>
             </div>

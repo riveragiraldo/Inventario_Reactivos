@@ -95,6 +95,7 @@ from functools import wraps
 from django.utils.timezone import make_aware
 from django.template.defaultfilters import date as django_date
 from django.http import Http404
+from openpyxl.styles import Alignment
 
 
 
@@ -2475,11 +2476,11 @@ class ReactivosListView(LoginRequiredMixin,ListView):
 
         # Obtener los parámetros de filtrado
         
-        #name = self.request.GET.get('name')
+        name = self.request.GET.get('name')
         
         # Guardar los valores de filtrado en la sesión
         
-        # request.session['filtered_name'] = name
+        request.session['filtered_name'] = name
         
 
         return super().get(request, *args, **kwargs)
@@ -3569,6 +3570,7 @@ def export_to_excel_input(request):
     workbook.save(response)
 
     return response
+
 # Utilizando los valores filtrados en el template listado_salidas.html, y guardados en los datos de sesión, se crea el archivo de Excel 
 # correspondiente e se introducen los valores desde la tabla del modelo Inventarios. Además, se aplican formatos a los encabezados, se 
 # coloca un título, la fecha de creación y el logo. También se ajustan los anchos de columna y las alturas de fila, y se añaden filtros 
@@ -3860,6 +3862,476 @@ def export_to_excel_output(request):
     response = HttpResponse(
         content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     response['Content-Disposition'] = 'attachment; filename=Registro_Salidas.xlsx'
+
+    workbook.save(response)
+
+    return response
+# Utilizando los valores filtrados en el template listado_reactivos.html, y guardados en los datos de sesión, se crea el archivo de Excel 
+# correspondiente e se introducen los valores desde la tabla del modelo Reactivos. Además, se aplican formatos a los encabezados, se 
+# coloca un título, la fecha de creación y el logo. También se ajustan los anchos de columna y las alturas de fila, y se añaden filtros 
+# a los encabezados en caso de que el usuario lo solicite
+@login_required
+def export_to_excel_react(request):
+    # Obtener los valores filtrados almacenados en la sesión del usuario
+    
+    name = request.session.get('filtered_name')
+    
+    queryset = Reactivos.objects.all()
+    #Filtra según los valores previos de filtro en los selectores
+    # 
+    if name:
+        queryset = queryset.filter(name=name)
+            
+    queryset = queryset.order_by('id')
+    # Verificar si no se encontraron resultados
+    if not queryset.exists():
+        print("No hay criterios de búsqueda que coincidan")
+        
+
+    workbook = openpyxl.Workbook()
+    sheet = workbook.active
+
+    # Ruta al archivo de imagen del logotipo
+
+    logo_path = finders.find('inventarioreac/Images/escudoUnal_black.png')
+
+    # Cargar la imagen y procesarla con pillow
+    pil_image = PILImage.open(logo_path)
+
+    # Crear un objeto Image de openpyxl a partir de la imagen procesada
+    image = ExcelImage(pil_image)
+
+    # Anclar la imagen a la celda A1
+    sheet.add_image(image, 'A1')
+
+    # Obtener la fecha actual
+    fecha_creacion = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+
+    # Unificar las celdas A1, B1, C1 y D1
+    #sheet.merge_cells('C1:F1')
+
+    sheet['D1'] = 'Listado de Reactivos '
+    sheet['D2'] = 'Fecha de Creación: '+fecha_creacion
+    sheet['A4'] = 'Consecutivo'
+    sheet['B4'] = 'Color'
+    sheet['C4'] = 'Número'
+    sheet['D4'] = 'Subnúmero'
+    sheet['E4'] = 'Código'
+    sheet['F4'] = 'Cas'
+    sheet['G4'] = 'Nombre'
+    sheet['H4'] = 'Clasificación Respel'
+    sheet['I4'] = 'Codificación SGA'
+    sheet['J4'] = 'Estado'
+    sheet['K4'] = 'Unidades'
+    sheet['L4'] = 'Activo'
+    sheet['M4'] = 'Fecha de creación'
+    sheet['N4'] = 'Creado por'
+    sheet['O4'] = 'Fecha de última actualización por'
+    sheet['P4'] = 'Última actualización por'
+
+    # Establecer la altura de la fila 1 y 2 a 30 y fila 3 a 25
+    sheet.row_dimensions[1].height = 30
+    sheet.row_dimensions[2].height = 30
+    sheet.row_dimensions[3].height = 25
+
+    # Establecer estilo de celda para A1
+    cell_A1 = sheet['D1']
+    cell_A1.font = Font(bold=True, size=16)
+
+    # Configurar los estilos de borde
+    thin_border = Border(left=Side(style='thin'), right=Side(
+    style='thin'), top=Side(style='thin'), bottom=Side(style='thin'))
+
+    # Establecer el estilo de las celdas A2:D3
+    bold_font = Font(bold=True)
+
+    # Establecer el ancho de la columna A a 14
+    sheet.column_dimensions['A'].width = 14
+
+    # Establecer el ancho de la columna B a 8
+    sheet.column_dimensions['B'].width = 8
+
+    # Establecer el ancho de la columna C a 10
+    sheet.column_dimensions['C'].width = 10
+
+    # Establecer el ancho de la columna D a 9
+    sheet.column_dimensions['D'].width = 9
+
+    # Establecer el ancho de la columna E a 11
+    sheet.column_dimensions['E'].width = 11
+
+    # Establecer el ancho de la columna F a 14
+    sheet.column_dimensions['F'].width = 14
+
+    # Establecer el ancho de la columna G a 43
+    sheet.column_dimensions['G'].width = 43
+
+    # Establecer el ancho de la columna H a 21
+    sheet.column_dimensions['H'].width = 21
+
+    # Establecer el ancho de la columna I a 18
+    sheet.column_dimensions['I'].width = 18
+
+    # Establecer el ancho de la columna J a 9
+    sheet.column_dimensions['J'].width = 9
+
+    # Establecer el ancho de la columna K a 7
+    sheet.column_dimensions['K'].width = 7
+
+    # Establecer el ancho de la columna L a 9
+    sheet.column_dimensions['L'].width = 9
+
+    # Establecer el ancho de la columna M a 20
+    sheet.column_dimensions['M'].width = 22
+
+    # Establecer el ancho de la columna N a 21
+    sheet.column_dimensions['N'].width = 21
+
+    # Establecer el ancho de la columna O a 21
+    sheet.column_dimensions['O'].width = 21
+
+    # Establecer el ancho de la columna P a 25
+    sheet.column_dimensions['P'].width = 25
+    
+    row = 4
+    # Aplicar el estilo de borde a las celdas de la fila actual
+    for col in range(1, 17):
+        sheet.cell(row=row, column=col).border = thin_border
+        sheet.cell(row=row, column=col).font = bold_font
+
+    row = 5
+    for item in queryset:
+        # colocar los subnumber que están como 0 como un valor en blanco
+        if item.subnumber=='0':
+            item.subnumber=''
+        # Establecer el is_active como un valor más comprensible que True y False
+        if item.is_active==True:
+            item.is_active='Activo'
+        else:
+            item.is_active='Inactivo'        
+
+        sheet.cell(row=row, column=1).value = item.id
+        sheet.cell(row=row, column=2).value = item.color
+        sheet.cell(row=row, column=3).value = item.number
+        sheet.cell(row=row, column=4).value = item.subnumber
+        sheet.cell(row=row, column=5).value = item.code
+        sheet.cell(row=row, column=6).value = item.cas
+        sheet.cell(row=row, column=7).value = item.name
+        sheet.cell(row=row, column=8).value = str(item.respel)
+        sheet.cell(row=row, column=9).value = str(item.sga)
+        sheet.cell(row=row, column=10).value = str(item.state)
+        sheet.cell(row=row, column=11).value = str(item.unit)
+        sheet.cell(row=row, column=12).value = item.is_active
+        sheet.cell(row=row, column=13).value = str((item.date_create).strftime('%d/%m/%Y %H:%M:%S'))
+        sheet.cell(row=row, column=14).value = item.created_by.first_name+' '+item.created_by.last_name
+        sheet.cell(row=row, column=15).value = str((item.last_update).strftime('%d/%m/%Y %H:%M:%S'))
+        sheet.cell(row=row, column=16).value = item.last_updated_by.first_name+' '+item.last_updated_by.last_name
+               
+        # Aplicar el estilo de borde a las celdas de la fila actual
+        for col in range(1, 17):
+            sheet.cell(row=row, column=col).border = thin_border
+
+        row += 1
+
+    # Obtén el rango de las columnas de la tabla
+    start_column = 1
+    end_column = 16
+    start_row = 4
+    end_row = row - 1
+
+    # Convertir los números de las columnas en letras de columna
+    start_column_letter = get_column_letter(start_column)
+    end_column_letter = get_column_letter(end_column)
+
+    # Rango de la tabla con el formato "A4:I{n}", donde n es el número de filas en la tabla
+    table_range = f"{start_column_letter}{start_row}:{end_column_letter}{end_row}"
+
+    # Agregar filtros solo a las columnas de la tabla
+    sheet.auto_filter.ref = table_range
+
+    # Establecer fondo blanco desde la celda A1 hasta el final de la tabla
+
+    fill = PatternFill(fill_type="solid", fgColor=WHITE)
+    start_cell = sheet['A1']
+    end_column_letter = get_column_letter(end_column+1)
+    end_row = row+1
+    end_cell = sheet[end_column_letter + str(end_row)]
+    table_range = start_cell.coordinate + ':' + end_cell.coordinate
+
+    for row in sheet[table_range]:
+        for cell in row:
+            cell.fill = fill
+
+    response = HttpResponse(
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename=Listado_de_Reactivos.xlsx'
+
+    workbook.save(response)
+
+    return response
+
+# Utilizando los valores filtrados en el template listado_reactivos.html, y guardados en los datos de sesión, se crea el archivo de Excel 
+# correspondiente e se introducen los valores desde la tabla del modelo Reactivos. Además, se aplican formatos a los encabezados, se 
+# coloca un título, la fecha de creación y el logo. También se ajustan los anchos de columna y las alturas de fila, y se añaden filtros 
+# a los encabezados en caso de que el usuario lo solicite
+@login_required
+def export_to_excel_lab(request):
+    
+    queryset = Laboratorios.objects.all()
+    
+    workbook = openpyxl.Workbook()
+    sheet = workbook.active
+
+    # Ruta al archivo de imagen del logotipo
+
+    logo_path = finders.find('inventarioreac/Images/escudoUnal_black.png')
+
+    # Cargar la imagen y procesarla con pillow
+    pil_image = PILImage.open(logo_path)
+
+    # Crear un objeto Image de openpyxl a partir de la imagen procesada
+    image = ExcelImage(pil_image)
+
+    # Anclar la imagen a la celda A1
+    sheet.add_image(image, 'A1')
+
+    # Obtener la fecha actual
+    fecha_creacion = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+
+    # Unificar las celdas A1, B1, C1 y D1
+    #sheet.merge_cells('C1:F1')
+
+    sheet['D1'] = 'Listado de Laboratorios'
+    sheet['D2'] = 'Fecha de Creación: '+fecha_creacion
+    sheet['A4'] = 'Id'
+    sheet['B4'] = 'Laboratorio'
+    sheet['C4'] = 'Administradores'
+    sheet['D4'] = 'Teléfonos'
+    sheet['E4'] = 'Correos'
+    sheet['F4'] = 'Coordinadores'
+    sheet['G4'] = 'Teléfonos'
+    sheet['H4'] = 'Correos'
+    sheet['I4'] = 'Técnicos'
+    sheet['J4'] = 'Teléfonos'
+    sheet['K4'] = 'Correos'
+    # Establecer la altura de la fila 1 y 2 a 30 y fila 3 a 25
+    sheet.row_dimensions[1].height = 30
+    sheet.row_dimensions[2].height = 30
+    sheet.row_dimensions[3].height = 25
+
+    # Establecer estilo de celda para A1
+    cell_A1 = sheet['D1']
+    cell_A1.font = Font(bold=True, size=16)
+
+    # Configurar los estilos de borde
+    thin_border = Border(left=Side(style='thin'), right=Side(
+    style='thin'), top=Side(style='thin'), bottom=Side(style='thin'))
+
+    # Establecer el estilo de las celdas A2:D3
+    bold_font = Font(bold=True)
+
+    
+
+    # Establecer el ancho de la columna A a 4
+    sheet.column_dimensions['A'].width = 4
+
+    # Establecer el ancho de la columna B a 52
+    sheet.column_dimensions['B'].width = 52
+
+    # Establecer el ancho de la columna C a 32
+    sheet.column_dimensions['C'].width = 32
+       
+    # Establecer el ancho de la columna D a 13
+    sheet.column_dimensions['D'].width = 13
+
+    # Establecer el ancho de la columna E a 32
+    sheet.column_dimensions['E'].width = 32
+
+    # Establecer el ancho de la columna F a 32
+    sheet.column_dimensions['F'].width = 32
+
+    # Establecer el ancho de la columna G a 13
+    sheet.column_dimensions['G'].width = 13
+
+    # Establecer el ancho de la columna H a 32
+    sheet.column_dimensions['H'].width = 32
+
+    # Establecer el ancho de la columna I a 32
+    sheet.column_dimensions['I'].width = 32
+
+    # Establecer el ancho de la columna j a 13
+    sheet.column_dimensions['J'].width = 13
+
+    # Establecer el ancho de la columna K a 32
+    sheet.column_dimensions['K'].width = 32
+
+
+    row = 4
+    # Define una alineación que tenga la vertical en la parte superior y la horizontal a la izquierda
+    # Crear un objeto de alineación
+    alignment = Alignment(wrap_text=True, vertical="top", horizontal="left")
+    # Aplicar el estilo de borde a las celdas de la fila actual
+    for col in range(1, 12):
+        sheet.cell(row=row, column=col).border = thin_border
+        sheet.cell(row=row, column=col).font = bold_font
+        
+
+    
+
+    row = 5
+    for item in queryset:
+        # Obtén los usuarios que pertenecen a este laboratorio con rol adinistrador
+        rol = get_object_or_404(Rol, name='ADMINISTRADOR')
+
+        # Obtén una lista de coordinadores que cumplan con las condiciones
+        administradores = User.objects.filter(lab=item.id, rol=rol.id, is_active=True)
+
+        # Inicializa una lista para almacenar los nombres de los coordinadores
+        administradores_nombres = []
+        administradores_telefonos = []
+        administradores_correos = []
+
+        for administrador in administradores:
+            administrador_nombre = f"{administrador.first_name} {administrador.last_name}"
+            administrador_telefono = f"{administrador.phone_number}"
+            administrador_correo = f"{administrador.email}"
+
+
+            administradores_nombres.append(administrador_nombre)
+            administradores_telefonos.append(administrador_telefono)
+            administradores_correos.append(administrador_correo)
+            
+        # Verifica si la lista de coordinadores está vacía
+        if not administradores_nombres:
+            administradores_names = ''
+            administradores_phones = ''
+            administradores_emails = ''
+        else:
+            # Formatea la lista de coordinadores como una cadena con saltos de línea
+            administradores_names = ', \n'.join(administradores_nombres)
+            administradores_phones = ', \n'.join(administradores_telefonos)
+            administradores_emails = ', \n'.join(administradores_correos)
+        # -----------------------------------------------------------------------
+        # Obtén los usuarios que pertenecen a este laboratorio con rol coordinador
+        rol = get_object_or_404(Rol, name='COORDINADOR')
+
+        # Obtén una lista de coordinadores que cumplan con las condiciones
+        coordinadores = User.objects.filter(lab=item.id, rol=rol.id, is_active=True)
+
+        # Inicializa una lista para almacenar los nombres de los coordinadores
+        coordinadores_nombres = []
+        coordinadores_telefonos = []
+        coordinadores_correos = []
+
+        for coordinador in coordinadores:
+            coordinador_nombre = f"{coordinador.first_name} {coordinador.last_name}"
+            coordinador_telefono = f"{coordinador.phone_number}"
+            coordinador_correo = f"{coordinador.email}"
+
+
+            coordinadores_nombres.append(coordinador_nombre)
+            coordinadores_telefonos.append(coordinador_telefono)
+            coordinadores_correos.append(coordinador_correo)
+            
+        # Verifica si la lista de coordinadores está vacía
+        if not coordinadores_nombres:
+            coordinadores_names = ''
+            coordinadores_phones = ''
+            coordinadores_emails = ''
+        else:
+            # Formatea la lista de coordinadores como una cadena con saltos de línea
+            coordinadores_names = ', \n'.join(coordinadores_nombres)
+            coordinadores_phones = ', \n'.join(coordinadores_telefonos)
+            coordinadores_emails = ', \n'.join(coordinadores_correos)
+        
+        # -----------------------------------------------------------------------
+        # Obtén los usuarios que pertenecen a este laboratorio con rol ADMINISTRADOR
+        rol = get_object_or_404(Rol, name='TECNICO')
+
+        # Obtén una lista de tecnicos que cumplan con las condiciones
+        tecnicos = User.objects.filter(lab=item.id, rol=rol.id, is_active=True)
+
+        # Inicializa una lista para almacenar los nombres de los coordinadores
+        tecnicos_nombres = []
+        tecnicos_telefonos = []
+        tecnicos_correos = []
+
+        for tecnico in tecnicos:
+            tecnico_nombre = f"{tecnico.first_name} {tecnico.last_name}"
+            tecnico_telefono = f"{tecnico.phone_number}"
+            tecnico_correo = f"{tecnico.email}"
+
+
+            tecnicos_nombres.append(tecnico_nombre)
+            tecnicos_telefonos.append(tecnico_telefono)
+            tecnicos_correos.append(tecnico_correo)
+            
+        # Verifica si la lista de coordinadores está vacía
+        if not tecnicos_nombres:
+            tecnicos_names = ''
+            tecnicos_phones = ''
+            tecnicos_emails = ''
+        else:
+            # Formatea la lista de coordinadores como una cadena con saltos de línea
+            tecnicos_names = ', \n'.join(tecnicos_nombres)
+            tecnicos_phones = ', \n'.join(tecnicos_telefonos)
+            tecnicos_emails = ', \n'.join(tecnicos_correos)
+
+        
+        # Establecer el alto de la fila actual a 50
+        sheet.row_dimensions[row].height = 50   
+
+        sheet.cell(row=row, column=1).value = item.id
+        sheet.cell(row=row, column=2).value = item.name
+        sheet.cell(row=row, column=3).value = str(administradores_names)
+        sheet.cell(row=row, column=4).value = str(administradores_phones)
+        sheet.cell(row=row, column=5).value = str(administradores_emails)
+        sheet.cell(row=row, column=6).value = str(coordinadores_names)
+        sheet.cell(row=row, column=7).value = str(coordinadores_phones)
+        sheet.cell(row=row, column=8).value = str(coordinadores_emails)
+        sheet.cell(row=row, column=9).value = str(tecnicos_names)
+        sheet.cell(row=row, column=10).value = str(tecnicos_phones)
+        sheet.cell(row=row, column=11).value = str(tecnicos_emails)
+              
+        # Aplicar el estilo de borde a las celdas de la fila actual
+        for col in range(1, 12):
+            sheet.cell(row=row, column=col).border = thin_border
+            sheet.cell(row=row, column=col).alignment = alignment
+
+        row += 1
+
+    # Obtén el rango de las columnas de la tabla
+    start_column = 1
+    end_column = 11
+    start_row = 4
+    end_row = row - 1
+
+    # Convertir los números de las columnas en letras de columna
+    start_column_letter = get_column_letter(start_column)
+    end_column_letter = get_column_letter(end_column)
+
+    # Rango de la tabla con el formato "A4:I{n}", donde n es el número de filas en la tabla
+    table_range = f"{start_column_letter}{start_row}:{end_column_letter}{end_row}"
+
+    # Agregar filtros solo a las columnas de la tabla
+    sheet.auto_filter.ref = table_range
+
+    # Establecer fondo blanco desde la celda A1 hasta el final de la tabla
+
+    fill = PatternFill(fill_type="solid", fgColor=WHITE)
+    start_cell = sheet['A1']
+    end_column_letter = get_column_letter(end_column+1)
+    end_row = row+1
+    end_cell = sheet[end_column_letter + str(end_row)]
+    table_range = start_cell.coordinate + ':' + end_cell.coordinate
+
+    for row in sheet[table_range]:
+        for cell in row:
+            cell.fill = fill
+
+    response = HttpResponse(
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename=Listado_de_Laboratorios.xlsx'
 
     workbook.save(response)
 

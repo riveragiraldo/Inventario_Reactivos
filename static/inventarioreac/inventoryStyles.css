@@ -101,3 +101,8 @@ tr.table-row:hover {
     font-weight: bold; /* Hace que el texto sea más audaz */
 }
 
+
+/* Estilo personalizado para cambiar el ancho de la alerta */
+.custom-swal-class {
+    width: 550px; /* Cambia el ancho según tus necesidades */
+}

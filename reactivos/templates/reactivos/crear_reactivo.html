@@ -35,6 +35,8 @@
     <!-- Llama Script al final genera alerta informativa con los datos que se va enviar al servidor y acepta-->
     <script src="{% static 'inventarioreac/validateSubnumber.js' %}" defer></script>
     <!-- Llama Script al final genera alerta cuando no se escribe bien el subnumero-->
+    <script src="{% static 'inventarioreac/cancelButtonFunction.js' %}" defer></script>
+    <!-- Llama Script  que coloca función al botón cancelar -->
     {% endblock %}
 </head>
 
@@ -157,7 +159,7 @@
                             <input type="button" value="Crear Reactivo" class="btn btn-primary" id="open_confirm_in">
                         </div>
                         <div class="col-md-3 mt-3">
-                            <input type="reset" value="Limpiar Campos" class="btn btn-primary">
+                            <button type="button" class="btn btn-primary" onclick="limpiarCampos('form')">Cancelar</button>
                         </div>
 
                     </form>
