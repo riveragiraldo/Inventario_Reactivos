@@ -51,6 +51,8 @@
     <!-- Llama Script  que valida que el que la fecha de vencimiento sea futura -->
     <script src="{% static 'inventarioreac/cancelButtonFunction.js' %}" defer></script>
     <!-- Llama Script  que coloca función al botón cancelar -->
+    <script src="{% static 'inventarioreac/hideButtonsIn.js' %}" defer></script>
+    <!-- Llama Script al final oculta botones si la página se muestra como emergente -->
 
     <link rel="stylesheet" href="{% static 'inventarioreac/styles.css' %}">
 
@@ -316,7 +318,20 @@
                         title: 'Mensaje del servidor',
                         text: messageText,
                         confirmButtonText: 'Aceptar'
-                    });
+                    }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Verificar si la ventana actual es una ventana emergente
+                        if (window.opener) {
+                            // Actualizar la ventana padre
+                            window.opener.location.reload();
+
+                            // Cerrar la ventana actual después de un retraso
+                            setTimeout(() => {
+                                window.close();
+                            }, 200);
+                        }
+                    }
+                });
                 };
             </script>
             {% endfor %}

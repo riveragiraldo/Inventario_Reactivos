@@ -284,11 +284,11 @@ class Reactivos(models.Model):
     color = models.PositiveIntegerField(verbose_name="Color CGA")
     number = models.CharField(max_length=5, verbose_name="Número")
     subnumber = models.CharField(max_length=3, verbose_name="Sub-número")
-    code = models.CharField(max_length=255, verbose_name="Código")
-    name = models.CharField(max_length=255, verbose_name="Nombre")
+    code = models.CharField(max_length=255, verbose_name="Código", unique=True)
+    name = models.CharField(max_length=255, verbose_name="Nombre", unique=True)
     unit = models.ForeignKey(Unidades, on_delete=models.CASCADE,
                              related_name='reactive', verbose_name="Unidad")
-    cas = models.CharField(max_length=20, verbose_name="Código CAS")
+    cas = models.CharField(max_length=20, verbose_name="Código CAS", unique=True)
     state = models.ForeignKey(Estados, on_delete=models.CASCADE,
                               related_name='state', verbose_name="Presentación")
     respel = models.ForeignKey(RespelC, on_delete=models.CASCADE,

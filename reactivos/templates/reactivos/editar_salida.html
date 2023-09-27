@@ -48,6 +48,8 @@
     <!-- Llama Script  que coloca función al botón cancelar -->
     <script src="{% static 'inventarioreac/controlSelectores.js' %}" defer></script>
     <!-- Llama Script  que inserta valores actuales de los selectores -->
+    <script src="{% static 'inventarioreac/hideButtonsOut.js' %}" defer></script>
+    <!-- Llama Script al final oculta botones si la página se muestra como emergente -->
     <script>
         
         var laboratorio = '{{ salida.lab }}'
@@ -216,7 +218,7 @@
                 </div>
 
                 <div class="col-md-6 mt-3   ">
-                    <input type="button" value="Registrar salida Reactivo" class="btn btn-primary" id="open_confirm_in">
+                    <input type="button" value="Realizar Modificaciones" class="btn btn-primary" id="open_confirm_in">
                 </div>
                 <div class="col-md-6">
                     <button type="button" class="btn btn-primary" onclick="limpiarCampos('in_form')">Cancelar</button>

@@ -1311,6 +1311,104 @@ def registrar_salida(request):
         
     return render(request, 'reactivos/registrar_salida.html', context)
 
+# La vista "editar_reactivo" se encarga de gestionar la edición  de un registro reactivo en la db. Esta vista toma los datos del formulario 
+# existente en el template "editar_reactivo.html" y realiza las operaciones necesarias en la base de datos para editar 
+# la información del reactivo. Esto puede incluir la validación de los datos ingresados, la edición de un nuevo registro 
+# en la tabla correspondiente y cualquier otra gestión requerida para asegurar la integridad de los datos en la base de datos.
+@login_required
+def editar_reactivo(request, pk):
+    reactivo = get_object_or_404(Reactivos, pk=pk)
+    
+    if request.method == 'POST':
+        color = request.POST.get('color')
+        #verificar que el valor sea positivo
+        color_number=float(color)
+        if color_number<=0:
+            messages.error(request, 'Solo se permiten registros de Color con valores positivos')
+            return HttpResponse("Error de cantidades al insertar en la base de datos", status=400)
+        number = request.POST.get('number')
+        #verificar que el valor sea positivo
+        number_number=float(number)
+        if number_number<=0:
+            messages.error(request, 'Solo se permiten registros de Número con valores positivos')
+            return HttpResponse("Error de cantidades al insertar en la base de datos", status=400)
+        number = str(number).zfill(3)
+        subnumber = request.POST.get('subnumber')
+        if subnumber == '':
+            subnumber = '0'
+
+        code = request.POST.get('code')
+        code = estandarizar_nombre(code)
+        name = request.POST.get('name')
+        name = estandarizar_nombre(name)
+        cas = request.POST.get('cas')
+        cas = estandarizar_nombre(cas)
+        
+        state = request.POST.get('state')
+        unit = request.POST.get('unit')
+        sga = request.POST.get('sga')
+        respel = request.POST.get('respel')
+
+        if not state.isdigit():
+            messages.error(request, 'Por favor seleccione un estado primero')
+            HttpResponse('Por favor seleccione un estado primero', status=400)
+        state = get_object_or_404(Estados, id=state)     
+        
+        if not unit.isdigit():
+            messages.error(request, 'Por favor seleccione una unidad primero')
+            HttpResponse('Por favor seleccione una unidad primero', status=400)
+        unit = get_object_or_404(Unidades, id=unit)
+        
+        if not sga.isdigit():
+            messages.error(request, 'Por favor seleccione una codificación SGA primero')
+            HttpResponse('Por favor seleccione una codificación SGA primero', status=400)
+        sga = get_object_or_404(SGA, id=sga)
+
+        
+        if not respel.isdigit():
+            messages.error(request, 'Por favor seleccione una clasificación respel primero')
+            HttpResponse('Por favor seleccione una clasificación respel primero', status=400)
+        respel = get_object_or_404(RespelC, id=respel)
+
+        if (name != reactivo.name and Reactivos.objects.filter(name=name).exists()) or \
+           (code != reactivo.code and Reactivos.objects.filter(code=code).exists()) or \
+           (cas != reactivo.cas and Reactivos.objects.filter(cas=cas).exists()):
+            return HttpResponse('No fue posible realizar la edición ya que los valores de Nombre, Código o CAS coinciden con otros registros existentes.', status=400)                 
+        
+        
+        reactivo.color=color
+        reactivo.number=number
+        reactivo.subnumber=subnumber
+        reactivo.code=code
+        reactivo.cas=cas
+        reactivo.name=name
+        reactivo.unit=unit
+        reactivo.state=state
+        reactivo.sga=sga
+        reactivo.respel=respel
+        reactivo.last_updated_by=request.user  # Asignar el usuario actualmente autenticado
+
+
+        reactivo.save()
+        
+        
+        messages.success(request, 'Se ha editado exitosamente el reactivo: '+name)
+        return HttpResponse('Reactivo editado correctamente: '+name, status=200)
+    
+    laboratorio = request.user.lab
+    
+    context = {
+        'reactivo':reactivo,
+        'laboratorio':laboratorio,
+        'laboratorios': Laboratorios.objects.all(),
+        'unidades': Unidades.objects.all(),
+        'estados': Estados.objects.all(),
+        'respels': RespelC.objects.all(),
+        'sgas': SGA.objects.all(),
+    }
+    
+    return render(request, 'reactivos/editar_reactivo.html', context)
+
 
 
 # Esta vista edita el registro de entrada, además según los valores edita a su vez el modelo Inventarios

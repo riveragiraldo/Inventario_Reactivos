@@ -53,6 +53,8 @@
     <!-- Llama Script  que inserta valores actuales de los selectores -->
     <script src="{% static 'inventarioreac/cancelButtonFunction.js' %}" defer></script>
     <!-- Llama Script  que coloca función al botón cancelar -->
+    <script src="{% static 'inventarioreac/hideButtonsIn.js' %}" defer></script>
+    <!-- Llama Script al final oculta botones si la página se muestra como emergente -->
 
     <link rel="stylesheet" href="{% static 'inventarioreac/styles.css' %}">
     <script>
@@ -301,7 +303,7 @@
                 <!-- identificador para saber que tipo de ventana es -->
 
                 <div class="col-md-6">
-                    <input type="button" value="Registrar entrada Reactivo" class="btn btn-primary"
+                    <input type="button" value="Realizar Modificaciones" class="btn btn-primary"
                         id="open_confirm_in">
                 </div>
 

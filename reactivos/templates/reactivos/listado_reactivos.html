@@ -81,6 +81,7 @@
         <div class="col-md-10 mx-auto">
             <h1>Listado de Reactivos</h1>
             <br>
+            
 
             <form method="get" onsubmit="guardarValoresSelect()" name="listadoReactivos">
 
@@ -256,7 +257,7 @@
                                 height="18" title="Agregar reactivo">
                         </a>
                         <!-- Editar -->
-                        <a href="javascript:void(0);" onclick="openEditFormOut({{ item.id }})">
+                        <a href="javascript:void(0);" onclick="openEditFormReact({{ item.id }})">
                             <img src="{% static 'inventarioreac/Images/edit_register.png' %}" alt="" width="18"
                                 height="18" title="Editar registro número {{ item.id }}">
                         </a>
@@ -331,6 +332,7 @@
             '{% endif %}'
         });
     </script>
+    <input type="hidden" value="listado" id="wf">
 
     {% endblock %}
 </body>

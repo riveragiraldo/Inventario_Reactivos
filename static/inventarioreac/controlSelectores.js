@@ -66,4 +66,32 @@ window.onload = function () {
             reference_new.setAttribute("selected", true);
             }, 700);
     }
+    else if (wf == 'crear'){
+        
+        
+        setTimeout(function () {
+            // Actualiza Select Respel
+            var respel_new = document.querySelector("#respel");
+            respel_new.value = respel;
+            respel_new.setAttribute("selected", true);
+            
+            // Actualiza Select SGA
+            var sga_new = document.querySelector("#sga");
+            sga_new.value = sga;
+            sga_new.setAttribute("selected", true);
+
+            // Actualiza Select Estado
+            var state_new = document.querySelector("#selectState");
+            state_new.value = estado;
+            state_new.setAttribute("selected", true);
+
+            // Actualiza Select Unidades
+            var unit_new = document.querySelector("#selectUnidades");
+            unit_new.value = unidad;
+            unit_new.setAttribute("selected", true);
+
+        }, 100);
+
+        
+    }
 };

@@ -5,7 +5,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{% block title %}Creación de reactivos{% endblock %}</title>
+    <title>{% block title %}Edición de reactivos{% endblock %}</title>
     {% block head %}
     <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
@@ -20,6 +20,12 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/spin.js/2.3.2/spin.min.js"></script>
 
     {% load static %}
+    <script>
+        respel='{{ reactivo.respel.id }}'
+        sga='{{ reactivo.sga.id }}'
+        estado='{{ reactivo.state.id }}'
+        unidad='{{ reactivo.unit.id }}'
+    </script>
 
     <link rel="stylesheet" href="{% static 'inventarioreac/stylesShowSpinner.css' %}">
     <!-- Estilos para el letrero de la mitad del spinner -->
@@ -31,12 +37,14 @@
     <!-- Llama Script al final llama las ventanas emergentes -->
     <script src="{% static 'inventarioreac/hideButtonsReactive.js' %}" defer></script>
     <!-- Llama Script al final oculta botones si la página se muestra como emergente -->
-    <script src="{% static 'inventarioreac/sendInfo.js' %}" defer></script>
+    <script src="{% static 'inventarioreac/sendInfoEdit.js' %}" defer></script>
     <!-- Llama Script al final genera alerta informativa con los datos que se va enviar al servidor y acepta-->
     <script src="{% static 'inventarioreac/validateSubnumber.js' %}" defer></script>
     <!-- Llama Script al final genera alerta cuando no se escribe bien el subnumero-->
     <script src="{% static 'inventarioreac/cancelButtonFunction.js' %}" defer></script>
     <!-- Llama Script  que coloca función al botón cancelar -->
+    <script src="{% static 'inventarioreac/controlSelectores.js' %}" defer></script>
+    <!-- Llama Script  que inserta valores actuales de los selectores -->
     {% endblock %}
 </head>
 
@@ -44,7 +52,7 @@
     {% block content %}
 
     <div class="col-md-6 mx-auto">
-        <h1>Crear reactivo</h1>
+        <h1>Editar reactivo</h1>
         <div class="container mt-5">
             <div class="row">
                 <!-- HTML para mostrar el spinner -->
@@ -57,33 +65,38 @@
                         <div class="col-md-3">
                             <label class="form-label" for="color" name="Color: ">*Color:</label>
                             <input type="number" class="form-control" placeholder="Número" id="color" name="color"
-                                required title="Escriba un número positivo máximo 2 dígitos" pattern="^(?!0$)\d{1,2}$">
+                                required title="Escriba un número positivo máximo 2 dígitos" pattern="^(?!0$)\d{1,2}$"
+                                value="{{ reactivo.color|add:'0' }}">
                         </div>
                         <div class="col-md-3">
                             <label class="form-label" for="number" name="Número: ">*Número:</label>
                             <input type="number" class="form-control" placeholder="Núm. reactivo" id="number"
                                 name="number" required min="0" required
-                                title="Escriba un número positivo máximo 3 dígitos" pattern="^(?!0$)\d{1,3}$">
+                                title="Escriba un número positivo máximo 3 dígitos" pattern="^(?!0$)\d{1,3}$"
+                                value="{{ reactivo.number|add:'0' }}">
                         </div>
                         <div class="col-md-3">
                             <label class="form-label" for="subnumber" name="Subnúmero: ">Sub - Número:</label>
                             <input type="text" class="form-control" name="subnumber" id="subnumber"
                                 placeholder="Ingresa un número positivo o una letra mayúscula"
                                 pattern="^(?:[1-9]|[1-9][0-9]|A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z)$"
-                                title="Ingresa un número de 1 a 99 o una letra mayúscula (sin espacios ni caracteres especiales)">
+                                title="Ingresa un número de 1 a 99 o una letra mayúscula (sin espacios ni caracteres especiales)"
+                                value="{{ reactivo.subnumber }}">
 
                         </div>
 
                         <div class="col-md-3">
                             <label class="form-label" for="code" name="Código: ">*Código interno:</label>
                             <input type="text" class="form-control" name="code" id="code" placeholder="Código interno"
-                                title="Código interno" readonly>
+                                title="Código interno" readonly
+                                value="{{ reactivo.code }}">
                         </div>
                         <div class="col-md-4">
                             <label class="form-label" for="cas" name="CAS: ">*Código CAS:</label>
                             <input type="text" step="any" class="form-control" placeholder="Código CAS" name="cas"
                                 required id="cas" pattern="[0-9\-]{1,15}"
-                                title="El CAS debe tener números y guiones (-). Longituf máxima 15 caracteres">
+                                title="El CAS debe tener números y guiones (-). Longituf máxima 15 caracteres"
+                                value="{{ reactivo.cas }}">
                         </div>
 
                         <div class="col-md-4">
@@ -122,7 +135,8 @@
                             <label class="form-label" for="name" name="Nombre: ">*Nombre del reactivo:</label>
                             <input type="text" class="form-control" placeholder="Nombre de reactivo" name="name"
                                 required id="name" pattern=".{1,80}"
-                                title="El nombre del reactivo debe tener 80 caracteres o menos">
+                                title="El nombre del reactivo debe tener 80 caracteres o menos"
+                                value="{{ reactivo.name }}">
 
 
                         </div>
@@ -156,7 +170,7 @@
                         <input type="hidden" name="wf" class="form-control" value="crear" id="wf">
 
                         <div class="col-md-3 mt-3">
-                            <input type="button" value="Crear Reactivo" class="btn btn-primary" id="open_confirm_in">
+                            <input type="button" value="Realizar Modificaciones" class="btn btn-primary" id="open_confirm_in">
                         </div>
                         <div class="col-md-3 mt-3">
                             <button type="button" class="btn btn-primary"
