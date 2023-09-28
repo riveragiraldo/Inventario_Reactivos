@@ -1920,6 +1920,41 @@ def editar_salida(request, pk):
 
     return render(request, 'reactivos/editar_salida.html', context)
 
+# Funcionalidad para eliminar (No lo elimina, lo inactiva)registros de reactivo, 
+
+@login_required
+def eliminar_reactivo(request, pk):
+    # Obtén la entrada correspondiente al PK o muestra una página de error 404 si no se encuentra
+    reactivo = get_object_or_404(Reactivos, pk=pk)
+    # Elimina el registro lo inactiva, no lo elimina y además actualiza el usuario que realiza la acción
+    reactivo.is_active=False
+    reactivo.last_updated_by=request.user
+    reactivo.save()
+    
+    # Construye el mensaje de éxito
+    mensaje = f'Se ha eliminado a petición del usuario el registro número {pk} reactivo "{reactivo.name}" de manera exitosa.'
+    mensaje = mensaje
+    
+    return HttpResponse(mensaje,200)
+
+# Funcionalidad para activar (No lo elimina, lo inactiva)registros de reactivo, 
+
+@login_required
+def activar_reactivo(request, pk):
+    # Obtén la entrada correspondiente al PK o muestra una página de error 404 si no se encuentra
+    reactivo = get_object_or_404(Reactivos, pk=pk)
+    # Elimina el registro lo inactiva, no lo elimina y además actualiza el usuario que realiza la acción
+    reactivo.is_active=True
+    reactivo.last_updated_by=request.user
+    reactivo.save()
+    
+    # Construye el mensaje de éxito
+    mensaje = f'Se ha activado a petición del usuario el registro número {pk} reactivo "{reactivo.name}" de manera exitosa.'
+    mensaje = mensaje
+    
+    return HttpResponse(mensaje,200)
+
+
 # Funcionalidad para eliminar (No lo elimina, lo inactiva)registros de entrada, además de esto debe restar del inventario la cantidad sumada
 # Al correspondiente resgistro, además si llega a cero debe inactivar el registro
 
