@@ -40,13 +40,24 @@ $(document).ready(function () {
     $('#name').autocomplete({
         source: '/autocomplete/',
         select: function (event, ui) {
+            setTimeout(function () {
+                submitForm();
+            }, 30);
             
         },
         minLength: 3
     });
 
     $('#name').on('input', function () {
+        // setTimeout(function () {
+        //     submitForm();
+        // }, 100);
         
     });
 });
 
+function submitForm(){
+    const formulario = document.forms["listadoReactivos"];
+    formulario.submit();
+    
+}
