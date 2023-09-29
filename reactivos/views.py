@@ -2587,6 +2587,104 @@ class SalidasListView(LoginRequiredMixin,ListView):
             
         queryset = queryset.order_by('id')
         return queryset
+    
+# Muestra el listado de usuarios
+class UsuariosListView(LoginRequiredMixin,ListView):
+    model = User
+    template_name = "usuarios/listado_usuarios.html"
+    paginate_by = 10
+    
+    
+    @check_group_permission(groups_required=['COORDINADOR', 'ADMINISTRADOR'])
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        # Obtener el número de registros por página de la sesión del usuario
+        per_page = request.session.get('per_page')
+        if per_page:
+            self.paginate_by = int(per_page)
+        else:
+            self.paginate_by = 10  # Valor predeterminado si no hay variable de sesión
+
+        # Obtener los parámetros de filtrado
+        lab = request.GET.get('lab')
+        
+        
+        # si el valor de lab viene de sesión superusuario o ADMINISTRADOR lab=0 cambiar por lab=''
+        if lab=='0':
+            lab=''
+
+        # Guardar los valores de filtrado en la sesión
+        request.session['filtered_lab'] = lab
+        
+        
+
+        return super().get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # Obtener la fecha de hoy
+        today = date.today()
+        # Calcular la fecha hace un mes hacia atrás
+        one_month_ago = today - timedelta(days=30)
+
+        # Agregar la fecha al contexto
+        context['one_month_ago'] = one_month_ago
+
+        # Agregar la fecha de hoy al contexto
+        context['today'] = today
+
+        unique_labs_ids = Entradas.objects.values('lab').distinct()
+        unique_labs = Laboratorios.objects.filter(id__in=unique_labs_ids)
+
+        unique_names_ids = Entradas.objects.values('name').distinct()
+        unique_names = Reactivos.objects.filter(id__in=unique_names_ids)
+
+        unique_locations_ids = Entradas.objects.values(
+            'location').distinct()
+        
+        unique_locations = Ubicaciones.objects.filter(id__in=unique_locations_ids)
+        laboratorio = self.request.user.lab
+        
+    
+        context['usuarios'] = User.objects.all()
+        context['laboratorio'] = laboratorio
+        context['laboratorios'] = Laboratorios.objects.all()
+        context['shools'] = Facultades.objects.all()
+        context['destinations'] = Destinos.objects.all()
+        context['created_bys'] = UserModel.objects.all()
+        
+
+        context['unique_labs'] = unique_labs
+        context['unique_names'] = unique_names
+        context['unique_locations'] = unique_locations
+        
+
+        
+
+        # Obtener la lista de inventarios
+        entradas = context['object_list']
+        # Recorrer los entradas y cambiar el formato de la fecha
+        
+               
+        context['object_list'] = entradas
+        return context
+    
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        lab = self.request.GET.get('lab')
+        
+        # si el valor de lab viene de sesión superusuario o ADMINISTRADOR lab=0 cambiar por lab=''
+        if lab=='0':
+             lab=None
+        
+        if lab:
+            queryset = queryset.filter(lab=lab)
+                    
+        queryset = queryset.order_by('id')
+        return queryset
 
 # Muestra el listado de reactivos
 class ReactivosListView(LoginRequiredMixin,ListView):
@@ -2921,6 +3019,24 @@ class GuardarPerPageViewReactivo(LoginRequiredMixin,View):
         if filtered_name:
             params['name'] = filtered_name
         
+        if params:
+            url += '?' + urlencode(params)
+
+        return redirect(url)
+    
+class GuardarPerPageViewUser(LoginRequiredMixin,View):
+    def get(self, request, *args, **kwargs):
+        per_page = kwargs.get('per_page')
+        request.session['per_page'] = per_page
+
+        # Redirigir a la página de inventario con los parámetros de filtrado actuales
+        filtered_lab = request.session.get('filtered_lab')
+        
+        url = reverse('reactivos:listado_usuarios')
+        params = {}
+        if filtered_lab:
+            params['lab'] = filtered_lab
+
         if params:
             url += '?' + urlencode(params)
 

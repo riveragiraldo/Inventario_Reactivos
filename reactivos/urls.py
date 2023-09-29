@@ -33,8 +33,10 @@ urlpatterns = [
     path('reactivos/inventario/', InventarioListView.as_view(), name='inventario'),
     path('reactivos/listado_entradas/', EntradasListView.as_view(), name='listado_entradas'),
     path('reactivos/listado_salidas/', SalidasListView.as_view(), name='listado_salidas'),
+    path('usuarios/listar/', UsuariosListView.as_view(), name='listado_usuarios'),
     path('reactivos/listado_reactivos/', ReactivosListView.as_view(), name='listado_reactivos'),
     path('roles/crear/', CrearRoles.as_view(), name='crear_roles'),
+    path('usuarios/crear/',login_required(CrearUsuario.as_view()),name='crear_usuarios'),
     path('get-value/', get_value, name='get_value'),
     path('autocomplete/', autocomplete, name='autocomplete'),
     path('autocomplete_out/', AutocompleteOutAPI.as_view(), name='autocomplete_out'),
@@ -57,8 +59,10 @@ urlpatterns = [
     path('guardar-per-page-in/<int:per_page>/', GuardarPerPageViewIn.as_view(), name='GuardarPerPageIn'),
     path('guardar-per-page-out/<int:per_page>/', GuardarPerPageViewOut.as_view(), name='GuardarPerPageOut'),
     path('guardar-per-page-reactivo/<int:per_page>/', GuardarPerPageViewReactivo.as_view(), name='GuardarPerPageReactivo'),
+    path('guardar-per-page-user/<int:per_page>/', GuardarPerPageViewUser.as_view(), name='GuardarPerPageUser'),
     path("obtener_stock/", obtener_stock, name="obtener_stock"),
     path('templates/webtemplate/', webtemplate, name='webtemplate'),
+    
     
     path('accounts/login/', LoginView.as_view(), name='login'),
     
@@ -88,8 +92,7 @@ urlpatterns = [
         PasswordResetCompleteView.as_view(),
         name="password_reset_complete",
     ),
-    path('usuarios/listado/',login_required(ListadoUsuarios.as_view()),name='listado_usuarios'),
-    path('usuarios/crear/',login_required(CrearUsuario.as_view()),name='crear_usuarios'),
+    
     
     ]
 
