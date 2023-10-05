@@ -1,0 +1,9 @@
+/* Estilo para el letrero de la mitad del spinner al enviar los datos al servidor */
+.message {
+    position: absolute;
+    top: 70%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: rgba(27, 33, 32, 0.425);
+    font-size: 20px;
+}

@@ -7,6 +7,8 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.forms import UserChangeForm, UserCreationForm
 from .forms import CustomAuthenticationForm
 from django.contrib.auth.models import Group, Permission
+from import_export import resources
+from import_export.admin import ImportExportModelAdmin
 
 # Inclusión de creación de nuevos permisos en el admin de Dajango
 
@@ -89,14 +91,20 @@ class Almacenamientoadmin(admin.ModelAdmin):
     list_display=('id','lab','name','description','created_by', 'date_create','last_update','last_updated_by',)
     ordering=('id',)
 
+class ReactivosResources(resources.ModelResource):
+    class Meta:
+        model = Reactivos
+
+
 # Inclusión de el modelo REACTIVOS en la consola de administración de Django
 @admin.register(Reactivos)
-class Reactivosadmin(admin.ModelAdmin):
+class Reactivosadmin(ImportExportModelAdmin, admin.ModelAdmin):
     list_display=('id','code','cas','name','state','unit','respel','sga','created_by', 'date_create','last_update','last_updated_by',)
     list_filter=('code','name',)
     search_fields=('code','name',)
     list_per_page=10
     ordering=('id',)
+    resource_class = ReactivosResources
 
 # Inclusión de el modelo ENTRADAS en la consola de administración de Django
 @admin.register(Entradas)

@@ -2883,18 +2883,20 @@ class EditarUsuario(UpdateView):
     model = User
     form_class = FormularioUsuario
     template_name = 'usuarios/editar_usuario.html'
-    success_url='reactivos:index'
+    success_url='reactivos:editar_usuario'
+    
+    
 
     # Validador de grupos que pueden acceder
     # Sobreescribir el método dispatch para aplicar el decorador
-    @check_group_permission(groups_required=['COORDINADOR', 'ADMINISTRADOR'])
-    def dispatch(self, request, *args, **kwargs):
-        return super().dispatch(request, *args, **kwargs)
+    # @check_group_permission(groups_required=['COORDINADOR', 'ADMINISTRADOR'])
+    # def dispatch(self, request, *args, **kwargs):
+        
+    #     return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
-        # Tus validaciones personalizadas aquí, por ejemplo, verificar duplicados
-        # Recuerda adaptarlas según tus necesidades específicas
-
+        
+        
         # Verificar si el id_number ya existe en la base de datos
         id_number = form.cleaned_data['id_number']
         user = self.get_object()
@@ -2924,16 +2926,6 @@ class EditarUsuario(UpdateView):
             messages.error(self.request, f"No es posible editar el usuario {user.username} ya que su nombre de usuario {username} ya existe en la base de datos.")
             return HttpResponseBadRequest("Ya existe un registro en la base de datos")
 
-        # Validación personalizada para contraseñas
-        password1 = form.cleaned_data.get('password1')
-        password2 = form.cleaned_data.get('password2')
-
-        if password1 != password2:
-            messages.error(self.request, "No se puede editar el usuario porque las contraseñas no coinciden.")
-            return HttpResponse('Contraseña no cumple', status=400)
-
-        # Tus otras validaciones aquí...
-
         # Aplicar los cambios al usuario y guardarlo
         user = form.save()
 
@@ -2942,13 +2934,7 @@ class EditarUsuario(UpdateView):
 
         return HttpResponse('Operación exitosa', status=200)
 
-    # Restricción de acceso para evitar ediciones no autorizadas
-    def get(self, request, *args, **kwargs):
-        user = self.get_object()
-        if not request.user.is_superuser and not request.user.groups.filter(name__in=['COORDINADOR', 'ADMINISTRADOR']).exists() and request.user != user:
-            messages.error(self.request, "No tienes permiso para editar este usuario.")
-            return redirect(self.success_url)
-        return super().get(request, *args, **kwargs)
+    
     
     def get_object(self, queryset=None):
         # Obtener el valor de pk desde la URL
@@ -2962,7 +2948,6 @@ class EditarUsuario(UpdateView):
         #  Aquí deberías decodificar la contraseña y pasarla como valor inicial al formulario
         user = self.get_object()
         context['user'] = user
-
         context['laboratorio'] = self.request.user.lab
         context['labname'] = self.request.user.lab.name
         context['usuarios'] = User.objects.all()

@@ -100,7 +100,7 @@ class FormularioUsuario(forms.ModelForm):
                                                   'required':'required',
                                                   'id':'acceptDataProcessing',
                                                   'name':'acceptDataProcessing',
-                                                  'unchecked':'unchecked',
+                                                  'checked':'checked',
                                                 
                                               }))
     
