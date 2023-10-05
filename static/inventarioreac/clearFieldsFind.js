@@ -3,6 +3,8 @@
 function limpiarCampos(formularioName) {
     // Si es una ventana padre, realiza la acción de limpiar campos
     const formulario = document.forms[formularioName];
+    
+    
 
     if (formulario) {
         // Recorrer y limpiar todos los campos del formulario

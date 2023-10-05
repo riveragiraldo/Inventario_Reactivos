@@ -52,7 +52,7 @@ function mostrarSweetAlertUserCreate(create) {
         html: `
             <div class="card" style="text-align: left;">
                 <div class="card-header">
-                    Detalle usuario que ${create.type} ${create.vist} de  ${create.reactive} el ${create.date_create}
+                    Detalle usuario que ${create.type} ${create.vist} ${create.reactive} el ${create.date_create}
                 </div>
                 <br>
                 <div class="card-body">

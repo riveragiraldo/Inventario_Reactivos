@@ -1,5 +1,3 @@
-// Si la ventana es emergente al cancelar se cierra, si la venana es normal, limpia los campos
-
 function limpiarCampos(formularioName) {
     // Verificar si la ventana actual es una ventana emergente
     const isPopup = window.opener != null;
@@ -9,10 +7,18 @@ function limpiarCampos(formularioName) {
         const formulario = document.forms[formularioName];
 
         if (formulario) {
-            // Recorrer y limpiar todos los campos del formulario
-            const campos = formulario.querySelectorAll('input, textarea');
+            // Recorrer y limpiar todos los campos del formulario, excepto los de tipo "button"
+            const campos = formulario.querySelectorAll('input, textarea, select');
             campos.forEach((campo) => {
-                campo.value = ''; // Establecer el valor del campo como cadena vacía
+                if (campo.type !== 'button') {
+                    if (campo.tagName === 'SELECT') {
+                        // Si es un campo select, restablecerlo a su valor predeterminado
+                        campo.selectedIndex = 0; // Establecer el índice seleccionado al valor predeterminado (generalmente 0)
+                    } else {
+                        // Para otros campos (input y textarea), establecer el valor como cadena vacía
+                        campo.value = '';
+                    }
+                }
             });
         }
     } else {

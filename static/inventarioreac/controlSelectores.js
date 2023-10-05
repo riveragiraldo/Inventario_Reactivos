@@ -91,7 +91,23 @@ window.onload = function () {
             unit_new.setAttribute("selected", true);
 
         }, 100);
-
         
     }
+    else if (wf == 'usuarios'){
+        
+        
+        setTimeout(function () {
+            // Actualiza Select Lab
+            var lab_new = document.querySelector("#id_lab");
+            lab_new.value = lab;
+            lab_new.setAttribute("selected", true);
+            
+            // Actualiza Select rol
+            var rol_new = document.querySelector("#id_rol");
+            rol_new.value = rol;
+            rol_new.setAttribute("selected", true);
+        }, 100);
+        
+    }
+
 };

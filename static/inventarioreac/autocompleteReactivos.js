@@ -43,7 +43,7 @@ $(document).ready(function () {
             setTimeout(function () {
                 submitForm();
             }, 30);
-            
+
         },
         minLength: 3
     });
@@ -52,12 +52,12 @@ $(document).ready(function () {
         // setTimeout(function () {
         //     submitForm();
         // }, 100);
-        
+
     });
 });
 
-function submitForm(){
+function submitForm() {
     const formulario = document.forms["listadoReactivos"];
     formulario.submit();
-    
+
 }

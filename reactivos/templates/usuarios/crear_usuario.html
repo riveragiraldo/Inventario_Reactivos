@@ -37,6 +37,10 @@
   <!-- Llama Script al final llama las ventanas emergentes -->
   <script src="{% static 'inventarioreac/putValueAccept.js' %}" defer></script>
   <!-- Llama Script que coloca valor al check de acepta -->
+  <script src="{% static 'inventarioreac/cancelButtonFunction.js' %}" defer></script>
+  <!-- Llama Script  que coloca función al botón cancelar -->
+  <script src="{% static 'inventarioreac/hideButtonsUser.js' %}" defer></script>
+    <!-- Llama Script al final oculta botones si la página se muestra como emergente -->
   {% endblock %}
 
 </head>
@@ -121,7 +125,7 @@
           <div class="input-group">
             {{ form.lab }}
             <button type="button" id="add_lab_btn" class="btn btn-secondary" title="Agregar Laboratorio">+</button>
-            
+
           </div>
           {% endif %}
 
@@ -169,31 +173,33 @@
           <input type="hidden" name="wf" class="form-control" value="user_create" id="wf">
         </div>
         <div class="form-group">
-          
-
-            <div class="politicaTratamiento">
-              
-                {{ form.acceptDataProcessing }}
-              <label for="acceptDataProcessing" class="politica-label"
-                name="Acepta política de tratamiento de datos personales: ">
-                <p class="politica">
-                  DE ACUERDO CON LA
-                  <a href="https://unal.edu.co/tratamiento-de-datos-personales" target="_blank">
-                    LEY 1581 DE 2012 DE PROTECCIÓN DE DATOS PERSONALES</a>, HE LEÍDO, ENTENDIDO Y ACEPTO, LOS TÉRMINOS
-                  DESCRITOS EN LA POLÍTICA DE TRATAMIENTO DE DATOS PERSONALES.<br><br>
-                </p>
-              </label>
-            </div>
-            
 
 
-          
+          <div class="politicaTratamiento">
+
+            {{ form.acceptDataProcessing }}
+            <label for="acceptDataProcessing" class="politica-label"
+              name="Acepta política de tratamiento de datos personales: ">
+              <p class="politica">
+                DE ACUERDO CON LA
+                <a href="https://unal.edu.co/tratamiento-de-datos-personales" target="_blank">
+                  LEY 1581 DE 2012 DE PROTECCIÓN DE DATOS PERSONALES</a>, HE LEÍDO, ENTENDIDO Y ACEPTO, LOS TÉRMINOS
+                DESCRITOS EN LA POLÍTICA DE TRATAMIENTO DE DATOS PERSONALES.<br><br>
+              </p>
+            </label>
+          </div>
+
+
+
+
         </div>
 
 
         <br>
         <div class="card-footer">
-          <a href='{% url "reactivos:listado_usuarios" %}' class="btn btn-danger">Cancelar</a>
+
+          <button type="button" class="btn btn-primary" onclick="limpiarCampos('form')">Cancelar</button>
+
           <input type="button" value="Crear Usuario" class="btn btn-primary" id="open_confirm_in">
 
         </div>
@@ -234,6 +240,14 @@
         title: 'Mensaje del servidor',
         text: messageText,
         confirmButtonText: 'Aceptar'
+      }).then(function (result) {
+        // Verificar si la ventana actual es una ventana emergente
+        if (window.opener != null) {
+          // Recargar la página principal antes de cerrar la ventana emergente
+          window.opener.location.reload();
+          // Si es una ventana emergente, cierra la ventana actual
+          window.close();
+        }
       });
     };
 

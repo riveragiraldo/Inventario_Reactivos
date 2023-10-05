@@ -9,7 +9,7 @@ from .models import *
 from django.db.models import Q
 from django.contrib import messages
 from decimal import Decimal
-from django.views.generic import ListView, View, CreateView
+from django.views.generic import ListView, View, CreateView, UpdateView
 from django.db.models import F
 from django.views import View
 import json
@@ -1411,6 +1411,9 @@ def editar_reactivo(request, pk):
 
 
 
+
+
+
 # Esta vista edita el registro de entrada, además según los valores edita a su vez el modelo Inventarios
 # de manera que una afectación en la entrada, afecta directamente el inventario
 
@@ -2609,6 +2612,8 @@ class UsuariosListView(LoginRequiredMixin,ListView):
 
         # Obtener los parámetros de filtrado
         lab = request.GET.get('lab')
+        rol = request.GET.get('rol')
+        id_user = request.GET.get('id_user')
         
         
         # si el valor de lab viene de sesión superusuario o ADMINISTRADOR lab=0 cambiar por lab=''
@@ -2617,7 +2622,8 @@ class UsuariosListView(LoginRequiredMixin,ListView):
 
         # Guardar los valores de filtrado en la sesión
         request.session['filtered_lab'] = lab
-        
+        request.session['filtered_rol'] = rol
+        request.session['filtered_id'] = id_user      
         
 
         return super().get(request, *args, **kwargs)
@@ -2625,63 +2631,49 @@ class UsuariosListView(LoginRequiredMixin,ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        # Obtener la fecha de hoy
-        today = date.today()
-        # Calcular la fecha hace un mes hacia atrás
-        one_month_ago = today - timedelta(days=30)
-
-        # Agregar la fecha al contexto
-        context['one_month_ago'] = one_month_ago
-
-        # Agregar la fecha de hoy al contexto
-        context['today'] = today
-
-        unique_labs_ids = Entradas.objects.values('lab').distinct()
-        unique_labs = Laboratorios.objects.filter(id__in=unique_labs_ids)
-
-        unique_names_ids = Entradas.objects.values('name').distinct()
-        unique_names = Reactivos.objects.filter(id__in=unique_names_ids)
-
-        unique_locations_ids = Entradas.objects.values(
-            'location').distinct()
         
-        unique_locations = Ubicaciones.objects.filter(id__in=unique_locations_ids)
+        
         laboratorio = self.request.user.lab
         
     
         context['usuarios'] = User.objects.all()
+        context['roles'] = Rol.objects.all()
         context['laboratorio'] = laboratorio
         context['laboratorios'] = Laboratorios.objects.all()
-        context['shools'] = Facultades.objects.all()
-        context['destinations'] = Destinos.objects.all()
-        context['created_bys'] = UserModel.objects.all()
-        
-
-        context['unique_labs'] = unique_labs
-        context['unique_names'] = unique_names
-        context['unique_locations'] = unique_locations
-        
-
         
 
         # Obtener la lista de inventarios
-        entradas = context['object_list']
+        usuarios = context['object_list']
         # Recorrer los entradas y cambiar el formato de la fecha
         
                
-        context['object_list'] = entradas
+        context['object_list'] = usuarios
         return context
     
     def get_queryset(self):
         queryset = super().get_queryset()
         lab = self.request.GET.get('lab')
+        rol = self.request.GET.get('rol')
+        user_id = self.request.GET.get('id_user')
         
         # si el valor de lab viene de sesión superusuario o ADMINISTRADOR lab=0 cambiar por lab=''
         if lab=='0':
              lab=None
-        
-        if lab:
+
+        if lab and rol and user_id:
+            queryset = queryset.filter(lab=lab, rol=rol, id=user_id)
+        elif lab and rol:
+            queryset = queryset.filter(lab=lab, rol=rol)
+        elif lab and user_id:
+            queryset = queryset.filter(lab=lab, id=user_id)
+        elif user_id and rol:
+            queryset = queryset.filter(id=user_id, rol=rol)
+        elif lab:
             queryset = queryset.filter(lab=lab)
+        elif rol:
+            queryset = queryset.filter(rol=rol)
+        elif user_id:
+            queryset = queryset.filter(id=user_id)
                     
         queryset = queryset.order_by('id')
         return queryset
@@ -2755,7 +2747,6 @@ class ListadoUsuarios(LoginRequiredMixin, ListView):
 
 
 #Crear Usuarios
-# @method_decorator(check_group_permissions(groups_required=['COORDINADOR', 'ADMINISTRADOR']), name='dispatch')
 class CrearUsuario(LoginRequiredMixin, CreateView):
     model=User
     form_class=FormularioUsuario
@@ -2783,6 +2774,7 @@ class CrearUsuario(LoginRequiredMixin, CreateView):
         encoded_email = base64.urlsafe_b64encode(user.email.encode()).decode()
         reset_link = reverse('reactivos:password_reset') + '?' + urlencode({'email': encoded_email})
         reset_url = f"{protocol}://{domain}{reset_link}"
+        home_url = f"{protocol}://{domain}"
 
         subject = _('Bienvenido a la Gestión de Insumos Químicos')
         if user.acceptDataProcessing:
@@ -2794,6 +2786,7 @@ class CrearUsuario(LoginRequiredMixin, CreateView):
             'user': user,
             'reset_url': reset_url,
             'aceptapolitica':aceptapolitica,
+            'home_url':home_url,
         }
         message = render_to_string('registration/registro_exitoso_email.html', context)
         plain_message = strip_tags(message)
@@ -2883,6 +2876,100 @@ class CrearUsuario(LoginRequiredMixin, CreateView):
         messages.success(self.request, f"Se ha creado exitosamente el usuario {user.first_name} {user.last_name} y se ha enviado un correo electrónico de confirmación a {user.email}.")
 
         return HttpResponse('Operación exitosa', status=200)
+    
+# Vista para editar usuarios
+@method_decorator(login_required, name='dispatch')
+class EditarUsuario(UpdateView):
+    model = User
+    form_class = FormularioUsuario
+    template_name = 'usuarios/editar_usuario.html'
+    success_url='reactivos:index'
+
+    # Validador de grupos que pueden acceder
+    # Sobreescribir el método dispatch para aplicar el decorador
+    @check_group_permission(groups_required=['COORDINADOR', 'ADMINISTRADOR'])
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        # Tus validaciones personalizadas aquí, por ejemplo, verificar duplicados
+        # Recuerda adaptarlas según tus necesidades específicas
+
+        # Verificar si el id_number ya existe en la base de datos
+        id_number = form.cleaned_data['id_number']
+        user = self.get_object()
+
+        if User.objects.filter(id_number=id_number).exclude(pk=user.pk).exists():
+            messages.error(self.request, f"No es posible editar el usuario {user.username} ya que su número de identificación {id_number} ya existe en la base de datos.")
+            return HttpResponseBadRequest("Ya existe un registro en la base de datos")
+
+        # Verificar si el phone_number ya existe en la base de datos
+        phone_number = form.cleaned_data['phone_number']
+
+        if User.objects.filter(phone_number=phone_number).exclude(pk=user.pk).exists():
+            messages.error(self.request, f"No es posible editar el usuario {user.username} ya que su número de teléfono {phone_number} ya existe en la base de datos.")
+            return HttpResponseBadRequest("Ya existe un registro en la base de datos")
+
+        # Verificar si el email ya existe en la base de datos
+        email = form.cleaned_data['email']
+
+        if User.objects.filter(email=email).exclude(pk=user.pk).exists():
+            messages.error(self.request, f"No es posible editar el usuario {user.username} ya que su correo electrónico {email} ya existe en la base de datos.")
+            return HttpResponseBadRequest("Ya existe un registro en la base de datos")
+
+        # Verificar si el username ya existe en la base de datos
+        username = form.cleaned_data['username']
+
+        if User.objects.filter(username=username).exclude(pk=user.pk).exists():
+            messages.error(self.request, f"No es posible editar el usuario {user.username} ya que su nombre de usuario {username} ya existe en la base de datos.")
+            return HttpResponseBadRequest("Ya existe un registro en la base de datos")
+
+        # Validación personalizada para contraseñas
+        password1 = form.cleaned_data.get('password1')
+        password2 = form.cleaned_data.get('password2')
+
+        if password1 != password2:
+            messages.error(self.request, "No se puede editar el usuario porque las contraseñas no coinciden.")
+            return HttpResponse('Contraseña no cumple', status=400)
+
+        # Tus otras validaciones aquí...
+
+        # Aplicar los cambios al usuario y guardarlo
+        user = form.save()
+
+        # Agregar mensaje de éxito
+        messages.success(self.request, f"Se ha editado exitosamente el usuario {user.first_name} {user.last_name}.")
+
+        return HttpResponse('Operación exitosa', status=200)
+
+    # Restricción de acceso para evitar ediciones no autorizadas
+    def get(self, request, *args, **kwargs):
+        user = self.get_object()
+        if not request.user.is_superuser and not request.user.groups.filter(name__in=['COORDINADOR', 'ADMINISTRADOR']).exists() and request.user != user:
+            messages.error(self.request, "No tienes permiso para editar este usuario.")
+            return redirect(self.success_url)
+        return super().get(request, *args, **kwargs)
+    
+    def get_object(self, queryset=None):
+        # Obtener el valor de pk desde la URL
+        pk = self.kwargs.get('pk')
+
+        # Obtener el usuario que se está editando o devolver 404 si no existe
+        return get_object_or_404(User, pk=pk)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        #  Aquí deberías decodificar la contraseña y pasarla como valor inicial al formulario
+        user = self.get_object()
+        context['user'] = user
+
+        context['laboratorio'] = self.request.user.lab
+        context['labname'] = self.request.user.lab.name
+        context['usuarios'] = User.objects.all()
+        context['roles'] = Rol.objects.all()  
+        context['laboratorios'] = Laboratorios.objects.all()  
+        return context
+    
 
 
 
@@ -3031,16 +3118,24 @@ class GuardarPerPageViewUser(LoginRequiredMixin,View):
 
         # Redirigir a la página de inventario con los parámetros de filtrado actuales
         filtered_lab = request.session.get('filtered_lab')
+        filtered_rol = request.session.get('filtered_rol')
+        filtered_id = request.session.get('filtered_id')
         
         url = reverse('reactivos:listado_usuarios')
         params = {}
         if filtered_lab:
             params['lab'] = filtered_lab
+        if filtered_rol:
+            params['rol'] = filtered_rol
+        if filtered_id:
+            params['id_user'] = filtered_id
 
         if params:
             url += '?' + urlencode(params)
 
         return redirect(url)
+    
+
 
     
 # La vista "crear_unidades" se encarga de gestionar la creación de unidades. Esta vista toma los datos del formulario 
@@ -4115,6 +4210,228 @@ def export_to_excel_output(request):
     workbook.save(response)
 
     return response
+
+# Utilizando los valores filtrados en el template listado_usuarios.html, y guardados en los datos de sesión, se crea el archivo de Excel 
+# correspondiente e se introducen los valores desde la tabla del modelo User. Además, se aplican formatos a los encabezados, se 
+# coloca un título, la fecha de creación y el logo. También se ajustan los anchos de columna y las alturas de fila, y se añaden filtros 
+# a los encabezados en caso de que el usuario lo solicite
+@login_required
+def export_to_excel_user(request):
+    # Obtener los valores filtrados almacenados en la sesión del usuario
+    
+    lab = request.session.get('filtered_lab')
+    rol = request.session.get('filtered_rol')
+    user_id = request.session.get('filtered_id')
+    
+    queryset = User.objects.all()
+    #Filtra según los valores previos de filtro en los selectores
+    # 
+    if lab and rol and user_id:
+            queryset = queryset.filter(lab=lab, rol=rol, id=user_id)
+    elif lab and rol:
+        queryset = queryset.filter(lab=lab, rol=rol)
+    elif lab and user_id:
+        queryset = queryset.filter(lab=lab, id=user_id)
+    elif user_id and rol:
+        queryset = queryset.filter(id=user_id, rol=rol)
+    elif lab:
+        queryset = queryset.filter(lab=lab)
+    elif rol:
+        queryset = queryset.filter(rol=rol)
+    elif user_id:
+        queryset = queryset.filter(id=user_id)
+                
+    queryset = queryset.order_by('id')
+        
+
+    workbook = openpyxl.Workbook()
+    sheet = workbook.active
+
+    # Ruta al archivo de imagen del logotipo
+
+    logo_path = finders.find('inventarioreac/Images/escudoUnal_black.png')
+
+    # Cargar la imagen y procesarla con pillow
+    pil_image = PILImage.open(logo_path)
+
+    # Crear un objeto Image de openpyxl a partir de la imagen procesada
+    image = ExcelImage(pil_image)
+
+    # Anclar la imagen a la celda A1
+    sheet.add_image(image, 'A1')
+
+    # Obtener la fecha actual
+    fecha_creacion = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+
+    # Unificar las celdas A1, B1, C1 y D1
+    #sheet.merge_cells('C1:F1')
+
+    sheet['D1'] = 'Listado de Usuarios'
+    sheet['D2'] = 'Fecha de Creación: '+fecha_creacion
+    sheet['A4'] = 'Id usuario'
+    sheet['B4'] = 'Nombres'
+    sheet['C4'] = 'Apellidos'
+    sheet['D4'] = 'Identificación'
+    sheet['E4'] = 'Correo Electrónico'
+    sheet['F4'] = 'Teléfono'
+    sheet['G4'] = 'Laboratorio al que pertenece'
+    sheet['H4'] = 'Rol de usuario'
+    sheet['I4'] = 'Último Acceso'
+    sheet['J4'] = 'Acepta tratamiento de datos personales'
+    sheet['K4'] = 'Activo'
+    sheet['L4'] = 'Fecha de creación'
+    sheet['M4'] = 'Creado por'
+    sheet['N4'] = 'Fecha de última actualización'
+    sheet['O4'] = 'Última actualización por'
+
+    # Establecer la altura de la fila 1 y 2 a 30 y fila 3 a 25
+    sheet.row_dimensions[1].height = 30
+    sheet.row_dimensions[2].height = 30
+    sheet.row_dimensions[3].height = 25
+
+    # Establecer estilo de celda para A1
+    cell_A1 = sheet['D1']
+    cell_A1.font = Font(bold=True, size=15)
+
+    # Configurar los estilos de borde
+    thin_border = Border(left=Side(style='thin'), right=Side(
+    style='thin'), top=Side(style='thin'), bottom=Side(style='thin'))
+
+    # Establecer el estilo de las celdas A2:D3
+    bold_font = Font(bold=True)
+
+    # Establecer el ancho de la columna A a 9
+    sheet.column_dimensions['A'].width = 9
+
+    # Establecer el ancho de la columna B a 21
+    sheet.column_dimensions['B'].width = 21
+
+    # Establecer el ancho de la columna C a 21
+    sheet.column_dimensions['C'].width = 21
+
+    # Establecer el ancho de la columna D a 16
+    sheet.column_dimensions['D'].width = 16
+
+    # Establecer el ancho de la columna E a 29
+    sheet.column_dimensions['E'].width = 29
+
+    # Establecer el ancho de la columna F a 12
+    sheet.column_dimensions['F'].width = 12
+
+    # Establecer el ancho de la columna G a 38
+    sheet.column_dimensions['G'].width = 38
+
+    # Establecer el ancho de la columna H a 15
+    sheet.column_dimensions['H'].width = 15
+
+    # Establecer el ancho de la columna I a 18
+    sheet.column_dimensions['I'].width = 18
+
+    # Establecer el ancho de la columna J a 13
+    sheet.column_dimensions['J'].width = 13
+
+    # Establecer el ancho de la columna K a 8
+    sheet.column_dimensions['K'].width = 8
+
+    # Establecer el ancho de la columna L a 19
+    sheet.column_dimensions['L'].width = 19
+
+    # Establecer el ancho de la columna M a 29
+    sheet.column_dimensions['M'].width = 29
+
+    # Establecer el ancho de la columna N a 19
+    sheet.column_dimensions['N'].width = 19
+
+    # Establecer el ancho de la columna O a 29
+    sheet.column_dimensions['O'].width = 29
+    
+    row = 4
+    # Aplicar el estilo de borde a las celdas de la fila actual
+    for col in range(1, 16):
+        sheet.cell(row=row, column=col).border = thin_border
+        sheet.cell(row=row, column=col).font = bold_font
+
+    row = 5
+    for item in queryset:
+        # Establecer acepta procesamientod e datos
+        if item.acceptDataProcessing:
+            item.acceptDataProcessing='Acepta'
+        else:
+            item.acceptDataProcessing='No acepta'
+        # Establecer el is_active como un valor más comprensible que True y False
+        if item.is_active==True:
+            item.is_active='Activo'
+        else:
+            item.is_active='Inactivo'  
+
+        # Establecer fecha de acceso
+        if item.last_login:
+            item.last_login=item.last_login.strftime('%d/%m/%Y %H:%M:%S')
+        else:
+            item.last_login='No access'
+              
+
+        sheet.cell(row=row, column=1).value = item.id
+        sheet.cell(row=row, column=2).value = item.first_name
+        sheet.cell(row=row, column=3).value = item.last_name
+        sheet.cell(row=row, column=4).value = item.id_number
+        sheet.cell(row=row, column=5).value = item.email
+        sheet.cell(row=row, column=6).value = item.phone_number
+        sheet.cell(row=row, column=7).value = item.lab.name
+        sheet.cell(row=row, column=8).value = item.rol.name
+        sheet.cell(row=row, column=9).value = item.last_login
+        sheet.cell(row=row, column=10).value = item.acceptDataProcessing
+        sheet.cell(row=row, column=11).value = item.is_active
+        sheet.cell(row=row, column=12).value = item.date_joined.strftime('%d/%m/%Y %H:%M:%S')
+        sheet.cell(row=row, column=13).value = item.user_create.first_name+' '+item.user_create.last_name
+        sheet.cell(row=row, column=14).value = str((item.last_update).strftime('%d/%m/%Y %H:%M:%S'))
+        sheet.cell(row=row, column=15).value = item.last_updated_by.first_name+' '+item.last_updated_by.last_name
+        
+               
+        # Aplicar el estilo de borde a las celdas de la fila actual
+        for col in range(1, 16):
+            sheet.cell(row=row, column=col).border = thin_border
+
+        row += 1
+
+    # Obtén el rango de las columnas de la tabla
+    start_column = 1
+    end_column = 15
+    start_row = 4
+    end_row = row - 1
+
+    # Convertir los números de las columnas en letras de columna
+    start_column_letter = get_column_letter(start_column)
+    end_column_letter = get_column_letter(end_column)
+
+    # Rango de la tabla con el formato "A4:I{n}", donde n es el número de filas en la tabla
+    table_range = f"{start_column_letter}{start_row}:{end_column_letter}{end_row}"
+
+    # Agregar filtros solo a las columnas de la tabla
+    sheet.auto_filter.ref = table_range
+
+    # Establecer fondo blanco desde la celda A1 hasta el final de la tabla
+
+    fill = PatternFill(fill_type="solid", fgColor=WHITE)
+    start_cell = sheet['A1']
+    end_column_letter = get_column_letter(end_column+1)
+    end_row = row+1
+    end_cell = sheet[end_column_letter + str(end_row)]
+    table_range = start_cell.coordinate + ':' + end_cell.coordinate
+
+    for row in sheet[table_range]:
+        for cell in row:
+            cell.fill = fill
+
+    response = HttpResponse(
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename=Listado_de_Usuarios.xlsx'
+
+    workbook.save(response)
+
+    return response
+
+
 # Utilizando los valores filtrados en el template listado_reactivos.html, y guardados en los datos de sesión, se crea el archivo de Excel 
 # correspondiente e se introducen los valores desde la tabla del modelo Reactivos. Además, se aplican formatos a los encabezados, se 
 # coloca un título, la fecha de creación y el logo. También se ajustan los anchos de columna y las alturas de fila, y se añaden filtros 
@@ -4849,6 +5166,34 @@ class AutocompleteOutAPI(LoginRequiredMixin,View):
             results.append(result)
 
         return JsonResponse(results, safe=False)
+# Devuelve los valores de la tabla Usuarios según lo escrito en el campo name de la vista listado de usuarios en forma de una 
+# lista de autocompletado
+
+class AutocompleteUserAPI(LoginRequiredMixin,View):
+    def get(self, request):
+        term = request.GET.get('term', '')
+        lab = request.GET.get('lab', '')
+        if lab=='0':       
+            usuarios = User.objects.filter(
+                Q(first_name__icontains=term) | Q(last_name__icontains=term) | Q(id_number__icontains=term) | Q(phone_number__icontains=term) | Q(email__icontains=term) | Q(username__icontains=term)
+            ).order_by('first_name').distinct('first_name')[:10]
+        else:
+            usuarios = User.objects.filter(
+                Q(first_name__icontains=term) | Q(last_name__icontains=term) | Q(id_number__icontains=term) | Q(phone_number__icontains=term) | Q(email__icontains=term) | Q(username__icontains=term),
+                lab=lab
+            ).order_by('first_name').distinct('first_name')[:10]
+
+        results = []
+        for usuario in usuarios:
+            result = {
+                'first_name': usuario.first_name,
+                'last_name': usuario.last_name,
+                'email': usuario.email,
+                'id_user': usuario.id,
+            }
+            results.append(result)
+        return JsonResponse(results, safe=False)
+    
 
 # Devuelve los valores de la tabla Ubicaciones según lo escrito en el campo name del formulario registrar_salida.html en forma de 
 # una lista de autocompletado

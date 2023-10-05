@@ -118,7 +118,7 @@ class FormularioUsuario(forms.ModelForm):
     username=forms.CharField(label='Nombre de usuario', required=True, widget=forms.TextInput(
         attrs={
             'class': 'form-control',
-            'placeholder': 'Escriba los nombres',
+            'placeholder': 'Escriba el nombre de usuario',
             'id': 'username',
             'required':'required',
             'pattern':'^(?:[a-zA-Zá-úÁ-Ú]+\s){0,1}[a-zA-Zá-úÁ-Ú]+$',
