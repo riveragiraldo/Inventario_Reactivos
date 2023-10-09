@@ -279,10 +279,16 @@
                                 height="18" title="Editar registro número {{ item.id }}">
                         </a>
                         <!-- Eliminar -->
-                        <a href="javascript:void(0);" onclick="confirmDeleteReact({{ item.id }}, '{{ item.name }}')">
-                            <img src="{% static 'inventarioreac/Images/delete_register.png' %}" alt="" width="18"
-                                height="18" title="Borrar registro número {{ item.id }}">
-                        </a>
+                        {% if item.is_active %}
+                        <a href="javascript:void(0);" onclick="confirmDeleteReact({{ item.id }}, '{{ item.name }}')"><img
+                                src="{% static 'inventarioreac/Images/delete_register.png' %}" alt="" width="18" height="18"
+                                title="Eliminar registro número {{item.id}}"></a>
+                        {% else %}
+                        <a href="javascript:void(0);"
+                            onclick="confirmActiveReact({{ item.id }}, '{{ item.name }}')"><img
+                                src="{% static 'inventarioreac/Images/restore_register.png' %}" alt="" width="18"
+                                height="18" title="Restaurar registro número {{item.id}}"></a>
+                        {% endif %}
 
                         {% elif request.user|has_group:"COORDINADOR" or request.user|has_group:"TECNICO" %}
                         <!-- Editar -->
@@ -292,9 +298,13 @@
 
                         <!-- Eliminar -->
 
-                        <img src="{% static 'inventarioreac/Images/delete_register.png' %}" alt="" width="18"
-                            height="18"
-                            title="Borrar registro número {{ item.id }} solo está disponible para administrador del sistema">
+                        {% if item.is_active %}
+                        <img src="{% static 'inventarioreac/Images/delete_register.png' %}" alt="" width="18" height="18"
+                                title="Eliminar registro número {{item.id}}, disponible solo para administradores">
+                        {% else %}
+                        <img src="{% static 'inventarioreac/Images/restore_register.png' %}" alt="" width="18"
+                                height="18" title="Restaurar registro número {{item.id}}, disponible solo para administradores">
+                        {% endif %}
 
                         {% endif %}
                     </td>

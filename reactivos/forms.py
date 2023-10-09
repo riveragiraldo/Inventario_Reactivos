@@ -85,7 +85,8 @@ class FormularioUsuario(forms.ModelForm):
                                           attrs={
                                               'class': 'form-control',
                                               'placeholder': 'Número Telefónico',
-                                              'pattern':'[0-9]{10,13}','title':'Ingrese su número telefónico (solo números enteros positivos de 10 a 13 dígitos)',
+                                              'pattern':'[0-9]{10,13}',
+                                              'title':'Ingrese su número telefónico (solo números enteros positivos de 10 a 13 dígitos)',
                                               'required':'required'
                                               }))
     
@@ -122,7 +123,7 @@ class FormularioUsuario(forms.ModelForm):
             'id': 'username',
             'required':'required',
             'pattern':'^(?:[a-zA-Zá-úÁ-Ú]+\s){0,1}[a-zA-Zá-úÁ-Ú]+$',
-            'title':'Ingrese máximos dos palabras sin números ni caracteres especiales',
+            'title':'Ingrese solo una palabras sin números ni caracteres especiales',
             }))
 
     class Meta:

@@ -1926,6 +1926,42 @@ def editar_salida(request, pk):
 # Funcionalidad para eliminar (No lo elimina, lo inactiva)registros de reactivo, 
 
 @login_required
+def eliminar_usuario(request, pk):
+    # Obtén la entrada correspondiente al PK o muestra una página de error 404 si no se encuentra
+    usuario = get_object_or_404(User, pk=pk)
+    # Elimina el registro lo inactiva, no lo elimina y además actualiza el usuario que realiza la acción
+    usuario.is_active=False
+    usuario.last_updated_by=request.user
+    usuario.save()
+    
+    # Construye el mensaje de éxito
+    mensaje = f'Se ha eliminado a petición del usuario el registro número {pk} usuario "{usuario.first_name} {usuario.last_name}" de manera exitosa.'
+    mensaje = mensaje
+    
+    return HttpResponse(mensaje,200)
+
+# Funcionalidad para Activar registros de usuario, 
+
+@login_required
+def activar_usuario(request, pk):
+    # Obtén la entrada correspondiente al PK o muestra una página de error 404 si no se encuentra
+    usuario = get_object_or_404(User, pk=pk)
+    # Elimina el registro lo inactiva, no lo elimina y además actualiza el usuario que realiza la acción
+    usuario.is_active=True
+    usuario.last_updated_by=request.user
+    usuario.save()
+    
+    # Construye el mensaje de éxito
+    mensaje = f'Se ha restaurado a petición del usuario el registro número {pk} usuario "{usuario.first_name} {usuario.last_name}" de manera exitosa.'
+    mensaje = mensaje
+    
+    return HttpResponse(mensaje,200)
+
+
+
+# Funcionalidad para eliminar (No lo elimina, lo inactiva)registros de reactivo, 
+
+@login_required
 def eliminar_reactivo(request, pk):
     # Obtén la entrada correspondiente al PK o muestra una página de error 404 si no se encuentra
     reactivo = get_object_or_404(Reactivos, pk=pk)
@@ -1940,7 +1976,7 @@ def eliminar_reactivo(request, pk):
     
     return HttpResponse(mensaje,200)
 
-# Funcionalidad para activar (No lo elimina, lo inactiva)registros de reactivo, 
+# Funcionalidad para activar registros de reactivo, 
 
 @login_required
 def activar_reactivo(request, pk):
@@ -2889,10 +2925,10 @@ class EditarUsuario(UpdateView):
 
     # Validador de grupos que pueden acceder
     # Sobreescribir el método dispatch para aplicar el decorador
-    # @check_group_permission(groups_required=['COORDINADOR', 'ADMINISTRADOR'])
-    # def dispatch(self, request, *args, **kwargs):
+    @check_group_permission(groups_required=['COORDINADOR', 'ADMINISTRADOR'])
+    def dispatch(self, request, *args, **kwargs):
         
-    #     return super().dispatch(request, *args, **kwargs)
+        return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
         
@@ -2954,6 +2990,77 @@ class EditarUsuario(UpdateView):
         context['roles'] = Rol.objects.all()  
         context['laboratorios'] = Laboratorios.objects.all()  
         return context
+    
+# La vista "editar_reactivo" se encarga de gestionar la edición  de un registro reactivo en la db. Esta vista toma los datos del formulario 
+# existente en el template "editar_reactivo.html" y realiza las operaciones necesarias en la base de datos para editar 
+# la información del reactivo. Esto puede incluir la validación de los datos ingresados, la edición de un nuevo registro 
+# en la tabla correspondiente y cualquier otra gestión requerida para asegurar la integridad de los datos en la base de datos.
+@login_required
+def editar_usuario(request, pk):
+    usuario = get_object_or_404(User, pk=pk)
+    if request.method == 'POST':
+        id_number = request.POST.get('id_number')
+        phone_number = request.POST.get('phone_number')
+        email = request.POST.get('email')
+        username = request.POST.get('username')
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
+        rol = request.POST.get('rol')
+        lab = request.POST.get('lab')
+
+        # Verificación de unicidad de número de identificación
+        if User.objects.filter(id_number=id_number).exclude(pk=usuario.pk).exists():
+            mensaje=f"No es posible editar el usuario {usuario.username} ya que su número de identificación {id_number} ya existe en la base de datos."
+            return HttpResponseBadRequest(mensaje)
+        
+        # Verificación de unicidad de número telefónico
+        if User.objects.filter(phone_number=phone_number).exclude(pk=usuario.pk).exists():
+            mensaje =f"No es posible editar el usuario {usuario.username} ya que su número de teléfono {phone_number} ya existe en la base de datos."
+            return HttpResponseBadRequest(mensaje)
+        
+        # Verificación de unicidad de correo electrónico
+        if User.objects.filter(email=email).exclude(pk=usuario.pk).exists():
+            mensaje =f"No es posible editar el usuario {usuario.username} ya que su correo electrónio {email} ya existe en la base de datos."
+            return HttpResponseBadRequest(mensaje)
+        
+        # Verificación de unicidad de nombre de usuario
+        if User.objects.filter(username=username).exclude(pk=usuario.pk).exists():
+            mensaje =f"No es posible editar el usuario {usuario.username} ya que su nombre de usuario {username} ya existe en la base de datos."
+            return HttpResponseBadRequest(mensaje)
+        
+        # Instancia de rol
+        rol = get_object_or_404(Rol, id=rol)
+
+        # Instancia de lab
+        lab = get_object_or_404(Laboratorios, id=lab)
+        
+        usuario.id_number=id_number
+        usuario.phone_number=phone_number
+        usuario.email=email
+        usuario.username=username
+        usuario.first_name=first_name
+        usuario.last_name=last_name
+        usuario.rol=rol
+        usuario.lab=lab
+        usuario.last_updated_by=request.user
+        usuario.save()
+
+        mensaje = f"Se ha editado exitosamente el usuario {usuario.first_name} {usuario.last_name}."
+        return HttpResponse(mensaje,200)    
+    ############# Contexto ##########
+    laboratorio = request.user.lab
+    
+    context = {
+        'usuario':usuario,
+        'laboratorio':laboratorio,
+        'laboratorios': Laboratorios.objects.all(),
+        'roles': Rol.objects.all(),
+    }
+    
+    return render(request, 'usuarios/editar_usuario.html', context)
+
+
+
     
 
 

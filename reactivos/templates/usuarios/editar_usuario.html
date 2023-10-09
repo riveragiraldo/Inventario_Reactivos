@@ -42,8 +42,8 @@
     <!-- Llama Script al final oculta botones si la página se muestra como emergente -->
 
     <script>
-        var lab = '{{ user.lab.id }}'
-        var rol = '{{ user.rol.id }}'
+        var lab = '{{ usuario.lab.id }}'
+        var rol = '{{ usuario.rol.id }}'
     </script>
     {% endblock %}
 
@@ -68,54 +68,75 @@
                 {% csrf_token %}
 
                 <div class="form-group">
-                    <label for="{{ form.id_number.id_for_label }}" name="Identificación:">Identificación:</label>
-                    <input type="number" name="{{ form.id_number.name }}" id="{{ form.id_number.id_for_label }}"
-                        class="{{ form.id_number.field.widget.attrs.class }}"
-                        pattern="{{ form.id_number.field.widget.attrs.pattern }}"
-                        placeholder="{{ form.id_number.field.widget.attrs.placeholder }}"
-                        title="{{ form.id_number.field.widget.attrs.title }}" {% if form.id_number.field.required %}required="required" {% endif %}
-                        value="{% if user.id_number %}{{ user.id_number }}{% endif %}" min="1000000" max="9999999999">
+                    <label for="id_number" name="Identificación:">Identificación:</label>
+                    <input type="number" name="id_number" id="id_number"
+                        class="form-control"
+                        pattern="^(?:[1-9]\d{6,10}|9999999999)$"
+                        placeholder="Número de identificación"
+                        title="Ingrese un número de cédula entre 1000000 y 9999999999 (sin puntos ni comas)" required="required"
+                        value="{% if usuario.id_number %}{{ usuario.id_number }}{% endif %}" min="1000000" max="9999999999">
                 </div>
 
                 <div class="form-group">
-                    <label for="{{ form.phone_number.id_for_label }}" name="Teléfono:">Teléfono:</label>
-                    <input type="number" name="{{ form.phone_number.name }}" id="{{ form.phone_number.id_for_label }}"
-                        class="{{ form.phone_number.field.widget.attrs.class }}"
-                        pattern="{{ form.phone_number.field.widget.attrs.pattern }}"
-                        placeholder="{{ form.phone_number.field.widget.attrs.placeholder }}"
-                        title="{{ form.phone_number.field.widget.attrs.title }}" {% if form.phone_number.field.required %}required="required" {% endif %}
-                        value="{% if user.phone_number %}{{ user.phone_number }}{% endif %}" min="1000000" max="9999999999">
+                    <label for="phone_number" name="Teléfono:">Teléfono:</label>
+                    <input type="number" name="phone_number" id="phone_number"
+                        class="form-control"
+                        pattern="[0-9]{10,13}"
+                        placeholder="Número Telefónico"
+                        title="Ingrese su número telefónico (solo números enteros positivos de 10 a 13 dígitos)" 
+                        required
+                        value="{% if usuario.phone_number %}{{ usuario.phone_number }}{% endif %}" min="1000000" max="9999999999">
                 </div>
 
                 <div class="form-group">
-                    <label for="{{ form.email.id_for_label }}" name="Correo Electrónico:">Correo Electrónico:</label>
+                    <label for="email" name="Correo Electrónico:">Correo Electrónico:</label>
 
 
-                    <input type="email" name="{{ form.email.name }}" id="{{ form.email.id_for_label }}"
-                        class="{{ form.email.field.widget.attrs.class }}"
-                        pattern="{{ form.email.field.widget.attrs.pattern }}"
-                        placeholder="{{ form.email.field.widget.attrs.placeholder }}"
-                        title="{{ form.email.field.widget.attrs.title }}" {% if form.email.field.required %}required="required" {% endif %}
-                        value="{% if user.email %}{{ user.email }}{% endif %}">
+                    <input type="email" name="email" id="email"
+                        class="form-control"
+                        pattern="^[a-zA-Z0-9.-_]+@[a-zA-Z]+\.[a-zA-Z]{2,}(?:\.[a-zA-Z]+)?$"
+                        placeholder="Correo Electrónico"
+                        title="Ingrese una dirección de correo electrónico válida (max 40 caracteres)"
+                        required
+                        value="{% if usuario.email %}{{ usuario.email }}{% endif %}"
+                        maxlength='100'>
 
                 </div>
                 <div class="form-group">
-                    <label for="{{ form.username.id_for_label }}" name="Nombre de usuario:">Nombre de usuario:</label>
-                    <input type="text" name="{{ form.username.name }}" id="{{ form.username.id_for_label }}"
-                        class="{{ form.username.field.widget.attrs.class }}"
-                        pattern="{{ form.username.field.widget.attrs.pattern }}"
+                    <label for="username" name="Nombre de usuario:">Nombre de usuario:</label>
+                    <input type="text" name="username" id="username"
+                        class="form-control"
+                        pattern="^(?:[a-zA-Zá-úÁ-Ú]+\s){0,1}[a-zA-Zá-úÁ-Ú]+$"
                         placeholder="{{ form.username.field.widget.attrs.placeholder }}"
-                        title="{{ form.username.field.widget.attrs.title }}" {% if form.username.field.required %}required="required" {% endif %}
-                        value="{% if user.username %}{{ user.username }}{% endif %}">
+                        title="Ingrese solo una palabras sin números ni caracteres especiales"
+                        required
+                        value="{% if usuario.username %}{{ usuario.username }}{% endif %}">
 
                 </div>
                 <div class="form-group">
-                    <label for="{{ form.first_name.id_for_label }}" name="Nombres:">Nombres:</label>
-                    {{ form.first_name }}
+                    <label for="first_name" name="Nombres:">Nombres:</label>
+                    <input type="text" 
+                    class="form-control" 
+                    id="first_name"
+                    name="first_name" 
+                    placeholder="Escriba los nombres"
+                    required
+                    pattern="^(?:[a-zA-Zá-úÁ-Ú]+\s){0,1}[a-zA-Zá-úÁ-Ú]+$"
+                    title="Ingrese máximos dos palabras sin números ni caracteres especiales"
+                    value="{% if usuario.first_name %}{{ usuario.first_name }}{% endif %}">
                 </div>
                 <div class="form-group">
-                    <label for="{{ form.last_name.id_for_label }}" name="Apellidos:">Apellidos:</label>
-                    {{ form.last_name }}
+                    <label for="last_name" name="Apellidos:">Apellidos:</label>
+                    <input type="text" 
+                    class="form-control"
+                    placeholder="Escriba sus apellidos"
+                    id="last_name"
+                    name="last_name"
+                    required
+                    pattern="^(?:[a-zA-Zá-úÁ-Ú]+\s){0,1}[a-zA-Zá-úÁ-Ú]+$"
+                    title="Ingrese máximos dos palabras sin números ni caracteres especiales"
+                    value="{% if usuario.last_name %}{{ usuario.last_name }}{% endif %}">
+                    
                 </div>
 
                 <div class="form-group">
@@ -123,7 +144,14 @@
 
                     {% if request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
                     <div class="input-group">
-                        {{ form.rol }}
+                        <select name="rol" class="form-control" required="" id="id_rol">
+                            <option value="" selected="">---------</option>
+                            {% for rol in roles %}
+                            
+                            <option value="{{ rol.id }}">{{ rol.name }}</option>
+                            
+                            {% endfor %}
+                        </select>
                         {% if request.user.is_superuser %}
                         <button type="button" id="add_rol_btn" class="btn btn-secondary" title="Agregar Rol">+</button>
                         {% endif %}
@@ -149,7 +177,15 @@
 
                     {% if request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
                     <div class="input-group">
-                        {{ form.lab }}
+                        <select name="lab" class="form-control" required="" id="id_lab">
+                            <option value="" selected="">---------</option>
+                            {% for lab in laboratorios %}
+                            
+                            <option value="{{ lab.id }}">{{ lab.name }}</option>
+    
+                            
+                            {% endfor %}
+                        </select>
                         <button type="button" id="add_lab_btn" class="btn btn-secondary"
                             title="Agregar Laboratorio">+</button>
 
@@ -177,7 +213,7 @@
 
                     <div class="politicaTratamiento">
 
-                        {{ form.acceptDataProcessing }}
+                        <input type="checkbox" class="" required id="acceptDataProcessing" name="acceptDataProcessing" unchecked value="">
                         <label for="acceptDataProcessing" class="politica-label"
                             name="Acepta política de tratamiento de datos personales: ">
                             <p class="politica">
