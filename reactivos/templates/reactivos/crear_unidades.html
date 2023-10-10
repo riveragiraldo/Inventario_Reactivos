@@ -102,7 +102,7 @@
                         var name_father = window.opener.document.getElementById("name").value;
                         var estado = window.opener.document.getElementById("selectState").value;
                         var respel = window.opener.document.getElementById("respel").value;
-                        var sga = window.opener.document.getElementById("sga").value;
+                        var clase_almacenamiento = window.opener.document.getElementById("clase_almacenamiento").value;
 
                         // Recargar la página padre
                         window.opener.location.replace(window.opener.location.href);
@@ -128,10 +128,10 @@
                             respel_new.value = respel;
                             respel_new.setAttribute("selected", true);
 
-                            //Actualiza Select sga
-                            var sga_new = window.opener.document.querySelector("#sga");
-                            sga_new.value = sga;
-                            sga_new.setAttribute("selected", true);
+                            //Actualiza Select clase_almacenamiento
+                            var clase_almacenamiento_new = window.opener.document.querySelector("#clase_almacenamiento");
+                            clase_almacenamiento_new.value = clase_almacenamiento;
+                            clase_almacenamiento_new.setAttribute("selected", true);
 
                             //Actualiza Select selectunidades
                             var unidad_new = window.opener.document.querySelector("#selectUnidades");

@@ -9,7 +9,7 @@ document.querySelectorAll('.detalle-reactivo').forEach(element => {
         const reactivoCode = this.getAttribute('data-reactivo-code');
         const reactivoCas = this.getAttribute('data-reactivo-cas');
         const reactivoRespel = this.getAttribute('data-reactivo-respel');
-        const reactivoSGA = this.getAttribute('data-reactivo-sga');
+        const reactivoclase_almacenamiento = this.getAttribute('data-reactivo-clase_almacenamiento');
         const reactivoState = this.getAttribute('data-reactivo-state');
         const reactivoUnit = this.getAttribute('data-reactivo-unit');
         const reactivoIsActive = this.getAttribute('data-reactivo-active');
@@ -19,13 +19,13 @@ document.querySelectorAll('.detalle-reactivo').forEach(element => {
         const reactivoLastUpdateBy = this.getAttribute('data-reactivo-update_by');
         const reactivoLabsAndWeight = this.getAttribute('data-reactivo-labs_and_weight');
         
-        const reactivo = obtenerInformacionReactivo(reactivoId, reactivoName, reactivoColor, reactivoNumber, reactivoSubNumber, reactivoCode, reactivoCas, reactivoRespel,reactivoSGA,reactivoState,reactivoUnit,reactivoIsActive,reactivoDateCreate,reactivoCreateBy,reactivoLastUpdate,reactivoLastUpdateBy,reactivoLabsAndWeight);
+        const reactivo = obtenerInformacionReactivo(reactivoId, reactivoName, reactivoColor, reactivoNumber, reactivoSubNumber, reactivoCode, reactivoCas, reactivoRespel,reactivoclase_almacenamiento,reactivoState,reactivoUnit,reactivoIsActive,reactivoDateCreate,reactivoCreateBy,reactivoLastUpdate,reactivoLastUpdateBy,reactivoLabsAndWeight);
         mostrarSweetAlert(reactivo);
     });
 });
 
 // Función para obtener la información del reactivo basado en su ID (puedes hacer la solicitud al servidor)
-function obtenerInformacionReactivo(id, name, color, number, subnumber, code, cas, respel,sga,state,unit,is_active,date_create,create_by,last_update,update_by,labsandweight) {
+function obtenerInformacionReactivo(id, name, color, number, subnumber, code, cas, respel,clase_almacenamiento,state,unit,is_active,date_create,create_by,last_update,update_by,labsandweight) {
 
     const reactivo = {
         id: id,
@@ -36,7 +36,7 @@ function obtenerInformacionReactivo(id, name, color, number, subnumber, code, ca
         code: code,
         cas: cas,
         respel: respel,
-        sga: sga,
+        clase_almacenamiento: clase_almacenamiento,
         state: state,
         unit: unit,
         is_active: is_active,
@@ -65,7 +65,7 @@ function mostrarSweetAlert(reactivo) {
                         <li><strong>Código:</strong> ${reactivo.code}</li>
                         <li><strong>CAS:</strong> ${reactivo.cas}</li>
                         <li><strong>Clasificación Respel:</strong> ${reactivo.respel}</li>
-                        <li><strong>Codificación SGA:</strong> ${reactivo.sga}</li>
+                        <li><strong>Codificación clase_almacenamiento:</strong> ${reactivo.clase_almacenamiento}</li>
                         <li><strong>Estado:</strong> ${reactivo.state}</li>
                         <li><strong>Unidades:</strong> ${reactivo.unit}</li>
                     </ul>

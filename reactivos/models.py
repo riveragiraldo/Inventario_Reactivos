@@ -224,22 +224,22 @@ class RespelC(models.Model):
         verbose_name_plural = 'Clasificación Respel'
         verbose_name = 'Clasificación Respel'
 
-# Modelo para tabla SGA en base de datos Reactivos
-class SGA(models.Model):
-    name = models.CharField(max_length=100, verbose_name="Codificiación SGA")
+# Modelo para tabla Clase Almacenamiento en base de datos Reactivos
+class ClaseAlmacenamiento(models.Model):
+    name = models.CharField(max_length=100, verbose_name="Nombre")
     description=models.TextField(max_length=1000, verbose_name="Descripción")
     is_active = models.BooleanField(default=True)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Usuario')
     date_create = models.DateTimeField(auto_now_add=True,verbose_name='Fecha registro',)
     last_update = models.DateTimeField(auto_now=True,verbose_name='Última Actualización')
-    last_updated_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Actualizado por',related_name='updateby_SGA',)
+    last_updated_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Actualizado por',related_name='updateby_Clase_Alamcenamiento',)
 
     def __str__(self):
         return self.name
 
     class Meta:
-        verbose_name_plural = 'Codificiación SGA'
-        verbose_name = 'Codificiación SGA'
+        verbose_name_plural = 'Clase de almacenamiento'
+        verbose_name = 'Clase de almacenamiento'
 
 # Modelo para tabla Ubicaciones en base de datos Reactivos
 class Ubicaciones(models.Model):
@@ -293,8 +293,8 @@ class Reactivos(models.Model):
                               related_name='state', verbose_name="Presentación")
     respel = models.ForeignKey(RespelC, on_delete=models.CASCADE,
                               related_name='respel', verbose_name="Clasificación Respel")
-    sga = models.ForeignKey(SGA, on_delete=models.CASCADE,
-                              related_name='resp', verbose_name="Clasificación SGA")
+    clase_almacenamiento = models.ForeignKey(ClaseAlmacenamiento, on_delete=models.CASCADE,
+                              related_name='resp', verbose_name="Clase Almacenamiento")
     is_active = models.BooleanField(default=True)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Usuario')
     date_create = models.DateTimeField(auto_now_add=True,verbose_name='Fecha registro',)

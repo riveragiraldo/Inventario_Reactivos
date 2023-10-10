@@ -75,10 +75,10 @@ window.onload = function () {
             respel_new.value = respel;
             respel_new.setAttribute("selected", true);
             
-            // Actualiza Select SGA
-            var sga_new = document.querySelector("#sga");
-            sga_new.value = sga;
-            sga_new.setAttribute("selected", true);
+            // Actualiza Select clase_almacenamiento
+            var clase_almacenamiento_new = document.querySelector("#clase_almacenamiento");
+            clase_almacenamiento_new.value = clase_almacenamiento;
+            clase_almacenamiento_new.setAttribute("selected", true);
 
             // Actualiza Select Estado
             var state_new = document.querySelector("#selectState");

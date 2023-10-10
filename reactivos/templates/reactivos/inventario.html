@@ -160,7 +160,7 @@
                     <th class="sortable-header" data-column="10" data-column-name="date" title="Ordenar por fecha de vencimiento">Vencimiento</th>
                     <th class="sortable-header" data-column="11" title="Ordenar por Responsable del Registro">Usuario registra</th>
                     <th class="sortable-header" data-column="12" title="Ordenar por Última Actualización por">Usuario actualiza</th>
-                    <th class="sortable-header" title="Visualización de detalle (no ordena)">Ver</th>
+                    <th class="sortable-header" title="Visualización de detalle (no ordena)">Ver detalle</th>
                 </tr>
             </thead>
             
@@ -216,7 +216,7 @@
                             data-reactivo-quantity="{{ item.weight|floatformat:1 }}"
                             data-reactivo-unit="{{ item.name.unit }}" data-reactivo-wlocation="{{ item.wlocation }}"
                             data-reactivo-lab="{{ item.lab }}" data-reactivo-edate="{{ item.edate }}"
-                            data-reactivo-respel="{{ item.name.respel }}" data-reactivo-sga="{{ item.name.sga }}"
+                            data-reactivo-respel="{{ item.name.respel }}" data-reactivo-clase_almacenamiento="{{ item.name.clase_almacenamiento }} - {{ item.name.clase_almacenamiento.description }}"
                             data-reactivo-state="{{ item.name.state }}"
                             data-reactivo-date_create="{{ item.date_create }}"
                             data-reactivo-create_by="{{ item.created_by.first_name }} {{ item.created_by.last_name }}"
@@ -258,7 +258,7 @@
         <br>
         <!-- Opciones de exportación -->
         <a href="{% url 'reactivos:export_to_excel' %}" class="btn btn-primary">Exportar a Excel</a>
-        <a href="{% url 'reactivos:export_to_pdf' %}" class="btn btn-primary">Exportar a PDF</a>
+        <!-- <a href="{% url 'reactivos:export_to_pdf' %}" class="btn btn-primary">Exportar a PDF</a> -->
 
     </div>
     

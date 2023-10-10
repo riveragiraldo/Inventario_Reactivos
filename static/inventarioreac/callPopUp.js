@@ -10,12 +10,12 @@ function openPopupWindowRespel() {
 }
 
 //Llama PopUp Clasificación Respel
-function openPopupWindowSga() {
+function openPopupWindowClaseAlmacenamiento() {
     var w = 450; // ancho de la ventana emergente
     var h = 400; // altura de la ventana emergente
     var left = (screen.width / 2) - (w / 2);
     var top = (screen.height / 2) - (h / 2);
-    window.open("/sga/crear", "popup", "width=" + w + ",height=" + h + ",left=" + left + ",top=" + top);
+    window.open("/almacenamiento/crear_clase", "popup", "width=" + w + ",height=" + h + ",left=" + left + ",top=" + top);
 }
 
 
@@ -100,12 +100,12 @@ var wf = document.getElementById("wf").value;
 if (wf == "crear") {
 
     //Leer Valores
-    var addSgaBtn = document.getElementById("add_sga_btn");
+    var addCABtn = document.getElementById("add_clase_almacenamiento_btn");
     var addRespelBtn = document.getElementById("add_respel_btn");
     var addUnitBtn = document.getElementById("add_unit_btn");
 
     // Escucha el clic en add y llamar función 
-    addSgaBtn.addEventListener("click", openPopupWindowSga);
+    addCABtn.addEventListener("click", openPopupWindowClaseAlmacenamiento);
     addRespelBtn.addEventListener("click", openPopupWindowRespel);
     addUnitBtn.addEventListener("click", openPopupWindowUnit);
 }

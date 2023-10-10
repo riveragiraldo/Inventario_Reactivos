@@ -286,14 +286,14 @@ def crear_respel(request):
     }
     return render(request, 'reactivos/crear_respel.html', context)
 
-# La vista "crear_sga" se encarga de gestionar la creación de codificación SGA. Esta vista toma los datos del formulario 
-# existente en el template "crear_sga.html" y realiza las operaciones necesarias en la base de datos utilizando 
-# el modelo "SGA". El objetivo es garantizar la unicidad de los registros, lo que implica verificar si la codificación SGA
+# La vista "crear_clase_almacenamiento" se encarga de gestionar la creación de Clase de almacenamiento. Esta vista toma los datos del formulario 
+# existente en el template "crear_clase_almacenamiento.html" y realiza las operaciones necesarias en la base de datos utilizando 
+# el modelo "ClaseAlmacenamiento". El objetivo es garantizar la unicidad de los registros, lo que implica verificar si la Clase de Almacenamiento
 # ya existe en la base de datos antes de crearla. Si la codificación es única, se crea un nuevo registro en la tabla 
-# correspondiente utilizando el modelo "SGA". Si la codificación ya existe, se muestra un mensaje de error o se toma la 
+# correspondiente utilizando el modelo "ClaseAlmacenamiento". Si la codificación ya existe, se muestra un mensaje de error o se toma la 
 # acción apropiada según los requisitos del sistema.
 @login_required
-def crear_sga(request):
+def crear_clase_almacenamiento(request):
     if request.method == 'POST':
         name = request.POST.get('name')
         name = estandarizar_nombre(name)
@@ -301,14 +301,14 @@ def crear_sga(request):
         description = estandarizar_nombre(description)
 
         # Verifica si ya existe un registro con el mismo nombre de la marca
-        if SGA.objects.filter(name=name).exists():
-            sga = SGA.objects.get(name=name)
-            sga_id = sga.id
+        if ClaseAlmacenamiento.objects.filter(name=name).exists():
+            clase_almacenamiento = ClaseAlmacenamiento.objects.get(name=name)
+            clase_almacenamiento_id = clase_almacenamiento.id
             messages.error(
-                request, 'Ya existe una codificación SGA con nombre '+name+' id: '+str(sga_id))
+                request, 'Ya existe una clase de almacenamiento con nombre '+name+' id: '+str(clase_almacenamiento_id))
             return HttpResponse('Ya existe un registro en la base de datos', status=409)
 
-        sga = SGA.objects.create(
+        clase_almacenamiento = ClaseAlmacenamiento.objects.create(
 
             name=name,
             description=description,
@@ -316,9 +316,9 @@ def crear_sga(request):
             last_updated_by=request.user,  # Asignar el usuario actualmente autenticado
 
         )
-        sga_id = sga.id
+        clase_almacenamiento_id = clase_almacenamiento.id
         messages.success(
-            request, 'Se ha creado exitosamente la codificación SGA con nombre '+name+' id: '+str(sga_id))
+            request, 'Se ha creado exitosamente la clase de alamcenamiento con nombre '+name+' id: '+str(clase_almacenamiento_id))
         return HttpResponse('Operación exitosa', status=201)
 
     laboratorio = request.user.lab
@@ -328,7 +328,7 @@ def crear_sga(request):
         'laboratorio': laboratorio,
 
     }
-    return render(request, 'reactivos/crear_sga.html', context)
+    return render(request, 'reactivos/crear_clase_almacenamiento.html', context)
 
 #La vista "crear_responsable" se encarga de gestionar la creación de responsables en la db. Esta vista toma los datos del formulario 
 # existente en el template "crear_responsables.html" y realiza las operaciones necesarias en la base de datos utilizando el modelo 
@@ -731,11 +731,11 @@ def crear_reactivo(request):
             HttpResponse('Por favor seleccione una unidad primero', status=400)
         unit = get_object_or_404(Unidades, id=unit)
 
-        sga = request.POST.get('sga')
-        if not sga.isdigit():
-            messages.error(request, 'Por favor seleccione una codificación SGA primero')
-            HttpResponse('Por favor seleccione una codificación SGA primero', status=400)
-        sga = get_object_or_404(SGA, id=sga)
+        clase_almacenamiento = request.POST.get('clase_almacenamiento')
+        if not clase_almacenamiento.isdigit():
+            messages.error(request, 'Por favor seleccione una clase de almacenamiento primero')
+            HttpResponse('Por favor seleccione una clase de almacenamiento primero', status=400)
+        clase_almacenamiento = get_object_or_404(ClaseAlmacenamiento, id=clase_almacenamiento)
 
         respel = request.POST.get('respel')
         if not respel.isdigit():
@@ -773,7 +773,7 @@ def crear_reactivo(request):
             unit=unit,
             cas=cas,
             state=state,
-            sga=sga,
+            clase_almacenamiento=clase_almacenamiento,
             respel=respel,
             created_by=request.user,  # Asignar el usuario actualmente autenticado
             last_updated_by=request.user,  # Asignar el usuario actualmente autenticado
@@ -790,7 +790,7 @@ def crear_reactivo(request):
         'unidades': Unidades.objects.all(),
         'estados': Estados.objects.all(),
         'respels': RespelC.objects.all(),
-        'sgas': SGA.objects.all(),
+        'clase_almacenamientos': ClaseAlmacenamiento.objects.all(),
     }
     
     return render(request, 'reactivos/crear_reactivo.html', context)
@@ -1346,7 +1346,7 @@ def editar_reactivo(request, pk):
         
         state = request.POST.get('state')
         unit = request.POST.get('unit')
-        sga = request.POST.get('sga')
+        clase_almacenamiento = request.POST.get('clase_almacenamiento')
         respel = request.POST.get('respel')
 
         if not state.isdigit():
@@ -1359,10 +1359,10 @@ def editar_reactivo(request, pk):
             HttpResponse('Por favor seleccione una unidad primero', status=400)
         unit = get_object_or_404(Unidades, id=unit)
         
-        if not sga.isdigit():
-            messages.error(request, 'Por favor seleccione una codificación SGA primero')
-            HttpResponse('Por favor seleccione una codificación SGA primero', status=400)
-        sga = get_object_or_404(SGA, id=sga)
+        if not clase_almacenamiento.isdigit():
+            messages.error(request, 'Por favor seleccione una clase de almacenamiento primero')
+            HttpResponse('Por favor seleccione una clase de almacenamiento primero', status=400)
+        clase_almacenamiento = get_object_or_404(ClaseAlmacenamiento, id=clase_almacenamiento)
 
         
         if not respel.isdigit():
@@ -1384,7 +1384,7 @@ def editar_reactivo(request, pk):
         reactivo.name=name
         reactivo.unit=unit
         reactivo.state=state
-        reactivo.sga=sga
+        reactivo.clase_almacenamiento=clase_almacenamiento
         reactivo.respel=respel
         reactivo.last_updated_by=request.user  # Asignar el usuario actualmente autenticado
 
@@ -1404,7 +1404,7 @@ def editar_reactivo(request, pk):
         'unidades': Unidades.objects.all(),
         'estados': Estados.objects.all(),
         'respels': RespelC.objects.all(),
-        'sgas': SGA.objects.all(),
+        'clase_almacenamientos': ClaseAlmacenamiento.objects.all(),
     }
     
     return render(request, 'reactivos/editar_reactivo.html', context)
@@ -4578,7 +4578,7 @@ def export_to_excel_react(request):
     sheet['F4'] = 'Cas'
     sheet['G4'] = 'Nombre'
     sheet['H4'] = 'Clasificación Respel'
-    sheet['I4'] = 'Codificación SGA'
+    sheet['I4'] = 'Clase de almacenamiento'
     sheet['J4'] = 'Estado'
     sheet['K4'] = 'Unidades'
     sheet['L4'] = 'Activo'
@@ -4676,7 +4676,7 @@ def export_to_excel_react(request):
         sheet.cell(row=row, column=6).value = item.cas
         sheet.cell(row=row, column=7).value = item.name
         sheet.cell(row=row, column=8).value = str(item.respel)
-        sheet.cell(row=row, column=9).value = str(item.sga)
+        sheet.cell(row=row, column=9).value = item.clase_almacenamiento.name+': '+item.clase_almacenamiento.description
         sheet.cell(row=row, column=10).value = str(item.state)
         sheet.cell(row=row, column=11).value = str(item.unit)
         sheet.cell(row=row, column=12).value = item.is_active

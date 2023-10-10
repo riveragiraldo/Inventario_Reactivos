@@ -9,13 +9,13 @@ function hideAddButtonsIfPopup() {
 
     var addUnitCont = document.getElementById("add_unit_btn");
     
-    var addSgaCont = document.getElementById("add_sga_btn");
+    var addclase_almacenamientoCont = document.getElementById("add_clase_almacenamiento_btn");
     var addRespelCont = document.getElementById("add_respel_btn");
 
     if (isPopupWindow()) {
 
         addUnitCont.style.display = "none";
-        addSgaCont.style.display = "none";
+        addclase_almacenamientoCont.style.display = "none";
         addRespelCont.style.display = "none";
         
 

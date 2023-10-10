@@ -22,7 +22,7 @@
     {% load static %}
     <script>
         respel='{{ reactivo.respel.id }}'
-        sga='{{ reactivo.sga.id }}'
+        clase_almacenamiento='{{ reactivo.clase_almacenamiento.id }}'
         estado='{{ reactivo.state.id }}'
         unidad='{{ reactivo.unit.id }}'
     </script>
@@ -43,7 +43,7 @@
     <!-- Llama Script al final genera alerta cuando no se escribe bien el subnumero-->
     <script src="{% static 'inventarioreac/cancelButtonFunction.js' %}" defer></script>
     <!-- Llama Script  que coloca función al botón cancelar -->
-    <script src="{% static 'inventarioreac/controlSelectores.js' %}" defer></script>
+    <script src="{% static 'inventarioreac/controlSelectores.js' %}" defer></script>    
     <!-- Llama Script  que inserta valores actuales de los selectores -->
     {% endblock %}
 </head>
@@ -117,16 +117,16 @@
 
 
                         <div class="col-md-4">
-                            <label class="form-label" for="sga" name="SGA: ">*Códificación SGA:</label>
+                            <label class="form-label" for="clase_almacenamiento" name="Clase de almacenamiento: ">*Clase de Almacenamiento:</label>
                             <div class="input-group">
-                                <select name="sga" id="sga" class="form-control" required>
+                                <select name="clase_almacenamiento" id="clase_almacenamiento" class="form-control" required>
                                     <option value="">Seleccione</option>
-                                    {% for sga in sgas %}
-                                    <option value="{{ sga.id }}">{{ sga.name }}</option>
+                                    {% for clase_almacenamiento in clase_almacenamientos %}
+                                    <option value="{{ clase_almacenamiento.id }}">{{ clase_almacenamiento.name }}: {{ clase_almacenamiento.description }}</option>
                                     {% endfor %}
                                 </select>
-                                <button type="button" id="add_sga_btn" class="btn btn-secondary"
-                                    title="Agregar Códificación SGA">+</button>
+                                <button type="button" id="add_clase_almacenamiento_btn" class="btn btn-secondary"
+                                    title="Agregar Clase de Almacenamiento">+</button>
                             </div>
                         </div>
 

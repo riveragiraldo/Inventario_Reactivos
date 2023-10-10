@@ -67,8 +67,8 @@ class Respeladmin(admin.ModelAdmin):
     list_display=('id','name','description','created_by', 'date_create','last_update','last_updated_by',)
     ordering=('id',)
 
-# Inclusión de el modelo CLASIFICACIÓN SGA en la consola de administración de Django
-@admin.register(SGA)
+# Inclusión de el modelo CLASE DE ALAMCENAMIENTO en la consola de administración de Django
+@admin.register(ClaseAlmacenamiento)
 class SGIadmin(admin.ModelAdmin):
     list_display=('id','name','description','created_by', 'date_create','last_update','last_updated_by',)
     ordering=('id',)
@@ -99,7 +99,7 @@ class ReactivosResources(resources.ModelResource):
 # Inclusión de el modelo REACTIVOS en la consola de administración de Django
 @admin.register(Reactivos)
 class Reactivosadmin(ImportExportModelAdmin, admin.ModelAdmin):
-    list_display=('id','code','cas','name','state','unit','respel','sga','created_by', 'date_create','last_update','last_updated_by',)
+    list_display=('id','code','cas','name','state','unit','respel','clase_almacenamiento','created_by', 'date_create','last_update','last_updated_by',)
     list_filter=('code','name',)
     search_fields=('code','name',)
     list_per_page=10

@@ -104,16 +104,16 @@
 
 
                         <div class="col-md-4">
-                            <label class="form-label" for="sga" name="SGA: ">*Códificación SGA:</label>
+                            <label class="form-label" for="clase_almacenamiento" name="Clase de almacenamiento: ">*Clase de almacenamiento:</label>
                             <div class="input-group">
-                                <select name="sga" id="sga" class="form-control" required>
+                                <select name="clase_almacenamiento" id="clase_almacenamiento" class="form-control" required>
                                     <option value="">Seleccione</option>
-                                    {% for sga in sgas %}
-                                    <option value="{{ sga.id }}">{{ sga.name }}</option>
+                                    {% for clase_almacenamiento in clase_almacenamientos %}
+                                    <option value="{{ clase_almacenamiento.id }}">{{ clase_almacenamiento.name }}: {{ clase_almacenamiento.description }}</option>
                                     {% endfor %}
                                 </select>
-                                <button type="button" id="add_sga_btn" class="btn btn-secondary"
-                                    title="Agregar Códificación SGA">+</button>
+                                <button type="button" id="add_clase_almacenamiento_btn" class="btn btn-secondary"
+                                    title="Agregar Clase de almacenamiento">+</button>
                             </div>
                         </div>
 

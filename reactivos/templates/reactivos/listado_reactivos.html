@@ -150,7 +150,7 @@
                         <p style="color: transparent;">************</p>CAS
                     </th>
                     <th class="sortable-header" data-column="4" title="Ordenar por Respel">Clasificación Respel</th>
-                    <th class="sortable-header" data-column="5" title="Ordenar por codificación SGA">Codificación SGA
+                    <th class="sortable-header" data-column="5" title="Ordenar por codificación Clase de Alamcenamiento">Clase de almacenamiento
                     </th>
                     <th class="sortable-header" data-column="6" title="Ordenar por Estado">Estado</th>
                     <th class="sortable-header" data-column="7" title="Ordenar por Unidades">Unidad</th>
@@ -179,7 +179,7 @@
                     <td title="Código interno reactivo {{ item.name }}">{{ item.code }}</td>
                     <td title="CAS {{ item.name }}">{{ item.cas }}</td>
                     <td title="Clasificación Respel {{ item.name }}">{{ item.respel }}</td>
-                    <td title="Codificación SGA {{ item.name }}">{{ item.sga }}</td>
+                    <td title="Clase de almacenamiento {{ item.name }}">{{ item.clase_almacenamiento }}</td>
                     <td title="Estado del reactivo {{ item.name }}">{{ item.state }}</td>
                     <td title="Unidad de medida {{ item.name }}">{{ item.unit }}</td>
                     <td class="created_by_cell"
@@ -245,7 +245,7 @@
                             data-reactivo-name="{{ item.name }}" data-reactivo-color="{{ item.color }}"
                             data-reactivo-number="{{ item.number }}" data-reactivo-subnumber="{{ item.subnumber }}"
                             data-reactivo-code="{{ item.code }}" data-reactivo-cas="{{ item.cas }}"
-                            data-reactivo-respel="{{ item.respel }}" data-reactivo-sga="{{ item.sga }}"
+                            data-reactivo-respel="{{ item.respel }}" data-reactivo-clase_almacenamiento="{{ item.clase_almacenamiento }}"
                             data-reactivo-state="{{item.state }}" data-reactivo-unit="{{ item.unit }}"
                             data-reactivo-active="{% if item.is_active %}
                             Activo
