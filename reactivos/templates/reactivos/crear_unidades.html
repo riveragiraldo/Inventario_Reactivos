@@ -94,9 +94,7 @@
 
 
                         // Obtener los valores de los elementos necesarios de la ventana padre
-                        var color = window.opener.document.getElementById("color").value;
-                        var number = window.opener.document.getElementById("number").value;
-                        var subnumber = window.opener.document.getElementById("subnumber").value;
+                        
                         var code = window.opener.document.getElementById("code").value;
                         var cas = window.opener.document.getElementById("cas").value;
                         var name_father = window.opener.document.getElementById("name").value;
@@ -110,9 +108,7 @@
                         setTimeout(function () {
                             // Acceder a la ventana padre y actualizar los valores
 
-                            window.opener.document.querySelector("#color").value = color;
-                            window.opener.document.querySelector("#number").value = number;
-                            window.opener.document.querySelector("#subnumber").value = subnumber;
+                            
                             window.opener.document.querySelector("#code").value = code;
                             window.opener.document.querySelector("#cas").value = cas;
                             window.opener.document.querySelector("#name").value = name_father;

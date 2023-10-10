@@ -31,8 +31,6 @@
     <!-- Estilos para el letrero de la mitad del spinner -->
     <script src="{% static 'inventarioreac/clearFds.js' %}"></script>
     <!-- Llama Script que borra los campos del formulario cuando se ejecuta cualquier acción -->
-    <script src="{% static 'inventarioreac/codeconst.js' %}" defer></script>
-    <!-- Llama Script que concatena los campos color - number y sub-number para crear code -->
     <script src="{% static 'inventarioreac/callPopUp.js' %}" defer></script>
     <!-- Llama Script al final llama las ventanas emergentes -->
     <script src="{% static 'inventarioreac/hideButtonsReactive.js' %}" defer></script>
@@ -62,28 +60,7 @@
                     <form method="post" class="row g-3" id="createForm" name="form">
                         {% csrf_token %}
 
-                        <div class="col-md-3">
-                            <label class="form-label" for="color" name="Color: ">*Color:</label>
-                            <input type="number" class="form-control" placeholder="Número" id="color" name="color"
-                                required title="Escriba un número positivo máximo 2 dígitos" pattern="^(?!0$)\d{1,2}$"
-                                value="{{ reactivo.color|add:'0' }}">
-                        </div>
-                        <div class="col-md-3">
-                            <label class="form-label" for="number" name="Número: ">*Número:</label>
-                            <input type="number" class="form-control" placeholder="Núm. reactivo" id="number"
-                                name="number" required min="0" required
-                                title="Escriba un número positivo máximo 3 dígitos" pattern="^(?!0$)\d{1,3}$"
-                                value="{{ reactivo.number|add:'0' }}">
-                        </div>
-                        <div class="col-md-3">
-                            <label class="form-label" for="subnumber" name="Subnúmero: ">Sub - Número:</label>
-                            <input type="text" class="form-control" name="subnumber" id="subnumber"
-                                placeholder="Ingresa un número positivo o una letra mayúscula"
-                                pattern="^(?:[1-9]|[1-9][0-9]|A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z)$"
-                                title="Ingresa un número de 1 a 99 o una letra mayúscula (sin espacios ni caracteres especiales)"
-                                value="{% if reactivo.subnumber != '0' %}{{ reactivo.subnumber }}{% endif %}">
-
-                        </div>
+                        
 
                         <div class="col-md-3">
                             <label class="form-label" for="code" name="Código: ">*Código interno:</label>

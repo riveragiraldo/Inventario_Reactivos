@@ -694,23 +694,7 @@ def crear_walmacen(request):
 @login_required
 def crear_reactivo(request):
     
-    if request.method == 'POST':
-        color = request.POST.get('color')
-        #verificar que el valor sea positivo
-        color_number=float(color)
-        if color_number<=0:
-            messages.error(request, 'Solo se permiten registros de Color con valores positivos')
-            return HttpResponse("Error de cantidades al insertar en la base de datos", status=400)
-        number = request.POST.get('number')
-        #verificar que el valor sea positivo
-        number_number=float(number)
-        if number_number<=0:
-            messages.error(request, 'Solo se permiten registros de Número con valores positivos')
-            return HttpResponse("Error de cantidades al insertar en la base de datos", status=400)
-        number = str(number).zfill(3)
-        subnumber = request.POST.get('subnumber')
-        if subnumber == '':
-            subnumber = '0'
+    if request.method == 'POST':        
 
         code = request.POST.get('code')
         code = estandarizar_nombre(code)
@@ -765,9 +749,6 @@ def crear_reactivo(request):
             return HttpResponse('Ya existe un reactivo con el cas registrado: ' + reactivo_name, status=400)
             
         reactivo = Reactivos.objects.create(
-            color=color,
-            number=number,
-            subnumber=subnumber,
             code=code,
             name=name,
             unit=unit,
@@ -782,16 +763,47 @@ def crear_reactivo(request):
         messages.success(request, 'Se ha creado exitosamente el reactivo: '+name)
         return HttpResponse('Reactivo creado correctamente: '+name, status=200)
     
-    laboratorio = request.user.lab
+    
+    else:
+        
+        # Obtiene el último registro existente
+        ultimo_registro = Reactivos.objects.order_by('-id').first()
+        print(ultimo_registro.code)
+        
+        
+        if ultimo_registro:
+            # Obtiene el último código y lo divide en partes
+            partes = ultimo_registro.code.split('-')
 
-    context = {
-        'laboratorio':laboratorio,
-        'laboratorios': Laboratorios.objects.all(),
-        'unidades': Unidades.objects.all(),
-        'estados': Estados.objects.all(),
-        'almacenamiento_internos': AlmacenamientoInterno.objects.all(),
-        'clase_almacenamientos': ClaseAlmacenamiento.objects.all(),
-    }
+            # Obtiene el último número en el código
+            ultimo_numero = partes[-1]
+
+            try:
+                # Intenta convertir el último número a entero y aumentarlo en 1
+                nuevo_numero = int(ultimo_numero) + 1
+
+                # Reemplaza el último número en las partes
+                partes[-1] = str(nuevo_numero)
+
+                # Construye el nuevo código
+                nuevo_codigo = '-'.join(partes)
+
+            except ValueError:
+                # Si el último número no es un entero, se usa un valor predeterminado
+                nuevo_codigo = '1-001-1'
+
+        laboratorio = request.user.lab
+        
+        context = {
+            'laboratorio': laboratorio,
+            'laboratorios': Laboratorios.objects.all(),
+            'unidades': Unidades.objects.all(),
+            'estados': Estados.objects.all(),
+            'almacenamiento_internos': AlmacenamientoInterno.objects.all(),
+            'clase_almacenamientos': ClaseAlmacenamiento.objects.all(),
+            'nuevo_codigo': nuevo_codigo,  # Pasar el nuevo código al contexto
+        }
+
     
     return render(request, 'reactivos/crear_reactivo.html', context)
 
@@ -1320,23 +1332,7 @@ def editar_reactivo(request, pk):
     reactivo = get_object_or_404(Reactivos, pk=pk)
     
     if request.method == 'POST':
-        color = request.POST.get('color')
-        #verificar que el valor sea positivo
-        color_number=float(color)
-        if color_number<=0:
-            messages.error(request, 'Solo se permiten registros de Color con valores positivos')
-            return HttpResponse("Error de cantidades al insertar en la base de datos", status=400)
-        number = request.POST.get('number')
-        #verificar que el valor sea positivo
-        number_number=float(number)
-        if number_number<=0:
-            messages.error(request, 'Solo se permiten registros de Número con valores positivos')
-            return HttpResponse("Error de cantidades al insertar en la base de datos", status=400)
-        number = str(number).zfill(3)
-        subnumber = request.POST.get('subnumber')
-        if subnumber == '':
-            subnumber = '0'
-
+        
         code = request.POST.get('code')
         code = estandarizar_nombre(code)
         name = request.POST.get('name')
@@ -1350,23 +1346,23 @@ def editar_reactivo(request, pk):
         almacenamiento_interno = request.POST.get('almacenamiento_interno')
 
         if not state.isdigit():
-            messages.error(request, 'Por favor seleccione un estado primero')
+            
             HttpResponse('Por favor seleccione un estado primero', status=400)
         state = get_object_or_404(Estados, id=state)     
         
         if not unit.isdigit():
-            messages.error(request, 'Por favor seleccione una unidad primero')
+           
             HttpResponse('Por favor seleccione una unidad primero', status=400)
         unit = get_object_or_404(Unidades, id=unit)
         
         if not clase_almacenamiento.isdigit():
-            messages.error(request, 'Por favor seleccione una clase de almacenamiento primero')
+            
             HttpResponse('Por favor seleccione una clase de almacenamiento primero', status=400)
         clase_almacenamiento = get_object_or_404(ClaseAlmacenamiento, id=clase_almacenamiento)
 
         
         if not almacenamiento_interno.isdigit():
-            messages.error(request, 'Por favor seleccione una almacenamiento interno primero')
+            
             HttpResponse('Por favor seleccione una almacenamiento interno primero', status=400)
         almacenamiento_interno = get_object_or_404(AlmacenamientoInterno, id=almacenamiento_interno)
 
@@ -1376,9 +1372,6 @@ def editar_reactivo(request, pk):
             return HttpResponse('No fue posible realizar la edición ya que los valores de Nombre, Código o CAS coinciden con otros registros existentes.', status=400)                 
         
         
-        reactivo.color=color
-        reactivo.number=number
-        reactivo.subnumber=subnumber
         reactivo.code=code
         reactivo.cas=cas
         reactivo.name=name
@@ -1392,7 +1385,6 @@ def editar_reactivo(request, pk):
         reactivo.save()
         
         
-        messages.success(request, 'Se ha editado exitosamente el reactivo: '+name)
         return HttpResponse('Reactivo editado correctamente: '+name, status=200)
     
     laboratorio = request.user.lab
@@ -4609,21 +4601,18 @@ def export_to_excel_react(request):
     sheet['D1'] = 'Listado de Reactivos '
     sheet['D2'] = 'Fecha de Creación: '+fecha_creacion
     sheet['A4'] = 'Consecutivo'
-    sheet['B4'] = 'Color'
-    sheet['C4'] = 'Número'
-    sheet['D4'] = 'Subnúmero'
-    sheet['E4'] = 'Código'
-    sheet['F4'] = 'Cas'
-    sheet['G4'] = 'Nombre'
-    sheet['H4'] = 'Almacenamiento Interno'
-    sheet['I4'] = 'Clase de almacenamiento'
-    sheet['J4'] = 'Estado'
-    sheet['K4'] = 'Unidades'
-    sheet['L4'] = 'Activo'
-    sheet['M4'] = 'Fecha de creación'
-    sheet['N4'] = 'Creado por'
-    sheet['O4'] = 'Fecha de última actualización por'
-    sheet['P4'] = 'Última actualización por'
+    sheet['B4'] = 'Código'
+    sheet['C4'] = 'Cas'
+    sheet['D4'] = 'Nombre'
+    sheet['E4'] = 'Almacenamiento Interno'
+    sheet['F4'] = 'Clase de almacenamiento'
+    sheet['G4'] = 'Estado'
+    sheet['H4'] = 'Unidades'
+    sheet['I4'] = 'Activo'
+    sheet['J4'] = 'Fecha de creación'
+    sheet['K4'] = 'Creado por'
+    sheet['L4'] = 'Fecha de última actualización por'
+    sheet['M4'] = 'Última actualización por'
 
     # Establecer la altura de la fila 1 y 2 a 30 y fila 3 a 25
     sheet.row_dimensions[1].height = 30
@@ -4641,65 +4630,54 @@ def export_to_excel_react(request):
     # Establecer el estilo de las celdas A2:D3
     bold_font = Font(bold=True)
 
-    # Establecer el ancho de la columna A a 14
-    sheet.column_dimensions['A'].width = 14
+    # Establecer el ancho de la columna A a 9
+    sheet.column_dimensions['A'].width = 9
 
-    # Establecer el ancho de la columna B a 8
-    sheet.column_dimensions['B'].width = 8
+    # Establecer el ancho de la columna B a 13
+    sheet.column_dimensions['B'].width = 13
 
-    # Establecer el ancho de la columna C a 10
-    sheet.column_dimensions['C'].width = 10
+    # Establecer el ancho de la columna C a 16
+    sheet.column_dimensions['C'].width = 16
 
-    # Establecer el ancho de la columna D a 9
-    sheet.column_dimensions['D'].width = 9
+    # Establecer el ancho de la columna D a 45
+    sheet.column_dimensions['D'].width = 45
 
-    # Establecer el ancho de la columna E a 11
-    sheet.column_dimensions['E'].width = 11
+    # Establecer el ancho de la columna E a 24
+    sheet.column_dimensions['E'].width = 24
 
-    # Establecer el ancho de la columna F a 14
-    sheet.column_dimensions['F'].width = 14
+    # Establecer el ancho de la columna F a 68
+    sheet.column_dimensions['F'].width = 68
 
-    # Establecer el ancho de la columna G a 43
-    sheet.column_dimensions['G'].width = 43
+    # Establecer el ancho de la columna G a 9
+    sheet.column_dimensions['G'].width = 9
 
-    # Establecer el ancho de la columna H a 21
-    sheet.column_dimensions['H'].width = 21
+    # Establecer el ancho de la columna H a 6
+    sheet.column_dimensions['H'].width = 6
 
-    # Establecer el ancho de la columna I a 18
-    sheet.column_dimensions['I'].width = 18
+    # Establecer el ancho de la columna I a 9
+    sheet.column_dimensions['I'].width = 9
 
-    # Establecer el ancho de la columna J a 9
-    sheet.column_dimensions['J'].width = 9
+    # Establecer el ancho de la columna J a 18
+    sheet.column_dimensions['J'].width = 18
 
-    # Establecer el ancho de la columna K a 7
-    sheet.column_dimensions['K'].width = 7
+    # Establecer el ancho de la columna K a 23
+    sheet.column_dimensions['K'].width = 23
 
-    # Establecer el ancho de la columna L a 9
-    sheet.column_dimensions['L'].width = 9
+    # Establecer el ancho de la columna L a 18
+    sheet.column_dimensions['L'].width = 18
 
-    # Establecer el ancho de la columna M a 20
-    sheet.column_dimensions['M'].width = 22
-
-    # Establecer el ancho de la columna N a 21
-    sheet.column_dimensions['N'].width = 21
-
-    # Establecer el ancho de la columna O a 21
-    sheet.column_dimensions['O'].width = 21
-
-    # Establecer el ancho de la columna P a 25
-    sheet.column_dimensions['P'].width = 25
+    # Establecer el ancho de la columna M a 23
+    sheet.column_dimensions['M'].width = 23
     
     row = 4
     # Aplicar el estilo de borde a las celdas de la fila actual
-    for col in range(1, 17):
+    for col in range(1, 14):
         sheet.cell(row=row, column=col).border = thin_border
         sheet.cell(row=row, column=col).font = bold_font
 
     row = 5
     for item in queryset:
-        # colocar los subnumber que están como 0 como un valor en blanco
-        if item.subnumber=='0':
-            item.subnumber=''
+        
         # Establecer el is_active como un valor más comprensible que True y False
         if item.is_active==True:
             item.is_active='Activo'
@@ -4707,31 +4685,28 @@ def export_to_excel_react(request):
             item.is_active='Inactivo'        
 
         sheet.cell(row=row, column=1).value = item.id
-        sheet.cell(row=row, column=2).value = item.color
-        sheet.cell(row=row, column=3).value = item.number
-        sheet.cell(row=row, column=4).value = item.subnumber
-        sheet.cell(row=row, column=5).value = item.code
-        sheet.cell(row=row, column=6).value = item.cas
-        sheet.cell(row=row, column=7).value = item.name
-        sheet.cell(row=row, column=8).value = str(item.almacenamiento_interno)
-        sheet.cell(row=row, column=9).value = item.clase_almacenamiento.name+' '+item.clase_almacenamiento.description
-        sheet.cell(row=row, column=10).value = str(item.state)
-        sheet.cell(row=row, column=11).value = str(item.unit)
-        sheet.cell(row=row, column=12).value = item.is_active
-        sheet.cell(row=row, column=13).value = str((item.date_create).strftime('%d/%m/%Y %H:%M:%S'))
-        sheet.cell(row=row, column=14).value = item.created_by.first_name+' '+item.created_by.last_name
-        sheet.cell(row=row, column=15).value = str((item.last_update).strftime('%d/%m/%Y %H:%M:%S'))
-        sheet.cell(row=row, column=16).value = item.last_updated_by.first_name+' '+item.last_updated_by.last_name
+        sheet.cell(row=row, column=2).value = item.code
+        sheet.cell(row=row, column=3).value = item.cas
+        sheet.cell(row=row, column=4).value = item.name
+        sheet.cell(row=row, column=5).value = str(item.almacenamiento_interno)
+        sheet.cell(row=row, column=6).value = item.clase_almacenamiento.name+' '+item.clase_almacenamiento.description
+        sheet.cell(row=row, column=7).value =  str(item.state)
+        sheet.cell(row=row, column=8).value =  str(item.unit)
+        sheet.cell(row=row, column=9).value =  item.is_active
+        sheet.cell(row=row, column=10).value = str((item.date_create).strftime('%d/%m/%Y %H:%M:%S'))
+        sheet.cell(row=row, column=11).value = item.created_by.first_name+' '+item.created_by.last_name
+        sheet.cell(row=row, column=12).value = str((item.last_update).strftime('%d/%m/%Y %H:%M:%S'))
+        sheet.cell(row=row, column=13).value = item.last_updated_by.first_name+' '+item.last_updated_by.last_name
                
         # Aplicar el estilo de borde a las celdas de la fila actual
-        for col in range(1, 17):
+        for col in range(1, 14):
             sheet.cell(row=row, column=col).border = thin_border
 
         row += 1
 
     # Obtén el rango de las columnas de la tabla
     start_column = 1
-    end_column = 16
+    end_column = 13
     start_row = 4
     end_row = row - 1
 
