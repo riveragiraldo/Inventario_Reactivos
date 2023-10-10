@@ -6,11 +6,13 @@ function configurarSelectoresDesdeURL() {
     const rolValue = urlParams.get('rol');
     const nameValue = urlParams.get('name');
     const idUserValue = urlParams.get('id_user');
+    const isActiveValue = urlParams.get('is_active');
 
     const labSelect = document.getElementById('lab');
     const rolSelect = document.getElementById('rol');
     const nameInput = document.getElementById('name');
     const idUserInput = document.getElementById('id_user');
+    const isActiveInput = document.getElementById('is_active');
 
     // Verificar si hay valores en la URL, si no, asignar valores por defecto
     if (labValue !== null) {
@@ -37,6 +39,12 @@ function configurarSelectoresDesdeURL() {
         idUserInput.value = idUserValue;
     } else {
         idUserInput.value = ''; // Valor por defecto del selector "id_user"
+    }
+
+    if (isActiveValue !== null) {
+        isActiveInput.value = isActiveValue;
+    } else {
+        isActiveInput.value = ''; // Valor por defecto del selector "id_user"
     }
     
 }

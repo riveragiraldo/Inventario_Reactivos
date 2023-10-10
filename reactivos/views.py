@@ -2650,6 +2650,7 @@ class UsuariosListView(LoginRequiredMixin,ListView):
         lab = request.GET.get('lab')
         rol = request.GET.get('rol')
         id_user = request.GET.get('id_user')
+        is_active = request.GET.get('is_active')
         
         
         # si el valor de lab viene de sesión superusuario o ADMINISTRADOR lab=0 cambiar por lab=''
@@ -2659,7 +2660,8 @@ class UsuariosListView(LoginRequiredMixin,ListView):
         # Guardar los valores de filtrado en la sesión
         request.session['filtered_lab'] = lab
         request.session['filtered_rol'] = rol
-        request.session['filtered_id'] = id_user      
+        request.session['filtered_id'] = id_user
+        request.session['filtered_is_active'] = is_active      
         
 
         return super().get(request, *args, **kwargs)
@@ -2691,19 +2693,35 @@ class UsuariosListView(LoginRequiredMixin,ListView):
         lab = self.request.GET.get('lab')
         rol = self.request.GET.get('rol')
         user_id = self.request.GET.get('id_user')
+        is_active = self.request.GET.get('is_active')
         
         # si el valor de lab viene de sesión superusuario o ADMINISTRADOR lab=0 cambiar por lab=''
         if lab=='0':
              lab=None
-
-        if lab and rol and user_id:
+        if lab and rol and user_id and is_active:
+            queryset = queryset.filter(lab=lab, rol=rol, id=user_id, is_active=is_active)
+        elif lab and rol and user_id:
             queryset = queryset.filter(lab=lab, rol=rol, id=user_id)
+        elif lab and rol and is_active:
+            queryset = queryset.filter(lab=lab, rol=rol, is_active=is_active)
+        elif lab and is_active and user_id:
+            queryset = queryset.filter(lab=lab, is_active=is_active, id=user_id)
+        elif is_active and rol and user_id:
+            queryset = queryset.filter(is_active=is_active, rol=rol, id=user_id)
+        elif lab and is_active:
+            queryset = queryset.filter(lab=lab, is_active=is_active)
         elif lab and rol:
             queryset = queryset.filter(lab=lab, rol=rol)
         elif lab and user_id:
             queryset = queryset.filter(lab=lab, id=user_id)
         elif user_id and rol:
             queryset = queryset.filter(id=user_id, rol=rol)
+        elif user_id and is_active:
+            queryset = queryset.filter(id=user_id, is_active=is_active)
+        elif is_active and rol:
+            queryset = queryset.filter(is_active=is_active, rol=rol)
+        elif is_active:
+            queryset = queryset.filter(is_active=is_active)
         elif lab:
             queryset = queryset.filter(lab=lab)
         elif rol:
@@ -3212,6 +3230,7 @@ class GuardarPerPageViewUser(LoginRequiredMixin,View):
         filtered_lab = request.session.get('filtered_lab')
         filtered_rol = request.session.get('filtered_rol')
         filtered_id = request.session.get('filtered_id')
+        filtered_is_active = request.session.get('filtered_is_active')
         
         url = reverse('reactivos:listado_usuarios')
         params = {}
@@ -3221,6 +3240,8 @@ class GuardarPerPageViewUser(LoginRequiredMixin,View):
             params['rol'] = filtered_rol
         if filtered_id:
             params['id_user'] = filtered_id
+        if filtered_is_active:
+            params['is_active'] = filtered_is_active
 
         if params:
             url += '?' + urlencode(params)
@@ -4314,18 +4335,35 @@ def export_to_excel_user(request):
     lab = request.session.get('filtered_lab')
     rol = request.session.get('filtered_rol')
     user_id = request.session.get('filtered_id')
+    is_active = request.session.get('filtered_is_active')
     
     queryset = User.objects.all()
     #Filtra según los valores previos de filtro en los selectores
     # 
-    if lab and rol and user_id:
-            queryset = queryset.filter(lab=lab, rol=rol, id=user_id)
+    if lab and rol and user_id and is_active:
+        queryset = queryset.filter(lab=lab, rol=rol, id=user_id, is_active=is_active)
+    elif lab and rol and user_id:
+        queryset = queryset.filter(lab=lab, rol=rol, id=user_id)
+    elif lab and rol and is_active:
+        queryset = queryset.filter(lab=lab, rol=rol, is_active=is_active)
+    elif lab and is_active and user_id:
+        queryset = queryset.filter(lab=lab, is_active=is_active, id=user_id)
+    elif is_active and rol and user_id:
+        queryset = queryset.filter(is_active=is_active, rol=rol, id=user_id)
+    elif lab and is_active:
+        queryset = queryset.filter(lab=lab, is_active=is_active)
     elif lab and rol:
         queryset = queryset.filter(lab=lab, rol=rol)
     elif lab and user_id:
         queryset = queryset.filter(lab=lab, id=user_id)
     elif user_id and rol:
         queryset = queryset.filter(id=user_id, rol=rol)
+    elif user_id and is_active:
+        queryset = queryset.filter(id=user_id, is_active=is_active)
+    elif is_active and rol:
+        queryset = queryset.filter(is_active=is_active, rol=rol)
+    elif is_active:
+        queryset = queryset.filter(is_active=is_active)
     elif lab:
         queryset = queryset.filter(lab=lab)
     elif rol:

@@ -40,7 +40,7 @@ if (currentUrl.endsWith('/reactivos/listado_reactivos/')) {
 // Verificar si la URL no tiene parámetros de búsqueda
 if (currentUrl.endsWith('/usuarios/listar/')) {
     // Modificar la URL agregando los parámetros de búsqueda deseados
-    const newUrl = currentUrl + '?lab='+labDefault+'&rol=&name=&id_user=';
+    const newUrl = currentUrl + '?lab='+labDefault+'&rol=&name=&id_user=&is_active=';
 
     // Redirigir a la nueva URL
     window.location.href = newUrl;
