@@ -12,27 +12,27 @@ document.querySelectorAll('.detalle-reactivo').forEach(element => {
         const reactivoWlocation = this.getAttribute('data-reactivo-wlocation');
         const reactivoLab = this.getAttribute('data-reactivo-lab');
         const reactivoEdate = this.getAttribute('data-reactivo-edate');
-        const reactivoRespel = this.getAttribute('data-reactivo-respel');
+        const reactivoalmacenamiento_interno = this.getAttribute('data-reactivo-almacenamiento_interno');
         const reactivoclase_almacenamiento = this.getAttribute('data-reactivo-clase_almacenamiento');
         const reactivoState = this.getAttribute('data-reactivo-state');
         const reactivoCreateBy = this.getAttribute('data-reactivo-create_by');
         const reactivoLastUpdate = this.getAttribute('data-reactivo-lastupdate');
         const reactivoLastUpdateBy = this.getAttribute('data-reactivo-update_by');
         const reactivoDateCreate = this.getAttribute('data-reactivo-date_create');
-        const reactivo = obtenerInformacionReactivo(reactivoId, reactivoName, reactivoCode, reactivoCas, reactivoTrademark, reactivoReference, reactivoQuantity, reactivoUnit, reactivoWlocation, reactivoLab,reactivoEdate,reactivoRespel,reactivoclase_almacenamiento,reactivoState,reactivoCreateBy,reactivoLastUpdate,reactivoLastUpdateBy,reactivoDateCreate);
+        const reactivo = obtenerInformacionReactivo(reactivoId, reactivoName, reactivoCode, reactivoCas, reactivoTrademark, reactivoReference, reactivoQuantity, reactivoUnit, reactivoWlocation, reactivoLab,reactivoEdate,reactivoalmacenamiento_interno,reactivoclase_almacenamiento,reactivoState,reactivoCreateBy,reactivoLastUpdate,reactivoLastUpdateBy,reactivoDateCreate);
         mostrarSweetAlert(reactivo);
     });
 });
 
 // Función para obtener la información del reactivo basado en su ID (puedes hacer la solicitud al servidor)
-function obtenerInformacionReactivo(reactivo, name, code, cas, trademark, reference, quantity, unit, wlocation,lab,edate,respel,clase_almacenamiento,state,create_by,last_update,update_by,date_create) {
+function obtenerInformacionReactivo(reactivo, name, code, cas, trademark, reference, quantity, unit, wlocation,lab,edate,almacenamiento_interno,clase_almacenamiento,state,create_by,last_update,update_by,date_create) {
 
     const inventario = {
         id: reactivo,
         name: name,
         code: code,
         cas: cas,
-        respel: respel,
+        almacenamiento_interno: almacenamiento_interno,
         clase_almacenamiento: clase_almacenamiento,
         trademark: trademark,
         reference: reference,
@@ -69,7 +69,7 @@ function mostrarSweetAlert(inventario) {
                         <li><strong>Código Interno:</strong> ${inventario.code}</li>
                         <li><strong>CAS:</strong> ${inventario.cas}</li>
                         <li><strong>Estado:</strong> ${inventario.state}</li>
-                        <li><strong>Clasificación Respel:</strong> ${inventario.respel}</li>
+                        <li><strong>Clasificación almacenamiento_interno:</strong> ${inventario.almacenamiento_interno}</li>
                         <li><strong>Codificación clase_almacenamiento:</strong> ${inventario.clase_almacenamiento}</li>
                         <li><strong>Marca:</strong> ${inventario.trademark}</li>
                         <li><strong>Referencia:</strong> ${inventario.reference}</li>

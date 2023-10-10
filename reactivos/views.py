@@ -242,14 +242,14 @@ def crear_estado(request):
     }
     return render(request, 'reactivos/crear_estado.html', context)
 
-# La vista "crear_respel" se encarga de gestionar la creación de clasificación respel. Esta vista toma los datos del formulario 
-# existente en el template "crear_respel.html" y realiza las operaciones necesarias en la base de datos utilizando 
-# el modelo "RespelC". El objetivo es garantizar la unicidad de los registros, lo que implica verificar si la clasifciación respel
+# La vista "crear_almacenamiento_interno" se encarga de gestionar la creación de clasificación almacenamiento_interno. Esta vista toma los datos del formulario 
+# existente en el template "crear_almacenamiento_interno.html" y realiza las operaciones necesarias en la base de datos utilizando 
+# el modelo "almacenamiento_internoC". El objetivo es garantizar la unicidad de los registros, lo que implica verificar si la clasifciación almacenamiento_interno
 # ya existe en la base de datos antes de crearla. Si la clasificación es única, se crea un nuevo registro en la tabla 
-# correspondiente utilizando el modelo "RespelC". Si la clasificación ya existe, se muestra un mensaje de error o se toma la 
+# correspondiente utilizando el modelo "almacenamiento_internoC". Si la clasificación ya existe, se muestra un mensaje de error o se toma la 
 # acción apropiada según los requisitos del sistema.
 @login_required
-def crear_respel(request):
+def crear_almacenamiento_interno(request):
     if request.method == 'POST':
         name = request.POST.get('name')
         name = estandarizar_nombre(name)
@@ -257,14 +257,14 @@ def crear_respel(request):
         description = estandarizar_nombre(description)
 
         # Verifica si ya existe un registro con el mismo nombre de la marca
-        if RespelC.objects.filter(name=name).exists():
-            respel = RespelC.objects.get(name=name)
-            respel_id = respel.id
+        if AlmacenamientoInterno.objects.filter(name=name).exists():
+            almacenamiento_interno = AlmacenamientoInterno.objects.get(name=name)
+            almacenamiento_interno_id = almacenamiento_interno.id
             messages.error(
-                request, 'Ya existe una clasificación Respel con nombre '+name+' id: '+str(respel_id))
+                request, 'Ya existe un Almacenamiento Interno con nombre '+name+' id: '+str(almacenamiento_interno_id))
             return HttpResponse('Ya existe un registro en la base de datos', status=409)
 
-        respel = RespelC.objects.create(
+        almacenamiento_interno = AlmacenamientoInterno.objects.create(
 
             name=name,
             description=description,
@@ -272,9 +272,9 @@ def crear_respel(request):
             last_updated_by=request.user,  # Asignar el usuario actualmente autenticado
 
         )
-        respel_id = respel.id
+        almacenamiento_interno_id = almacenamiento_interno.id
         messages.success(
-            request, 'Se ha creado exitosamente la clasificación Respel con nombre '+name+' id: '+str(respel_id))
+            request, 'Se ha creado exitosamente el Almacenamiento Interno con nombre '+name+' id: '+str(almacenamiento_interno_id))
         return HttpResponse('Operación exitosa', status=201)
 
     laboratorio = request.user.lab
@@ -284,7 +284,7 @@ def crear_respel(request):
         'laboratorio': laboratorio,
 
     }
-    return render(request, 'reactivos/crear_respel.html', context)
+    return render(request, 'reactivos/crear_almacenamiento_interno.html', context)
 
 # La vista "crear_clase_almacenamiento" se encarga de gestionar la creación de Clase de almacenamiento. Esta vista toma los datos del formulario 
 # existente en el template "crear_clase_almacenamiento.html" y realiza las operaciones necesarias en la base de datos utilizando 
@@ -737,11 +737,11 @@ def crear_reactivo(request):
             HttpResponse('Por favor seleccione una clase de almacenamiento primero', status=400)
         clase_almacenamiento = get_object_or_404(ClaseAlmacenamiento, id=clase_almacenamiento)
 
-        respel = request.POST.get('respel')
-        if not respel.isdigit():
-            messages.error(request, 'Por favor seleccione una clasificación respel primero')
-            HttpResponse('Por favor seleccione una clasificación respel primero', status=400)
-        respel = get_object_or_404(RespelC, id=respel)
+        almacenamiento_interno = request.POST.get('almacenamiento_interno')
+        if not almacenamiento_interno.isdigit():
+            messages.error(request, 'Por favor seleccione una almacenamiento interno primero')
+            HttpResponse('Por favor seleccione una almacenamiento interno primero', status=400)
+        almacenamiento_interno = get_object_or_404(AlmacenamientoInterno, id=almacenamiento_interno)
 
         if Reactivos.objects.filter(name=name).exists():
             reactivo = Reactivos.objects.get(name=name)
@@ -774,7 +774,7 @@ def crear_reactivo(request):
             cas=cas,
             state=state,
             clase_almacenamiento=clase_almacenamiento,
-            respel=respel,
+            almacenamiento_interno=almacenamiento_interno,
             created_by=request.user,  # Asignar el usuario actualmente autenticado
             last_updated_by=request.user,  # Asignar el usuario actualmente autenticado
         )
@@ -789,7 +789,7 @@ def crear_reactivo(request):
         'laboratorios': Laboratorios.objects.all(),
         'unidades': Unidades.objects.all(),
         'estados': Estados.objects.all(),
-        'respels': RespelC.objects.all(),
+        'almacenamiento_internos': AlmacenamientoInterno.objects.all(),
         'clase_almacenamientos': ClaseAlmacenamiento.objects.all(),
     }
     
@@ -1347,7 +1347,7 @@ def editar_reactivo(request, pk):
         state = request.POST.get('state')
         unit = request.POST.get('unit')
         clase_almacenamiento = request.POST.get('clase_almacenamiento')
-        respel = request.POST.get('respel')
+        almacenamiento_interno = request.POST.get('almacenamiento_interno')
 
         if not state.isdigit():
             messages.error(request, 'Por favor seleccione un estado primero')
@@ -1365,10 +1365,10 @@ def editar_reactivo(request, pk):
         clase_almacenamiento = get_object_or_404(ClaseAlmacenamiento, id=clase_almacenamiento)
 
         
-        if not respel.isdigit():
-            messages.error(request, 'Por favor seleccione una clasificación respel primero')
-            HttpResponse('Por favor seleccione una clasificación respel primero', status=400)
-        respel = get_object_or_404(RespelC, id=respel)
+        if not almacenamiento_interno.isdigit():
+            messages.error(request, 'Por favor seleccione una almacenamiento interno primero')
+            HttpResponse('Por favor seleccione una almacenamiento interno primero', status=400)
+        almacenamiento_interno = get_object_or_404(AlmacenamientoInterno, id=almacenamiento_interno)
 
         if (name != reactivo.name and Reactivos.objects.filter(name=name).exists()) or \
            (code != reactivo.code and Reactivos.objects.filter(code=code).exists()) or \
@@ -1385,7 +1385,7 @@ def editar_reactivo(request, pk):
         reactivo.unit=unit
         reactivo.state=state
         reactivo.clase_almacenamiento=clase_almacenamiento
-        reactivo.respel=respel
+        reactivo.almacenamiento_interno=almacenamiento_interno
         reactivo.last_updated_by=request.user  # Asignar el usuario actualmente autenticado
 
 
@@ -1403,7 +1403,7 @@ def editar_reactivo(request, pk):
         'laboratorios': Laboratorios.objects.all(),
         'unidades': Unidades.objects.all(),
         'estados': Estados.objects.all(),
-        'respels': RespelC.objects.all(),
+        'almacenamiento_internos': AlmacenamientoInterno.objects.all(),
         'clase_almacenamientos': ClaseAlmacenamiento.objects.all(),
     }
     
@@ -3567,10 +3567,10 @@ def export_to_excel(request):
     fecha_creacion = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
 
     # Unificar las celdas A1, B1, C1 y D1
-    sheet.merge_cells('C1:F1')
+    # sheet.merge_cells('C1:F1')
 
-    sheet['C1'] = 'Inventario de insumos'
-    sheet['C2'] = 'Fecha de Creación: '+fecha_creacion
+    sheet['D1'] = 'Inventario de insumos'
+    sheet['D2'] = 'Fecha de Creación: '+fecha_creacion
     sheet['A4'] = 'Consecutivo'
     sheet['B4'] = 'Código'
     sheet['C4'] = 'CAS'
@@ -3593,7 +3593,7 @@ def export_to_excel(request):
 
     # Establecer estilo de celda para A1
 
-    cell_A1 = sheet['C1']
+    cell_A1 = sheet['D1']
     cell_A1.font = Font(bold=True, size=16)
 
     # Configurar los estilos de borde
@@ -4615,7 +4615,7 @@ def export_to_excel_react(request):
     sheet['E4'] = 'Código'
     sheet['F4'] = 'Cas'
     sheet['G4'] = 'Nombre'
-    sheet['H4'] = 'Clasificación Respel'
+    sheet['H4'] = 'Almacenamiento Interno'
     sheet['I4'] = 'Clase de almacenamiento'
     sheet['J4'] = 'Estado'
     sheet['K4'] = 'Unidades'
@@ -4713,8 +4713,8 @@ def export_to_excel_react(request):
         sheet.cell(row=row, column=5).value = item.code
         sheet.cell(row=row, column=6).value = item.cas
         sheet.cell(row=row, column=7).value = item.name
-        sheet.cell(row=row, column=8).value = str(item.respel)
-        sheet.cell(row=row, column=9).value = item.clase_almacenamiento.name+': '+item.clase_almacenamiento.description
+        sheet.cell(row=row, column=8).value = str(item.almacenamiento_interno)
+        sheet.cell(row=row, column=9).value = item.clase_almacenamiento.name+' '+item.clase_almacenamiento.description
         sheet.cell(row=row, column=10).value = str(item.state)
         sheet.cell(row=row, column=11).value = str(item.unit)
         sheet.cell(row=row, column=12).value = item.is_active

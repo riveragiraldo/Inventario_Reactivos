@@ -10,13 +10,13 @@ function hideAddButtonsIfPopup() {
     var addUnitCont = document.getElementById("add_unit_btn");
     
     var addclase_almacenamientoCont = document.getElementById("add_clase_almacenamiento_btn");
-    var addRespelCont = document.getElementById("add_respel_btn");
+    var addalmacenamiento_internoCont = document.getElementById("add_almacenamiento_interno_btn");
 
     if (isPopupWindow()) {
 
         addUnitCont.style.display = "none";
         addclase_almacenamientoCont.style.display = "none";
-        addRespelCont.style.display = "none";
+        addalmacenamiento_internoCont.style.display = "none";
         
 
     }

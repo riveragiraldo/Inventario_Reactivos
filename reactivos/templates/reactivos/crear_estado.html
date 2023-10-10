@@ -104,7 +104,7 @@ Creación
                         var cas = window.opener.document.getElementById("cas").value;
                         var name_father = window.opener.document.getElementById("name").value;
                         var unidad = window.opener.document.getElementById("selectUnidades").value;
-                        var respel = window.opener.document.getElementById("respel").value;
+                        var almacenamiento_interno = window.opener.document.getElementById("almacenamiento_interno").value;
                         var clase_almacenamiento = window.opener.document.getElementById("clase_almacenamiento").value;
 
 
@@ -127,11 +127,11 @@ Creación
                             state_new.value = estado;
                             state_new.setAttribute("selected", true);
 
-                            //Actualiza Select respel
+                            //Actualiza Select almacenamiento_interno
 
-                            var respel_new = window.opener.document.querySelector("#respel");
-                            respel_new.value = respel;
-                            respel_new.setAttribute("selected", true);
+                            var almacenamiento_interno_new = window.opener.document.querySelector("#almacenamiento_interno");
+                            almacenamiento_interno_new.value = almacenamiento_interno;
+                            almacenamiento_interno_new.setAttribute("selected", true);
 
                             //Actualiza Select clase_almacenamiento
 

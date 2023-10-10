@@ -61,15 +61,15 @@ class Facultadadmin(admin.ModelAdmin):
     list_display=('id','name','created_by', 'date_create','last_update','last_updated_by')
     ordering=('id',)
 
-# Inclusión de el modelo CLASIFICACIÓN RESPEL en la consola de administración de Django
-@admin.register(RespelC)
-class Respeladmin(admin.ModelAdmin):
+# Inclusión de el modelo ALMACENAMIENTO INTERNO en la consola de administración de Django
+@admin.register(AlmacenamientoInterno)
+class AlmacenamientoInternoadmin(admin.ModelAdmin):
     list_display=('id','name','description','created_by', 'date_create','last_update','last_updated_by',)
     ordering=('id',)
 
 # Inclusión de el modelo CLASE DE ALAMCENAMIENTO en la consola de administración de Django
 @admin.register(ClaseAlmacenamiento)
-class SGIadmin(admin.ModelAdmin):
+class ClaseAlmacenamientoadmin(admin.ModelAdmin):
     list_display=('id','name','description','created_by', 'date_create','last_update','last_updated_by',)
     ordering=('id',)
 
@@ -99,7 +99,7 @@ class ReactivosResources(resources.ModelResource):
 # Inclusión de el modelo REACTIVOS en la consola de administración de Django
 @admin.register(Reactivos)
 class Reactivosadmin(ImportExportModelAdmin, admin.ModelAdmin):
-    list_display=('id','code','cas','name','state','unit','respel','clase_almacenamiento','created_by', 'date_create','last_update','last_updated_by',)
+    list_display=('id','code','cas','name','state','unit','almacenamiento_interno','clase_almacenamiento','created_by', 'date_create','last_update','last_updated_by',)
     list_filter=('code','name',)
     search_fields=('code','name',)
     list_per_page=10

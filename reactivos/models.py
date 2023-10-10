@@ -207,9 +207,9 @@ class Facultades(models.Model):
         verbose_name = 'Facultad'
 
 
-# Modelo para tabla RespelC en base de datos Reactivos
-class RespelC(models.Model):
-    name = models.CharField(max_length=100, verbose_name="Clasificación Respel")
+# Modelo para tabla AlmacenamientoInterno en base de datos Reactivos
+class AlmacenamientoInterno(models.Model):
+    name = models.CharField(max_length=100, verbose_name="Nombre")
     description=models.TextField(max_length=1000, verbose_name="Descripción")
     is_active = models.BooleanField(default=True)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Usuario')
@@ -221,8 +221,8 @@ class RespelC(models.Model):
         return self.name
 
     class Meta:
-        verbose_name_plural = 'Clasificación Respel'
-        verbose_name = 'Clasificación Respel'
+        verbose_name_plural = 'Almacenamiento Interno'
+        verbose_name = 'Almacenamiento Interno'
 
 # Modelo para tabla Clase Almacenamiento en base de datos Reactivos
 class ClaseAlmacenamiento(models.Model):
@@ -291,10 +291,10 @@ class Reactivos(models.Model):
     cas = models.CharField(max_length=20, verbose_name="Código CAS", unique=True)
     state = models.ForeignKey(Estados, on_delete=models.CASCADE,
                               related_name='state', verbose_name="Presentación")
-    respel = models.ForeignKey(RespelC, on_delete=models.CASCADE,
-                              related_name='respel', verbose_name="Clasificación Respel")
+    almacenamiento_interno = models.ForeignKey(AlmacenamientoInterno, on_delete=models.CASCADE,
+                              related_name='AlmacenamientoInterno', verbose_name="Almacenamiento Interno")
     clase_almacenamiento = models.ForeignKey(ClaseAlmacenamiento, on_delete=models.CASCADE,
-                              related_name='resp', verbose_name="Clase Almacenamiento")
+                              related_name='ClaseAlmacenamiento', verbose_name="Clase Almacenamiento")
     is_active = models.BooleanField(default=True)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Usuario')
     date_create = models.DateTimeField(auto_now_add=True,verbose_name='Fecha registro',)

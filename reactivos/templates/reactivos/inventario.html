@@ -216,7 +216,7 @@
                             data-reactivo-quantity="{{ item.weight|floatformat:1 }}"
                             data-reactivo-unit="{{ item.name.unit }}" data-reactivo-wlocation="{{ item.wlocation }}"
                             data-reactivo-lab="{{ item.lab }}" data-reactivo-edate="{{ item.edate }}"
-                            data-reactivo-respel="{{ item.name.respel }}" data-reactivo-clase_almacenamiento="{{ item.name.clase_almacenamiento }} - {{ item.name.clase_almacenamiento.description }}"
+                            data-reactivo-almacenamiento_interno="{{ item.name.almacenamiento_interno }}" data-reactivo-clase_almacenamiento="{{ item.name.clase_almacenamiento }} {{ item.name.clase_almacenamiento.description }}"
                             data-reactivo-state="{{ item.name.state }}"
                             data-reactivo-date_create="{{ item.date_create }}"
                             data-reactivo-create_by="{{ item.created_by.first_name }} {{ item.created_by.last_name }}"

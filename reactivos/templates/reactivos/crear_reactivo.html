@@ -87,17 +87,17 @@
                         </div>
 
                         <div class="col-md-4">
-                            <label class="form-label" for="respel" name="Respel: ">*Clasificación Respel:</label>
+                            <label class="form-label" for="almacenamiento_interno" name="Almacenamiento Interno: ">*Almacenamiento Interno:</label>
                             <div class="input-group">
-                                <select name="respel" id="respel" class="form-control" required>
+                                <select name="almacenamiento_interno" id="almacenamiento_interno" class="form-control" required>
                                     <option value="">Seleccione</option>
-                                    {% for respel in respels %}
-                                    <option value="{{ respel.id }}">{{ respel.name }}</option>
+                                    {% for almacenamiento_interno in almacenamiento_internos %}
+                                    <option value="{{ almacenamiento_interno.id }}">{{ almacenamiento_interno.name }}</option>
                                     {% endfor %}
                                 </select>
 
-                                <button type="button" id="add_respel_btn" class="btn btn-secondary"
-                                    title="Agregar Clasificación Respel">+</button>
+                                <button type="button" id="add_almacenamiento_interno_btn" class="btn btn-secondary"
+                                    title="Agregar Almacenamiento Interno">+</button>
 
                             </div>
                         </div>
@@ -109,7 +109,7 @@
                                 <select name="clase_almacenamiento" id="clase_almacenamiento" class="form-control" required>
                                     <option value="">Seleccione</option>
                                     {% for clase_almacenamiento in clase_almacenamientos %}
-                                    <option value="{{ clase_almacenamiento.id }}">{{ clase_almacenamiento.name }}: {{ clase_almacenamiento.description }}</option>
+                                    <option value="{{ clase_almacenamiento.id }}">{{ clase_almacenamiento.name }} {{ clase_almacenamiento.description }}</option>
                                     {% endfor %}
                                 </select>
                                 <button type="button" id="add_clase_almacenamiento_btn" class="btn btn-secondary"

@@ -1,15 +1,15 @@
 //Funciones para llamar Ventanas emergentes en el formulario de creación de reactivo
 
-//Llama PopUp Clasificación Respel
-function openPopupWindowRespel() {
+//Llama PopUp Clasificación almacenamiento_interno
+function openPopupWindowAlmacenamientoInterno() {
     var w = 450; // ancho de la ventana emergente
     var h = 400; // altura de la ventana emergente
     var left = (screen.width / 2) - (w / 2);
     var top = (screen.height / 2) - (h / 2);
-    window.open("/respel/crear", "popup", "width=" + w + ",height=" + h + ",left=" + left + ",top=" + top);
+    window.open("/almacenamiento/crear_interno", "popup", "width=" + w + ",height=" + h + ",left=" + left + ",top=" + top);
 }
 
-//Llama PopUp Clasificación Respel
+//Llama PopUp Clasificación Clase Alamcenamiento
 function openPopupWindowClaseAlmacenamiento() {
     var w = 450; // ancho de la ventana emergente
     var h = 400; // altura de la ventana emergente
@@ -101,12 +101,12 @@ if (wf == "crear") {
 
     //Leer Valores
     var addCABtn = document.getElementById("add_clase_almacenamiento_btn");
-    var addRespelBtn = document.getElementById("add_respel_btn");
+    var addAlmacenamientoInternoBtn = document.getElementById("add_almacenamiento_interno_btn");
     var addUnitBtn = document.getElementById("add_unit_btn");
 
     // Escucha el clic en add y llamar función 
     addCABtn.addEventListener("click", openPopupWindowClaseAlmacenamiento);
-    addRespelBtn.addEventListener("click", openPopupWindowRespel);
+    addAlmacenamientoInternoBtn.addEventListener("click", openPopupWindowAlmacenamientoInterno);
     addUnitBtn.addEventListener("click", openPopupWindowUnit);
 }
 

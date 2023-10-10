@@ -70,10 +70,10 @@ window.onload = function () {
         
         
         setTimeout(function () {
-            // Actualiza Select Respel
-            var respel_new = document.querySelector("#respel");
-            respel_new.value = respel;
-            respel_new.setAttribute("selected", true);
+            // Actualiza Select almacenamiento_interno
+            var almacenamiento_interno_new = document.querySelector("#almacenamiento_interno");
+            almacenamiento_interno_new.value = almacenamiento_interno;
+            almacenamiento_interno_new.setAttribute("selected", true);
             
             // Actualiza Select clase_almacenamiento
             var clase_almacenamiento_new = document.querySelector("#clase_almacenamiento");
