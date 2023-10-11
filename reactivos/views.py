@@ -740,13 +740,15 @@ def crear_reactivo(request):
             messages.error(
                 request, 'Ya existe un reactivo con el código registrado: '+reactivo_name)
             return HttpResponse('Ya existe un reactivo con el código registrado: ' + reactivo_name, status=400)
+        
+        if cas!='NO APLICA':
 
-        if Reactivos.objects.filter(cas=cas).exists():
-            reactivo = Reactivos.objects.get(cas=cas)
-            reactivo_name = reactivo.name
-            messages.error(
-                request, 'Ya existe un reactivo con el CAS registrado: '+reactivo_name)
-            return HttpResponse('Ya existe un reactivo con el cas registrado: ' + reactivo_name, status=400)
+            if Reactivos.objects.filter(cas=cas).exists():
+                reactivo = Reactivos.objects.get(cas=cas)
+                reactivo_name = reactivo.name
+                messages.error(
+                    request, 'Ya existe un reactivo con el CAS registrado: '+reactivo_name)
+                return HttpResponse('Ya existe un reactivo con el cas registrado: ' + reactivo_name, status=400)
             
         reactivo = Reactivos.objects.create(
             code=code,
@@ -1365,13 +1367,15 @@ def editar_reactivo(request, pk):
             
             HttpResponse('Por favor seleccione una almacenamiento interno primero', status=400)
         almacenamiento_interno = get_object_or_404(AlmacenamientoInterno, id=almacenamiento_interno)
-
-        if (name != reactivo.name and Reactivos.objects.filter(name=name).exists()) or \
-           (code != reactivo.code and Reactivos.objects.filter(code=code).exists()) or \
-           (cas != reactivo.cas and Reactivos.objects.filter(cas=cas).exists()):
-            return HttpResponse('No fue posible realizar la edición ya que los valores de Nombre, Código o CAS coinciden con otros registros existentes.', status=400)                 
-        
-        
+        if cas!='NO APLICA':
+            if (name != reactivo.name and Reactivos.objects.filter(name=name).exists()) or \
+               (code != reactivo.code and Reactivos.objects.filter(code=code).exists()) or \
+               (cas != reactivo.cas and Reactivos.objects.filter(cas=cas).exists()):
+                return HttpResponse('No fue posible realizar la edición ya que los valores de Nombre, Código o CAS coinciden con otros registros existentes.', status=400)                 
+        else:
+            if (name != reactivo.name and Reactivos.objects.filter(name=name).exists()) or \
+               (code != reactivo.code and Reactivos.objects.filter(code=code).exists()):
+                return HttpResponse('No fue posible realizar la edición ya que los valores de Nombre, Código o CAS coinciden con otros registros existentes.', status=400)             
         reactivo.code=code
         reactivo.cas=cas
         reactivo.name=name

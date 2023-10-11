@@ -21,10 +21,10 @@
 
     {% load static %}
     <script>
-        almacenamiento_interno='{{ reactivo.almacenamiento_interno.id }}'
-        clase_almacenamiento='{{ reactivo.clase_almacenamiento.id }}'
-        estado='{{ reactivo.state.id }}'
-        unidad='{{ reactivo.unit.id }}'
+        almacenamiento_interno = '{{ reactivo.almacenamiento_interno.id }}'
+        clase_almacenamiento = '{{ reactivo.clase_almacenamiento.id }}'
+        estado = '{{ reactivo.state.id }}'
+        unidad = '{{ reactivo.unit.id }}'
     </script>
 
     <link rel="stylesheet" href="{% static 'inventarioreac/stylesShowSpinner.css' %}">
@@ -37,12 +37,12 @@
     <!-- Llama Script al final oculta botones si la página se muestra como emergente -->
     <script src="{% static 'inventarioreac/sendInfoEdit.js' %}" defer></script>
     <!-- Llama Script al final genera alerta informativa con los datos que se va enviar al servidor y acepta-->
-    <script src="{% static 'inventarioreac/validateSubnumber.js' %}" defer></script>
-    <!-- Llama Script al final genera alerta cuando no se escribe bien el subnumero-->
     <script src="{% static 'inventarioreac/cancelButtonFunction.js' %}" defer></script>
     <!-- Llama Script  que coloca función al botón cancelar -->
-    <script src="{% static 'inventarioreac/controlSelectores.js' %}" defer></script>    
+    <script src="{% static 'inventarioreac/controlSelectores.js' %}" defer></script>
     <!-- Llama Script  que inserta valores actuales de los selectores -->
+    <script src="{% static 'inventarioreac/putValueCAS.js' %}" defer></script>
+    <!-- Llama Script  que controla el checkbox acepta CAS -->
     {% endblock %}
 </head>
 
@@ -60,29 +60,40 @@
                     <form method="post" class="row g-3" id="createForm" name="form">
                         {% csrf_token %}
 
-                        
+
 
                         <div class="col-md-3">
                             <label class="form-label" for="code" name="Código: ">*Código interno:</label>
                             <input type="text" class="form-control" name="code" id="code" placeholder="Código interno"
-                                title="Código interno" readonly
-                                value="{{ reactivo.code }}">
+                                title="Código interno" readonly value="{{ reactivo.code }}">
+                        </div>
+                        <div class="col-md-1">
+                            <div class="politicaTratamiento">
+                                <input type="checkbox" id="aplicaCAS" name="aplicaCAS" checked value="Aplica">
+                                <label for="aplicaCAS" class="politica-label" name="Aplica CAS: ">
+                                    <p class="politica">
+                                        Aplica CAS
+                                    </p>
+                                </label>
+                            </div>
                         </div>
                         <div class="col-md-4">
                             <label class="form-label" for="cas" name="CAS: ">*Código CAS:</label>
                             <input type="text" step="any" class="form-control" placeholder="Código CAS" name="cas"
-                                required id="cas" pattern="[0-9\-]{1,15}"
-                                title="El CAS debe tener números y guiones (-). Longituf máxima 15 caracteres"
+                                required id="cas" pattern="[0-9A-Z\ -]{1,15}"
+                                title="El CAS debe tener letras mayúsculas, números y guiones (-). Longituf máxima 15 caracteres"
                                 value="{{ reactivo.cas }}">
                         </div>
-
                         <div class="col-md-4">
-                            <label class="form-label" for="almacenamiento_interno" name="Almacenamiento Interno: ">*Almacenamiento Interno:</label>
+                            <label class="form-label" for="almacenamiento_interno"
+                                name="Almacenamiento Interno: ">*Almacenamiento Interno:</label>
                             <div class="input-group">
-                                <select name="almacenamiento_interno" id="almacenamiento_interno" class="form-control" required>
+                                <select name="almacenamiento_interno" id="almacenamiento_interno" class="form-control"
+                                    required>
                                     <option value="">Seleccione</option>
                                     {% for almacenamiento_interno in almacenamiento_internos %}
-                                    <option value="{{ almacenamiento_interno.id }}">{{ almacenamiento_interno.name }}</option>
+                                    <option value="{{ almacenamiento_interno.id }}">{{ almacenamiento_interno.name }}
+                                    </option>
                                     {% endfor %}
                                 </select>
 
@@ -94,9 +105,11 @@
 
 
                         <div class="col-md-4">
-                            <label class="form-label" for="clase_almacenamiento" name="Clase de almacenamiento: ">*Clase de Almacenamiento:</label>
+                            <label class="form-label" for="clase_almacenamiento" name="Clase de almacenamiento: ">*Clase
+                                de Almacenamiento:</label>
                             <div class="input-group">
-                                <select name="clase_almacenamiento" id="clase_almacenamiento" class="form-control" required>
+                                <select name="clase_almacenamiento" id="clase_almacenamiento" class="form-control"
+                                    required>
                                     <option value="">Seleccione</option>
                                     {% for clase_almacenamiento in clase_almacenamientos %}
                                     <option value="{{ clase_almacenamiento.id }}">{{ clase_almacenamiento.name }} {{ clase_almacenamiento.description }}</option>
@@ -147,7 +160,8 @@
                         <input type="hidden" name="wf" class="form-control" value="crear" id="wf">
 
                         <div class="col-md-3 mt-3">
-                            <input type="button" value="Realizar Modificaciones" class="btn btn-primary" id="open_confirm_in">
+                            <input type="button" value="Realizar Modificaciones" class="btn btn-primary"
+                                id="open_confirm_in">
                         </div>
                         <div class="col-md-3 mt-3">
                             <button type="button" class="btn btn-primary"
@@ -166,7 +180,7 @@
                     <script>
                         if (window.opener) {
                             wf = window.opener.document.getElementById('wf')
-                            console.log (wf.value)
+                            console.log(wf.value)
 
                             window.onload = function () {
                                 //Obtener nombre despues del mensaje

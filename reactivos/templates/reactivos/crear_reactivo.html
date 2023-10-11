@@ -31,10 +31,10 @@
     <!-- Llama Script al final oculta botones si la página se muestra como emergente -->
     <script src="{% static 'inventarioreac/sendInfo.js' %}" defer></script>
     <!-- Llama Script al final genera alerta informativa con los datos que se va enviar al servidor y acepta-->
-    <script src="{% static 'inventarioreac/validateSubnumber.js' %}" defer></script>
-    <!-- Llama Script al final genera alerta cuando no se escribe bien el subnumero-->
     <script src="{% static 'inventarioreac/cancelButtonFunction.js' %}" defer></script>
     <!-- Llama Script  que coloca función al botón cancelar -->
+    <script src="{% static 'inventarioreac/putValueCAS.js' %}" defer></script>
+    <!-- Llama Script  que controla el checkbox acepta CAS -->
     {% endblock %}
 </head>
 
@@ -58,11 +58,23 @@
                             <input type="text" class="form-control" name="code" id="code" placeholder="Código interno"
                                 title="Código interno" value="{{ nuevo_codigo }}" readonly>
                         </div>
+                        <div class="col-md-1">
+                        <div class="politicaTratamiento">
+                            <input type="checkbox" id="aplicaCAS" name="aplicaCAS" checked 
+                              value="Aplica">
+                            <label for="aplicaCAS" class="politica-label"
+                              name="Aplica CAS: ">
+                              <p class="politica">
+                                Aplica CAS
+                              </p>
+                            </label>
+                          </div>
+                        </div>
                         <div class="col-md-4">
                             <label class="form-label" for="cas" name="CAS: ">*Código CAS:</label>
                             <input type="text" step="any" class="form-control" placeholder="Código CAS" name="cas"
-                                required id="cas" pattern="[0-9\-]{1,15}"
-                                title="El CAS debe tener números y guiones (-). Longituf máxima 15 caracteres">
+                                required id="cas" pattern="[0-9A-Z\ -]{1,15}"
+                                title="El CAS debe tener letras mayúsculas, números y guiones (-). Longituf máxima 15 caracteres">
                         </div>
 
                         <div class="col-md-4">
@@ -247,6 +259,8 @@
         </div>
 
         {% endblock %}
+        
+        
 
 </body>
 

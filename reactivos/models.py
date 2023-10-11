@@ -285,7 +285,7 @@ class Reactivos(models.Model):
     name = models.CharField(max_length=255, verbose_name="Nombre", unique=True)
     unit = models.ForeignKey(Unidades, on_delete=models.CASCADE,
                              related_name='reactive', verbose_name="Unidad")
-    cas = models.CharField(max_length=20, verbose_name="Código CAS", unique=True)
+    cas = models.CharField(max_length=20, verbose_name="Código CAS", unique=False)
     state = models.ForeignKey(Estados, on_delete=models.CASCADE,
                               related_name='state', verbose_name="Presentación")
     almacenamiento_interno = models.ForeignKey(AlmacenamientoInterno, on_delete=models.CASCADE,
