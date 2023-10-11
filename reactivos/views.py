@@ -1,5 +1,6 @@
 #Diferentes vistas y/o APIS que interactuan el front con back
 
+import locale
 from plistlib import UID
 import secrets
 from django.shortcuts import render
@@ -96,6 +97,8 @@ from django.utils.timezone import make_aware
 from django.template.defaultfilters import date as django_date
 from django.http import Http404
 from openpyxl.styles import Alignment
+from django.conf import settings
+from django.utils.timezone import localtime
 
 
 
@@ -1094,7 +1097,51 @@ def registrar_entrada(request):
                 created_by=request.user,  # Asignar el usuario actualmente autenticado
                 last_updated_by=request.user,  # Asignar el usuario actualmente autenticado
             )
+            # Crear de contexto para el mensaje de correo
+            # Obtener el dominio
+            protocol = 'https' if request.is_secure() else 'http'
+            domain = request.get_host()
+            url=f'{protocol}://{domain}'
+            # Obtener la fecha y hora actual en el formato "dd/mm/aaaa hh:mm:ss"
+            fecha_actual = localtime().strftime('%d/%m/%Y %H:%M:%S')
+            # Formatear el valor con separadores de miles
+            locale.setlocale(locale.LC_ALL, 'es_ES.UTF-8')
+            formatted_price = locale.format_string('%.2f', float(entrada.price), grouping=True)
+            formatted_weight = locale.format_string('%.2f', float(entrada.weight), grouping=True)
+            formatted_minstock = locale.format_string('%.2f', float(inventario.minstock), grouping=True)
+            formatted_edate=(inventario.edate).strftime('%d/%m/%Y')
+            if entrada.date_order:
+                formatted_orderdate=(entrada.date_order).strftime('%d/%m/%Y')
+            else:
+                formatted_orderdate=None
+            user=f'{request.user.first_name} {request.user.last_name}'
+                        
+            # Contexto del template del diseño del correo 
+            context = {
+                'url': url,
+                'fecha_actual': fecha_actual,
+                'formatted_price':formatted_price,
+                'formatted_weight':formatted_weight,
+                'formatted_edate':formatted_edate,
+                'formatted_minstock':formatted_minstock,
+                'formatted_orderdate':formatted_orderdate,
+                'entrada':entrada,
+                'inventario':inventario,
+                'user':user,
+            }
+            # Template
+            message = render_to_string('reactivos/registro_exitoso_entrada.html', context)
+            plain_message = strip_tags(message)
+            from_email = "noreply@unal.edu.co"  # Agrega el correo electrónico desde el cual se enviará el mensaje
+            current_lab=request.user.lab
+            rol=get_object_or_404(Rol,name='COORDINADOR')
+            coordinators=User.objects.filter(lab=current_lab, rol=rol)
+            recipient_list = [request.user.email]
+            recipient_list.extend(coordinator.email for coordinator in coordinators)
+            subject = f"Registro exitoso de entrada de inventario de {entrada.name} en {entrada.lab.name} - {protocol}://{domain}"
+            send_mail(subject, plain_message, from_email, recipient_list, fail_silently=False, html_message=message)           
 
+            
             messages.success(request, 'Se ha registrado de manera exitosa el ingreso del insumo: ' +
                              nReactivo+', cantidad '+weight+' '+unit)
             return HttpResponse('Se ha registrado de manera exitosa el ingreso del: ' +
@@ -1304,7 +1351,40 @@ def registrar_salida(request):
                 created_by=request.user,  # Asignar el usuario actualmente autenticado
                 last_updated_by=request.user,  # Asignar el usuario actualmente autenticado
             )
+            # Crear de contexto para el mensaje de correo
+            # Obtener el dominio
+            protocol = 'https' if request.is_secure() else 'http'
+            domain = request.get_host()
+            url=f'{protocol}://{domain}'
+            # Obtener la fecha y hora actual en el formato "dd/mm/aaaa hh:mm:ss"
+            fecha_actual = localtime().strftime('%d/%m/%Y %H:%M:%S')
+            # Formatear el valor con separadores de miles
+            locale.setlocale(locale.LC_ALL, 'es_ES.UTF-8')
+            formatted_weight = locale.format_string('%.2f', float(salida.weight), grouping=True)
+            user=f'{request.user.first_name} {request.user.last_name}'
+                        
+            # Contexto del template del diseño del correo 
+            context = {
+                'url': url,
+                'fecha_actual': fecha_actual,
+                'formatted_weight':formatted_weight,
+                'salida':salida,
+                'inventario':inventario,
+                'user':user,
+            }
+            # Template
+            message = render_to_string('reactivos/registro_exitoso_salida.html', context)
+            plain_message = strip_tags(message)
+            from_email = "noreply@unal.edu.co"  # Agrega el correo electrónico desde el cual se enviará el mensaje
+            current_lab=request.user.lab
+            rol=get_object_or_404(Rol,name='COORDINADOR')
+            coordinators=User.objects.filter(lab=current_lab, rol=rol)
+            recipient_list = [request.user.email]
+            recipient_list.extend(coordinator.email for coordinator in coordinators)
+            subject = f"Registro exitoso de salida de inventario de {salida.name} en {salida.lab.name} - {protocol}://{domain}"
+            send_mail(subject, plain_message, from_email, recipient_list, fail_silently=False, html_message=message)           
 
+            # Mensaje de confirmación al usuario
             messages.success(request, 'Se ha registrado de manera exitosa la salida del insumo del insumo: ' +
                              nReactivo+', cantidad '+weight+' '+unit+warning)
             return HttpResponse('Se ha registrado de manera exitosa la salida del insumo : ' +

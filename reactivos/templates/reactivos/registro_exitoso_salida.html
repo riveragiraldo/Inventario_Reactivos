@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Confirmación de registro</title>
+
+</head>
+
+<body>
+
+    <p>Se ha realizado exitosamente el registro de salida de reactivos con la siguiente información:</p>
+    
+    <p>Fecha de registro: {{ fecha_actual }}
+        <br>Id de registro: {{ salida.id }}
+        <br>Laboratorio: {{ salida.lab.name }}
+        <br>Reactivo: {{ salida.name }}
+        <br>Código: {{ salida.name.code }}
+        <br>Cas: {{ salida.name.cas }}
+        <br>Marca: {{ salida.trademark }}
+        <br>Referencia: {{ salida.reference }}
+        <br>Cantidad: {{ formatted_weight }} {{ salida.name.unit }}
+        <br>Asignatura: {{ salida.location }} - {{ salida.location.facultad }}
+        <br>Destino: {{ salida.destination }}
+        <br>Responsable: {{ salida.manager }} - Correo electrónico: {{ salida.manager.mail }}
+        <br>Ubicación en almacén: {{ inventario.wlocation }}
+        {% if salida.observations %}
+        <br>Observaciones: {{ salida.observations }}
+        {% endif %}
+        <br>Usuario que realiza el registro: {{ user }}
+    </p>
+
+    <p>Esperamos tenerte pronto de vuelta.</p>
+
+
+    <p>Cordialmente,
+        <br>Equipo de dirección de Laboratorios
+        <br>Universidad Nacional de Colombia - Sede Manizales
+        <br>{{ url }}
+    </p>
+    <p>
+        Agradecemos no responder este correo electrónico
+        <br>🌿 Por favor sea consciente con el medio ambiente y no imprima este mensaje 🌳
+
+    </p>
+
+</body>
+
+</html>
