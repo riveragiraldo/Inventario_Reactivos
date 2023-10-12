@@ -142,6 +142,46 @@ def webtemplate(request):
     }
     return render(request, 'webtemplate.html', context)
 
+# Función que envía alertas de Stock Mínimo, o stock =0
+def enviar_correo_alerta(request, alerta, reactivo, marca, referencia,cantidad,unidad,mensaje):
+    # Crear de contexto para el mensaje de correo
+    # Obtener el dominio
+    protocol = 'https' if request.is_secure() else 'http'
+    domain = request.get_host()
+    url=f'{protocol}://{domain}'
+    # Obtener la fecha y hora actual en el formato "dd/mm/aaaa hh:mm:ss"
+    fecha_actual = localtime().strftime('%d/%m/%Y %H:%M:%S')
+    # Formatear el valor con separadores de miles
+    locale.setlocale(locale.LC_ALL, 'es_ES.UTF-8')
+    usuario=f'{request.user.first_name} {request.user.last_name}'
+    laboratorio=request.user.lab
+                
+    # Contexto del template del diseño del correo 
+    context = {
+        'url': url,
+        'fecha_actual': fecha_actual,
+        'reactivo':reactivo,
+        'marca':marca,
+        'referencia':referencia,
+        'usuario':usuario,
+        'mensaje':mensaje,
+        'alerta':alerta,
+        'cantidad':cantidad,
+        'mensaje':mensaje,
+        'laboratorio':laboratorio,
+        'unidad':unidad,
+    }
+    # Template
+    message = render_to_string('reactivos/alerta_reactivos.html', context)
+    plain_message = strip_tags(message)
+    from_email = "noreply@unal.edu.co"  # Agrega el correo electrónico desde el cual se enviará el mensaje
+    current_lab=request.user.lab
+    rol=get_object_or_404(Rol,name='COORDINADOR')
+    coordinators=User.objects.filter(lab=current_lab, rol=rol, is_active=True)
+    recipient_list = [request.user.email]
+    recipient_list.extend(coordinator.email for coordinator in coordinators)
+    subject = f"Alerta en reactivo {reactivo} - {alerta} - {laboratorio}"
+    send_mail(subject, plain_message, from_email, recipient_list, fail_silently=False, html_message=message)
 
 # Vista para la creación del index, 
 
@@ -198,6 +238,7 @@ class CrearUnidades(LoginRequiredMixin, View):
             request, 'Se ha creado exitosamente la unidad con nombre ' + name + ' id: ' + str(unidad_id))
 
         context = {'unidad_id': unidad.id, 'unidad_name': unidad.name}
+        
         return HttpResponse('Operación exitosa', status=200)
 
 
@@ -234,6 +275,7 @@ def crear_estado(request):
 
         messages.success(
             request, 'Se ha creado exitosamente la presentación con nombre '+estado_name+' id: '+str(estado_id))
+        
         return HttpResponse('Operación exitosa', status=201)
 
     laboratorio = request.user.lab
@@ -764,7 +806,40 @@ def crear_reactivo(request):
             created_by=request.user,  # Asignar el usuario actualmente autenticado
             last_updated_by=request.user,  # Asignar el usuario actualmente autenticado
         )
-        
+
+        # Crear de contexto para el mensaje de correo
+        # Obtener el dominio
+        protocol = 'https' if request.is_secure() else 'http'
+        domain = request.get_host()
+        url=f'{protocol}://{domain}'
+        # Obtener la fecha y hora actual en el formato "dd/mm/aaaa hh:mm:ss"
+        fecha_actual = localtime().strftime('%d/%m/%Y %H:%M:%S')
+        # Formatear el valor con separadores de miles
+        locale.setlocale(locale.LC_ALL, 'es_ES.UTF-8')
+        user=f'{request.user.first_name} {request.user.last_name}'
+                    
+        # Contexto del template del diseño del correo 
+        context = {
+            'url': url,
+            'fecha_actual': fecha_actual,
+            'reactivo':reactivo,
+            'user':user,
+        }
+        # Template
+        message = render_to_string('reactivos/registro_exitoso_reactivo.html', context)
+        plain_message = strip_tags(message)
+        from_email = "noreply@unal.edu.co"  # Agrega el correo electrónico desde el cual se enviará el mensaje
+        current_lab=request.user.lab
+        rol=get_object_or_404(Rol,name='COORDINADOR')
+        coordinators=User.objects.filter(lab=current_lab, rol=rol, is_active=True)
+        recipient_list = [request.user.email]
+        recipient_list.extend(coordinator.email for coordinator in coordinators)
+        subject = f"Registro exitoso de creación de reactivo {reactivo.name} - {protocol}://{domain}"
+        send_mail(subject, plain_message, from_email, recipient_list, fail_silently=False, html_message=message)           
+
+
+
+        # Mensaje de éxito al usuario
         messages.success(request, 'Se ha creado exitosamente el reactivo: '+name)
         return HttpResponse('Reactivo creado correctamente: '+name, status=200)
     
@@ -1135,7 +1210,7 @@ def registrar_entrada(request):
             from_email = "noreply@unal.edu.co"  # Agrega el correo electrónico desde el cual se enviará el mensaje
             current_lab=request.user.lab
             rol=get_object_or_404(Rol,name='COORDINADOR')
-            coordinators=User.objects.filter(lab=current_lab, rol=rol)
+            coordinators=User.objects.filter(lab=current_lab, rol=rol, is_active=True)
             recipient_list = [request.user.email]
             recipient_list.extend(coordinator.email for coordinator in coordinators)
             subject = f"Registro exitoso de entrada de inventario de {entrada.name} en {entrada.lab.name} - {protocol}://{domain}"
@@ -1301,11 +1376,30 @@ def registrar_salida(request):
                         inventario_existente.is_active = False  # Asignar False a la columna is_active
                         inventario_existente.last_updated_by = request.user
                         inventario_existente.save()
+                        #preparar alerta para mensaje al usuario
                         warning=", pero el inventario actual ha llegado a 0. Favor informar al coordinador de laboratorio."
-                    laboratorio_quimica = Laboratorios.objects.get(name="LABORATORIO DE QUIMICA")
+                         # Envío de correo al coordinador del laboratorio
+                        alerta='Cantidad reactivo ha llegado a cero'
+                        reactivo=f'{inventario_existente.name}'
+                        marca=f'{inventario_existente.trademark}'
+                        referencia=f'{inventario_existente.reference}'
+                        cantidad=f'{inventario_existente.weight}'
+                        unidad=f'{inventario_existente.name.unit}'
+                        mensaje=f'La cantidad de reactivo {reactivo}, con marca {marca} y referencia {referencia}; ha llegado a cero en inventario ({cantidad} {unidad}).'
+                        enviar_correo_alerta(request, alerta, reactivo, marca, referencia, cantidad, unidad, mensaje)
+                        
                     if (inventario_existente.weight<=inventario_existente.minstock) and inventario_existente.minStockControl==True and inventario_existente.weight>0:
-
+                        # preparar alerta para mensaje al usuario    
                         warning=", pero el inventario actual es menor o igual que el stock mínimo para este reactivo. Favor informar al coordinador de laboratorio."
+                        # Envío de correo al coordinador del laboratorio
+                        alerta='Cantidad reactivo por debajo de inventario mínimo'
+                        reactivo=f'{inventario_existente.name}'
+                        marca=f'{inventario_existente.trademark}'
+                        referencia=f'{inventario_existente.reference}'
+                        cantidad=f'{inventario_existente.weight}'
+                        unidad=f'{inventario_existente.name.unit}'
+                        mensaje=f'El reactivo {reactivo}, con marca {marca} y referencia {referencia}; ha llegado a cantidades críticas ({cantidad} {unidad}), por debajo del stock mínimo ({inventario_existente.minstock} {unidad}).'
+                        enviar_correo_alerta(request, alerta, reactivo, marca, referencia,cantidad,unidad,mensaje)
 
                 else:
                     inventario_existente.weight=int(inventario_existente.weight)
@@ -1378,7 +1472,7 @@ def registrar_salida(request):
             from_email = "noreply@unal.edu.co"  # Agrega el correo electrónico desde el cual se enviará el mensaje
             current_lab=request.user.lab
             rol=get_object_or_404(Rol,name='COORDINADOR')
-            coordinators=User.objects.filter(lab=current_lab, rol=rol)
+            coordinators=User.objects.filter(lab=current_lab, rol=rol, is_active=True)
             recipient_list = [request.user.email]
             recipient_list.extend(coordinator.email for coordinator in coordinators)
             subject = f"Registro exitoso de salida de inventario de {salida.name} en {salida.lab.name} - {protocol}://{domain}"
@@ -1666,7 +1760,7 @@ def editar_entrada(request, pk):
         inventario.save()
         
         
-        # Verificar si los nuevos valores de Lab, Name, Trademark, y Reference coincidan con algún regitro en el inventario
+        # Verificar si los nuevos valores de Lab, Name, Trademark, y Reference coincidan con algún registro en el inventario
         try:
             inventario_existente = Inventarios.objects.filter(
                 name=name, trademark=trademark, reference=reference, lab=lab).first()
@@ -1686,7 +1780,6 @@ def editar_entrada(request, pk):
                 inventario_existente.minstock = minstock
                 inventario_existente.wlocation = wlocation
                 inventario_existente.minStockControl = minStockControl
-                inventario_existente.minstock = minstock
                 inventario_existente.last_updated_by = request.user
 
                 # Si después de realizar el proceso de actualización el inventario queda en 0 inactiva y pasa alerta
@@ -1694,11 +1787,28 @@ def editar_entrada(request, pk):
                     inventario_existente.is_active = False
                     warning=' pero la cantidad en inventario a llegado a 0, por favor verifique y comuniquese con el coordinador de área'
                     
+                    # Envío de correo al coordinador del laboratorio
+                    alerta='Cantidad reactivo ha llegado a cero'
+                    reactivo=f'{inventario_existente.name}'
+                    marca=f'{inventario_existente.trademark}'
+                    referencia=f'{inventario_existente.reference}'
+                    cantidad=f'{inventario_existente.weight}'
+                    unidad=f'{inventario_existente.name.unit}'
+                    mensaje=f'Con el proceso de edición de entrada de reactivo {reactivo}, con marca {marca} y referencia {referencia}; ha llegado a cero en inventario ({cantidad} {unidad}).'
+                    enviar_correo_alerta(request, alerta, reactivo, marca, referencia, cantidad, unidad, mensaje)
                 # Si el reactivo ya existe y NO está activo(cantidad00), poner is_active=True y sumar el peso obtenido del formulario al peso existente    
                 if inventario_existente.minStockControl and inventario_existente.weight > 0 and float(inventario_existente.weight) <= float(inventario_existente.minstock):
                     warning=' pero la cantidad en inventario quedó por debajo del mínimo, por favor verifique y comuniquese con el coordinador de área'
 
-                    
+                    # Envío de correo al coordinador del laboratorio
+                    alerta='Cantidad reactivo por debajo de inventario mínimo'
+                    reactivo=f'{inventario_existente.name}'
+                    marca=f'{inventario_existente.trademark}'
+                    referencia=f'{inventario_existente.reference}'
+                    cantidad=f'{inventario_existente.weight}'
+                    unidad=f'{inventario_existente.name.unit}'
+                    mensaje=f'Con el proceso de edición de la entrada de reactivo {reactivo}, con marca {marca} y referencia {referencia}; ha llegado a cantidades críticas ({cantidad} {unidad}), por debajo del stock mínimo ({inventario_existente.minstock} {unidad}).'
+                    enviar_correo_alerta(request, alerta, reactivo, marca, referencia,cantidad,unidad,mensaje)                    
             # Si no existe en la base de datos se creará un nuevo registro de inventario    
             else:
                 inventario = Inventarios.objects.create(
@@ -1938,11 +2048,29 @@ def editar_salida(request, pk):
                     if inventario_existente.weight==0:
                         warning=', pero esta a hecho que el inventario llegue a "Cero", por favor verifique e informe al coordinador de laboratorio'
                         inventario_existente.is_active=False
-                        # correo
+
+                        # Envío de correo al coordinador del laboratorio
+                        alerta='Cantidad reactivo ha llegado a cero'
+                        reactivo=f'{inventario_existente.name}'
+                        marca=f'{inventario_existente.trademark}'
+                        referencia=f'{inventario_existente.reference}'
+                        cantidad=f'{inventario_existente.weight}'
+                        unidad=f'{inventario_existente.name.unit}'
+                        mensaje=f'Con el proceso de edición de salida de reactivo {reactivo}, con marca {marca} y referencia {referencia}; ha llegado a cero en inventario ({cantidad} {unidad}).'
+                        enviar_correo_alerta(request, alerta, reactivo, marca, referencia, cantidad, unidad, mensaje)
                         # Si el inventario es mayor o igual a 0 verificar si está por debajo del control de stock mínimo
                     elif inventario_existente.minStockControl and inventario_existente.weight<=inventario_existente.minstock:
                         warning=', pero esta a hecho que el inventario llegue a una cantidad inferior al "Inventario Mínimo", por favor verifique e informe al coordinador de laboratorio'
-                        # correo
+                        
+                        # Envío de correo al coordinador del laboratorio
+                        alerta='Cantidad reactivo por debajo de inventario mínimo'
+                        reactivo=f'{inventario_existente.name}'
+                        marca=f'{inventario_existente.trademark}'
+                        referencia=f'{inventario_existente.reference}'
+                        cantidad=f'{inventario_existente.weight}'
+                        unidad=f'{inventario_existente.name.unit}'
+                        mensaje=f'Con el proceso de edición de la salida de reactivo {reactivo}, con marca {marca} y referencia {referencia}; ha llegado a cantidades críticas ({cantidad} {unidad}), por debajo del stock mínimo ({inventario_existente.minstock} {unidad}).'
+                        enviar_correo_alerta(request, alerta, reactivo, marca, referencia,cantidad,unidad,mensaje)
                     # Actualizar el resto de datos del inventario
                     inventario_existente.last_updated_by=request.user
                     inventario_existente.save()                
@@ -2095,10 +2223,27 @@ def eliminar_entrada(request, pk):
         if inventario.weight==0:
             warning= ' Con esta acción el inventario a llegado a 0 por favor verifique y comuniquese con su coordinador.'
             inventario.is_active=False
-            ## Enviar correo
+
+            # Envío de correo al coordinador del laboratorio
+            alerta='Cantidad reactivo ha llegado a cero'
+            reactivo=f'{inventario.name}'
+            marca=f'{inventario.trademark}'
+            referencia=f'{inventario.reference}'
+            cantidad=f'{inventario.weight}'
+            unidad=f'{inventario.name.unit}'
+            mensaje=f'Con el proceso de eliminación del registro de entrada de reactivo {reactivo}, con marca {marca} y referencia {referencia}; ha llegado a cero en inventario ({cantidad} {unidad}).'
+            enviar_correo_alerta(request, alerta, reactivo, marca, referencia, cantidad, unidad, mensaje)
         elif inventario.minStockControl and inventario.weight>0 and inventario.weight<=inventario.minstock:
             warning= ' Con esta acción el inventario a llegado por debajo al inventario mínimo por favor verifique y comuniquese con su coordinador.'    
-     
+            # Envío de correo al coordinador del laboratorio
+            alerta='Cantidad reactivo por debajo de inventario mínimo'
+            reactivo=f'{inventario.name}'
+            marca=f'{inventario.trademark}'
+            referencia=f'{inventario.reference}'
+            cantidad=f'{inventario.weight}'
+            unidad=f'{inventario.name.unit}'
+            mensaje=f'Con el proceso de eliminación del registro de la entrada de reactivo {reactivo}, con marca {marca} y referencia {referencia}; ha llegado a cantidades críticas ({cantidad} {unidad}), por debajo del stock mínimo ({inventario.minstock} {unidad}).'
+            enviar_correo_alerta(request, alerta, reactivo, marca, referencia,cantidad,unidad,mensaje)
     
     inventario.save()    
     # Elimina el registro lo inactiva, no lo elimina y además actualiza el usuario que realiza la acción
@@ -2138,10 +2283,27 @@ def eliminar_salida(request, pk):
         if inventario.weight==0:
             warning= ' Pero con esta acción el inventario a llegado a 0 por favor verifique y comuniquese con su coordinador.'
             inventario.is_active=False
-            ## Enviar correo
+
+            # Envío de correo al coordinador del laboratorio
+            alerta='Cantidad reactivo ha llegado a cero'
+            reactivo=f'{inventario.name}'
+            marca=f'{inventario.trademark}'
+            referencia=f'{inventario.reference}'
+            cantidad=f'{inventario.weight}'
+            unidad=f'{inventario.name.unit}'
+            mensaje=f'Con el proceso de eliminación del registro de salida de reactivo {reactivo}, con marca {marca} y referencia {referencia}; ha llegado a cero en inventario ({cantidad} {unidad}).'
+            enviar_correo_alerta(request, alerta, reactivo, marca, referencia, cantidad, unidad, mensaje)
         elif inventario.minStockControl and inventario.weight>0 and inventario.weight<=inventario.minstock:
             warning= ' Pero con esta acción el inventario a llegado por debajo al inventario mínimo por favor verifique y comuniquese con su coordinador.'    
-     
+            # Envío de correo al coordinador del laboratorio
+            alerta='Cantidad reactivo por debajo de inventario mínimo'
+            reactivo=f'{inventario.name}'
+            marca=f'{inventario.trademark}'
+            referencia=f'{inventario.reference}'
+            cantidad=f'{inventario.weight}'
+            unidad=f'{inventario.name.unit}'
+            mensaje=f'Con el proceso de eliminación del registro de la salida de reactivo {reactivo}, con marca {marca} y referencia {referencia}; ha llegado a cantidades críticas ({cantidad} {unidad}), por debajo del stock mínimo ({inventario.minstock} {unidad}).'
+            enviar_correo_alerta(request, alerta, reactivo, marca, referencia,cantidad,unidad,mensaje)
     
     inventario.save()    
     # Elimina el registro lo inactiva, no lo elimina y además actualiza el usuario que realiza la acción

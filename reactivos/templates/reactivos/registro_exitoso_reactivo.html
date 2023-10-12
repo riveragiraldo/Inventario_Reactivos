@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Confirmación de registro</title>
+
+</head>
+
+<body>
+
+    <p>Se ha realizado exitosamente el registro de creación de reactivos con la siguiente información:</p>
+    
+    <p>Fecha de registro: {{ fecha_actual }}
+        <br>Id de registro: {{ reactivo.id }}
+        <br>Reactivo: {{ reactivo.name }}
+        <br>Código: {{ reactivo.code }}
+        <br>Cas: {{ reactivo.cas }}
+        <br>Estado: {{ reactivo.state }}
+        <br>Unidades: {{ reactivo.unit }}
+        <br>Clase de almacenamiento: {{ reactivo.clase_almacenamiento }} {{ reactivo.clase_almacenamiento.description }}
+        <br>Almacenamiento interno: {{ reactivo.almacenamiento_interno }}
+        <br>Usuario que realiza el registro: {{ user }}
+    </p>
+
+    <p>Esperamos tenerte pronto de vuelta.</p>
+
+
+    <p>Cordialmente,
+        <br>Equipo de dirección de Laboratorios
+        <br>Universidad Nacional de Colombia - Sede Manizales
+        <br>{{ url }}
+    </p>
+    <p>
+        Agradecemos no responder este correo electrónico
+        <br>🌿 Por favor sea consciente con el medio ambiente y no imprima este mensaje 🌳
+
+    </p>
+
+</body>
+
+</html>

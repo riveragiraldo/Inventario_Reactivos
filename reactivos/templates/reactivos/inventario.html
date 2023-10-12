@@ -154,7 +154,7 @@
                     <th class="sortable-header" data-column="4" title="Ordenar por marca">Marca</th>
                     <th class="sortable-header" data-column="5" title="Ordenar por referencia">Referencia</th>
                     <th class="sortable-header" data-column="6" title="Ordenar por cantidad">Cantidad</th>
-                    <th class="sortable-header" data-column="7" title="Ordenar por unidad">Unidad</th>
+                    <th class="sortable-header" data-column="7" title="Ordenar por Stock Mínimo">Stock Mínimo</th>
                     <th class="sortable-header" data-column="8" title="Ordenar por ubicación">Ubicación</th>
                     <th class="sortable-header" data-column="9" title="Ordenar por laboratorio">Laboratorio</th>
                     <th class="sortable-header" data-column="10" data-column-name="date" title="Ordenar por fecha de vencimiento">Vencimiento</th>
@@ -173,8 +173,8 @@
                     <td title="Nombre: {{ item.name }}">{{ item.name }}</td>
                     <td title="Marca de {{ item.name }}">{{ item.trademark }}</td>
                     <td title="Referencia de {{ item.name }}">{{ item.reference }}</td>
-                    <td title="Cantidad  de {{ item.name }}">{{ item.weight|floatformat:1 }}</td>
-                    <td title="Unidad">{{ item.name.unit }}</td>
+                    <td title="Cantidad  de {{ item.name }}">{{ item.weight|floatformat:1 }} {{ item.name.unit }}</td>
+                    <td title="Stock Mínimo">{{ item.minstock|floatformat:0 }} {{ item.name.unit }}</td>
                     <td title="Ubicación en almacén de {{ item.name }}">{{ item.wlocation }}</td>
                     <td title="Labratorio al que pertenece el reactivo {{ item.name }}">{{ item.lab }}</td>
                     <td 

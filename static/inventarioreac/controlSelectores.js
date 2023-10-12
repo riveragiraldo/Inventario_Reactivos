@@ -49,7 +49,7 @@ window.onload = function () {
             destination_new.value = destino;
             destination_new.setAttribute("selected", true);
 
-        }, 100);
+        }, 200);
 
         setTimeout(function () {
 
