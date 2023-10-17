@@ -1,0 +1,320 @@
+{% extends "webtemplate.html" %}
+{% load has_group %}
+<!doctype html>
+<html lang="es">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Listado de salidas{% endblock %}</title>
+    {% block head %}
+    <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe" crossorigin="anonymous"
+        defer>
+        </script> -->
+
+    <!-- Incluir SweetAlert2 desde CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.min.css">
+
+    {% load static %}
+    {% if request.user|has_group:"COORDINADOR" or request.user|has_group:"TECNICO" %}
+    {% for lab in laboratorios %}
+    {% if lab.id == laboratorio.id %}
+
+    <script>
+        labDefault = '{{ lab.id }}'
+    </script>
+    {% endif %}
+    {% endfor %}
+    {% endif %}
+
+    {% if request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
+
+    <script>
+        labDefault = "0"
+    </script>
+    {% endif %}
+    <script>
+        today = "{{ today|date:'Y-m-d' }}"
+        // oneMonthAgo="{{ one_month_ago|date:'Y-m-d' }}"
+    </script>
+    <link rel="stylesheet" href="{% static 'inventarioreac/inventoryStyles.css' %}">
+    <script src="{% static 'inventarioreac/paginationInventoryControl.js' %}"></script>
+    <!-- Llama Script que controla la paginación -->
+    <script src="{% static 'inventarioreac/selectControlOut.js' %}" defer></script>
+    <!-- Llama Script que controla los select según el inventario -->
+    <script src="{% static 'inventarioreac/holdSelectIn.js' %}" defer></script>
+    <!-- Llama Script que controla los select según el inventario -->
+    <script src="{% static 'inventarioreac/highlightPaginationControl.js' %}" defer></script>
+    <!-- Llama Script que resalta los controles de paginación -->
+    <script>var inventarioUrl = "{% url 'reactivos:inventario' %}";</script>
+    <script src="{% static 'inventarioreac/sortByControl.js' %}" ></script>
+    <!-- Llama Script que envía datos de ordenamiento de registros -->
+    <script src="{% static 'inventarioreac/openDetailOut.js' %}" defer></script>
+    <script src="{% static 'inventarioreac/openDetailUser.js' %}" defer></script>
+    <!-- Llama Script que resalta los controles de paginación -->
+    <script src="{% static 'inventarioreac/updateUrl.js' %}"></script>
+    <!-- Llama Script que actualiza URL -->
+    <script src="{% static 'inventarioreac/validateLapse.js' %}"></script>
+    <!-- Llama Script que actualiza URL -->
+    <script src="{% static 'inventarioreac/listActionsControl.js' %}" defer></script>
+    <!-- Llama Script que controla las acciones de la lista -->
+    
+    {% endblock %}
+</head>
+
+<body>
+    {% block content %}
+    <div class="row">
+        <div class="col-md-10 mx-auto">
+            <h1>Listado de registros de salidas</h1>
+            <br>
+
+            <form method="get" onsubmit="guardarValoresSelect()">
+
+                <div class="row justify-content-between">
+                    
+                    
+
+                    <div class="col-md-2 d-flex flex-column align-items-left">
+                        <label for="start_date">Fecha Inicial:</label>
+                        <input type="date" id="start_date" name="start_date" class="form-control" max="{{ today|date:'Y-m-d' }}">
+                        <span class="validation-message" id="start-date-validation" style="color: red;">La fecha incial debe ser igual o anterior a "{{ today|date:'Y-m-d' }}".</span>
+                    </div>
+
+                    <div class="col-md-2 d-flex flex-column align-items-left">
+                        <label for="end_date">Fecha Final:</label>
+                        <input type="date" id="end_date" name="end_date" class="form-control" value="{{ today|date:'Y-m-d' }}" max="{{ today|date:'Y-m-d' }}">
+                        <span class="validation-message" id="end-date-validation" style="color: red;">La fecha incial debe ser igual o anterior a "{{ today|date:'Y-m-d' }}"</span>
+                    </div>
+                    
+                    <div class="col-md-4 d-flex align-items-end">
+                        <button id="boton-buscar" type="submit" class="btn btn-primary">Buscar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br>
+    
+        <div class="col-md-11 mx-auto">
+            <!-- Control de paginación -->
+            <div class="d-flex justify-content-between">
+                <div>Ver&nbsp;
+                    <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                        <a href="{% url 'reactivos:GuardarPerPageOut' per_page=10 %}" class="btn btn-secondary btn-sm" id="per-page-10">10</a>
+                        <a href="{% url 'reactivos:GuardarPerPageOut' per_page=20 %}" class="btn btn-secondary btn-sm" id="per-page-20">20</a>
+                        <a href="{% url 'reactivos:GuardarPerPageOut' per_page=50 %}" class="btn btn-secondary btn-sm" id="per-page-50">50</a>
+                    </div>&nbsp;Registros por página
+                </div>
+            </div>
+        </div>
+    </form>
+    <br>
+    <div class="table-responsive">
+        <table class="table" id="tabla-inventario">
+            
+            <thead>
+                <tr>
+                    <th class="sortable-header" data-column="0" data-column-name="id" title="Ordenar por Consecutivo">Id salida</th>
+                    <th class="sortable-header" data-column="1" data-column-name="date" title="Ordenar por fecha">Fecha Creación</th>
+                    <th class="sortable-header" data-column="2" title="Ordenar por Tipo de solicitud">Tipo de solicitud</th>
+                    <th class="sortable-header" data-column="3" title="Ordenar Asunto">Asunto</th>
+                    <th class="sortable-header" data-column="4" title="Mensaje">Mensaje</th>
+                    <th class="sortable-header" title="Mensaje">Archivos Adjuntos</th>
+                    <th class="sortable-header" data-column="5" title="Ordenar por Usuario">Usuario</th>
+                    <th class="sortable-header" data-column="6" title="Correo">Correo</th>
+                    <th class="sortable-header" data-column="7" title="Teléfono">Teléfono</th>
+                    <th class="sortable-header" data-column="8" title="Tramitado">Tramitado</th>
+                    <th class="sortable-header" data-column="9" title="Ordenar por Fecha de Trámite" data-column-name="date">Fecha de Trámite</th>
+                    <th class="sortable-header" data-column="10" title="Observaciones del trámite">Observaciones Trámite</th>
+                    <th class="sortable-header" data-column="11" title="Ordenar Usuario que tramita">Usuario Trámite</th>
+                    
+                    <th class="sortable-header" title="Visualización de detalle (no ordena)">Ver detalle</th>
+                    <th class="sortable-header" title="Acciones con el registro (no ordena)">Acciones<p style="color: transparent;">***********</p></th>
+                </tr>
+            </thead>
+            
+            <tbody>
+                {% for item in object_list %}
+                <tr class="table-row">
+                    <td title="Número de registro de la entrada">{{ item.id }} </td>
+                    <td title="Fecha de salida">{{ item.date_create|date:"d/m/Y" }}</td>
+                    <td title="Tipo de solicitud">{{ item.tipo_solicitud }}</td>
+                    <td title="Asunto">{{ item.name }}</td>
+                    <td title="Mensaje">{{ item.mensaje }}</td>
+                    <td title="Archivos adjuntos">
+                    {% if item.archivos_adjuntos %}
+                        <a href="{{ item.archivos_adjuntos.url }}" target="_blank"><img src="{% static 'inventarioreac/Images/attachment.png' %}" alt="" width="18" height="18"></a>
+                    {% endif %}
+                        </td>
+                    <td title="Usuario que realiza la solicitud" class="created_by_cell" 
+                    date_user_create="{{ item.created_by.first_name }} {{ item.created_by.last_name }}"
+                    data-reactivo-name="{{ item.name }}"
+                    data-reactivo-date="{{ item.date_create|date:'d/m/Y' }}"
+                    date_user_id="{{ item.created_by.id_number }}"
+                    date_user_username="{{ item.created_by.username }}"
+                    date_user_mail="{{ item.created_by.email }}"
+                    date_user_phone="{{ item.created_by.phone_number }}"
+                    date_user_lab="{{ item.created_by.lab }}" date_user_rol="{{ item.created_by.rol }}"
+                    date_user_datejoined="{{ item.created_by.date_joined }}"
+                    date_user_lastlogin="{{ item.created_by.last_login }}" date_user_type="realiza"
+                    date_user_vist="la solicitud">{{ item.created_by.first_name }} {{ item.created_by.last_name }}</td>
+                    <td title="Correo de usuario que realiza la solicitud">{{ item.created_by.email }}</td>
+                    <td title="Correo de usuario que realiza la solicitud">{{ item.created_by.phone_number }}</td>
+                    <td title="Estado del trámite">
+                    {% if  item.tramitado %}
+                        Tramitado
+                    {% else %}
+                        Pendiente Trámite
+                    {% endif %}
+                        </td>
+                    <td title="Fecha de trámite">
+                    {% if item.fecha_tramite %}
+                        {{ item.fecha_tramite }}
+                    {% else %}
+                        -
+                    {% endif %}
+                        </td>
+                    <td title="Observaciones de la la solicitud">
+                    {% if item.observations %}
+                        {{ item.observations }}
+                        {% else %}
+                        -
+                    {% endif %}
+                        </td>
+                    <td title="Más información de usuario que tramita {{ item.usuario_tramita.first_name }} {{ item.usuario_tramita.last_name }}">
+                        
+                        {% if item.usuario_tramita %}
+                            {{ item.usuario_tramita.first_name }} {{ item.usuario_tramita.last_name }}
+                            {% else %}
+                            -
+                        {% endif %}
+                            
+                    </td>
+
+                    
+
+                    <!-- Modifica el evento click de la imagen para mostrar SweetAlert -->
+                    <td>
+                        <img src="{% static 'inventarioreac/Images/moreInfo.ico' %}" alt="" width="18" height="18"
+                            class="detalle-reactivo"
+                            data-reactivo-id="{{ item.id }}"
+                            data-reactivo-name="{{ item.name }}"
+                            data-reactivo-order="{{ item.order }}"
+                            data-reactivo-date="{{ item.date_create|date:'d/m/Y' }}"
+                            data-reactivo-trademark="{{ item.trademark }}"
+                            data-reactivo-reference="{{ item.reference }}"
+                            data-reactivo-quantity="{{ item.weight|floatformat:1 }}"
+                            data-reactivo-unit="{{ item.name.unit }}"
+                            data-reactivo-date_order="{{ item.date_order }}"
+                            data-reactivo-lab="{{ item.lab }}"
+                            data-reactivo-date_create="{{ item.date_create }}"
+                            data-reactivo-nproject="{{ item.nproject }}"
+                            data-reactivo-price="{{ item.price|floatformat:0 }}"
+                            data-reactivo-destination="{{ item.destination }}"
+                            data-reactivo-manager="{{ item.manager }}"
+                            data-reactivo-location="{{ item.location }}"
+                            data-reactivo-school="{{ item.location.facultad }}"
+                            data-reactivo-observations="{{ item.observations }}"
+                            data-reactivo-create_by="{{ item.created_by.first_name }} {{ item.created_by.last_name }}"
+                            data-reactivo-lastupdate="{{ item.last_update }}"
+                            data-reactivo-update_by="{{ item.last_updated_by.first_name }} {{ item.last_updated_by.last_name }}"
+                            data-reactivo-id_inventario="{{ item.inventario.id }}"
+                            title="Más información sobre el registro de salida de: {{ item.name }}">
+                    </td>
+
+                    <td><!-- si es administrador permite crud, de lo contrario solo permite agregar -->
+                        <!-- Agregar -->
+                        <a href="javascript:void(0);"
+                            onclick="openPopupAdd('{% url 'reactivos:registrar_salida' %}')">
+                            <img src="{% static 'inventarioreac/Images/add_register.png' %}" alt="" width="18"
+                                height="18" title="Agregar una nueva salida de reactivo">
+                        </a>
+                        {% if request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
+                        <!-- Editar -->
+                        <a href="javascript:void(0);" onclick="openEditFormOut({{ item.id }})">
+                            <img src="{% static 'inventarioreac/Images/edit_register.png' %}" alt="" width="18"
+                                height="18" title="Editar registro número {{ item.id }}">
+                        </a>
+                        <!-- Eliminar -->
+                        <a href="javascript:void(0);" onclick="confirmDeleteOut({{ item.id }}, '{{ item.name }}')">
+                            <img src="{% static 'inventarioreac/Images/delete_register.png' %}" alt="" width="18"
+                                height="18" title="Borrar registro número {{ item.id }}">
+                        </a>
+                        {% elif request.user|has_group:"COORDINADOR" or request.user|has_group:"TECNICO" %}
+                        <!-- Editar -->                        
+                            <img src="{% static 'inventarioreac/Images/edit_register.png' %}" alt="" width="18"
+                                height="18" title="Editar registro número {{ item.id }}, solo disponible para administradores">
+                        <!-- Eliminar -->                        
+                            <img src="{% static 'inventarioreac/Images/delete_register.png' %}" alt="" width="18"
+                                height="18" title="Borrar registro número {{ item.id }}, solo disponible para administradores">
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        
+        <br>
+        <div class="d-flex justify-content-between">
+            <!-- Controles de navegación de página -->
+            <div class="pagination">
+                <span class="step-links">
+                    {% if page_obj.has_previous %}
+                    <a href="" id="first-page-link">Primera</a>
+                    <a href="" id="previous-page-link">Anterior</a>
+                    {% endif %}
+                    <span class="current-page">Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages}}.</span>
+                    
+                    {% if page_obj.has_next %}
+                    <a href="" id="next-page-link">Siguiente</a>
+                    <a href="" id="last-page-link">Última</a>
+                    {% endif %}
+                </span>
+            </div>
+            <!-- Información de paginación -->
+            <div class="pagination-info">
+                Mostrando {{ page_obj.start_index }} - {{ page_obj.end_index }} de {{ paginator.count }} registros
+            </div>
+        </div>
+
+        <br>
+        <!-- Opciones de exportación -->
+        <a href="{% url 'reactivos:export_to_excel_output' %}" class="btn btn-primary">Exportar a Excel</a>
+    </div>
+    
+    <!-- Este script no puede ser llamado de manera independiente ya que tiene muchas variables provenientes del servidor -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const baseUrl = window.location.href;
+            const currentPage = '{{ page_obj.number }}';
+            const nextPage = parseInt(currentPage) + 1
+            const previousPage = parseInt(currentPage) - 1
+            const totalPages = '{{ page_obj.paginator.num_pages }}';
+
+
+            '{% if page_obj.has_previous %}'
+            const firstPageLink = document.getElementById('first-page-link');
+            const previousPageLink = document.getElementById('previous-page-link');
+            firstPageLink.href = baseUrl + '&page=1';
+            previousPageLink.href = baseUrl + '&page=' + previousPage;
+            '{% endif %}'
+
+            '{% if page_obj.has_next %}'
+            const nextPageLink = document.getElementById('next-page-link');
+            const lastPageLink = document.getElementById('last-page-link');
+            nextPageLink.href = baseUrl + '&page=' + nextPage;
+            lastPageLink.href = baseUrl + '&page=' + totalPages;
+
+            '{% endif %}'
+        });
+    </script>
+    
+    {% endblock %}
+</body>
+
+</html>

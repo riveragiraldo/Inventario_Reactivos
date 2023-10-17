@@ -84,7 +84,7 @@ from django.views.generic.base import TemplateView
 from django.views.generic.edit import FormView
 from django.utils.dateparse import parse_date
 from datetime import datetime, timedelta, date
-from .forms import ReCaptchaForm,CustomPasswordResetForm, FormularioUsuario
+from .forms import ReCaptchaForm,CustomPasswordResetForm, FormularioUsuario, SolicitudForm 
 from django.core.mail import send_mail
 from django.utils.translation import gettext as _
 from django.contrib.auth.tokens import default_token_generator
@@ -99,7 +99,8 @@ from django.http import Http404
 from openpyxl.styles import Alignment
 from django.conf import settings
 from django.utils.timezone import localtime
-
+from django.core.files.storage import FileSystemStorage
+from django import forms
 
 
 UserModel = get_user_model()
@@ -240,6 +241,117 @@ class CrearUnidades(LoginRequiredMixin, View):
         context = {'unidad_id': unidad.id, 'unidad_name': unidad.name}
         
         return HttpResponse('Operación exitosa', status=200)
+# La vista "crear_tipo de solicitude" se encarga de gestionar la creación de tipo de solictudes. Esta vista toma los datos del formulario 
+# existente en el template "crear_tipo_solicitudes.html" y realiza las operaciones necesarias en la base de datos utilizando 
+# el modelo "TipoSolicitud". El objetivo es garantizar la unicidad de los registros, lo que implica verificar si el tipo de solicitud
+# ya existe en la base de datos antes de crearla. Si el tipo de solictud es única, se crea un nuevo registro en la tabla 
+# correspondiente utilizando el modelo "TipoSolicitud". Si la esta ya existe, se muestra un mensaje de error o se toma la 
+# acción apropiada según los requisitos del sistema.
+
+class CrearTipoSolicitud(LoginRequiredMixin, View):
+    template_name = 'solicitudes/crear_tipo_solicitud.html'
+
+    @check_group_permission(groups_required=['ADMINISTRADOR'])
+    def get(self, request, *args, **kwargs):
+        laboratorio = self.request.user.lab
+        context = {
+            'usuarios': User.objects.all(),
+            'laboratorio': laboratorio,
+            
+        }
+        return render(request, self.template_name, context)
+
+    @check_group_permission(groups_required=['ADMINISTRADOR'])
+    def post(self, request, *args, **kwargs):
+        name = request.POST.get('name')
+        name = estandarizar_nombre(name)
+
+        if TipoSolicitud.objects.filter(name=name).exists():
+            tipo_solicitud = TipoSolicitud.objects.get(name=name)
+            tipo_solicitud_id = tipo_solicitud.id
+            messages.error(
+                request, 'Ya existe un tipo de solicitus con nombre ' + name + ' id: ' + str(tipo_solicitud))
+            return HttpResponse('Error al insertar en la base de datos', status=400)
+
+        tipo_solicitud = TipoSolicitud.objects.create(
+            name=name,
+            created_by=request.user,
+            last_updated_by=request.user,
+        )
+        tipo_solicitud_id = tipo_solicitud.id
+
+        messages.success(
+            request, 'Se ha creado exitosamente el tipo de solicitud con nombre ' + name + ' id: ' + str(tipo_solicitud_id))
+
+        context = {'tipo_solicitud_id': tipo_solicitud.id, 'tipo_solicitud_name': tipo_solicitud.name}
+        
+        return HttpResponse('Operación exitosa', status=200)
+# La vista "solicitudes" se encarga de gestionar el registro de solictudes. toma los datos del formuario de registro
+# de solicitudes, los registra en la base de datos y envía correo electrónico al administrador del sistema
+
+
+class RegistrarSolicitud(LoginRequiredMixin, CreateView):
+    model = Solicitudes
+    form_class = SolicitudForm
+    template_name = 'solicitudes/registrar_solicitud.html'
+    success_url = '/'
+
+    def post(self, request, *args, **kwargs):
+        form = self.form_class(request.POST, request.FILES)
+        if form.is_valid():
+            solicitud = form.save(commit=False)  # No guardar aún, solo crear una instancia
+            solicitud.created_by = request.user
+            solicitud.last_updated_by = request.user
+            solicitud.usuario = request.user
+            solicitud.save()  # guarda la instancia con los archivos
+            form.save()
+            mensaje = 'La solicitud se ha enviado correctamente'
+            messages.success(request, mensaje)  # Agregar mensaje de éxito
+        else:
+            mensaje = 'La solicitud no se ha podido enviar'
+            error = form.errors
+            mensaje = 'La solicitud no se ha podido enviar '+error
+            messages.error(request, mensaje)  # Agregar mensaje de error
+
+        return redirect('reactivos:registrar_solicitud')
+        
+    
+
+    # @check_group_permission(groups_required=['ADMINISTRADOR', 'COORDINADOR', 'TECNICO'])
+    # def get(self, request, *args, **kwargs):
+    #     laboratorio = self.request.user.lab
+    #     context = {
+    #         'usuarios': User.objects.all(),
+    #         'laboratorio': laboratorio,
+    #         'tipo_solicitudes': TipoSolicitud.objects.all(),
+    #         'form': SolicitudForm(),  # Agrega el formulario a tu contexto
+    #     }
+    #     return render(request, self.template_name, context)
+
+    # @check_group_permission(groups_required=['ADMINISTRADOR', 'COORDINADOR', 'TECNICO'])
+    # def post(self, request, *args, **kwargs):
+    #     form = SolicitudForm(request.POST)  # Usa el formulario para procesar los datos
+
+    #     if form.is_valid():
+    #         solicitud = form.save(commit=False)
+    #         solicitud.usuario = request.user
+    #         solicitud.created_by = request.user
+    #         solicitud.last_updated_by = request.user
+    #         solicitud.save()
+
+            
+    #         messages.success(request, 'Se ha registrado la solicitud de manera exitosa.')
+    #         return HttpResponse('Operación exitosa', status=200)
+    #     else:
+    #         messages.error(request, 'Por favor, corrija los errores en el formulario.')
+
+    #     context = {
+    #         'form': form,
+    #         'tipo_solicitudes': TipoSolicitud.objects.all(),
+    #     }
+
+    #     return render(request, self.template_name, context)
+
 
 
 # La vista "crear_estado" se encarga de gestionar la creación de estados en la db. Esta vista toma los datos del formulario 
@@ -3316,8 +3428,97 @@ def editar_usuario(request, pk):
     return render(request, 'usuarios/editar_usuario.html', context)
 
 
-
+# Muestra el listado de solicitudes
+class SolicitudesListView(LoginRequiredMixin,ListView):
+    model = Solicitudes
+    template_name = "solicitudes/listado_solicitudes.html"
+    paginate_by = 10
     
+    
+    @check_group_permission(groups_required=['ADMINISTRADOR'])
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        # Obtener el número de registros por página de la sesión del usuario
+        per_page = request.session.get('per_page')
+        if per_page:
+            self.paginate_by = int(per_page)
+        else:
+            self.paginate_by = 10  # Valor predeterminado si no hay variable de sesión
+
+        # Obtener los parámetros de filtrado
+        
+        # Obtener las fechas de inicio y fin de la solicitud GET
+        start_date = self.request.GET.get('start_date')
+        end_date = self.request.GET.get('end_date')  
+        
+        
+
+        # Guardar los valores de filtrado en la sesión
+        
+        request.session['filtered_start_date'] = start_date
+        request.session['filtered_end_date'] = end_date
+        
+
+        return super().get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # Obtener la fecha de hoy
+        today = date.today()
+        # Calcular la fecha hace un mes hacia atrás
+        one_month_ago = today - timedelta(days=30)
+
+        # Agregar la fecha al contexto
+        context['one_month_ago'] = one_month_ago
+
+        # Agregar la fecha de hoy al contexto
+        context['today'] = today
+        laboratorio = self.request.user.lab
+        
+    
+        context['usuarios'] = User.objects.all()
+        context['laboratorio'] = laboratorio
+        context['laboratorios'] = Laboratorios.objects.all()
+        
+        # Obtener la lista de inventarios
+        entradas = context['object_list']
+        # Recorrer los entradas y cambiar el formato de la fecha        
+               
+        context['object_list'] = entradas
+        return context
+    
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        # Obtener las fechas de inicio y fin de la solicitud GET
+        start_date = self.request.GET.get('start_date')
+        end_date = self.request.GET.get('end_date')
+        
+        # Validar y convertir las fechas
+        try:
+            if start_date:
+                start_date = make_aware(datetime.strptime(start_date, '%Y-%m-%d'))
+            if end_date:
+                end_date = make_aware(datetime.strptime(end_date, '%Y-%m-%d').replace(hour=23, minute=59, second=59))
+        except ValueError:
+            # Manejar errores de formato de fecha aquí si es necesario
+            pass
+
+        
+        # Realiza la filtración de acuerdo a las fechas
+        if start_date:
+            queryset = queryset.filter(date_create__gte=start_date)
+        if end_date:
+            queryset = queryset.filter(date_create__lte=end_date)
+        elif start_date and end_date:
+            queryset = queryset.filter(date_create__gte=start_date,date_create__lte=end_date)
+        else:
+            queryset = queryset.filter(is_active=True)
+            
+        queryset = queryset.order_by('id')
+        return queryset
 
 
 
@@ -5477,8 +5678,8 @@ def get_value(request):
 @login_required
 def autocomplete(request):
     term = request.GET.get('term', '')
-    reactivos = Reactivos.objects.filter(Q(name__icontains=term) | Q(
-        code__icontains=term) | Q(cas__icontains=term))[:10]
+    reactivos = Reactivos.objects.filter((Q(name__icontains=term) | Q(
+        code__icontains=term) | Q(cas__icontains=term)),is_active=True)[:10]
     results = []
     for reactivo in reactivos:
         result = {
@@ -5503,7 +5704,7 @@ class AutocompleteOutAPI(LoginRequiredMixin,View):
         inventarios = Inventarios.objects.filter(
             Q(name__name__icontains=term) | Q(name__code__icontains=term) | Q(name__cas__icontains=term),
             lab__name__icontains=lab,
-            weight__gt=0
+            weight__gt=0, is_active=True
         ).order_by('name').distinct('name')[:10]
 
         results = []

@@ -21,7 +21,7 @@ class Permisosadmin(admin.ModelAdmin):
 
 # Inclusión de creación de nuevos Roles en el admin de Dajango
 @admin.register(Rol)
-class UnidadesRolesmin(admin.ModelAdmin):
+class Rolesmin(admin.ModelAdmin):
     list_display=('id','name','date_created', 'user_create','last_update','last_updated_by',)
     ordering=('id',)
 
@@ -29,6 +29,18 @@ class UnidadesRolesmin(admin.ModelAdmin):
 @admin.register(Unidades)
 class Unidadesadmin(admin.ModelAdmin):
     list_display=('id','name','created_by', 'date_create','last_update','last_updated_by',)
+    ordering=('id',)
+
+# Inclusión de el modelo TIPOSOLICITUD en la consola de administración de Django
+@admin.register(TipoSolicitud)
+class TipoSolicitudadmin(admin.ModelAdmin):
+    list_display=('id','name','created_by', 'date_create','last_update','last_updated_by',)
+    ordering=('id',)
+
+# Inclusión de el modelo SOLICITUDES en la consola de administración de Django
+@admin.register(Solicitudes)
+class Solicitudadmin(admin.ModelAdmin):
+    list_display=('id','tipo_solicitud','name','tramitado','observaciones','archivos_adjuntos','created_by', 'date_create','last_update','last_updated_by',)
     ordering=('id',)
 
 # Inclusión de el modelo MARCAS en la consola de administración de Django  

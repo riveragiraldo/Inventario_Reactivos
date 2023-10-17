@@ -66,7 +66,7 @@ function validarCampos() {
     var campos = document.querySelectorAll("form input[required], form select[required], form textarea[required]");
     for (var i = 0; i < campos.length; i++) {
         var campo = campos[i];
-        
+
         if (!campo.value) {
             var etiquetaAsociada = obtenerEtiquetaAsociada(campo);
             // Mostrar la notificación con SweetAlert2
@@ -137,90 +137,11 @@ function openPopupWindowConfirm() {
 function enviarInformacion(formData, csrfToken) {
     //Oculta formulario y muestra spinner
     showSpinner();
-    fetch('', {
-        method: 'POST',
-        headers: {
-            'X-CSRFToken': csrfToken
-        },
-        body: formData
-    })
-        .then(response => {
-            if (response.status == 500) {
-                respuesta = "Error en el servidor, consulte soporte técnico"
-                return respuesta
-            }
-            
-            else {
+    
+    var form = document.querySelector('form');
+    form.submit();
 
 
-                if (response.ok) {
-                    // La solicitud se realizó con éxito
-                    console.log('Datos enviados correctamente');
-                    //window.location.reload();
-
-
-                }
-                else {
-                    // La solicitud falló
-                    console.error('Error al enviar los datos');
-                }
-                respuesta = response.text()
-                return respuesta
-            }
-
-        })
-
-
-        .then(data => {
-            // Se recibió una respuesta exitosa, procesar los datos y mostrar mensajes
-            console.log('Respuesta del servidor:', data);
-
-            setTimeout(() => {
-                hideSpinner()
-                var messageText = data;
-
-                var alertType = 'info';  // Tipo de alerta predeterminado para mensajes habituales
-
-                // Verificar el contenido del mensaje para asignar el tipo de alerta adecuado
-                if (messageText.includes('Por favor seleccione') || messageText.includes('no se encuentra en la base de datos') || messageText.includes('fecha válida') || messageText.includes('Solo se permiten')|| messageText.includes('pero la cantidad en inventario')|| messageText.includes('pero esta a hecho que')) {
-                    alertType = 'warning';
-                } else if (messageText.includes('de manera exitosa')) {
-                    alertType = 'success';
-                } else if (messageText.includes('el inventario sea menor que 0') ) {
-                    alertType = 'error';
-                }
-
-                // Mostrar la alerta SweetAlert
-                Swal.fire({
-                    icon: alertType,
-                    title: 'Respuesta del servidor',
-                    text: data+' Haga clic en Aceptar para continuar',
-                    confirmButtonText: 'Aceptar'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        // Verificar si la ventana actual es una ventana emergente
-                        if (window.opener) {
-                            // Actualizar la ventana padre
-                            window.opener.location.reload();
-
-                            // Cerrar la ventana actual después de un retraso
-                            setTimeout(() => {
-                                window.close();
-                            }, 200);
-                        }
-                    }
-                });
-
-            }, 700);
-            // Verificar si la ventana actual es una ventana emergente
-
-
-
-        })
-        .catch(error => {
-            // Ocurrió un error al realizar la solicitud
-            console.error('Error de red:', error);
-        });
 }
 
 
@@ -233,7 +154,7 @@ function obtenerDatosFormulario() {
         var campo = campos[i];
         var etiquetaAsociada = obtenerEtiquetaAsociada(campo);
         var valorCampo = obtenerValorCampo(campo);
-        
+
 
 
 
@@ -297,9 +218,6 @@ function obtenerValorCampo(campo) {
     if (campo.tagName.toLowerCase() === "select") {
         var opcionSeleccionada = campo.options[campo.selectedIndex];
         return opcionSeleccionada.textContent;
-    } else if (campo.type === "file") {
-        // Manejar campos de archivo
-        return campo.files[0];
     } else {
         // Manejar otros tipos de campos (por ejemplo, campos de entrada de texto)
         return campo.value;

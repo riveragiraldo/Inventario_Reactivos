@@ -3,8 +3,10 @@ from django import forms
 from django.contrib.auth.forms import AuthenticationForm
 from captcha.fields import ReCaptchaField
 from django.contrib.auth.forms import PasswordResetForm
-from reactivos.models import User, Rol, Laboratorios
+from reactivos.models import User, Rol, Laboratorios,Solicitudes
 import re
+
+
 
 
 
@@ -174,3 +176,17 @@ class FormularioUsuario(forms.ModelForm):
         if commit:
             user.save()
         return user
+    
+    ################Fomulwario de soliictudes####################3
+class SolicitudForm(forms.ModelForm):
+    class Meta:
+        model = Solicitudes
+        fields = ['tipo_solicitud', 'name', 'mensaje', 'archivos_adjuntos']
+
+    archivos_adjuntos = forms.FileField(
+        required=False,
+        widget=forms.ClearableFileInput
+    )
+
+   
+

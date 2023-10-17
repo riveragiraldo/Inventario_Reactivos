@@ -3,6 +3,8 @@
 from .views import *
 from . import views
 from django.urls import path, include
+from django.conf import settings
+from django.conf.urls.static import static
 
 app_name = 'reactivos'
 
@@ -11,6 +13,9 @@ urlpatterns = [
     path('reactivos/<int:pk>', detalle_reactivo, name='detalle_reactivo'),
     path('reactivos/crear/', crear_reactivo, name='crear_reactivo'),
     path('unidades/crear/', CrearUnidades.as_view(), name='crear_unidades'),
+    path('solicitudes/crear_tipo/', CrearTipoSolicitud.as_view(), name='crear_tipo_solicitud'),
+    path('solicitudes/registrar_solicitud/', RegistrarSolicitud.as_view(), name='registrar_solicitud'),
+    path('solicitudes/listado_solicitudes/', SolicitudesListView.as_view(), name='listado_solicitudes'),    
     path('estados/crear/', crear_estado, name='crear_estado'),
     path('facultades/crear/', crear_facultad, name='crear_facultad'),
     path('laboratorios/crear/', crear_laboratorio, name='crear_laboratorio'),

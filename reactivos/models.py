@@ -106,6 +106,45 @@ class Unidades(models.Model):
         verbose_name_plural = 'Unidades'
         verbose_name = 'Unidad'
 
+# Modelo para tabla TipoSolicitudes en base de datos Reactivos
+class TipoSolicitud(models.Model):
+    name = models.CharField(max_length=100, verbose_name="Nombre")
+    is_active = models.BooleanField(default=True)
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Usuario')
+    date_create = models.DateTimeField(auto_now_add=True,verbose_name='Fecha registro',)
+    last_update = models.DateTimeField(auto_now=True,verbose_name='Última Actualización')
+    last_updated_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Actualizado por', related_name='updateby_TipoS',)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name_plural = 'Tipo de solicitud'
+        verbose_name = 'Tipo de solicitud'
+
+# Modelo para tabla TipoSolicitudes en base de datos Reactivos
+class Solicitudes(models.Model):
+    tipo_solicitud=models.ForeignKey(TipoSolicitud, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Tipo de solicitud')
+    name=models.CharField(max_length=200, null=True, blank=True, verbose_name='Asunto')
+    mensaje=models.TextField(max_length=1000)
+    archivos_adjuntos = models.FileField(upload_to='archivos/', null=True, blank=True)
+    tramitado = models.BooleanField(default=False, null=True, blank=True)
+    observaciones = models.TextField(max_length=1000, null=True, blank=True)
+    fecha_tramite = models.DateTimeField(verbose_name='Fecha de trámite', null=True, blank=True)
+    usuario_tramita = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Usuario Tramita', related_name='UserTramite')
+    is_active = models.BooleanField(default=True, null=True, blank=True)
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Usuario')
+    date_create = models.DateTimeField(auto_now_add=True,verbose_name='Fecha registro', null=True, blank=True)
+    last_update = models.DateTimeField(auto_now=True,verbose_name='Última Actualización', null=True, blank=True)
+    last_updated_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Actualizado por', related_name='updateby_solicitudes',)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name_plural = 'Solicitudes'
+        verbose_name = 'Solicitud'
+
 # Modelo para tabla Marcas en base de datos Reactivos
 class Marcas(models.Model):
     name = models.CharField(max_length=30, verbose_name="Marca")
@@ -120,6 +159,8 @@ class Marcas(models.Model):
     class Meta:
         verbose_name_plural = 'Marcas'
         verbose_name = 'Marca'
+
+
 
     
 # Modelo para tabla Estados en base de datos Reactivos
