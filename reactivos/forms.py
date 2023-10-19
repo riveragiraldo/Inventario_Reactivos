@@ -129,7 +129,7 @@ class FormularioUsuario(forms.ModelForm):
             }))
 
     class Meta:
-        model = User  # Usar el signo igual (=) en lugar de dos puntos (:)
+        model = User  
         fields = ('first_name', 'last_name')
         widgets = {
             'first_name': forms.TextInput(
@@ -177,16 +177,53 @@ class FormularioUsuario(forms.ModelForm):
             user.save()
         return user
     
-    ################Fomulwario de soliictudes####################3
 class SolicitudForm(forms.ModelForm):
     class Meta:
         model = Solicitudes
-        fields = ['tipo_solicitud', 'name', 'mensaje', 'archivos_adjuntos']
-
-    archivos_adjuntos = forms.FileField(
-        required=False,
-        widget=forms.ClearableFileInput
-    )
-
-   
-
+        fields = ('tipo_solicitud', 'name', 'mensaje', 'archivos_adjuntos')
+        widgets = {
+            'tipo_solicitud': forms.Select(
+                attrs={
+                    'class': 'form-control',  
+                    'id': 'tipo_solicitud',
+                    'required': 'required',
+                    'title': 'Seleccione el tipo de solicitud',
+                }
+            ),
+            'name': forms.TextInput(
+                attrs={
+                    'placeholder': 'Escriba el nuevo tipo de solicitud',
+                    'class': 'form-control',
+                    'id': 'name',
+                    'title': 'Escriba el tipo de solicitud máximo 100 caracteres',
+                    'pattern': '.{1,100}',  # Agregar el patrón para 1 a 100 caracteres
+                }
+            ),
+            'mensaje': forms.Textarea(
+                attrs={
+                    'placeholder': 'Escriba el detalle de su solicitud',
+                    'class': 'form-control',
+                    'id': 'mensaje',
+                    'required': 'required',
+                    'title': 'Escriba el detalle de su solicitud máximo 1000 caracteres',
+                    'rows': '5',  # Máximo de 5 filas
+                    'maxlength': '1000',  # Máximo de 1000 caracteres
+                    'pattern': '.{1,1000}',  # Patrón para 1 a 1000 caracteres
+                }
+            ),
+            'archivos_adjuntos': forms.FileInput(
+                attrs={
+                    'class': 'form-control',
+                    'id': 'archivos_adjuntos',
+                    'title': 'Adjunte archivos de maximo 10 Mb',
+                    'rows': '5',  # Máximo de 5 filas
+                    'maxlength': '1000',  # Máximo de 1000 caracteres
+                    'pattern': '.{1,1000}',  # Patrón para 1 a 1000 caracteres
+                }
+            )
+        }
+    def clean(self):
+        cleaned_data = super().clean()
+        cleaned_data['mensaje'] = estandarizar_nombre(cleaned_data['mensaje'])
+        if cleaned_data['name']:
+            cleaned_data['name'] = estandarizar_nombre(cleaned_data['name'])

@@ -184,6 +184,49 @@ def enviar_correo_alerta(request, alerta, reactivo, marca, referencia,cantidad,u
     subject = f"Alerta en reactivo {reactivo} - {alerta} - {laboratorio}"
     send_mail(subject, plain_message, from_email, recipient_list, fail_silently=False, html_message=message)
 
+# Función que correo al realizar una solicitud
+def enviar_correo_solicitud(request, suffix, id, initial_message,shipping_email ):
+    # Crear de contexto para el mensaje de correo
+    # Obtener el dominio
+    protocol = 'https' if request.is_secure() else 'http'
+    domain = request.get_host()
+    suffix=suffix
+    url_ppal=f'{protocol}://{domain}'
+    url=f'{protocol}://{domain}/{suffix}'
+    # Obtener la fecha y hora actual en el formato "dd/mm/aaaa hh:mm:ss"
+    fecha_actual = localtime().strftime('%d/%m/%Y %H:%M:%S')
+    # Formatear el valor con separadores de miles
+    locale.setlocale(locale.LC_ALL, 'es_ES.UTF-8')
+    solicitud=get_object_or_404(Solicitudes, id=id)
+    laboratorio=solicitud.created_by.lab.name
+                
+    # Contexto del template del diseño del correo 
+    context = {
+        'url': url,
+        'url_ppal':url_ppal,
+        'solicitud':solicitud,
+        'initial_message':initial_message,
+    
+        
+    }
+    # Template
+    message = render_to_string('solicitudes/registro_exitoso_solicitud.html', context)
+    plain_message = strip_tags(message)
+    from_email = "noreply@unal.edu.co"  # Agrega el correo electrónico desde el cual se enviará el mensaje
+     
+    recipient_list = [shipping_email]
+    tipo_solicitud=get_object_or_404(TipoSolicitud, name='OTRA')
+
+    if solicitud.tipo_solicitud.id==tipo_solicitud.id:
+        asunto=solicitud.name
+    else:
+        
+        asunto=solicitud.tipo_solicitud.name
+    
+    url=f'{protocol}://{domain}'
+    subject = f"Registro de solicitud - {asunto} en {url_ppal} - {laboratorio}"
+    send_mail(subject, plain_message, from_email, recipient_list, fail_silently=False, html_message=message)
+
 # Vista para la creación del index, 
 
 class Index(LoginRequiredMixin, View):  # Utiliza LoginRequiredMixin como clase base
@@ -286,6 +329,7 @@ class CrearTipoSolicitud(LoginRequiredMixin, View):
         context = {'tipo_solicitud_id': tipo_solicitud.id, 'tipo_solicitud_name': tipo_solicitud.name}
         
         return HttpResponse('Operación exitosa', status=200)
+    
 # La vista "solicitudes" se encarga de gestionar el registro de solictudes. toma los datos del formuario de registro
 # de solicitudes, los registra en la base de datos y envía correo electrónico al administrador del sistema
 
@@ -296,62 +340,67 @@ class RegistrarSolicitud(LoginRequiredMixin, CreateView):
     template_name = 'solicitudes/registrar_solicitud.html'
     success_url = '/'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Agregar el usuario en sesión y el laboratorio al contexto
+        context['usuario'] = self.request.user
+        context['laboratorio'] = self.request.user.lab
+        return context
+
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST, request.FILES)
         if form.is_valid():
             solicitud = form.save(commit=False)  # No guardar aún, solo crear una instancia
             solicitud.created_by = request.user
             solicitud.last_updated_by = request.user
-            solicitud.usuario = request.user
             solicitud.save()  # guarda la instancia con los archivos
             form.save()
-            mensaje = 'La solicitud se ha enviado correctamente'
+            mensaje = f'La solicitud se ha registrado correctamente, se a enviado un correo al administrador del sistema el radicado de su solicitud es: {solicitud.id:04}'
             messages.success(request, mensaje)  # Agregar mensaje de éxito
+            # Enviar correo al usuario que registra la solicitud
+            id = solicitud.id
+            solicitud_code = base64.urlsafe_b64encode(str(id).encode()).decode()
+            suffix = f'solicitudes/estado_solicitud/{solicitud_code}'
+            shipping_email=solicitud.created_by.email
+            initial_message= f'El presente mensaje de correo electrónico es porque recientemente se ha registrado una solicitud en el aplicativo de inventario y gestión de reactivos, con la siguiente información:'
+            enviar_correo_solicitud(request, suffix, id, initial_message,shipping_email )
+             # Enviar correo al administrador del aplicativo
+            id = solicitud.id
+            protocol = 'https' if request.is_secure() else 'http'
+            domain = request.get_host()
+            url=f'{protocol}://{domain}/solicitudes/listado_solicitudes'
+            solicitud_code = base64.urlsafe_b64encode(str(id).encode()).decode()
+            suffix = f'solicitudes/tramitar_solicitud/{solicitud_code}\no visita: {url}'
+            shipping_email='mriveragi@unal.edu.co'#Se debe cambiar por el correo designado para administrar el sistema
+            initial_message= f'Recientemente se ha registrado una solicitud en el aplicativo de inventario y gestión de reactivos, con la siguiente información:'
+            enviar_correo_solicitud(request, suffix, id, initial_message,shipping_email )
         else:
-            mensaje = 'La solicitud no se ha podido enviar'
+            mensaje = f'La solicitud no se ha podido enviar, por favor consulte el administrador del sistema, error:.'
             error = form.errors
-            mensaje = 'La solicitud no se ha podido enviar '+error
+            mensaje = f'{mensaje} {error}'
             messages.error(request, mensaje)  # Agregar mensaje de error
 
         return redirect('reactivos:registrar_solicitud')
-        
     
+# Vista que maneja el detalle de la solicitud
+@login_required
+def estado_solicitud(request, solicitud_code):
+    try:
+        solicitud_id = int(base64.urlsafe_b64decode(solicitud_code).decode())
+        
+    except (ValueError, Solicitudes.DoesNotExist):
+        raise Http404("La solicitud no existe")
 
-    # @check_group_permission(groups_required=['ADMINISTRADOR', 'COORDINADOR', 'TECNICO'])
-    # def get(self, request, *args, **kwargs):
-    #     laboratorio = self.request.user.lab
-    #     context = {
-    #         'usuarios': User.objects.all(),
-    #         'laboratorio': laboratorio,
-    #         'tipo_solicitudes': TipoSolicitud.objects.all(),
-    #         'form': SolicitudForm(),  # Agrega el formulario a tu contexto
-    #     }
-    #     return render(request, self.template_name, context)
+    solicitud = get_object_or_404(Solicitudes, pk=solicitud_id)
+    laboratorio = request.user.lab
+    usuario = request.user
+    context = {
+        'usuario': usuario,
+        'laboratorio': laboratorio,
 
-    # @check_group_permission(groups_required=['ADMINISTRADOR', 'COORDINADOR', 'TECNICO'])
-    # def post(self, request, *args, **kwargs):
-    #     form = SolicitudForm(request.POST)  # Usa el formulario para procesar los datos
-
-    #     if form.is_valid():
-    #         solicitud = form.save(commit=False)
-    #         solicitud.usuario = request.user
-    #         solicitud.created_by = request.user
-    #         solicitud.last_updated_by = request.user
-    #         solicitud.save()
-
-            
-    #         messages.success(request, 'Se ha registrado la solicitud de manera exitosa.')
-    #         return HttpResponse('Operación exitosa', status=200)
-    #     else:
-    #         messages.error(request, 'Por favor, corrija los errores en el formulario.')
-
-    #     context = {
-    #         'form': form,
-    #         'tipo_solicitudes': TipoSolicitud.objects.all(),
-    #     }
-
-    #     return render(request, self.template_name, context)
-
+        'solicitud': solicitud
+    }
+    return render(request, 'solicitudes/estado_solicitud.html', context)
 
 
 # La vista "crear_estado" se encarga de gestionar la creación de estados en la db. Esta vista toma los datos del formulario 
@@ -960,7 +1009,6 @@ def crear_reactivo(request):
         
         # Obtiene el último registro existente
         ultimo_registro = Reactivos.objects.order_by('-id').first()
-        print(ultimo_registro.code)
         
         
         if ultimo_registro:

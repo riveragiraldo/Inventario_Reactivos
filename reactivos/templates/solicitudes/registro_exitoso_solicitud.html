@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Registro exitoso de solicitud</title>
+
+</head>
+
+<body>
+
+    
+
+    
+    <div class="card">
+        <div class="card-header">
+            <p>{{initial_message}}</p>
+        </div>
+        <div class="card-body">
+            <h5>Información principal:</h5>
+            <ul class="list-unstyled">
+                <li><strong>Consecutivo de la solicitud: </strong> {{solicitud.id|stringformat:"04d"}}</li>
+                <li><strong>Fecha de radicación de la solicitud: </strong> {{solicitud.date_create}}</li>
+                <li><strong>Tipo de solicitud: </strong> {{solicitud.tipo_solicitud}}</li>
+
+                {% if solicitud.name %}
+                <li><strong>Otro tipo solicitud: </strong> {{solicitud.name}}</li>
+                {% endif %}
+
+                <li><strong>Mensaje: </strong>
+                    <p>{{solicitud.mensaje}}</p>
+                </li>
+
+                {% if solicitud.archivos_adjuntos %}
+                <li><strong>Archivos Adjuntos: </strong> <a href="{{ url_ppal }}{{ solicitud.archivos_adjuntos.url }}">Clic para
+                        descargar</a>
+                </li>
+                {% endif %}
+
+            </ul>
+            <h5>Estado de la solicitud:</h5>
+            <ul class="list-unstyled">
+                <li><strong>Estado del trámite: </strong>
+                    {% if solicitud.tramitado %}
+                    Tramitado
+                    {% else %}
+                    Pendiente, pronto recibirás noticias sobre tu solicitud
+                    {% endif %}
+                </li>
+
+                {% if solicitud.tramitado %}
+                <li><strong>Observaciones del trámite: </strong>
+                    <p>{{solicitud.observaciones }}</p>
+                </li>
+                <li><strong>Usuario que tramita: </strong>{{solicitud.usuario_tramita.first_name}} {{solicitud.usuario_tramita.last_name}}</li>
+                <li><strong>Fecha de trámite: </strong> {{solicitud.fecha_tramite|date:"d/m/Y"}}</li>
+
+                {% endif %}
+            </ul>
+            <h5>Información del remitente:</h5>
+            <ul class="list-unstyled">
+                <li><strong>Usuario que realiza la solicitud: </strong>{{solicitud.created_by.first_name}} {{solicitud.created_by.last_name}}</li>
+                <li><strong>Laboratorio: </strong>{{solicitud.created_by.lab}}</li>
+                <li><strong>Teléfono: </strong>{{solicitud.created_by.phone_number}}</li>
+                <li><strong>Correo electrónico: </strong>{{solicitud.created_by.email}}</li>
+            </ul>
+        </div>
+        <p>Para más información visita la url:</p>
+
+        <p>{{ url }}
+
+
+        <p>Cordialmente,
+            <br>Equipo de dirección de Laboratorios
+            <br>Universidad Nacional de Colombia - Sede Manizales
+            <br>{{ url_ppal }}
+        </p>
+        <p>
+            Agradecemos no responder este correo electrónico
+            <br>🌿 Por favor sea consciente con el medio ambiente y no imprima este mensaje 🌳
+
+        </p>
+
+</body>
+
+</html>
