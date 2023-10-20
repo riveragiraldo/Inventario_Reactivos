@@ -207,6 +207,10 @@ function enviarInformacion(formData, csrfToken) {
                             setTimeout(() => {
                                 window.close();
                             }, 200);
+                        }else{
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 100);
                         }
                     }
                 });

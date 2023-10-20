@@ -101,6 +101,8 @@ from django.conf import settings
 from django.utils.timezone import localtime
 from django.core.files.storage import FileSystemStorage
 from django import forms
+from django.utils import timezone
+
 
 
 UserModel = get_user_model()
@@ -185,7 +187,7 @@ def enviar_correo_alerta(request, alerta, reactivo, marca, referencia,cantidad,u
     send_mail(subject, plain_message, from_email, recipient_list, fail_silently=False, html_message=message)
 
 # Función que correo al realizar una solicitud
-def enviar_correo_solicitud(request, suffix, id, initial_message,shipping_email ):
+def enviar_correo_solicitud(request, suffix, id, initial_message,shipping_email, email_type ):
     # Crear de contexto para el mensaje de correo
     # Obtener el dominio
     protocol = 'https' if request.is_secure() else 'http'
@@ -224,7 +226,7 @@ def enviar_correo_solicitud(request, suffix, id, initial_message,shipping_email 
         asunto=solicitud.tipo_solicitud.name
     
     url=f'{protocol}://{domain}'
-    subject = f"Registro de solicitud - {asunto} en {url_ppal} - {laboratorio}"
+    subject = f"{email_type} - {asunto} en {url_ppal} - {laboratorio}"
     send_mail(subject, plain_message, from_email, recipient_list, fail_silently=False, html_message=message)
 
 # Vista para la creación del index, 
@@ -362,18 +364,21 @@ class RegistrarSolicitud(LoginRequiredMixin, CreateView):
             solicitud_code = base64.urlsafe_b64encode(str(id).encode()).decode()
             suffix = f'solicitudes/estado_solicitud/{solicitud_code}'
             shipping_email=solicitud.created_by.email
+            email_type=f'Registro de solicitud'
             initial_message= f'El presente mensaje de correo electrónico es porque recientemente se ha registrado una solicitud en el aplicativo de inventario y gestión de reactivos, con la siguiente información:'
-            enviar_correo_solicitud(request, suffix, id, initial_message,shipping_email )
+            enviar_correo_solicitud(request, suffix, id, initial_message,shipping_email, email_type )
+
              # Enviar correo al administrador del aplicativo
             id = solicitud.id
             protocol = 'https' if request.is_secure() else 'http'
             domain = request.get_host()
             url=f'{protocol}://{domain}/solicitudes/listado_solicitudes'
             solicitud_code = base64.urlsafe_b64encode(str(id).encode()).decode()
-            suffix = f'solicitudes/tramitar_solicitud/{solicitud_code}\no visita: {url}'
+            suffix = f'solicitudes/responder_solicitud/{solicitud_code}\no visita: {url}'
             shipping_email='mriveragi@unal.edu.co'#Se debe cambiar por el correo designado para administrar el sistema
+            email_type=f'Registro de solicitud'
             initial_message= f'Recientemente se ha registrado una solicitud en el aplicativo de inventario y gestión de reactivos, con la siguiente información:'
-            enviar_correo_solicitud(request, suffix, id, initial_message,shipping_email )
+            enviar_correo_solicitud(request, suffix, id, initial_message,shipping_email,email_type )
         else:
             mensaje = f'La solicitud no se ha podido enviar, por favor consulte el administrador del sistema, error:.'
             error = form.errors
@@ -401,6 +406,49 @@ def estado_solicitud(request, solicitud_code):
         'solicitud': solicitud
     }
     return render(request, 'solicitudes/estado_solicitud.html', context)
+
+
+# Vista que maneja la la respuesta de la solicitud
+@login_required
+def responder_solicitud(request, solicitud_code):
+    try:
+        solicitud_id = int(base64.urlsafe_b64decode(solicitud_code).decode())
+        
+    except (ValueError, Solicitudes.DoesNotExist):
+        raise Http404("La solicitud no existe")
+    solicitud = get_object_or_404(Solicitudes, pk=solicitud_id)
+
+    if request.method == 'POST':
+        observations = request.POST.get('observations')
+        observations = estandarizar_nombre(observations)
+        solicitud.observaciones=observations
+        solicitud.tramitado=True
+        solicitud.last_updated_by=request.user
+        solicitud.usuario_tramita=request.user
+        solicitud.fecha_tramite=timezone.now()
+        solicitud.save()
+
+        # Enviar correo al usuario que registra la solicitud
+        id = solicitud.id
+        solicitud_code = base64.urlsafe_b64encode(str(id).encode()).decode()
+        suffix = f'solicitudes/estado_solicitud/{solicitud_code}'
+        shipping_email=solicitud.created_by.email
+        initial_message= f'Cordial saludo se ha dado respuesta a una solicitud realizada por usted en el aplicativo de inventario y gestión de reactivos, con la siguiente información:'
+        email_type=f'Respuesta a solicitud'
+        enviar_correo_solicitud(request, suffix, id, initial_message,shipping_email, email_type )
+        
+        return HttpResponse(f'Se ha dado respuesta a la solicitud de manera correcta y se ha enviado la notificación al usuario.',200)
+    
+    laboratorio = request.user.lab
+    usuario = request.user
+    context = {
+        'usuario': usuario,
+        'laboratorio': laboratorio,
+        'solicitud': solicitud,
+        'tipo_solictudes':TipoSolicitud.objects.all(),
+    }
+    return render(request, 'solicitudes/responder_solicitud.html', context)
+
 
 
 # La vista "crear_estado" se encarga de gestionar la creación de estados en la db. Esta vista toma los datos del formulario 
