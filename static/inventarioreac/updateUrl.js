@@ -1,7 +1,7 @@
 // Obtener la URL actual
 const currentUrl = window.location.href;
 
-// Verificar si la URL no tiene parámetros de búsqueda
+// Verificar si la URL no tiene parámetros de búsqueda para inventario
 if (currentUrl.endsWith('/reactivos/inventario/')) {
     // Modificar la URL agregando los parámetros de búsqueda deseados
     const newUrl = currentUrl + '?lab='+labDefault+'&name=&trademark=';
@@ -10,7 +10,7 @@ if (currentUrl.endsWith('/reactivos/inventario/')) {
     window.location.href = newUrl;
 }
 
-// Verificar si la URL no tiene parámetros de búsqueda
+// Verificar si la URL no tiene parámetros de búsqueda para entradas
 if (currentUrl.endsWith('/reactivos/listado_entradas/')) {
     // Modificar la URL agregando los parámetros de búsqueda deseados
     const newUrl = currentUrl + '?lab='+labDefault+'&name=&location=&destination=&location=&created_by=&start_date=&end_date=';
@@ -19,7 +19,7 @@ if (currentUrl.endsWith('/reactivos/listado_entradas/')) {
     window.location.href = newUrl;
 }
 
-// Verificar si la URL no tiene parámetros de búsqueda
+// Verificar si la URL no tiene parámetros de búsqueda para salidas
 if (currentUrl.endsWith('/reactivos/listado_salidas/')) {
     // Modificar la URL agregando los parámetros de búsqueda deseados
     const newUrl = currentUrl + '?lab='+labDefault+'&name=&location=&destination=&location=&created_by=&start_date=&end_date=';
@@ -28,7 +28,7 @@ if (currentUrl.endsWith('/reactivos/listado_salidas/')) {
     window.location.href = newUrl;
 }
 
-// Verificar si la URL no tiene parámetros de búsqueda
+// Verificar si la URL no tiene parámetros de búsqueda para reactivos
 if (currentUrl.endsWith('/reactivos/listado_reactivos/')) {
     // Modificar la URL agregando los parámetros de búsqueda deseados
     const newUrl = currentUrl + '?name=';
@@ -37,10 +37,19 @@ if (currentUrl.endsWith('/reactivos/listado_reactivos/')) {
     window.location.href = newUrl;
 }
 
-// Verificar si la URL no tiene parámetros de búsqueda
+// Verificar si la URL no tiene parámetros de búsqueda para usuarios
 if (currentUrl.endsWith('/usuarios/listar/')) {
     // Modificar la URL agregando los parámetros de búsqueda deseados
     const newUrl = currentUrl + '?lab='+labDefault+'&rol=&name=&id_user=&is_active=';
+
+    // Redirigir a la nueva URL
+    window.location.href = newUrl;
+}
+
+// Verificar si la URL no tiene parámetros de búsqueda para solicitudes
+if (currentUrl.endsWith('/solicitudes/listado_solicitudes/')) {
+    // Modificar la URL agregando los parámetros de búsqueda deseados
+    const newUrl = currentUrl + '?start_date=&end_date=';
 
     // Redirigir a la nueva URL
     window.location.href = newUrl;

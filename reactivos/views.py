@@ -16,6 +16,7 @@ from django.views import View
 import json
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 import openpyxl
+from openpyxl.worksheet.hyperlink import Hyperlink
 from openpyxl.styles import Alignment, Font, Border, Side, PatternFill
 from openpyxl.styles.colors import WHITE
 from openpyxl.utils import get_column_letter
@@ -3635,8 +3636,8 @@ def detalle_reactivo(request, pk):
     return render(request, 'reactivos/detalle_reactivo.html', context)
 
 
-# Guarda los datos de filtrados y datos de paginación en el template inventarios.html en los datos de session de usuario
-
+# Guarda los valores de búsqueda del listado para cuando se efectue un cambio en la paginación se conserven 
+# estos valores y se sostenga los criterios de búsqueda
 class GuardarPerPageView(LoginRequiredMixin,View):
     def get(self, request, *args, **kwargs):
         per_page = kwargs.get('per_page')
@@ -3661,7 +3662,8 @@ class GuardarPerPageView(LoginRequiredMixin,View):
             url += '?' + urlencode(params)
 
         return redirect(url)
-    
+# Guarda los valores de búsqueda del listado para cuando se efectue un cambio en la paginación se conserven 
+# estos valores y se sostenga los criterios de búsqueda    
 class GuardarPerPageViewIn(LoginRequiredMixin,View):
     def get(self, request, *args, **kwargs):
         per_page = kwargs.get('per_page')
@@ -3699,7 +3701,8 @@ class GuardarPerPageViewIn(LoginRequiredMixin,View):
             url += '?' + urlencode(params)
 
         return redirect(url)
-    
+# Guarda los valores de búsqueda del listado para cuando se efectue un cambio en la paginación se conserven 
+# estos valores y se sostenga los criterios de búsqueda    
 class GuardarPerPageViewOut(LoginRequiredMixin,View):
     def get(self, request, *args, **kwargs):
         per_page = kwargs.get('per_page')
@@ -3738,6 +3741,36 @@ class GuardarPerPageViewOut(LoginRequiredMixin,View):
 
         return redirect(url)
 
+
+# Guarda los valores de búsqueda del listado para cuando se efectue un cambio en la paginación se conserven 
+# estos valores y se sostenga los criterios de búsqueda
+
+class GuardarPerPageViewSolicitud(LoginRequiredMixin,View):
+    def get(self, request, *args, **kwargs):
+        per_page = kwargs.get('per_page')
+        request.session['per_page'] = per_page
+
+        # Redirigir a la página de inventario con los parámetros de filtrado actuales
+        filtered_start_date = request.session.get('filtered_start_date')
+        filtered_end_date = request.session.get('filtered_end_date')
+        
+        url = reverse('reactivos:listado_solicitudes')
+        params = {}
+        
+        if filtered_start_date:
+            params['start_date'] = filtered_start_date
+        if filtered_end_date:
+            params['end_date'] = filtered_end_date
+        
+        
+        if params:
+            url += '?' + urlencode(params)
+
+        return redirect(url)
+    
+# Guarda los valores de búsqueda del listado para cuando se efectue un cambio en la paginación se conserven 
+# estos valores y se sostenga los criterios de búsqueda
+
 class GuardarPerPageViewReactivo(LoginRequiredMixin,View):
     def get(self, request, *args, **kwargs):
         per_page = kwargs.get('per_page')
@@ -3755,7 +3788,8 @@ class GuardarPerPageViewReactivo(LoginRequiredMixin,View):
             url += '?' + urlencode(params)
 
         return redirect(url)
-    
+# Guarda los valores de búsqueda del listado para cuando se efectue un cambio en la paginación se conserven 
+# estos valores y se sostenga los criterios de búsqueda    
 class GuardarPerPageViewUser(LoginRequiredMixin,View):
     def get(self, request, *args, **kwargs):
         per_page = kwargs.get('per_page')
@@ -4858,6 +4892,245 @@ def export_to_excel_output(request):
     workbook.save(response)
 
     return response
+
+# Utilizando los valores filtrados en el template listado_solicitudes.html, y guardados en los datos de sesión, se crea el archivo de Excel 
+# correspondiente e se introducen los valores desde la tabla del modelo Solicitudes. Además, se aplican formatos a los encabezados, se 
+# coloca un título, la fecha de creación y el logo. También se ajustan los anchos de columna y las alturas de fila, y se añaden filtros 
+# a los encabezados en caso de que el usuario lo solicite
+
+@login_required
+def export_to_excel_solicitud(request):
+    # Obtener los valores filtrados almacenados en la sesión del usuario    
+    start_date = request.session.get('filtered_start_date')
+    end_date = request.session.get('filtered_end_date')
+    
+    
+    # Validar y convertir las fechas
+    try:
+        if start_date:
+            start_date = make_aware(datetime.strptime(start_date, '%Y-%m-%d'))
+        if end_date:
+            end_date = make_aware(datetime.strptime(end_date, '%Y-%m-%d').replace(hour=23, minute=59, second=59))
+    except ValueError:
+            # Manejar errores de formato de fecha aquí si es necesario
+        pass
+
+    queryset = Solicitudes.objects.all()
+    #Filtra según los valores previos de filtro en los selectores
+        
+    # Realiza la filtración de acuerdo a las fechas
+    if start_date:
+        queryset = queryset.filter(date_create__gte=start_date)
+    if end_date:
+        queryset = queryset.filter(date_create__lte=end_date)
+    elif start_date and end_date:
+        queryset = queryset.filter(date_create__gte=start_date,date_create__lte=end_date)
+    
+    queryset = queryset.order_by('id')
+        
+    workbook = openpyxl.Workbook()
+    sheet = workbook.active
+
+    # Ruta al archivo de imagen del logotipo
+
+    logo_path = finders.find('inventarioreac/Images/escudoUnal_black.png')
+
+    # Cargar la imagen y procesarla con pillow
+    pil_image = PILImage.open(logo_path)
+
+    # Crear un objeto Image de openpyxl a partir de la imagen procesada
+    image = ExcelImage(pil_image)
+
+    # Anclar la imagen a la celda A1
+    sheet.add_image(image, 'A1')
+
+    # Obtener la fecha actual
+    fecha_creacion = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+
+    # Unificar las celdas A1, B1, C1 y D1
+    sheet.merge_cells('C1:F1')
+
+    sheet['C1'] = 'Listado de solicitudes'
+    sheet['C2'] = 'Fecha de Creación: '+fecha_creacion
+    sheet['A4'] = 'Consecutivo'
+    sheet['B4'] = 'Fecha y hora de registro'
+    sheet['C4'] = 'Tipo de solicitud'
+    sheet['D4'] = 'Asunto'
+    sheet['E4'] = 'Mensaje'
+    sheet['F4'] = 'Archivos Adjuntos'
+    sheet['G4'] = 'Usuario que registra'
+    sheet['H4'] = 'Laboratorio al que pertenece'
+    sheet['I4'] = 'Correo Usuario'
+    sheet['J4'] = 'Teléfono Usuario'
+    sheet['K4'] = 'Estado de la solicitud'
+    sheet['L4'] = 'Fecha de respuesta'
+    sheet['M4'] = 'Respuesta'
+    sheet['N4'] = 'Usuario que responde'
+
+    # Establecer la altura de la fila 1 y 2 a 30 y fila 3 a 25
+    sheet.row_dimensions[1].height = 30
+    sheet.row_dimensions[2].height = 30
+    sheet.row_dimensions[3].height = 25
+
+    # Establecer estilo de celda para A1
+
+    cell_A1 = sheet['C1']
+    cell_A1.font = Font(bold=True, size=16)
+
+    # Configurar los estilos de borde
+    
+    thin_border = Border(left=Side(style='thin'), right=Side(
+    style='thin'), top=Side(style='thin'), bottom=Side(style='thin'))
+
+    # Establecer el estilo de las celdas A2:D3
+    bold_font = Font(bold=True)
+
+    # Establecer el ancho de la columna A a 13
+    sheet.column_dimensions['A'].width = 13
+
+    # Establecer el ancho de la columna B a 23
+    sheet.column_dimensions['B'].width = 23
+
+    # Establecer el ancho de la columna C a 30
+    sheet.column_dimensions['C'].width = 30
+
+    # Establecer el ancho de la columna D a 30
+    sheet.column_dimensions['D'].width = 30
+
+    # Establecer el ancho de la columna E a 30
+    sheet.column_dimensions['E'].width = 30
+
+    # Establecer el ancho de la columna F a 11
+    sheet.column_dimensions['F'].width = 11
+
+    # Establecer el ancho de la columna G a 22
+    sheet.column_dimensions['G'].width = 22
+
+    # Establecer el ancho de la columna H a 36
+    sheet.column_dimensions['H'].width = 36
+
+    # Establecer el ancho de la columna I a 24
+    sheet.column_dimensions['I'].width = 24
+
+    # Establecer el ancho de la columna J a 17
+    sheet.column_dimensions['J'].width = 17
+
+    # Establecer el ancho de la columna K a 21
+    sheet.column_dimensions['K'].width = 21
+
+    # Establecer el ancho de la columna L a 19
+    sheet.column_dimensions['L'].width = 19
+
+    # Establecer el ancho de la columna M a 30
+    sheet.column_dimensions['M'].width = 30
+
+    # Establecer el ancho de la columna N a 22
+    sheet.column_dimensions['N'].width = 22
+
+
+    # Define una alineación que tenga la vertical en la parte superior y la horizontal a la izquierda
+    # Crear un objeto de alineación
+    alignment = Alignment(wrap_text=True, vertical="top", horizontal="left")
+
+    
+    
+    row = 4
+    # Aplicar el estilo de borde a las celdas de la fila actual
+    for col in range(1, 15):
+        sheet.cell(row=row, column=col).border = thin_border
+        sheet.cell(row=row, column=col).font = bold_font
+
+    row = 5
+    for item in queryset:
+
+        if item.tramitado:
+            usuario_tramita=f'{item.usuario_tramita.first_name} {item.usuario_tramita.last_name}'
+            fecha_tramite=str((item.fecha_tramite).strftime('%d/%m/%Y %H:%M:%S'))
+            observaciones=item.observaciones
+            estado_tramite='Tramitado'
+        else:
+            usuario_tramita=''
+            fecha_tramite=''
+            observaciones=''
+            estado_tramite='Pendiente trámite'
+
+        if item.archivos_adjuntos:
+            protocol = 'https' if request.is_secure() else 'http'
+            domain = request.get_host()
+            url = f'{protocol}://{domain}{item.archivos_adjuntos.url}'
+
+            # Establecer un estilo para la celda
+            estilo_celda = sheet.cell(row=row, column=6)
+            estilo_celda.value = "Descargar"
+
+            # Crear un objeto Hyperlink con la URL
+            hyperlink = Hyperlink(target=url, ref=f'A{row}')
+
+            # Aplicar el hipervínculo a la celda
+            estilo_celda.hyperlink = hyperlink
+        else:
+            sheet.cell(row=row, column=6).value = ""
+
+        sheet.cell(row=row, column=1).value = '{:04d}'.format(item.id)
+        sheet.cell(row=row, column=2).value = str((item.date_create).strftime('%d/%m/%Y %H:%M:%S'))
+        sheet.cell(row=row, column=3).value = str(item.tipo_solicitud)
+        sheet.cell(row=row, column=4).value = item.name
+        sheet.cell(row=row, column=5).value = item.mensaje
+        # sheet.cell(row=row, column=6).value = Descargar
+        sheet.cell(row=row, column=7).value = f'{item.created_by.first_name} {item.created_by.last_name}'
+        sheet.cell(row=row, column=8).value = item.created_by.lab.name
+        sheet.cell(row=row, column=9).value = str(item.created_by.email)
+        sheet.cell(row=row, column=10).value =item.created_by.phone_number
+        sheet.cell(row=row, column=11).value = estado_tramite
+        sheet.cell(row=row, column=12).value = fecha_tramite
+        sheet.cell(row=row, column=13).value = observaciones
+        sheet.cell(row=row, column=14).value = usuario_tramita
+
+               
+        # Aplicar el estilo de borde a las celdas de la fila actual
+        for col in range(1, 15):
+            sheet.cell(row=row, column=col).border = thin_border
+            sheet.cell(row=row, column=col).alignment = alignment
+
+        row += 1
+
+    # Obtén el rango de las columnas de la tabla
+    start_column = 1
+    end_column = 14
+    start_row = 4
+    end_row = row - 1
+
+    # Convertir los números de las columnas en letras de columna
+    start_column_letter = get_column_letter(start_column)
+    end_column_letter = get_column_letter(end_column)
+
+    # Rango de la tabla con el formato "A4:I{n}", donde n es el número de filas en la tabla
+    table_range = f"{start_column_letter}{start_row}:{end_column_letter}{end_row}"
+
+    # Agregar filtros solo a las columnas de la tabla
+    sheet.auto_filter.ref = table_range
+
+    # Establecer fondo blanco desde la celda A1 hasta el final de la tabla
+
+    fill = PatternFill(fill_type="solid", fgColor=WHITE)
+    start_cell = sheet['A1']
+    end_column_letter = get_column_letter(end_column+1)
+    end_row = row+1
+    end_cell = sheet[end_column_letter + str(end_row)]
+    table_range = start_cell.coordinate + ':' + end_cell.coordinate
+
+    for row in sheet[table_range]:
+        for cell in row:
+            cell.fill = fill
+
+    response = HttpResponse(
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename=Listado_Solicitudes.xlsx'
+
+    workbook.save(response)
+
+    return response
+
 
 # Utilizando los valores filtrados en el template listado_usuarios.html, y guardados en los datos de sesión, se crea el archivo de Excel 
 # correspondiente e se introducen los valores desde la tabla del modelo User. Además, se aplican formatos a los encabezados, se 

@@ -106,3 +106,11 @@ tr.table-row:hover {
 .custom-swal-class {
     width: 550px; /* Cambia el ancho según tus necesidades */
 }
+
+
+/* Agrega un estilo para resaltar las celdas no tramitadas */
+.pendiente-tramite-cell {
+    background-color: #FFCCCC; /* Cambia el color de fondo */
+    color: #FF0000; /* Cambia el color del texto */
+    font-weight: bold; /* Hace que el texto sea más audaz */
+}
