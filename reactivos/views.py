@@ -85,7 +85,7 @@ from django.views.generic.base import TemplateView
 from django.views.generic.edit import FormView
 from django.utils.dateparse import parse_date
 from datetime import datetime, timedelta, date
-from .forms import ReCaptchaForm,CustomPasswordResetForm, FormularioUsuario, SolicitudForm 
+from .forms import ReCaptchaForm,CustomPasswordResetForm, FormularioUsuario, SolicitudForm,ConfiguracionSistemaForm 
 from django.core.mail import send_mail
 from django.utils.translation import gettext as _
 from django.contrib.auth.tokens import default_token_generator
@@ -230,6 +230,45 @@ def enviar_correo_solicitud(request, suffix, id, initial_message,shipping_email,
     subject = f"{email_type} - {asunto} en {url_ppal} - {laboratorio}"
     send_mail(subject, plain_message, from_email, recipient_list, fail_silently=False, html_message=message)
 
+# Vista que maneja la configuración del sistema
+
+def configuraciones(request):
+    
+    configuracion = ConfiguracionSistema.objects.first()
+    
+
+    if not configuracion:
+        # Si no existe ningún registro en la tabla, crearemos uno nuevo
+        if request.method == 'POST':
+            form = ConfiguracionSistemaForm(request.POST)
+            if form.is_valid():
+                form.save()
+                mensaje=f'Se han creado las configuraciones de manera correcta.'
+                return HttpResponse(mensaje, 200)
+        else:
+            form = ConfiguracionSistemaForm()
+    else:
+        # Si ya existe un registro, actualizaremos el primero con los nuevos valores
+        if request.method == 'POST':
+            form = ConfiguracionSistemaForm(request.POST, instance=configuracion)
+            if form.is_valid():
+                form.save()
+                mensaje=f'Se han actualizado las configuraciones de manera correcta.'
+                return HttpResponse(mensaje, 200)
+        else:
+            form = ConfiguracionSistemaForm(instance=configuracion)
+
+    laboratorio = request.user.lab.name
+    usuario = request.user
+    context = {
+        'usuario': usuario,
+        'laboratorio': laboratorio,
+        'form': form,
+        }
+
+    return render(request, 'admin/configuraciones.html', context)
+
+
 # Vista para la creación del index, 
 
 class Index(LoginRequiredMixin, View):  # Utiliza LoginRequiredMixin como clase base
@@ -352,6 +391,16 @@ class RegistrarSolicitud(LoginRequiredMixin, CreateView):
 
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST, request.FILES)
+
+        # Validar el tamaño del archivo adjunto
+        archivos_adjuntos = request.FILES.get('archivos_adjuntos')
+        if archivos_adjuntos and archivos_adjuntos.size > 5 * 1024 * 1024:  # 2 MB en bytes
+            nombre=archivos_adjuntos.name
+            peso=archivos_adjuntos.size / (1024 * 1024)
+            mensaje = f'No se ha podido registrar la solicitud porque el tamaño del archivo adjunto con nombre {nombre}, con tamaño de {peso:.2f} MB es superior al máximo permitido (5 MB).'
+            messages.error(request, mensaje)  # Agregar mensaje de error
+            return redirect('reactivos:registrar_solicitud')
+        
         if form.is_valid():
             solicitud = form.save(commit=False)  # No guardar aún, solo crear una instancia
             solicitud.created_by = request.user
@@ -370,13 +419,20 @@ class RegistrarSolicitud(LoginRequiredMixin, CreateView):
             enviar_correo_solicitud(request, suffix, id, initial_message,shipping_email, email_type )
 
              # Enviar correo al administrador del aplicativo
+            # Obtener el correo del administrador desde la base de datos
+            configuracion = ConfiguracionSistema.objects.first()
+            if configuracion:
+                admin_email = configuracion.correo_administrador
+            else:
+                admin_email = 'mriveragi@unal.edu.co'
+
             id = solicitud.id
             protocol = 'https' if request.is_secure() else 'http'
             domain = request.get_host()
             url=f'{protocol}://{domain}/solicitudes/listado_solicitudes'
             solicitud_code = base64.urlsafe_b64encode(str(id).encode()).decode()
             suffix = f'solicitudes/responder_solicitud/{solicitud_code}\no visita: {url}'
-            shipping_email='mriveragi@unal.edu.co'#Se debe cambiar por el correo designado para administrar el sistema
+            shipping_email=admin_email
             email_type=f'Registro de solicitud'
             initial_message= f'Recientemente se ha registrado una solicitud en el aplicativo de inventario y gestión de reactivos, con la siguiente información:'
             enviar_correo_solicitud(request, suffix, id, initial_message,shipping_email,email_type )
@@ -437,6 +493,34 @@ def responder_solicitud(request, solicitud_code):
         initial_message= f'Cordial saludo se ha dado respuesta a una solicitud realizada por usted en el aplicativo de inventario y gestión de reactivos, con la siguiente información:'
         email_type=f'Respuesta a solicitud'
         enviar_correo_solicitud(request, suffix, id, initial_message,shipping_email, email_type )
+
+        # Realiza la depuración automática de registros
+        # Registros antiguos: fecha_tramite es más antigua que los días configurados en configuración del sistema.
+
+        # Obtener la configuración del sistema, suponiendo que existe un único registro.
+        configuracion_sistema = ConfiguracionSistema.objects.first()
+
+        # Comprobar si se obtuvo la configuración.
+        if configuracion_sistema:
+            # Usar el campo tiempo_solicitudes de la configuración como max_antiguedad.
+            max_antiguedad = timedelta(days=configuracion_sistema.tiempo_solicitudes)
+        else:
+            # Si no se pudo obtener la configuración, usar un valor predeterminado (30 días, por ejemplo).
+            max_antiguedad = timedelta(days=30)
+
+        fecha_limite = timezone.now() - max_antiguedad
+
+        # Obtén las solicitudes antiguas que cumplen con el criterio de antigüedad
+        solicitudes_antiguas = Solicitudes.objects.filter(tramitado=True, fecha_tramite__lt=fecha_limite)
+
+        # Eliminar los archivos adjuntos asociados a las solicitudes antiguas
+        for solicitud in solicitudes_antiguas:
+            if solicitud.archivos_adjuntos:
+                # Asegúrate de que el archivo realmente se elimine del disco.
+                solicitud.archivos_adjuntos.delete()
+
+        # Eliminar las solicitudes antiguas
+        solicitudes_antiguas.delete()
         
         return HttpResponse(f'Se ha dado respuesta a la solicitud de manera correcta y se ha enviado la notificación al usuario.',200)
     

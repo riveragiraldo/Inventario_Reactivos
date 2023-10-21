@@ -3,7 +3,7 @@ from django import forms
 from django.contrib.auth.forms import AuthenticationForm
 from captcha.fields import ReCaptchaField
 from django.contrib.auth.forms import PasswordResetForm
-from reactivos.models import User, Rol, Laboratorios,Solicitudes
+from reactivos.models import User, Rol, Laboratorios,Solicitudes, ConfiguracionSistema
 import re
 
 
@@ -176,7 +176,7 @@ class FormularioUsuario(forms.ModelForm):
         if commit:
             user.save()
         return user
-    
+# Formulario para el registro de solicitudes    
 class SolicitudForm(forms.ModelForm):
     class Meta:
         model = Solicitudes
@@ -215,7 +215,7 @@ class SolicitudForm(forms.ModelForm):
                 attrs={
                     'class': 'form-control',
                     'id': 'archivos_adjuntos',
-                    'title': 'Adjunte archivos de maximo 10 Mb',
+                    'title': 'Adjunte archivos de tamaño maximo 5 MB',
                     'rows': '5',  # Máximo de 5 filas
                     'maxlength': '1000',  # Máximo de 1000 caracteres
                     'pattern': '.{1,1000}',  # Patrón para 1 a 1000 caracteres
@@ -227,3 +227,40 @@ class SolicitudForm(forms.ModelForm):
         cleaned_data['mensaje'] = estandarizar_nombre(cleaned_data['mensaje'])
         if cleaned_data['name']:
             cleaned_data['name'] = estandarizar_nombre(cleaned_data['name'])
+
+# Formualrio para configuración del sistema
+
+class ConfiguracionSistemaForm(forms.ModelForm):
+    tiempo_solicitudes = forms.IntegerField(
+        widget=forms.NumberInput(attrs={'class': 'form-control',
+                                        'title':'Introduzca el número de días que durará los eventos en el sistema',
+                                        'placeholder':'Número de días de los eventos en el sistema',}),
+        required=True,
+        label="Introduzca el tiempo para depuración de solicitudes",
+    )
+
+    tiempo_eventos = forms.IntegerField(
+        widget=forms.NumberInput(attrs={'class': 'form-control',
+                                        'title':'Introduzca el número de días que durará las solicitudes tramitadas',
+                                        'placeholder':'Número de días de solicitudes tramitadas',}),
+        required=True,
+        label="Introduzca el tiempo para depuración de eventos",
+        
+    )
+
+    correo_administrador = forms.EmailField(
+        widget=forms.EmailInput(attrs={'class': 'form-control',
+                                       'title':'Introduzca el correo para recepción de solicitudes',
+                                       'placeholder':'Correo para recepción de solicitudes',}),
+        required=True,
+        label="Introduzca el correo de administrador para solicitudes",
+    )
+
+    class Meta:
+        model = ConfiguracionSistema
+        fields = ['tiempo_solicitudes', 'tiempo_eventos', 'correo_administrador']
+
+    def clean(self):
+        cleaned_data = super().clean()
+        cleaned_data['correo_administrador'] = estandarizar_nombre(cleaned_data['correo_administrador'])
+        

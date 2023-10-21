@@ -145,6 +145,20 @@ class Solicitudes(models.Model):
         verbose_name_plural = 'Solicitudes'
         verbose_name = 'Solicitud'
 
+
+# Modelo para configuraciones del sistema
+class ConfiguracionSistema(models.Model):
+    tiempo_solicitudes = models.PositiveIntegerField(default=2, verbose_name='Tiempo para depuración de solicitudes (días)')
+    tiempo_eventos = models.PositiveIntegerField(default=2, verbose_name='Tiempo para depuración de eventos (días)')
+    correo_administrador = models.EmailField(max_length=100, verbose_name='Correo del Administrador del Sistema')
+
+    def __str__(self):
+        return 'Configuración del Sistema'
+    
+    class Meta:
+        verbose_name_plural = 'Configuraciones del aplicativo'
+        verbose_name = 'Configuración del aplicativo'
+
 # Modelo para tabla Marcas en base de datos Reactivos
 class Marcas(models.Model):
     name = models.CharField(max_length=30, verbose_name="Marca")

@@ -43,6 +43,12 @@ class Solicitudadmin(admin.ModelAdmin):
     list_display=('id','tipo_solicitud','name','tramitado','observaciones','archivos_adjuntos','created_by', 'date_create','last_update','last_updated_by',)
     ordering=('id',)
 
+# Inclusión de el modelo Configuración del sistema en la consola de administración de Django
+@admin.register(ConfiguracionSistema)
+class Configuraciónadmin(admin.ModelAdmin):
+    list_display=('id','tiempo_solicitudes','tiempo_eventos','correo_administrador')
+    ordering=('id',)
+
 # Inclusión de el modelo MARCAS en la consola de administración de Django  
 @admin.register(Marcas)
 class Marcasadmin(admin.ModelAdmin):

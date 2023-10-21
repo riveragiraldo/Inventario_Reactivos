@@ -42,6 +42,16 @@ function openEditFormOut(itemId) {
     window.open(editUrl, '_blank', 'width=600,height=800');
 }
 
+//Abre formulario de Respuesta de solicitudes
+
+function openRespondRequest(itemId) {
+    // Construye la URL del formulario de edición con el ID del elemento
+    var editUrl = '/solicitudes/responder_solicitud/' + itemId + '/';
+
+    // Abre una nueva ventana emergente con el formulario de edición
+    window.open(editUrl, '_blank', 'width=600,height=800');
+}
+
 //Abre formulario de Edición  de usuarios
 
 function openEditFormUser(itemId) {
