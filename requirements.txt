@@ -6,3 +6,5 @@ psycopg2
 pillow
 django-recaptcha
 django-import-export
+apscheduler
+django-apscheduler

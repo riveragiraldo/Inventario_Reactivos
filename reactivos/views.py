@@ -103,7 +103,95 @@ from django.utils.timezone import localtime
 from django.core.files.storage import FileSystemStorage
 from django import forms
 from django.utils import timezone
+from django.utils.timezone import now
 
+
+
+from apscheduler.schedulers.background import BlockingScheduler, BackgroundScheduler
+from time import sleep
+
+# Función que envía correo a coordinadores de laboratorio de reactivos vencidos o próximos a vencer
+def enviar_correo_alerta_vencimiento(subject, recipient_list, message, reactivos):
+    # Crear de contexto para el mensaje de correo
+    # Obtener el dominio
+    url=settings.BASE_URL
+    # Obtener la fecha y hora actual en el formato "dd/mm/aaaa hh:mm:ss"
+    fecha_actual = localtime().strftime('%d/%m/%Y %H:%M:%S')
+    # Formatear el valor con separadores de miles
+    locale.setlocale(locale.LC_ALL, 'es_ES.UTF-8')
+                  
+    # Contexto del template del diseño del correo 
+    context = {
+        'url': url,
+        'fecha_actual': fecha_actual,
+        'message':message,
+        'reactivos':reactivos,
+        
+    }
+    # Template
+    message = render_to_string('reactivos/alerta_vencimiento_reactivos.html', context)
+    plain_message = strip_tags(message)
+    from_email = "noreply@unal.edu.co"  # Agrega el correo electrónico desde el cual se enviará el mensaje
+    recipient_list = recipient_list
+    subject = subject
+    send_mail(subject, plain_message, from_email, recipient_list, fail_silently=False, html_message=message)
+
+
+# Tareas programadas para alertas de fecha de vencimientos
+def check_edate():
+    print(f'REVISIÓN DE FECHA DE VENCIMIENTO DE LOS LABORATORIOS')
+    print(f'....................................................')
+    # Obtenemos la fecha actual
+    today = now().date()
+
+    # Iteramos a través de los laboratorios
+    for lab in Laboratorios.objects.all():
+        print(f"    {lab.name}    \n----------------------------------------------------")
+
+        # Filtramos los reactivos de este laboratorio cuya fecha de vencimiento (edate) es menor o igual a la fecha actual
+        reactivos_vencidos = Inventarios.objects.filter(edate__lte=today, is_active=True, edate__isnull=False, lab=lab)
+
+        # Imprimimos la lista de reactivos vencidos para este laboratorio
+        if reactivos_vencidos:
+            print(f"    REACTIVOS VENCIDOS    \n----------------------------------------------------")
+            for reactivo in reactivos_vencidos:
+                print(f"{reactivo.name}: FECHA DE VENCIMIENTO: {reactivo.edate},")
+            
+            print(f"    COORDINADORES    \n----------------------------------------------------")
+            
+            # Consulta para obtener los usuarios con el rol "COORDINADOR" que pertenecen a este laboratorio
+            coordinadores = User.objects.filter(rol__name='COORDINADOR', lab=reactivo.lab)
+            
+            for coordinador in coordinadores:
+                print(f"COORDINADOR: {coordinador.first_name} {coordinador.last_name}, Email: {coordinador.email}")
+            
+            # Ahora, construyamos el correo para este laboratorio
+            subject = f'Alerta de vencimiento de reactivos en {lab.name}'
+            recipient_list = [coordinador.email for coordinador in coordinadores]
+            
+            message = f'Estimado(s) {", ".join([f"{coordinador.first_name} {coordinador.last_name}" for coordinador in coordinadores])},\n'
+            message += f'Los siguientes reactivos están vencidos en el laboratorio {lab.name}:\n\n'
+            
+            # for reactivo in reactivos_vencidos:
+            #     message += f'- {reactivo.name}: Fecha de vencimiento: {reactivo.edate}\n'
+            
+            enviar_correo_alerta_vencimiento(subject, recipient_list, message, reactivos_vencidos)
+            print('Correo enviado.')
+            print('====================================================')
+        else:
+            print(f"No hay reactivos vencidos en este laboratorio.") 
+            print('====================================================')  
+    
+
+schelduler=BackgroundScheduler()
+schelduler.add_job(check_edate, 'interval', minutes=10, )
+
+
+schelduler.start()
+
+
+
+#-------------------------------------------------#
 
 
 UserModel = get_user_model()

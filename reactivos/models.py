@@ -448,7 +448,7 @@ class Inventarios(models.Model):
     reference = models.CharField(max_length=20, verbose_name="Referencia")
     lab=models.ForeignKey(Laboratorios, on_delete=models.CASCADE, related_name='laboratorio', verbose_name='Laboratorio')
     wlocation=models.ForeignKey(Almacenamiento, on_delete=models.CASCADE, related_name='wloc', verbose_name='Ubicación en Almacén')
-    edate=models.DateField(verbose_name="Fecha de vencimiento")
+    edate=models.DateField(verbose_name="Fecha de vencimiento", null=True, blank=True)
     minStockControl = models.BooleanField(default=True, verbose_name='Control de Stock Mínimo')
     minstock = models.DecimalField(
         max_digits=8, decimal_places=2, blank=True, null=True, default=0, help_text="Ingrese el stock mínimo (puede ser nulo).", verbose_name="Stock mínimo")

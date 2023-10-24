@@ -41,7 +41,7 @@ INSTALLED_APPS = [
     'captcha',
     'reactivos',
     'import_export',
-    
+    "django_apscheduler", 
 ]
 
 MIDDLEWARE = [
@@ -130,6 +130,7 @@ STATIC_ROOT = 'staticfiles'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+BASE_URL = 'https://laboratorios.manizales.unal.edu.co/chemicaltracker'
 
 
 
