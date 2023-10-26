@@ -1,0 +1,107 @@
+/* LOGIN FORM */
+
+.login {
+    background: var(--darkened-bg);
+    height: auto;
+}
+
+.login #header {
+    height: auto;
+    padding: 15px 16px;
+    justify-content: center;
+}
+
+.login #header h1 {
+    font-size: 1.125rem;
+    margin: 0;
+}
+
+.login #header h1 a {
+    color: var(--header-link-color);
+}
+
+.login #content {
+    padding: 20px 20px 0;
+}
+
+.login #container {
+    background: var(--body-bg);
+    border: 1px solid var(--hairline-color);
+    border-radius: 4px;
+    overflow: hidden;
+    width: 28em;
+    min-width: 300px;
+    margin: 100px auto;
+    height: auto;
+}
+
+.login .form-row {
+    padding: 4px 0;
+}
+
+.login .form-row label {
+    display: block;
+    line-height: 2em;
+}
+
+.login .form-row #id_username, .login .form-row #id_password {
+    padding: 8px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.login .submit-row {
+    padding: 1em 0 0 0;
+    margin: 0;
+    text-align: center;
+}
+
+.login .password-reset-link {
+    text-align: center;
+}
+
+.vertical-center {
+    min-height: 5vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.custom-border {
+    border: 1px solid #ccc; /* Ancho y color del borde */
+    border-radius: 10px;   /* Radio de las esquinas redondeadas */
+    padding: 50px;         /* Espacio interno para el contenido */
+    background-color: transparent; /* Color de fondo */
+    max-width: 400px;      /* Ancho máximo para el formulario */
+    margin: 0 auto;        /* Centrar horizontalmente */
+}
+
+.non-bold-label {
+    font-weight:lighter;
+    /* Puedes añadir otros estilos de fuente aquí, si es necesario */
+}
+
+.form-row {
+    margin: 0; /* Establece un margen de 30px a cada lado */
+}
+
+.form-row input[type="text"] {
+    width: 100%; /* Asegura que el campo de texto ocupe todo el ancho del contenedor */
+    /* Puedes ajustar otros estilos según tus preferencias */
+}
+
+.form-row input[type="password"] {
+    width: 100%; /* Asegura que el campo de texto ocupe todo el ancho del contenedor */
+    /* Puedes ajustar otros estilos según tus preferencias */
+}
+
+.form-row label {
+    margin-bottom: 10px; /* Agrega un margen inferior de 10px solo a las etiquetas */
+}
+
+.form-row input {
+    margin-top: 0px; /* Agrega un margen superior de 10px solo a los campos de entrada */
+}
+
+
+

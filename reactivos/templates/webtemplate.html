@@ -1,10 +1,7 @@
 {% load static %}<!-- Permite invocar archivos estáticos -->
+{% load has_group %}<!-- Template tag de configuración de grupos -->
 <!DOCTYPE html>
-<!--[if lt IE 7]> <html class="ie6 oldie"> <![endif]-->
-<!--[if IE 7]> <html class="ie7 oldie"> <![endif]-->
-<!--[if IE 8]> <html class="ie8 oldie"> <![endif]-->
-<!--[if IE 9]> <html class="ie9 oldie"> <![endif]-->
-<!--[if (gt IE 9)|!(IE)]><!-->
+
 <html>
 <!--<![endif]-->
 
@@ -42,7 +39,14 @@
 
 	<script src="{% static 'inventarioreac/js/jquery.js' %}" type="text/javascript"></script>
 	<script src="{% static 'inventarioreac/js/unal.js' %}" type="text/javascript"></script>
-	
+	<script src="{% static 'inventarioreac/js/webtemplate.js' %}" type="text/javascript"></script>
+	<!-- Incluye el archivo CSS de Bootstrap -->
+
+	<!-- Incluye el archivo JavaScript de Bootstrap -->
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+
+
 
 	{% block head %}{% endblock %}
 	<title>{% block title %}Inicio: Universidad Nacional de Colombia{% endblock %}</title>
@@ -53,36 +57,285 @@
 		<div class="indicator hidden-xs"></div>
 		<ul class="dropdown-menu">
 			<li>
-				<a href="http://correo.unal.edu.co" target="_blank"><img src="{% static 'inventarioreac/images/icnServEmail.png' %}" width="32" height="32" alt="Correo Electrónico">Correo Electrónico</a>
-		</li>
-		<li>
-				<a href="https://dninfoa.unal.edu.co" target="_blank"><img src="{% static 'inventarioreac/images/icnServSia.png' %}" width="32" height="32" alt="Dirección Nacional de Información Académica">DNINFOA - SIA</a>
-		</li>
-		<li>
-				<a href="http://bibliotecas.unal.edu.co" target="_blank"><img src="{% static 'inventarioreac/images/icnServLibrary.png' %}" width="32" height="32" alt="Biblioteca">Bibliotecas</a>
-		</li>
-		<li>
-			<a href="http://laboratorios.manizales.unal.edu.co/"target="_blank"><img src="{% static 'inventarioreac/images/icnLrn.png' %}" width="32" height="32" alt="Direccion de Laboratorios">Direccion de Laboratorios Sede Manizales </a>
-		</li>
-		<li>
-			<a href="https://d1xb30i372mnxf.cloudfront.net/" target="_blank"><img src="{% static 'inventarioreac/images/icnLrn.png' %}" width="32" height="32" alt="Plataforma de Laboratorios Remotos">Plataforma de Laboratorios Remotos</a>	
+				<a href="http://correo.unal.edu.co" target="_blank"><img
+						src="{% static 'inventarioreac/images/icnServEmail.png' %}" width="32" height="32"
+						alt="Correo Electrónico">Correo Electrónico</a>
+			</li>
+			<li>
+				<a href="https://dninfoa.unal.edu.co" target="_blank"><img
+						src="{% static 'inventarioreac/images/icnServSia.png' %}" width="32" height="32"
+						alt="Dirección Nacional de Información Académica">DNINFOA - SIA</a>
+			</li>
+			<li>
+				<a href="http://bibliotecas.unal.edu.co" target="_blank"><img
+						src="{% static 'inventarioreac/images/icnServLibrary.png' %}" width="32" height="32"
+						alt="Biblioteca">Bibliotecas</a>
+			</li>
+			<li>
+				<a href="http://laboratorios.manizales.unal.edu.co/" target="_blank"><img
+						src="{% static 'inventarioreac/images/icnLrn.png' %}" width="32" height="32"
+						alt="Direccion de Laboratorios">Direccion de Laboratorios Manizales </a>
+			</li>
+			<li>
+				<a href="https://d1xb30i372mnxf.cloudfront.net/" target="_blank"><img
+						src="{% static 'inventarioreac/images/icnLrn.png' %}" width="32" height="32"
+						alt="Plataforma de Laboratorios Remotos">Plataforma de Laboratorios Remotos</a>
+
+			</li>
+			<li>
+				<a href="{% url 'reactivos:index'%}" title="Volver al inicio"><img
+						src="{% static 'inventarioreac/images/home_icon.png' %}" width="32" height="32"
+						>Inicio</a>
+
+			</li>
+			<li id="li_reactivos" style="display: block;">
+
+				<div id="accordion"  >
+
+
+					<div class="card">
+						<div class="card-header" id="headingOne">
+							<h5 class="mb-0">
+								<img style="margin-left: 5px;" src="{% static 'inventarioreac/images/reagent_icon.png' %}"
+									width="32" height="32" alt="Reactivos"><button
+									class="btn btn-transparent text-white" data-toggle="collapse"
+									data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne" title="Opciones referentes a creación de reactivos" id="reactivos_button">
+									Reactivos
+								</button>
+							</h5>
+						</div>
+						<div id="collapseOne" class="collapse" aria-labelledby="headingOne" data-parent="#accordion">
+							<div class="card-body " style="color: white;">
+								<ul>
+									{% if request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
+									<li class="custom-li">
+										<a href="{% url 'reactivos:crear_estado'%}"title="redirecciona al formulario de creación de estados">Crear Estados</a>
+									</li>
+									{% endif %}
+									{% if request.user|has_group:"COORDINADOR" or request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
+									<li class="custom-li">
+										<a href="{% url 'reactivos:crear_unidades'%}" title="redirecciona al formulario de creación de unidades">Crear Unidades</a>
+									</li>
+									<li class="custom-li">
+										<a href="{% url 'reactivos:crear_almacenamiento_interno'%}" title="redirecciona al formulario de creación de almacenamiento interno">Crear almacenamiento interno</a>
+									</li>
+									<li class="custom-li">
+										<a href="{% url 'reactivos:crear_clase_almacenamiento'%}" title="redirecciona al formulario de creación de clase de almacenamiento">Crear clase de almacenamiento</a>
+									</li>
+									<li class="custom-li">
+										<a href="{% url 'reactivos:crear_reactivo'%}" title="redirecciona al formulario de creación de reactivos">Crear reactivos</a>
+									</li>
+									{% endif %}
+									<li class="custom-li">
+										<a href="{% url 'reactivos:listado_reactivos'%}" title="redirecciona a la vista listado de reactivos">Listado de reactivos</a>
+									</li>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+			</li>
+			<li id="li_inventarios" style="display: block;">
+
+				<div id="accordion">
+
+
+					<div class="card">
+						<div class="card-header" id="headingTwo">
+							<h5 class="mb-0">
+								<img style="margin-left: 5px;" src="{% static 'inventarioreac/images/inventory_icon.png' %}"
+									width="32" height="32" alt="Reactivos"><button
+									class="btn btn-transparent text-white" data-toggle="collapse"
+									data-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo" title="Opciones relacionadas con la gestión de inventarios" id="inventarios_button">
+									Inventarios
+								</button>
+							</h5>
+						</div>
+						<div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordion">
+							<div class="card-body " style="color: white;">
+								<ul>
+									<li class="custom-li">
+										<a href="{% url 'reactivos:registrar_entrada'%}" title="Redirecciona al formulario de registro de entradas">Registrar Entradas</a>
+									</li>
+									<li class="custom-li">
+										<a href="{% url 'reactivos:registrar_salida'%}"title="Redirecciona al formulario de registro de salidas">Registrar Salidas</a>
+									</li>
+									<li class="custom-li">
+										<a href="{% url 'reactivos:crear_responsable'%}" title="Redirecciona al formulario de creación de responsables">Crear Responsables</a>
+									</li>
+									<li class="custom-li">
+										<a href="{% url 'reactivos:crear_marca'%}" title="Redirecciona al formulario de creación de marrcas">Crear Marcas</a>
+									</li>
+									
+									<li class="custom-li">
+										<a href="{% url 'reactivos:crear_ubicacion'%}" title="Redirecciona al formulario de creación de ubicaciones o asignaturas">Crear Ubicaciones / Asignaturas</a>
+									</li>
+									
+									<li class="custom-li">
+										<a href="{% url 'reactivos:crear_walmacen'%}" title="Redirecciona al formulario de creación de ubicaciones en el almacén">Crear Ubicaciones en Almacén</a>
+									</li>
+									<li class="custom-li">
+										<a href="{% url 'reactivos:inventario'%}" title="Redirecciona a la vista listado de inventarios">Ver inventario</a>
+									</li>
+									{% if request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
+									<li class="custom-li">
+										<a href="{% url 'reactivos:crear_facultad'%}" title="Redirecciona al formulario de creación de facultades">Crear Facultades</a>
+									</li>
+									<li class="custom-li">
+										<a href="{% url 'reactivos:crear_destino'%}" title="Redirecciona al formulario de creación de destinos">Crear Destinos</a>
+									</li>
+									{% endif %}
+									{% if request.user|has_group:"COORDINADOR" or request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
+									<li class="custom-li">
+										<a href="{% url 'reactivos:listado_entradas'%}" title="Redirecciona a la vista listado de entradas">Listado de entradas</a>
+									</li>
+									<li class="custom-li">
+										<a href="{% url 'reactivos:listado_salidas'%}" title="Redirecciona a la vista listado de salidas">Listado de salidas</a>
+									</li>									
+									{% endif %}
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+			</li>
+			<li id="li_solicitudes" style="display: block;">
+
+				<div id="accordion">
+					<div class="card">
+						<div class="card-header" id="headingThree">
+							<h5 class="mb-0">
+								<img style="margin-left: 5px;" src="{% static 'inventarioreac/images/request_icon.png' %}"
+									width="32" height="32" alt="Configuraciones">
+								<button title="Opciones referentes a solicitudes" class="btn btn-transparent text-white" data-toggle="collapse"
+									data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree" id="solicitudes_button">
+									Solicitudes
+								</button>
+							</h5>
+						</div>
+						<div id="collapseThree" class="collapse" aria-labelledby="headingThree"
+							data-parent="#accordion">
+							<div class="card-body" style="color: white;">
+								<ul>
+									
+									<li class="custom-li">
+										<a href="{% url 'reactivos:registrar_solicitud'%}" title="Redirecciona al formulario de registro de solicitudes">Registrar solicitud</a>
+									</li>
+									{% if request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
+									<li class="custom-li">
+										<a href="{% url 'reactivos:crear_tipo_solicitud'%}" title="Redirecciona al formulario de creación de tipo de solicitud">Crear tipo de solicitud</a>
+									</li>
+									<li class="custom-li">
+										<a href="{% url 'reactivos:listado_solicitudes'%}" title="Redirecciona a la vista que muestra el listado de solicitudes">Listado de solicitudes</a>
+									</li>
+									{% endif %}
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+			</li>
+
+
+			<li id="li_usuarios" style="display: block;">
+
+				<div id="accordion">
+					<div class="card">
+						<div class="card-header" id="headingFour">
+							<h5 class="mb-0">
+								<img style="margin-left: 5px;" src="{% static 'inventarioreac/images/user_icon.png' %}"
+									width="32" height="32" alt="Solicitudes">
+								<button title="Opciones referentes a la gestión de usuarios" class="btn btn-transparent text-white" data-toggle="collapse"
+									data-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour" id="usuarios_button">
+									Usuarios
+								</button>
+							</h5>
+						</div>
+						<div id="collapseFour" class="collapse" aria-labelledby="headingFour" data-parent="#accordion">
+							<div class="card-body" style="color: white;">
+								<ul>
+									<li class="custom-li">
+										<a href="{% url 'reactivos:password_change'%}" title="Redirecciona al formulario de cambio de contraseña">Cambiar contraseña</a>
+									</li>
+									<li class="custom-li">
+										<a href="{% url 'reactivos:password_reset'%}" title="Redirecciona al formulario de restablecimiento de contraseña">¿Olvido su contraseña?</a>
+									</li>
+									{% if request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
+									<li class="custom-li">
+										<a href="{% url 'reactivos:crear_laboratorio'%}" title="Redirecciona al formulario de creación de laboratorios">Crear Laboratorio</a>
+									</li>
+									<li class="custom-li">
+										<a href="{% url 'reactivos:crear_roles'%}" title="Redirecciona al formulario de creación de roles">Crear Roles</a>
+									</li>
+									{% endif %}
+									{% if request.user|has_group:"COORDINADOR" or request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
+									<li class="custom-li">
+										<a href="{% url 'reactivos:crear_usuarios'%}" title="Redirecciona al formulario de creación de usuarios">Crear Usuarios</a>
+									</li>
+									<li class="custom-li">
+										<a href="{% url 'reactivos:listado_usuarios'%}" title="Redirecciona a la vista listado de usuarios">Listado Usuarios</a>
+									</li>
+									{% endif %}
+									<li class="custom-li">
+										<a href="{% url 'reactivos:logout'%}" title="Cierra sesión de usuario">Cerrar sesión</a>
+									</li>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+			</li>
 			
-		</li>
+			{% if request.user.is_superuser or request.user|has_group:"ADMINISTRADOR" %}
+				
+			
+				
+			<li id="li_administrar" style="display: block;">
+				<div id="accordion">
+					<div class="card">
+						<div class="card-header" id="headingFive">
+							<h5 class="mb-0">
+								<img style="margin-left: 5px;" src="{% static 'inventarioreac/images/admin_icon.png' %}"
+									width="32" height="32" alt="Solicitudes">
+								<button title="Opciones refeeentes a la administración del sistema" class="btn btn-transparent text-white" data-toggle="collapse"
+									data-target="#collapseFive" aria-expanded="false" aria-controls="collapseFive" id="administrar_button">
+									Administrar
+								</button>
+							</h5>
+						</div>
+						<div id="collapseFive" class="collapse" aria-labelledby="headingFive" data-parent="#accordion">
+							<div class="card-body" style="color: white;">
+								<ul>
+									
+									{% if request.user.is_superuser %}
+									<li class="custom-li">
+										<a href="{% url 'admin:index'%}" title="Consola de superusuario">Consola de superusuario</a>
+									</li>										
+									{% endif %}						
+									
+									<li class="custom-li">
+										<a href="{% url 'reactivos:configuraciones'%}" title="Configuraciones generales del sistema">Configuraciones</a>
+									</li>
+									<li class="custom-li">
+										<a href="{% url 'reactivos:listado_eventos'%}" title="Listado de eventos del sistema">Listado de eventos</a>
+									</li>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+			</li>
+			{% endif %}
 		</ul>
 	</div>
+	
 	<header id="unalTop">
 		<div class="logo">
 			<a href="http://unal.edu.co">
-				<!--[if (gte IE 9)|!(IE)]><!-->
 				<svg width="93%" height="93%">
 					<image xlink:href="{% static 'inventarioreac/images/escudoUnal.svg' %}" width="100%" height="100%"
 						class="hidden-print" />
 				</svg>
-
-				<!--<![endif]-->
-				<!--[if lt IE 9]>
-			<img src="{% static 'images/escudoUnal.png' %}" width="93%" height="auto" class="hidden-print"/> 
-	  <![endif]-->
 				<img src="{% static 'inventarioreac/images/escudoUnal_black.png' %}" class="visible-print" />
 			</a>
 		</div>
@@ -99,56 +352,57 @@
 				aria-controls="bs-navbar" aria-expanded="false">
 				<span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span>
 			</button>
-			
-			
-			
+
+
+			<div class="navbar-default">
+				<nav id="profiles">
+					<ul class="nav navbar-nav dropdown-menu">
+						<li class="item_Docentes #>"><a href="{% url 'reactivos:index' %}" title="Volver al inicio">{{ request.user.lab|title}}</a>
+						</li>
+						<li class="item_Docentes #>"><a href="#" title="Datos de usuario" id="datosusuario"
+								data-toggle="popover"
+								data-content="<strong>Nombre:</strong> {{ request.user.first_name }} {{request.user.last_name }}<br><strong>Correo eléctrónico:</strong> {{request.user.email }}<br><strong>Teléfono:</strong> {{request.user.phone_number }}<br><strong>Laboratorio:</strong>{{request.user.lab }}<br><strong>Rol:</strong> {{request.user.rol }}"
+								data-html="true" data-placement="bottom">{{ request.user.first_name|title }}
+								{{request.user.last_name|title }}</a></li>
+						<li class="item_Docentes #>"><a href="{% url 'reactivos:password_change' %}"
+								title="Cambiar contraseña">Cambiar Contraseña</a></li>
+						<li class="item_Docentes #>"><a href="{% url 'reactivos:logout'%}" title="Cerrar sesión">Cerrar
+								Sesión</a></li>
+					</ul>
+				</nav>
+			</div>
 		</div>
 		<div id="bs-navbar" class="navbar-collapse collapse navigation">
 			<div class="site-url">
 				<a href="http://subdominio.unal.edu.co/" target="_blank">subdominio.unal.edu.co</a>
 			</div>
-			
-			
+
+
+		</div>
+		<div class="btn-group hidden-sm hidden-md hidden-lg hidden-print">
+			<div class="btn btn-default dropdown-toggle" data-toggle="dropdown" id="unalOpenMenuServicios"
+				data-target="#services">Opciones<span class="caret"> </span>
 			</div>
-			<div class="btn-group hidden-sm hidden-md hidden-lg hidden-print">
-				<div class="btn btn-default dropdown-toggle" data-toggle="dropdown" id="unalOpenMenuServicios"
-					data-target="#services">Servicios<span class="caret"> </span>
-				</div>
+		</div>
+		<div class="btn-group hidden-sm hidden-md hidden-lg hidden-print">
+			<div class="btn btn-default dropdown-toggle" data-toggle="dropdown" id="unalOpenMenuPerfiles"
+				data-target="#profiles">Perfiles<span class="caret"> </span>
 			</div>
-			<div class="btn-group hidden-sm hidden-md hidden-lg hidden-print">
-				<div class="btn btn-default dropdown-toggle" data-toggle="dropdown" id="unalOpenMenuPerfiles"
-					data-target="#profiles">Perfiles<span class="caret"> </span>
-				</div>
-			</div>
+		</div>
 		</div>
 
 	</header>
-
-	
-	<nav class="navbar navbar-expand-lg navbar-light bg-light">
-		<div class="collapse navbar-collapse" id="navbarNav">
-			<ul class="navbar-nav ml-auto">
-				<br>
-				<li class="nav-item">
-					<p>Laboratorio: {{ laboratorio|title }}&nbsp;&nbsp;</p>
-
-				</li>
-
-				<li class="nav-item">
-					<span class="navbar-item">&nbsp;BIENVENIDO, {{ request.user.first_name|title }} {{ request.user.last_name|title }}&nbsp;</span>
-				</li>
-				<li class="nav-item">
-					<a class="nav-link" href="{% url 'reactivos:password_change' %}">&nbsp;CAMBIAR CONTRASEÑA&nbsp;</a>
-				</li>
-				<li class="nav-item">
-					<a class="nav-link" href="{% url 'reactivos:logout'%}">CERRAR SESIÓN</a>
-				</li>
-			</ul>
-		</div>
-	</nav>
-
 	<main class="detalle">
-		<div class="breadcrumb-class">Está en:<a href="{% url 'reactivos:index' %}" target="_self" title="Inicio" id="breadcrumb_title">{{ laboratorio|title}}</a>/<container id="breadcrumb-title"></container></div>
+		<br><br><br><br>
+
+		<nav aria-label="breadcrumb">
+			<ol class="breadcrumb" style="background-color: transparent;">
+				<li class="breadcrumb-item active" title="Inicio">Está en:</li>
+				<li class="breadcrumb-item"><a href="{% url 'reactivos:index' %}" target="_self" title="Inicio: "
+						id="breadcrumb_title">{{ request.user.lab|title}}</a></li>
+				<li class="breadcrumb-item active" aria-current="page" id="breadcrumb-title"></li>
+			</ol>
+		</nav>
 
 		<script>
 			// Obtener el valor del campo HTML 'title'
@@ -156,8 +410,16 @@
 
 			// Asignar el valor al elemento de breadcrumb
 			document.getElementById("breadcrumb-title").textContent = pageTitle;
-			document.getElementById("breadcrumb_title").setAttribute("title", "Inicio "+"{{ laboratorio|title}}");
+			document.getElementById("breadcrumb_title").setAttribute("title", "Inicio " + "{{ laboratorio|title}}");
+
+
+			$(document).ready(function () {
+				$('#datosusuario').popover();
+			});
+
+
 		</script>
+
 
 
 		{% block content %}{% endblock %}
@@ -165,14 +427,14 @@
 	</main>
 
 	<footer class="clear">
-		<nav  class="col-md-3 col-lg-3 col-sm-3 col-xs-4 col-xxs-6">
+		<nav class="col-md-3 col-lg-3 col-sm-3 col-xs-4 col-xxs-6">
 		</nav>
 		<nav class="col-md-3 col-lg-3 col-sm-3 col-xs-4 col-xxs-6 ">
 		</nav>
 		<div class="col-md-4 col-lg-4 col-sm-4 col-xs-4 col-xxs-12 footer-info">
 			<p class="col-sm-12 col-md-6 contacto">
 				<b>Contacto página web:</b>
-				<br /> Dirección  .....<br /> Edificio ...<br /> Bogotá D.C., Colombia<br />
+				<br /> Dirección .....<br /> Edificio ...<br /> Bogotá D.C., Colombia<br />
 				(+57 1) 316 5000 Ext.
 			</p>
 			<p class="col-sm-12 col-md-6 derechos">
@@ -186,29 +448,30 @@
 		<div class="col-md-2 col-lg-2 col-sm-2 col-xs-12 logos">
 			<div class="col-xs-6 col-sm-12 col-md-6 no-padding">
 				<a class="col-xs-6 col-sm-12" href="http://www.orgulloun.unal.edu.co" target="_blank">
-					<img class="hidden-print" alt="Orgullo UN" src="{% static 'inventarioreac/images/log_orgullo.png' %}" width="78"
-						height="21" />
-					<img class="visible-print" alt="Orgullo UN" src="{% static 'inventarioreac/images/log_orgullo_black.png' %}"
-						width="94" height="37" />
+					<img class="hidden-print" alt="Orgullo UN"
+						src="{% static 'inventarioreac/images/log_orgullo.png' %}" width="78" height="21" />
+					<img class="visible-print" alt="Orgullo UN"
+						src="{% static 'inventarioreac/images/log_orgullo_black.png' %}" width="94" height="37" />
 				</a>
 
 				<a class="col-xs-6 col-sm-12 imgAgencia" href="http://www.agenciadenoticias.unal.edu.co/inicio.html"
 					target="_blank">
-					<img class="hidden-print" alt="Agencia de noticias" src="{% static 'inventarioreac/images/log_agenc.png' %}"
-						width="94" height="25" />
-					<img class="visible-print" alt="Agencia de noticias" src="{% static 'inventarioreac/images/log_agenc_black.png' %}"
-						width="94" height="37" />
+					<img class="hidden-print" alt="Agencia de noticias"
+						src="{% static 'inventarioreac/images/log_agenc.png' %}" width="94" height="25" />
+					<img class="visible-print" alt="Agencia de noticias"
+						src="{% static 'inventarioreac/images/log_agenc_black.png' %}" width="94" height="37" />
 				</a>
 			</div>
 			<div class="col-xs-6 col-sm-12 col-md-6 no-padding">
 				<a class="col-xs-6 col-sm-12" href="https://www.sivirtual.gov.co/memoficha-entidad/-/entidad/T0356"
 					target="_blank">
-					<img alt="Trámites en línea" src="{% static 'inventarioreac/images/log_gobiern.png' %}" width="67" height="51" />
+					<img alt="Trámites en línea" src="{% static 'inventarioreac/images/log_gobiern.png' %}" width="67"
+						height="51" />
 				</a>
 
 				<a class="col-xs-6 col-sm-12" href="http://www.contaduria.gov.co/" target="_blank">
-					<img alt="Contaduría general de la republica" src="{% static 'inventarioreac/images/log_contra.png' %}" width="67"
-						height="51" />
+					<img alt="Contaduría general de la republica"
+						src="{% static 'inventarioreac/images/log_contra.png' %}" width="67" height="51" />
 				</a>
 			</div>
 

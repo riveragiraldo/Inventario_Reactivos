@@ -15,7 +15,7 @@
         <p>{{ message }}</p>
         <ul>
             {% for reactivo in reactivos %}
-                <li>{{ reactivo.name }}: Vencimiento: {{ reactivo.edate }}</li>
+                <li>{{ reactivo.name }}, Marca {{ reactivo.trademark }}, Referencia {{reactivo.reference}}, Vencimiento {{ reactivo.edate }}</li>
             {% endfor %}
         </ul>
     </p>

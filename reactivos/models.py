@@ -122,6 +122,30 @@ class TipoSolicitud(models.Model):
         verbose_name_plural = 'Tipo de solicitud'
         verbose_name = 'Tipo de solicitud'
 
+# Modelo para tabla TipoEventos en base de datos Reactivos
+class TipoEvento(models.Model):
+    name = models.CharField(max_length=100, verbose_name="Nombre del tipo de evento")
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name_plural = 'Tipos de eventos'
+        verbose_name = 'Tipo de evento'
+
+# Modelo para tabla Eventos en base de datos Reactivos
+class Eventos(models.Model):
+    tipo_evento=models.ForeignKey(TipoEvento, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Tipo de evento')
+    usuario_evento = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Usuario evento')
+    fecha_evento = models.DateTimeField(auto_now_add=True,verbose_name='Fecha evento', null=True, blank=True)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name_plural = 'Eventos'
+        verbose_name = 'Evento'
+
 # Modelo para tabla TipoSolicitudes en base de datos Reactivos
 class Solicitudes(models.Model):
     tipo_solicitud=models.ForeignKey(TipoSolicitud, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Tipo de solicitud')
@@ -148,8 +172,9 @@ class Solicitudes(models.Model):
 
 # Modelo para configuraciones del sistema
 class ConfiguracionSistema(models.Model):
-    tiempo_solicitudes = models.PositiveIntegerField(default=2, verbose_name='Tiempo para depuración de solicitudes (días)')
-    tiempo_eventos = models.PositiveIntegerField(default=2, verbose_name='Tiempo para depuración de eventos (días)')
+    tiempo_solicitudes = models.PositiveIntegerField(default=90, verbose_name='Tiempo para depuración de solicitudes (días)')
+    tiempo_eventos = models.PositiveIntegerField(default=90, verbose_name='Tiempo para depuración de eventos (días)')
+    tiempo_vencimiento_reactivos = models.PositiveIntegerField(default=90, verbose_name='Tiempo para verificar vencimiento de reactivos (días)')
     correo_administrador = models.EmailField(max_length=100, verbose_name='Correo del Administrador del Sistema')
 
     def __str__(self):
@@ -173,10 +198,7 @@ class Marcas(models.Model):
     class Meta:
         verbose_name_plural = 'Marcas'
         verbose_name = 'Marca'
-
-
-
-    
+   
 # Modelo para tabla Estados en base de datos Reactivos
 class Estados(models.Model):
     name = models.CharField(max_length=30, verbose_name="Estado")

@@ -40,7 +40,6 @@
     {% endif %}
     <script>
         today = "{{ today|date:'Y-m-d' }}"
-        // oneMonthAgo="{{ one_month_ago|date:'Y-m-d' }}"
     </script>
     <link rel="stylesheet" href="{% static 'inventarioreac/inventoryStyles.css' %}">
     <script src="{% static 'inventarioreac/paginationInventoryControl.js' %}"></script>
@@ -60,7 +59,7 @@
     <script src="{% static 'inventarioreac/updateUrl.js' %}"></script>
     <!-- Llama Script que actualiza URL -->
     <script src="{% static 'inventarioreac/validateLapse.js' %}"></script>
-    <!-- Llama Script que actualiza URL -->
+    <!-- Llama Script que valida las fechas -->
     <script src="{% static 'inventarioreac/listActionsControl.js' %}" defer></script>
     <!-- Llama Script que controla las acciones de la lista -->
     {% endblock %}

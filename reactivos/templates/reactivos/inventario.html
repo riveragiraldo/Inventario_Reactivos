@@ -180,7 +180,11 @@
                     <td 
                         title="Fecha de vencimiento del reactivo {{ item.name }}"
                         data-reactivo-name="{{ item.name }}"
-                        data-reactivo-edate="{{ item.edate }}">{{ item.edate }}</td>
+                        data-reactivo-edate="{{ item.edate }}">
+                        {% if item.edate %}
+                            {{ item.edate }}
+                        {% endif %}
+                            </td>
                     <td class="created_by_cell"
                         title="Más información de: {{ item.created_by.first_name }} {{ item.created_by.last_name }}"
                         date_user_create="{{ item.created_by.first_name }} {{ item.created_by.last_name }}"

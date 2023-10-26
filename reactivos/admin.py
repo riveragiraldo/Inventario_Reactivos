@@ -124,6 +124,42 @@ class Reactivosadmin(ImportExportModelAdmin, admin.ModelAdmin):
     ordering=('id',)
     resource_class = ReactivosResources
 
+class TipoEventoResources(resources.ModelResource):
+    class Meta:
+        model = TipoEvento
+
+
+# Inclusión de el modelo TIPO DE EVENTO en la consola de administración de Django
+@admin.register(TipoEvento)
+class TipoEventoadmin(ImportExportModelAdmin, admin.ModelAdmin):
+    list_display=('name','id',)
+    list_filter=('id','name',)
+    search_fields=('name',)
+    list_per_page=20
+    ordering=('id',)
+    resource_class = TipoEventoResources
+
+# Inclusión de el modelo EVENTOS en la consola de administración de Django
+@admin.register(Eventos)
+class Eventoadmin(admin.ModelAdmin):
+    list_display = ('tipo_evento', 'id', 'display_usuario_evento', 'fecha_evento',)
+    list_filter = ('tipo_evento', 'usuario_evento',)
+    search_fields = ('tipo_evento', 'usuario_evento',)
+    list_per_page = 20
+    ordering = ('-fecha_evento',)
+
+    def display_usuario_evento(self, obj):
+        # Personaliza cómo se muestra usuario_evento en la lista
+        return f"{obj.usuario_evento.first_name} {obj.usuario_evento.last_name}"
+    
+    display_usuario_evento.short_description = 'Usuario del Evento'  # Cambia el encabezado de la columna
+
+    def get_queryset(self, request):
+        # Optimiza la consulta para reducir la carga de la base de datos
+        return super().get_queryset(request).select_related('usuario_evento')
+
+
+
 # Inclusión de el modelo ENTRADAS en la consola de administración de Django
 @admin.register(Entradas)
 class Entradaadmin(admin.ModelAdmin):

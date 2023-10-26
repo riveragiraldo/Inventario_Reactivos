@@ -255,10 +255,18 @@ class ConfiguracionSistemaForm(forms.ModelForm):
         required=True,
         label="Introduzca el correo de administrador para solicitudes",
     )
+    tiempo_vencimiento_reactivos=forms.IntegerField(
+        widget=forms.NumberInput(attrs={'class': 'form-control',
+                                        'title':'Introduzca el número de días previos al vencimiento de reactivos',
+                                        'placeholder':'Número de días antes del vencimiento de reactivos',}),
+        required=True,
+        label="Introduzca el tiempo previo de vencimeinto de reactivos para alertas",
+        
+    )
 
     class Meta:
         model = ConfiguracionSistema
-        fields = ['tiempo_solicitudes', 'tiempo_eventos', 'correo_administrador']
+        fields = ['tiempo_solicitudes', 'tiempo_eventos', 'correo_administrador','tiempo_vencimiento_reactivos']
 
     def clean(self):
         cleaned_data = super().clean()

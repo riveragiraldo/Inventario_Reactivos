@@ -139,31 +139,21 @@ def enviar_correo_alerta_vencimiento(subject, recipient_list, message, reactivos
 
 # Tareas programadas para alertas de fecha de vencimientos
 def check_edate():
-    print(f'REVISIÓN DE FECHA DE VENCIMIENTO DE LOS LABORATORIOS')
-    print(f'....................................................')
+    
     # Obtenemos la fecha actual
     today = now().date()
 
     # Iteramos a través de los laboratorios
     for lab in Laboratorios.objects.all():
-        print(f"    {lab.name}    \n----------------------------------------------------")
-
+        
         # Filtramos los reactivos de este laboratorio cuya fecha de vencimiento (edate) es menor o igual a la fecha actual
         reactivos_vencidos = Inventarios.objects.filter(edate__lte=today, is_active=True, edate__isnull=False, lab=lab)
 
-        # Imprimimos la lista de reactivos vencidos para este laboratorio
         if reactivos_vencidos:
-            print(f"    REACTIVOS VENCIDOS    \n----------------------------------------------------")
-            for reactivo in reactivos_vencidos:
-                print(f"{reactivo.name}: FECHA DE VENCIMIENTO: {reactivo.edate},")
-            
-            print(f"    COORDINADORES    \n----------------------------------------------------")
-            
+                      
             # Consulta para obtener los usuarios con el rol "COORDINADOR" que pertenecen a este laboratorio
-            coordinadores = User.objects.filter(rol__name='COORDINADOR', lab=reactivo.lab)
+            coordinadores = User.objects.filter(rol__name='COORDINADOR', lab=lab)
             
-            for coordinador in coordinadores:
-                print(f"COORDINADOR: {coordinador.first_name} {coordinador.last_name}, Email: {coordinador.email}")
             
             # Ahora, construyamos el correo para este laboratorio
             subject = f'Alerta de vencimiento de reactivos en {lab.name}'
@@ -171,24 +161,85 @@ def check_edate():
             
             message = f'Estimado(s) {", ".join([f"{coordinador.first_name} {coordinador.last_name}" for coordinador in coordinadores])},\n'
             message += f'Los siguientes reactivos están vencidos en el laboratorio {lab.name}:\n\n'
-            
-            # for reactivo in reactivos_vencidos:
-            #     message += f'- {reactivo.name}: Fecha de vencimiento: {reactivo.edate}\n'
-            
+                       
             enviar_correo_alerta_vencimiento(subject, recipient_list, message, reactivos_vencidos)
-            print('Correo enviado.')
-            print('====================================================')
-        else:
-            print(f"No hay reactivos vencidos en este laboratorio.") 
-            print('====================================================')  
+        
+# Función que revisa los reactivos próximos a vencer
+def check_upcoming_edate():
     
+    # Obtener la fecha actual
+    today = datetime.now().date()
+    # Obtener la configuración del sistema (debería haber solo una instancia)
+    configuracion = ConfiguracionSistema.objects.first()
+    if configuracion:
+        # Obten el valor de 'tiempo_vencimiento_reactivos' de la configuración
+        delta = configuracion.tiempo_vencimiento_reactivos
+    else:
+        # Calculamos la fecha de final (90 días en el futuro)
+        delta=90
+    # Calculamos la fecha de inicio (mañana)
+    start_date = today + timedelta(days=1)
+    
+    
+    end_date = today + timedelta(days=delta)
 
-schelduler=BackgroundScheduler()
-schelduler.add_job(check_edate, 'interval', minutes=10, )
+    # Iteramos a través de los laboratorios
+    for lab in Laboratorios.objects.all():
+        
+        # Filtramos los reactivos de este laboratorio cuya fecha de vencimiento (edate) está entre la fecha de inicio y final
+        reactivos_proximos_a_vencer = Inventarios.objects.filter(edate__gte=start_date, edate__lte=end_date, is_active=True, edate__isnull=False, lab=lab)
 
+        if reactivos_proximos_a_vencer:
+            # Consulta para obtener los usuarios con el rol "COORDINADOR" que pertenecen a este laboratorio
+            coordinadores = User.objects.filter(rol__name='COORDINADOR', lab=lab)
+                      
+            # Ahora, construyamos el correo para este laboratorio
+            subject = f'Alerta de reactivos próximos a vencer en {lab.name}'
+            recipient_list = [coordinador.email for coordinador in coordinadores]
+            
+            message = f'Estimado(s) {", ".join([f"{coordinador.first_name} {coordinador.last_name}" for coordinador in coordinadores])},\n'
+            message += f'Los siguientes reactivos están próximos a vencer en un lapso de los próximos {delta} días, en el laboratorio {lab.name}:\n\n'
+            enviar_correo_alerta_vencimiento(subject, recipient_list, message, reactivos_proximos_a_vencer)
+            
 
-schelduler.start()
+# Define una función para calcular el día específico (en segundos) basado en el día actual y el desplazamiento (120 días).
+# 1 días son 1 * 24 horas * 60 minutos * 60 segundos.
+def calculate_next_run_time():
+    import datetime
+    days=1
+    offset = datetime.timedelta(days=days)
+    next_run_time = datetime.datetime.now() + offset
+    return next_run_time
+scheduler = BackgroundScheduler()
+# Programa la función para que se ejecute a las 18:10 AM cada 1 días.
+scheduler.add_job(check_edate, 'cron', day_of_week='*', hour=18, minute=10, start_date=calculate_next_run_time())
 
+scheduler.add_job(check_upcoming_edate, 'interval', days=1, )
+scheduler.start()
+
+# Vista para depuración de eventos
+def depurar_eventos_antiguos():
+    # Obtén la configuración del sistema
+    configuracion = ConfiguracionSistema.objects.first()  # Suponiendo que solo hay una configuración en la base de datos.
+
+    if configuracion:
+        # Calcula la fecha límite para eventos antiguos
+        fecha_limite = timezone.now() - timedelta(days=configuracion.tiempo_eventos)
+
+        # Elimina eventos antiguos
+        Eventos.objects.filter(fecha_evento__lt=fecha_limite).delete()
+
+# Vista para la creación de eventos
+def crear_evento(tipo_evento, usuario_evento):
+    tipo_evento=get_object_or_404(TipoEvento, name=tipo_evento)
+    evento = Eventos.objects.create(
+
+            tipo_evento=tipo_evento,
+            usuario_evento=usuario_evento,            
+
+        )
+    # Después de crear el evento, depura los eventos antiguos
+    depurar_eventos_antiguos()
 
 
 #-------------------------------------------------#
@@ -331,6 +382,10 @@ def configuraciones(request):
             form = ConfiguracionSistemaForm(request.POST)
             if form.is_valid():
                 form.save()
+                # Crea un evento de modificar configuraciones
+                tipo_evento = 'MODIFICAR CONFIGURACIONES'
+                usuario_evento = request.user
+                crear_evento(tipo_evento, usuario_evento)
                 mensaje=f'Se han creado las configuraciones de manera correcta.'
                 return HttpResponse(mensaje, 200)
         else:
@@ -341,6 +396,10 @@ def configuraciones(request):
             form = ConfiguracionSistemaForm(request.POST, instance=configuracion)
             if form.is_valid():
                 form.save()
+                # Crea un evento de modificar configuraciones
+                tipo_evento = 'MODIFICAR CONFIGURACIONES'
+                usuario_evento = request.user
+                crear_evento(tipo_evento, usuario_evento)
                 mensaje=f'Se han actualizado las configuraciones de manera correcta.'
                 return HttpResponse(mensaje, 200)
         else:
@@ -413,6 +472,10 @@ class CrearUnidades(LoginRequiredMixin, View):
 
         context = {'unidad_id': unidad.id, 'unidad_name': unidad.name}
         
+        tipo_evento = 'CREAR UNIDAD'
+        usuario_evento = request.user
+        crear_evento(tipo_evento, usuario_evento)
+        
         return HttpResponse('Operación exitosa', status=200)
 # La vista "crear_tipo de solicitude" se encarga de gestionar la creación de tipo de solictudes. Esta vista toma los datos del formulario 
 # existente en el template "crear_tipo_solicitudes.html" y realiza las operaciones necesarias en la base de datos utilizando 
@@ -452,6 +515,10 @@ class CrearTipoSolicitud(LoginRequiredMixin, View):
             last_updated_by=request.user,
         )
         tipo_solicitud_id = tipo_solicitud.id
+        # Crea un evento de crear tipo de solicitud
+        tipo_evento = 'CREAR TIPO DE SOLICITUD'
+        usuario_evento = request.user
+        crear_evento(tipo_evento, usuario_evento)
 
         messages.success(
             request, 'Se ha creado exitosamente el tipo de solicitud con nombre ' + name + ' id: ' + str(tipo_solicitud_id))
@@ -495,6 +562,11 @@ class RegistrarSolicitud(LoginRequiredMixin, CreateView):
             solicitud.last_updated_by = request.user
             solicitud.save()  # guarda la instancia con los archivos
             form.save()
+            # Crea un evento de registrar solicitud
+            tipo_evento = 'REGISTRAR SOLICITUD'
+            usuario_evento = request.user
+            crear_evento(tipo_evento, usuario_evento)
+
             mensaje = f'La solicitud se ha registrado correctamente, se a enviado un correo al administrador del sistema el radicado de su solicitud es: {solicitud.id:04}'
             messages.success(request, mensaje)  # Agregar mensaje de éxito
             # Enviar correo al usuario que registra la solicitud
@@ -572,6 +644,10 @@ def responder_solicitud(request, solicitud_code):
         solicitud.usuario_tramita=request.user
         solicitud.fecha_tramite=timezone.now()
         solicitud.save()
+        # Crea un evento de responder solicitud
+        tipo_evento = 'RESPONDER SOLICITUD'
+        usuario_evento = request.user
+        crear_evento(tipo_evento, usuario_evento)
 
         # Enviar correo al usuario que registra la solicitud
         id = solicitud.id
@@ -657,7 +733,10 @@ def crear_estado(request):
 
         messages.success(
             request, 'Se ha creado exitosamente la presentación con nombre '+estado_name+' id: '+str(estado_id))
-        
+        # Crea un evento de crear estado
+        tipo_evento = 'CREAR ESTADO'
+        usuario_evento = request.user
+        crear_evento(tipo_evento, usuario_evento)
         return HttpResponse('Operación exitosa', status=201)
 
     laboratorio = request.user.lab
@@ -700,6 +779,11 @@ def crear_almacenamiento_interno(request):
 
         )
         almacenamiento_interno_id = almacenamiento_interno.id
+        # Crea un evento de crear almacenamiento interno
+        tipo_evento = 'CREAR ALMACENAMIENTO INTERNO'
+        usuario_evento = request.user
+        crear_evento(tipo_evento, usuario_evento)
+
         messages.success(
             request, 'Se ha creado exitosamente el Almacenamiento Interno con nombre '+name+' id: '+str(almacenamiento_interno_id))
         return HttpResponse('Operación exitosa', status=201)
@@ -744,6 +828,11 @@ def crear_clase_almacenamiento(request):
 
         )
         clase_almacenamiento_id = clase_almacenamiento.id
+        # Crea un evento de crear clase de almacenamiento
+        tipo_evento = 'CREAR CLASE DE ALMACENAMIENTO'
+        usuario_evento = request.user
+        crear_evento(tipo_evento, usuario_evento)
+
         messages.success(
             request, 'Se ha creado exitosamente la clase de alamcenamiento con nombre '+name+' id: '+str(clase_almacenamiento_id))
         return HttpResponse('Operación exitosa', status=201)
@@ -826,6 +915,11 @@ def crear_responsable(request):
             last_updated_by=request.user,  # Asignar el usuario actualmente autenticado
             acceptDataProcessing=acceptDataProcessing,
         )
+        # Crea un evento de crear responsable
+        tipo_evento = 'CREAR RESPONSABLE'
+        usuario_evento = request.user
+        crear_evento(tipo_evento, usuario_evento)
+
         messages.success(
             request, 'Se ha creado exitosamente el siguiente responsable cc '+cc+' nombre: '+name+', correo: '+mail)
         return HttpResponse('Se ha creado exitosamente el siguiente responsable: '+name, status=200)
@@ -870,6 +964,11 @@ def crear_marca(request):
 
         )
         marca_id = marca.id
+        # Crea un evento de crear marca
+        tipo_evento = 'CREAR MARCA'
+        usuario_evento = request.user
+        crear_evento(tipo_evento, usuario_evento)
+
         messages.success(
             request, 'Se ha creado exitosamente la marca con nombre '+name+' id: '+str(marca_id))
         return HttpResponse('Operación exitosa', status=201)
@@ -913,6 +1012,10 @@ def crear_facultad(request):
         )
         facultad_id = facultad.id
         facultad_name = facultad.name
+        # Crea un evento de crear facultad
+        tipo_evento = 'CREAR FACULTAD'
+        usuario_evento = request.user
+        crear_evento(tipo_evento, usuario_evento)
 
         messages.success(request, 'Se ha creado exitosamente la facultad con nombre ' +
                          facultad_name+' id: '+str(facultad_id))
@@ -956,6 +1059,10 @@ def crear_ubicacion(request):
             created_by=request.user,  # Asignar el usuario actualmente autenticado
             last_updated_by=request.user,  # Asignar el usuario actualmente autenticado
         )
+        # Crea un evento de crear asignatura
+        tipo_evento = 'CREAR ASIGNATURA'
+        usuario_evento = request.user
+        crear_evento(tipo_evento, usuario_evento)
         
         messages.success(request, 'Se ha creado exitosamente la asignatura/ubicación con nombre: '+name+', facultad: '+str(facultad))
         return HttpResponse('Inserción exitosa', status=200)
@@ -997,6 +1104,11 @@ def crear_destino(request):
 
         )
         destino_id = destino.id
+        # Crea un evento de crear destino
+        tipo_evento = 'CREAR DESTINO'
+        usuario_evento = request.user
+        crear_evento(tipo_evento, usuario_evento)
+
         messages.success(
             request, 'Se ha creado exitosamente el destino con nombre '+name+' con id: '+str(destino_id))
         return HttpResponse('Operación exitosa', status=201)
@@ -1038,6 +1150,10 @@ def crear_laboratorio(request):
             last_updated_by=request.user,  # Asignar el usuario actualmente autenticado
 
         )
+        # Crea un evento de crear laboratorio
+        tipo_evento = 'CREAR LABORATORIO'
+        usuario_evento = request.user
+        crear_evento(tipo_evento, usuario_evento)
         laboratorio_id = laboratorio.id
         laboratorio_name = laboratorio.name
 
@@ -1103,6 +1219,11 @@ def crear_walmacen(request):
         )
 
         wubicacion_id = wubicaciones.id
+        # Crea un evento de ubicación en almacén
+        tipo_evento = 'CREAR UBICACION EN ALMACEN'
+        usuario_evento = request.user
+        crear_evento(tipo_evento, usuario_evento)
+
         messages.success(
             request, 'Se ha creado exitosamente la ubicacion en almacén con nombre '+name+' id: '+str(wubicacion_id))
         return HttpResponse('Operación exitosa', status=201)
@@ -1219,6 +1340,10 @@ def crear_reactivo(request):
         subject = f"Registro exitoso de creación de reactivo {reactivo.name} - {protocol}://{domain}"
         send_mail(subject, plain_message, from_email, recipient_list, fail_silently=False, html_message=message)           
 
+        # Crea un evento de crear reactivo
+        tipo_evento = 'CREAR REACTIVO'
+        usuario_evento = request.user
+        crear_evento(tipo_evento, usuario_evento)
 
 
         # Mensaje de éxito al usuario
@@ -1452,6 +1577,10 @@ def registrar_entrada(request):
                     inventario_existente.edate = edate
                     inventario_existente.last_updated_by = request.user
                     inventario_existente.save()
+                    # Crea un evento de editar inventario
+                    tipo_evento = 'EDITAR INVENTARIO'
+                    usuario_evento = request.user
+                    crear_evento(tipo_evento, usuario_evento)
                 # Si el reactivo ya existe y NO está activo(cantidad00), poner is_active=True y sumar el peso obtenido del formulario al peso existente    
                 else:
                     inventario_existente.is_active= True
@@ -1468,6 +1597,10 @@ def registrar_entrada(request):
                     inventario_existente.last_updated_by = request.user
 
                     inventario_existente.save()
+                    # Crea un evento de editar inventario
+                    tipo_evento = 'EDITAR INVENTARIO'
+                    usuario_evento = request.user
+                    crear_evento(tipo_evento, usuario_evento)
             else:
                 # Si el reactivo no existe, crear un nuevo registro en la tabla de inventarios
                 weight = request.POST.get('weight')
@@ -1506,6 +1639,10 @@ def registrar_entrada(request):
                     last_updated_by=request.user,  # Asignar el usuario actualmente autenticado
                 
                 )
+                # Crea un evento de crear inventario
+                tipo_evento = 'CREAR INVENTARIO'
+                usuario_evento = request.user
+                crear_evento(tipo_evento, usuario_evento)
 
         except Inventarios.DoesNotExist:
             weight = request.POST.get('weight')
@@ -1596,7 +1733,10 @@ def registrar_entrada(request):
             recipient_list.extend(coordinator.email for coordinator in coordinators)
             subject = f"Registro exitoso de entrada de inventario de {entrada.name} en {entrada.lab.name} - {protocol}://{domain}"
             send_mail(subject, plain_message, from_email, recipient_list, fail_silently=False, html_message=message)           
-
+            # Crea un evento de registrar entrada
+            tipo_evento = 'REGISTRAR ENTRADA'
+            usuario_evento = request.user
+            crear_evento(tipo_evento, usuario_evento)
             
             messages.success(request, 'Se ha registrado de manera exitosa el ingreso del insumo: ' +
                              nReactivo+', cantidad '+weight+' '+unit)
@@ -1751,12 +1891,17 @@ def registrar_salida(request):
                     inventario_existente.weight -= int(weight)
                     inventario_existente.last_updated_by = request.user
                     inventario_existente.save()
+                    # Crea un evento de editar inventario
+                    tipo_evento = 'EDITAR INVENTARIO'
+                    usuario_evento = request.user
+                    crear_evento(tipo_evento, usuario_evento)
                     #Verificación después de restar en la tabla llegue a cero y ponga en warning la alerta que 
                     # posteriormente se enviará al usuario informando
                     if inventario_existente.weight == 0:
                         inventario_existente.is_active = False  # Asignar False a la columna is_active
                         inventario_existente.last_updated_by = request.user
                         inventario_existente.save()
+                        
                         #preparar alerta para mensaje al usuario
                         warning=", pero el inventario actual ha llegado a 0. Favor informar al coordinador de laboratorio."
                          # Envío de correo al coordinador del laboratorio
@@ -1859,6 +2004,10 @@ def registrar_salida(request):
             subject = f"Registro exitoso de salida de inventario de {salida.name} en {salida.lab.name} - {protocol}://{domain}"
             send_mail(subject, plain_message, from_email, recipient_list, fail_silently=False, html_message=message)           
 
+            # Crea un evento de registrar salida
+            tipo_evento = 'REGISTRAR SALIDA'
+            usuario_evento = request.user
+            crear_evento(tipo_evento, usuario_evento)
             # Mensaje de confirmación al usuario
             messages.success(request, 'Se ha registrado de manera exitosa la salida del insumo del insumo: ' +
                              nReactivo+', cantidad '+weight+' '+unit+warning)
@@ -1942,7 +2091,10 @@ def editar_reactivo(request, pk):
 
 
         reactivo.save()
-        
+        # Crea un evento de editar reactivo
+        tipo_evento = 'EDITAR REACTIVO'
+        usuario_evento = request.user
+        crear_evento(tipo_evento, usuario_evento)
         
         return HttpResponse('Reactivo editado correctamente: '+name, status=200)
     
@@ -2101,16 +2253,7 @@ def editar_entrada(request, pk):
         # Obtener la fecha futura (mañana)
         tomorrow = today + timedelta(days=1)
 
-        # Obtener la fecha máxima permitida (31/12/2100)
-        max_date = datetime(2100, 12, 31).date()
-
-        # Verificar si la fecha de vencimiento es válida
-        if not tomorrow <= edate <= max_date:
-		    # Fecha no válida, mostrar el mensaje de error
-            tomorrow = tomorrow.strftime('%d/%m/%Y')
-            mensaje='Por favor ingrese una fecha válida entre '+str(tomorrow)+' y 31/12/2100'
-            messages.error(request, mensaje)
-            return HttpResponse("Error de cantidades al insertar en la base de datos", status=400)        
+           
         
         
         # Obtener minStockControl
@@ -2189,9 +2332,15 @@ def editar_entrada(request, pk):
                     cantidad=f'{inventario_existente.weight}'
                     unidad=f'{inventario_existente.name.unit}'
                     mensaje=f'Con el proceso de edición de la entrada de reactivo {reactivo}, con marca {marca} y referencia {referencia}; ha llegado a cantidades críticas ({cantidad} {unidad}), por debajo del stock mínimo ({inventario_existente.minstock} {unidad}).'
-                    enviar_correo_alerta(request, alerta, reactivo, marca, referencia,cantidad,unidad,mensaje)                    
+                    enviar_correo_alerta(request, alerta, reactivo, marca, referencia,cantidad,unidad,mensaje)
+                inventario_existente.save()
+            
+            # Crea un evento de editar inventario
+            tipo_evento = 'EDITAR INVENTARIO'
+            usuario_evento = request.user
+            crear_evento(tipo_evento, usuario_evento)                    
             # Si no existe en la base de datos se creará un nuevo registro de inventario    
-            else:
+            if not inventario_existente:
                 inventario = Inventarios.objects.create(
                     name=name,
                     trademark=trademark,
@@ -2205,8 +2354,12 @@ def editar_entrada(request, pk):
                     created_by=request.user,  # Asignar el usuario actualmente autenticado
                     last_updated_by=request.user,  # Asignar el usuario actualmente autenticado
                     )
-            inventario_existente.save()
+                # Crea un evento de crear inventario
+                tipo_evento = 'CREAR INVENTARIO'
+                usuario_evento = request.user
+                crear_evento(tipo_evento, usuario_evento)
 
+            
 
         
         except Inventarios.DoesNotExist:
@@ -2232,6 +2385,10 @@ def editar_entrada(request, pk):
         entrada.save()
         mensaje=f'Se ha editado de manera exitosa la entrada del: {nReactivo} , cantidad {weight} {unit}'
         mensaje+=warning
+        # Crea un evento de editar entrada
+        tipo_evento = 'EDITAR ENTRADA'
+        usuario_evento = request.user
+        crear_evento(tipo_evento, usuario_evento)
 
         # Envía una respuesta de éxito (puedes personalizar el mensaje según tu necesidad)
         return HttpResponse(mensaje, status=200)
@@ -2454,7 +2611,11 @@ def editar_salida(request, pk):
                         enviar_correo_alerta(request, alerta, reactivo, marca, referencia,cantidad,unidad,mensaje)
                     # Actualizar el resto de datos del inventario
                     inventario_existente.last_updated_by=request.user
-                    inventario_existente.save()                
+                    inventario_existente.save()  
+                    # Crea un evento de editar inventario
+                    tipo_evento = 'EDITAR INVENTARIO'
+                    usuario_evento = request.user
+                    crear_evento(tipo_evento, usuario_evento)              
             else:
                 return HttpResponse("No se puede realizar la edición de la salida ya que los valor seleccionados (Laboratorio, Reactivo, Marca o referencia) no corresponden a un insumo existente en el inventario, verifique de nuevo", status=400)
 
@@ -2479,6 +2640,10 @@ def editar_salida(request, pk):
         salida.lab=laboratorio
         salida.created_by=request.user  # Asignar el usuario actualmente autenticado
         salida.save()
+        # Crea un evento de editar salida
+        tipo_evento = 'EDITAR SALIDA'
+        usuario_evento = request.user
+        crear_evento(tipo_evento, usuario_evento)
         
         mensaje=f'Se ha editado de manera exitosa la salida del insumo : {salida.name} cantidad: {salida.weight} {unit}{warning}.'
         return HttpResponse(mensaje, status=200)
@@ -2518,6 +2683,10 @@ def eliminar_usuario(request, pk):
     usuario.is_active=False
     usuario.last_updated_by=request.user
     usuario.save()
+    # Crea un evento de eliminar usuario
+    tipo_evento = 'ELIMINAR USUARIO'
+    usuario_evento = request.user
+    crear_evento(tipo_evento, usuario_evento)
     
     # Construye el mensaje de éxito
     mensaje = f'Se ha eliminado a petición del usuario el registro número {pk} usuario "{usuario.first_name} {usuario.last_name}" de manera exitosa.'
@@ -2535,6 +2704,11 @@ def activar_usuario(request, pk):
     usuario.is_active=True
     usuario.last_updated_by=request.user
     usuario.save()
+
+    # Crea un evento de activar usuario
+    tipo_evento = 'ACTIVAR USUARIO'
+    usuario_evento = request.user
+    crear_evento(tipo_evento, usuario_evento)
     
     # Construye el mensaje de éxito
     mensaje = f'Se ha restaurado a petición del usuario el registro número {pk} usuario "{usuario.first_name} {usuario.last_name}" de manera exitosa.'
@@ -2554,6 +2728,10 @@ def eliminar_reactivo(request, pk):
     reactivo.is_active=False
     reactivo.last_updated_by=request.user
     reactivo.save()
+    # Crea un evento de eliminar reactivo
+    tipo_evento = 'ELIMINAR REACTIVO'
+    usuario_evento = request.user
+    crear_evento(tipo_evento, usuario_evento)
     
     # Construye el mensaje de éxito
     mensaje = f'Se ha eliminado a petición del usuario el registro número {pk} reactivo "{reactivo.name}" de manera exitosa.'
@@ -2571,6 +2749,12 @@ def activar_reactivo(request, pk):
     reactivo.is_active=True
     reactivo.last_updated_by=request.user
     reactivo.save()
+
+    # Crea un evento de activar reactivo
+    tipo_evento = 'ACTIVAR REACTIVO'
+    usuario_evento = request.user
+    crear_evento(tipo_evento, usuario_evento)
+
     
     # Construye el mensaje de éxito
     mensaje = f'Se ha activado a petición del usuario el registro número {pk} reactivo "{reactivo.name}" de manera exitosa.'
@@ -2626,12 +2810,23 @@ def eliminar_entrada(request, pk):
             mensaje=f'Con el proceso de eliminación del registro de la entrada de reactivo {reactivo}, con marca {marca} y referencia {referencia}; ha llegado a cantidades críticas ({cantidad} {unidad}), por debajo del stock mínimo ({inventario.minstock} {unidad}).'
             enviar_correo_alerta(request, alerta, reactivo, marca, referencia,cantidad,unidad,mensaje)
     
+
+    # Crea un evento de editar inventario
+    
+    tipo_evento = 'EDITAR INVENTARIO'
+    
+    usuario_evento = request.user
+    
+    crear_evento(tipo_evento, usuario_evento)
     inventario.save()    
     # Elimina el registro lo inactiva, no lo elimina y además actualiza el usuario que realiza la acción
     entrada.is_active=False
     entrada.last_updated_by=request.user
     entrada.save()
-    
+    # Crea un evento de eliminar entrada
+    tipo_evento = 'ELIMINAR ENTRADA'
+    usuario_evento = request.user
+    crear_evento(tipo_evento, usuario_evento)
     # Construye el mensaje de éxito
     mensaje = f'Se ha eliminado a petición del usuario el registro número {pk} reactivo "{nombre_entrada}" de manera exitosa.'
     mensaje = mensaje+warning
@@ -2686,11 +2881,20 @@ def eliminar_salida(request, pk):
             mensaje=f'Con el proceso de eliminación del registro de la salida de reactivo {reactivo}, con marca {marca} y referencia {referencia}; ha llegado a cantidades críticas ({cantidad} {unidad}), por debajo del stock mínimo ({inventario.minstock} {unidad}).'
             enviar_correo_alerta(request, alerta, reactivo, marca, referencia,cantidad,unidad,mensaje)
     
-    inventario.save()    
+    inventario.save()
+    # Crea un evento de editar inventario
+    tipo_evento = 'EDITAR INVENTARIO'
+    usuario_evento = request.user
+    crear_evento(tipo_evento, usuario_evento)    
     # Elimina el registro lo inactiva, no lo elimina y además actualiza el usuario que realiza la acción
     salida.is_active=False
     salida.last_updated_by=request.user
     salida.save()
+
+    # Crea un evento de eliminar salida
+    tipo_evento = 'ELIMINAR SALIDA'
+    usuario_evento = request.user
+    crear_evento(tipo_evento, usuario_evento)
     
     # Construye el mensaje de éxito
     mensaje = f'Se ha eliminado a petición del usuario el registro número {pk} reactivo "{nombre_salida}" de manera exitosa.'
@@ -2771,9 +2975,9 @@ class InventarioListView(LoginRequiredMixin,ListView):
         for inventario in inventarios:
             # Obtener la fecha de vencimiento
             edate = inventario.edate
-
-            # Cambiar el formato de fecha de inglés a formato dd/mm/aaaa
-            edate = edate.strftime('%d/%m/%Y')
+            if edate:
+                # Cambiar el formato de fecha de inglés a formato dd/mm/aaaa
+                edate = edate.strftime('%d/%m/%Y')
 
             # Actualizar la fecha en el inventario
             inventario.edate = edate
@@ -3350,6 +3554,102 @@ class UsuariosListView(LoginRequiredMixin,ListView):
                     
         queryset = queryset.order_by('id')
         return queryset
+# Listado de eventos
+
+class EventosListView(LoginRequiredMixin,ListView):
+    model = Eventos
+    template_name = "admin/listado_eventos.html"
+    paginate_by = 10
+    
+    
+    @check_group_permission(groups_required=['ADMINISTRADOR'])
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        # Obtener el número de registros por página de la sesión del usuario
+        per_page = request.session.get('per_page')
+        if per_page:
+            self.paginate_by = int(per_page)
+        else:
+            self.paginate_by = 10  # Valor predeterminado si no hay variable de sesión
+
+        # Obtener los parámetros de filtrado
+        
+        id_user = request.GET.get('id_user')
+        # Obtener las fechas de inicio y fin de la solicitud GET
+        start_date = self.request.GET.get('start_date')
+        end_date = self.request.GET.get('end_date')
+        
+        
+        
+
+        # Guardar los valores de filtrado en la sesión
+        
+        request.session['filtered_id'] = id_user
+        request.session['filtered_start_date'] = start_date
+        request.session['filtered_end_date'] = end_date
+           
+        
+
+        return super().get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # Obtener la fecha de hoy
+        today = date.today()
+        # Agregar la fecha de hoy al contexto
+        context['today'] = today
+        
+        laboratorio = self.request.user.lab
+        
+    
+        context['usuarios'] = User.objects.all()
+        context['roles'] = Rol.objects.all()
+        context['laboratorio'] = laboratorio
+        context['laboratorios'] = Laboratorios.objects.all()
+        
+
+        # Obtener la lista de inventarios
+        usuarios = context['object_list']
+        # Recorrer los entradas y cambiar el formato de la fecha
+        
+               
+        context['object_list'] = usuarios
+        return context
+    
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        
+        user_id = self.request.GET.get('id_user')
+        # Obtener las fechas de inicio y fin de la solicitud GET
+        start_date = self.request.GET.get('start_date')
+        end_date = self.request.GET.get('end_date')
+             
+        # Validar y convertir las fechas
+        try:
+            if start_date:
+                start_date = make_aware(datetime.strptime(start_date, '%Y-%m-%d'))
+            if end_date:
+                end_date = make_aware(datetime.strptime(end_date, '%Y-%m-%d').replace(hour=23, minute=59, second=59))
+        except ValueError:
+            # Manejar errores de formato de fecha aquí si es necesario
+            pass
+        
+        # Realiza la filtración de acuerdo a las fechas
+        if start_date:
+            queryset = queryset.filter(fecha_evento__gte=start_date)
+        if end_date:
+            queryset = queryset.filter(fecha_evento__lte=end_date)
+        elif start_date and end_date:
+            queryset = queryset.filter(fecha_evento__gte=start_date,fecha_evento__lte=end_date)
+        
+        if user_id:
+            queryset = queryset.filter(usuario_evento=user_id)
+                    
+        queryset = queryset.order_by('-id')
+        return queryset
 
 # Muestra el listado de reactivos
 class ReactivosListView(LoginRequiredMixin,ListView):
@@ -3545,7 +3845,10 @@ class CrearUsuario(LoginRequiredMixin, CreateView):
         self.send_confirmation_email(user)
 
         # Agregar mensaje de éxito
-        
+        # Crea un evento de crear usuario
+        tipo_evento = 'CREAR USUARIO'
+        usuario_evento = self.request.user
+        crear_evento(tipo_evento, usuario_evento)
         messages.success(self.request, f"Se ha creado exitosamente el usuario {user.first_name} {user.last_name} y se ha enviado un correo electrónico de confirmación a {user.email}.")
 
         return HttpResponse('Operación exitosa', status=200)
@@ -3681,6 +3984,11 @@ def editar_usuario(request, pk):
         usuario.lab=lab
         usuario.last_updated_by=request.user
         usuario.save()
+
+        # Crea un evento de editar usuario
+        tipo_evento = 'EDITAR USUARIO'
+        usuario_evento = request.user
+        crear_evento(tipo_evento, usuario_evento)
 
         mensaje = f"Se ha editado exitosamente el usuario {usuario.first_name} {usuario.last_name}."
         return HttpResponse(mensaje,200)    
@@ -3873,6 +4181,38 @@ class GuardarPerPageViewIn(LoginRequiredMixin,View):
             url += '?' + urlencode(params)
 
         return redirect(url)
+    
+# Guarda los valores de búsqueda del listado para cuando se efectue un cambio en la paginación se conserven 
+# estos valores y se sostenga los criterios de búsqueda    
+class GuardarPerPageViewEvent(LoginRequiredMixin,View):
+    def get(self, request, *args, **kwargs):
+        per_page = kwargs.get('per_page')
+        request.session['per_page'] = per_page
+
+        # Redirigir a la página de inventario con los parámetros de filtrado actuales
+        
+        filtered_start_date = request.session.get('filtered_start_date')
+        filtered_end_date = request.session.get('filtered_end_date')
+        filtered_id = request.session.get('filtered_id')
+        
+        
+        
+        url = reverse('reactivos:listado_eventos')
+        params = {}
+        if filtered_id:
+            params['id_user'] = filtered_id
+        
+        if filtered_start_date:
+            params['start_date'] = filtered_start_date
+        if filtered_end_date:
+            params['end_date'] = filtered_end_date
+        
+        
+        if params:
+            url += '?' + urlencode(params)
+
+        return redirect(url)
+
 # Guarda los valores de búsqueda del listado para cuando se efectue un cambio en la paginación se conserven 
 # estos valores y se sostenga los criterios de búsqueda    
 class GuardarPerPageViewOut(LoginRequiredMixin,View):
@@ -4030,6 +4370,10 @@ class CrearRoles(LoginRequiredMixin, View):
             last_updated_by=request.user,
         )
         rol_id = rol.id
+        # Crea un evento de crear rol
+        tipo_evento = 'CREAR ROL'
+        usuario_evento = request.user
+        crear_evento(tipo_evento, usuario_evento)
 
         messages.success(
             request, 'Se ha creado exitosamente el rol con nombre ' + name + ' id: ' + str(rol_id))
@@ -4764,6 +5108,162 @@ def export_to_excel_input(request):
     response = HttpResponse(
         content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     response['Content-Disposition'] = 'attachment; filename=Registro_Entradas.xlsx'
+
+    workbook.save(response)
+
+    return response
+
+# Utilizando los valores filtrados en el template listado_entradas.html, y guardados en los datos de sesión, se crea el archivo de Excel 
+# correspondiente e se introducen los valores desde la tabla del modelo Inventarios. Además, se aplican formatos a los encabezados, se 
+# coloca un título, la fecha de creación y el logo. También se ajustan los anchos de columna y las alturas de fila, y se añaden filtros 
+# a los encabezados en caso de que el usuario lo solicite
+@login_required
+def export_to_excel_event(request):
+    # Obtener los valores filtrados almacenados en la sesión del usuario
+    
+    start_date = request.session.get('filtered_start_date')
+    end_date = request.session.get('filtered_end_date')
+    user_id = request.session.get('filtered_id')
+    
+    
+    # Validar y convertir las fechas
+    try:
+        if start_date:
+            start_date = make_aware(datetime.strptime(start_date, '%Y-%m-%d'))
+        if end_date:
+            end_date = make_aware(datetime.strptime(end_date, '%Y-%m-%d').replace(hour=23, minute=59, second=59))
+    except ValueError:
+            # Manejar errores de formato de fecha aquí si es necesario
+        pass
+
+    queryset = Eventos.objects.all()
+    #Filtra según los valores previos de filtro en los selectores
+
+    # Realiza la filtración de acuerdo a las fechas
+    if start_date:
+        queryset = queryset.filter(fecha_evento__gte=start_date)
+    if end_date:
+        queryset = queryset.filter(fecha_evento__lte=end_date)
+    elif start_date and end_date:
+        queryset = queryset.filter(fecha_evento__gte=start_date,fecha_evento__lte=end_date)
+    
+    if user_id:
+        queryset = queryset.filter(usuario_evento=user_id)
+                
+    queryset = queryset.order_by('-id')
+        
+
+    workbook = openpyxl.Workbook()
+    sheet = workbook.active
+
+    # Ruta al archivo de imagen del logotipo
+
+    logo_path = finders.find('inventarioreac/Images/escudoUnal_black.png')
+
+    # Cargar la imagen y procesarla con pillow
+    pil_image = PILImage.open(logo_path)
+
+    # Crear un objeto Image de openpyxl a partir de la imagen procesada
+    image = ExcelImage(pil_image)
+
+    # Anclar la imagen a la celda A1
+    sheet.add_image(image, 'A1')
+
+    # Obtener la fecha actual
+    fecha_creacion = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+
+    # Unificar las celdas A1, B1, C1 y D1
+    sheet.merge_cells('C1:F1')
+
+    sheet['C1'] = 'Listado de eventos'
+    sheet['C2'] = 'Fecha de Creación: '+fecha_creacion
+    sheet['A4'] = 'Consecutivo'
+    sheet['B4'] = 'Fecha y hora de evento'
+    sheet['C4'] = 'Tipo de evento'
+    sheet['D4'] = 'Usuario'    
+
+    # Establecer la altura de la fila 1 y 2 a 30 y fila 3 a 25
+    sheet.row_dimensions[1].height = 30
+    sheet.row_dimensions[2].height = 30
+    sheet.row_dimensions[3].height = 25
+
+    # Establecer estilo de celda para A1
+
+    cell_A1 = sheet['C1']
+    cell_A1.font = Font(bold=True, size=16)
+
+    # Configurar los estilos de borde
+    thin_border = Border(left=Side(style='thin'), right=Side(
+    style='thin'), top=Side(style='thin'), bottom=Side(style='thin'))
+
+    # Establecer el estilo de las celdas A2:D3
+    bold_font = Font(bold=True)
+
+    # Establecer el ancho de la columna A a 6
+    sheet.column_dimensions['A'].width = 6
+
+    # Establecer el ancho de la columna B a 25
+    sheet.column_dimensions['B'].width = 25
+
+    # Establecer el ancho de la columna C a 34
+    sheet.column_dimensions['C'].width = 34
+
+    # Establecer el ancho de la columna D a 18
+    sheet.column_dimensions['D'].width = 18
+
+    row = 4
+    # Aplicar el estilo de borde a las celdas de la fila actual
+    for col in range(1, 5):
+        sheet.cell(row=row, column=col).border = thin_border
+        sheet.cell(row=row, column=col).font = bold_font
+
+    row = 5
+    for item in queryset:
+        
+        sheet.cell(row=row, column=1).value = item.id
+        sheet.cell(row=row, column=2).value = str((item.fecha_evento).strftime('%d/%m/%Y %H:%M:%S'))
+        sheet.cell(row=row, column=3).value = item.tipo_evento.name
+        sheet.cell(row=row, column=4).value = f'{item.usuario_evento.first_name} {item.usuario_evento.last_name}'
+
+               
+        # Aplicar el estilo de borde a las celdas de la fila actual
+        for col in range(1, 5):
+            sheet.cell(row=row, column=col).border = thin_border
+
+        row += 1
+
+    # Obtén el rango de las columnas de la tabla
+    start_column = 1
+    end_column = 4
+    start_row = 4
+    end_row = row - 1
+
+    # Convertir los números de las columnas en letras de columna
+    start_column_letter = get_column_letter(start_column)
+    end_column_letter = get_column_letter(end_column)
+
+    # Rango de la tabla con el formato "A4:I{n}", donde n es el número de filas en la tabla
+    table_range = f"{start_column_letter}{start_row}:{end_column_letter}{end_row}"
+
+    # Agregar filtros solo a las columnas de la tabla
+    sheet.auto_filter.ref = table_range
+
+    # Establecer fondo blanco desde la celda A1 hasta el final de la tabla
+
+    fill = PatternFill(fill_type="solid", fgColor=WHITE)
+    start_cell = sheet['A1']
+    end_column_letter = get_column_letter(end_column+1)
+    end_row = row+1
+    end_cell = sheet[end_column_letter + str(end_row)]
+    table_range = start_cell.coordinate + ':' + end_cell.coordinate
+
+    for row in sheet[table_range]:
+        for cell in row:
+            cell.fill = fill
+
+    response = HttpResponse(
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename=Listado_Eventos.xlsx'
 
     workbook.save(response)
 
@@ -6266,6 +6766,8 @@ class AutocompleteUserAPI(LoginRequiredMixin,View):
     def get(self, request):
         term = request.GET.get('term', '')
         lab = request.GET.get('lab', '')
+        if not lab:
+            lab='0'
         if lab=='0':       
             usuarios = User.objects.filter(
                 Q(first_name__icontains=term) | Q(last_name__icontains=term) | Q(id_number__icontains=term) | Q(phone_number__icontains=term) | Q(email__icontains=term) | Q(username__icontains=term)
@@ -6428,6 +6930,7 @@ class LoginView(RedirectURLMixin, FormView):
                     "Redirection loop for authenticated user detected. Check that "
                     "your LOGIN_REDIRECT_URL doesn't point to a login page."
                 )
+            
             return HttpResponseRedirect(redirect_to)
         return super().dispatch(request, *args, **kwargs)
 
@@ -6449,6 +6952,10 @@ class LoginView(RedirectURLMixin, FormView):
     def form_valid(self, form):
         """Security check complete. Log the user in."""
         auth_login(self.request, form.get_user())
+        # Crea un evento de inicio de sesión
+        tipo_evento = 'INICIO DE SESION'
+        usuario_evento = self.request.user
+        crear_evento(tipo_evento, usuario_evento)
         return HttpResponseRedirect(self.get_success_url())
 
     def get_context_data(self, **kwargs):
@@ -6490,6 +6997,11 @@ class LogoutView(RedirectURLMixin, TemplateView):
 
     @method_decorator(csrf_protect)
     def post(self, request, *args, **kwargs):
+        # Crea un evento de cierre de sesión
+        tipo_evento = 'CIERRE DE SESION'
+        usuario_evento = self.request.user
+        crear_evento(tipo_evento, usuario_evento)
+
         """Logout may be done via POST."""
         auth_logout(request)
         redirect_to = self.get_success_url()
@@ -6758,6 +7270,11 @@ class PasswordChangeView(PasswordContextMixin, FormView):
         form.save()
         # Updating the password logs out all other sessions for the user
         # except the current one.
+        # Crea un evento de cambio de contraseña
+        tipo_evento = 'CAMBIAR CONTRASENA'
+        usuario_evento = self.request.user
+        crear_evento(tipo_evento, usuario_evento)
+
         update_session_auth_hash(self.request, form.user)
         return super().form_valid(form)
 

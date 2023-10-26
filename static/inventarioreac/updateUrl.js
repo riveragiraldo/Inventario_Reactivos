@@ -54,3 +54,12 @@ if (currentUrl.endsWith('/solicitudes/listado_solicitudes/')) {
     // Redirigir a la nueva URL
     window.location.href = newUrl;
 }
+
+// Verificar si la URL no tiene parámetros de búsqueda para solicitudes
+if (currentUrl.endsWith('/administrar/listado_eventos/')) {
+    // Modificar la URL agregando los parámetros de búsqueda deseados
+    const newUrl = currentUrl + '?name=&id_user=&start_date=&end_date='+today;
+
+    // Redirigir a la nueva URL
+    window.location.href = newUrl;
+}
