@@ -132,6 +132,9 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 BASE_URL = 'https://laboratorios.manizales.unal.edu.co/chemicaltracker'
 
+# Tiempo de inactividad en segundos antes de que la sesión expire (60 minutos)
+SESSION_COOKIE_AGE = 3600  # 60 minutos
+
 
 
 

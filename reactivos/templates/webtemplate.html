@@ -37,13 +37,18 @@
 	<link rel="stylesheet" type="text/css" href="{% static 'inventarioreac/css/printer.css' %}" media="print">
 
 
+	
 	<script src="{% static 'inventarioreac/js/jquery.js' %}" type="text/javascript"></script>
 	<script src="{% static 'inventarioreac/js/unal.js' %}" type="text/javascript"></script>
-	<script src="{% static 'inventarioreac/js/webtemplate.js' %}" type="text/javascript"></script>
+	<script src="{% static 'inventarioreac/js/webtemplate.js' %}" type="text/javascript" defer></script>
+
+	<!-- Incluir SweetAlert2 desde CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.min.css">
 	<!-- Incluye el archivo CSS de Bootstrap -->
 
 	<!-- Incluye el archivo JavaScript de Bootstrap -->
-	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	<!-- <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" type="text/javascript" defer></script> -->
 
 
 
@@ -359,10 +364,9 @@
 					<ul class="nav navbar-nav dropdown-menu">
 						<li class="item_Docentes #>"><a href="{% url 'reactivos:index' %}" title="Volver al inicio">{{ request.user.lab|title}}</a>
 						</li>
-						<li class="item_Docentes #>"><a href="#" title="Datos de usuario" id="datosusuario"
-								data-toggle="popover"
-								data-content="<strong>Nombre:</strong> {{ request.user.first_name }} {{request.user.last_name }}<br><strong>Correo eléctrónico:</strong> {{request.user.email }}<br><strong>Teléfono:</strong> {{request.user.phone_number }}<br><strong>Laboratorio:</strong>{{request.user.lab }}<br><strong>Rol:</strong> {{request.user.rol }}"
-								data-html="true" data-placement="bottom">{{ request.user.first_name|title }}
+						<li class="item_Docentes #>"><a href="#" title="Datos de usuario" id="datosusuario" class="datos-usuario"
+							data-name="{{ request.user.first_name }} {{request.user.last_name }}"	
+							data-message="<li><strong>Nombre:</strong> {{ request.user.first_name }} {{request.user.last_name }}</li><li><strong>Nombre de usuario:</strong> {{request.user.username }}</li><li><strong>Correo eléctrónico:</strong> {{request.user.email }}</li><li><strong>Teléfono:</strong> {{request.user.phone_number }}</li><li><strong>Laboratorio:</strong>{{request.user.lab }}</li><li><strong>Rol:</strong> {{request.user.rol }}</li><li><strong>Su último acceso:</strong> {{request.user.last_login }}</li>">{{ request.user.first_name|title }}
 								{{request.user.last_name|title }}</a></li>
 						<li class="item_Docentes #>"><a href="{% url 'reactivos:password_change' %}"
 								title="Cambiar contraseña">Cambiar Contraseña</a></li>
@@ -393,9 +397,9 @@
 
 	</header>
 	<main class="detalle">
-		<br><br><br><br>
+		
 
-		<nav aria-label="breadcrumb">
+		<nav aria-label="breadcrumb" >
 			<ol class="breadcrumb" style="background-color: transparent;">
 				<li class="breadcrumb-item active" title="Inicio">Está en:</li>
 				<li class="breadcrumb-item"><a href="{% url 'reactivos:index' %}" target="_self" title="Inicio: "
@@ -403,26 +407,237 @@
 				<li class="breadcrumb-item active" aria-current="page" id="breadcrumb-title"></li>
 			</ol>
 		</nav>
+		
+		<div class="sidebar-content">
+		<div id="accordion"  class="side-left-bar">
+			<div class="card">
+				<div class="card-header" id="headingSix">
+					<h5 class="mb-0">
+						<a class="btn btn-primary" href="{% url 'reactivos:index'%}" title="Ir a la página de inicio" id="button_reagent"> 
+							<img style="vertical-align: middle; margin-right: 5px;" src="{% static 'inventarioreac/images/home_icon.png' %}" width="32" height="32" alt="Inicio">
+							Inicio
+						</a>
+					</h5>
+				</div>
+				<div id="collapseSix" class="collapse" aria-labelledby="headingSix" data-parent="#accordion">
+					<div class="card-body " style="color: white;">
+						
+					</div>
+				</div>
+			</div>
 
-		<script>
-			// Obtener el valor del campo HTML 'title'
-			var pageTitle = document.title;
 
-			// Asignar el valor al elemento de breadcrumb
-			document.getElementById("breadcrumb-title").textContent = pageTitle;
-			document.getElementById("breadcrumb_title").setAttribute("title", "Inicio " + "{{ laboratorio|title}}");
+			<div class="card">
+				<div class="card-header" id="headingSeven">
+					<h5 class="mb-0">
+						<button class="btn btn-primary" data-toggle="collapse" data-target="#collapseSeven" aria-expanded="true" aria-controls="collapseSeven" title="Opciones referentes a creación de reactivos" id="button_reagent">
+							<img style="vertical-align: middle; margin-right: 5px;" src="{% static 'inventarioreac/images/reagent_icon.png' %}" width="32" height="32" alt="Reactivos">
+							Reactivos
+						</button>
+					</h5>
+				</div>
+				<div id="collapseSeven" class="collapse" aria-labelledby="headingSeven" data-parent="#accordion">
+					<div class="card-body " style="color: white;">
+						<ul>
+							{% if request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
+							<li class="custom-li">
+								<a href="{% url 'reactivos:crear_estado'%}"title="redirecciona al formulario de creación de estados">Crear Estados</a>
+							</li>
+							{% endif %}
+							{% if request.user|has_group:"COORDINADOR" or request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
+							<li class="custom-li">
+								<a href="{% url 'reactivos:crear_unidades'%}" title="redirecciona al formulario de creación de unidades">Crear Unidades</a>
+							</li>
+							<li class="custom-li">
+								<a href="{% url 'reactivos:crear_almacenamiento_interno'%}" title="redirecciona al formulario de creación de almacenamiento interno">Crear almacenamiento interno</a>
+							</li>
+							<li class="custom-li">
+								<a href="{% url 'reactivos:crear_clase_almacenamiento'%}" title="redirecciona al formulario de creación de clase de almacenamiento">Crear clase de almacenamiento</a>
+							</li>
+							<li class="custom-li">
+								<a href="{% url 'reactivos:crear_reactivo'%}" title="redirecciona al formulario de creación de reactivos">Crear reactivos</a>
+							</li>
+							{% endif %}
+							<li class="custom-li">
+								<a href="{% url 'reactivos:listado_reactivos'%}" title="redirecciona a la vista listado de reactivos">Listado de reactivos</a>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
 
+			<div class="card">
+				<div class="card-header" id="headingEight">
+					<h5 class="mb-0">
+						<button class="btn btn-primary" data-toggle="collapse" data-target="#collapseEight" aria-expanded="true" aria-controls="collapseEight" title="Opciones referentes a creación de reactivos" id="button_reagent">
+							<img style="vertical-align: middle; margin-right: 5px;" src="{% static 'inventarioreac/images/inventory_icon.png' %}" width="32" height="32" alt="Reactivos">
+							Inventario
+						</button>
+					</h5>
+				</div>
+				<div id="collapseEight" class="collapse" aria-labelledby="headingEight" data-parent="#accordion">
+					<div class="card-body " style="color: white;">
+						<ul>
+							<li class="custom-li">
+								<a href="{% url 'reactivos:registrar_entrada'%}" title="Redirecciona al formulario de registro de entradas">Registrar Entradas</a>
+							</li>
+							<li class="custom-li">
+								<a href="{% url 'reactivos:registrar_salida'%}"title="Redirecciona al formulario de registro de salidas">Registrar Salidas</a>
+							</li>
+							<li class="custom-li">
+								<a href="{% url 'reactivos:crear_responsable'%}" title="Redirecciona al formulario de creación de responsables">Crear Responsables</a>
+							</li>
+							<li class="custom-li">
+								<a href="{% url 'reactivos:crear_marca'%}" title="Redirecciona al formulario de creación de marrcas">Crear Marcas</a>
+							</li>
+							
+							<li class="custom-li">
+								<a href="{% url 'reactivos:crear_ubicacion'%}" title="Redirecciona al formulario de creación de ubicaciones o asignaturas">Crear Ubicaciones / Asignaturas</a>
+							</li>
+							
+							<li class="custom-li">
+								<a href="{% url 'reactivos:crear_walmacen'%}" title="Redirecciona al formulario de creación de ubicaciones en el almacén">Crear Ubicaciones en Almacén</a>
+							</li>
+							
+							{% if request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
+							<li class="custom-li">
+								<a href="{% url 'reactivos:crear_facultad'%}" title="Redirecciona al formulario de creación de facultades">Crear Facultades</a>
+							</li>
+							<li class="custom-li">
+								<a href="{% url 'reactivos:crear_destino'%}" title="Redirecciona al formulario de creación de destinos">Crear Destinos</a>
+							</li>
+							{% endif %}
+							<li class="custom-li">
+								<a href="{% url 'reactivos:inventario'%}" title="Redirecciona a la vista listado de inventarios">Ver inventario</a>
+							</li>
+							{% if request.user|has_group:"COORDINADOR" or request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
+							<li class="custom-li">
+								<a href="{% url 'reactivos:listado_entradas'%}" title="Redirecciona a la vista listado de entradas">Listado de entradas</a>
+							</li>
+							<li class="custom-li">
+								<a href="{% url 'reactivos:listado_salidas'%}" title="Redirecciona a la vista listado de salidas">Listado de salidas</a>
+							</li>									
+							{% endif %}
+						</ul>
+					</div>
+				</div>
+			</div>
 
-			$(document).ready(function () {
-				$('#datosusuario').popover();
-			});
+			<div class="card">
+				<div class="card-header" id="headingNine">
+					<h5 class="mb-0">
+						<button class="btn btn-primary" data-toggle="collapse" data-target="#collapseNine" aria-expanded="true" aria-controls="collapseNine" title="Opciones referentes a creación de reactivos" id="button_reagent">
+							<img style="vertical-align: middle; margin-right: 5px;" src="{% static 'inventarioreac/images/request_icon.png' %}" width="32" height="32" alt="Reactivos">
+							Solicitudes
+						</button>
+					</h5>
+				</div>
+				<div id="collapseNine" class="collapse" aria-labelledby="headingNine" data-parent="#accordion">
+					<div class="card-body " style="color: white;">
+						<ul>
+									
+							<li class="custom-li">
+								<a href="{% url 'reactivos:registrar_solicitud'%}" title="Redirecciona al formulario de registro de solicitudes">Registrar solicitud</a>
+							</li>
+							{% if request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
+							<li class="custom-li">
+								<a href="{% url 'reactivos:crear_tipo_solicitud'%}" title="Redirecciona al formulario de creación de tipo de solicitud">Crear tipo de solicitud</a>
+							</li>
+							<li class="custom-li">
+								<a href="{% url 'reactivos:listado_solicitudes'%}" title="Redirecciona a la vista que muestra el listado de solicitudes">Listado de solicitudes</a>
+							</li>
+							{% endif %}
+						</ul>
+					</div>
+				</div>
+			</div>
 
+			<div class="card">
+				<div class="card-header" id="headingTen">
+					<h5 class="mb-0">
+						<button class="btn btn-primary" data-toggle="collapse" data-target="#collapseTen" aria-expanded="true" aria-controls="collapseTen" title="Opciones referentes a creación de reactivos" id="button_reagent">
+							<img style="vertical-align: middle; margin-right: 5px;" src="{% static 'inventarioreac/images/user_icon.png' %}" width="32" height="32" alt="Reactivos">
+							Usuarios
+						</button>
+					</h5>
+				</div>
+				<div id="collapseTen" class="collapse" aria-labelledby="headingTen" data-parent="#accordion">
+					<div class="card-body " style="color: white;">
+						<ul>
+							<li class="custom-li">
+								<a href="{% url 'reactivos:password_change'%}" title="Redirecciona al formulario de cambio de contraseña">Cambiar contraseña</a>
+							</li>
+							<li class="custom-li">
+								<a href="{% url 'reactivos:password_reset'%}" title="Redirecciona al formulario de restablecimiento de contraseña">¿Olvido su contraseña?</a>
+							</li>
+							{% if request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
+							<li class="custom-li">
+								<a href="{% url 'reactivos:crear_laboratorio'%}" title="Redirecciona al formulario de creación de laboratorios">Crear Laboratorio</a>
+							</li>
+							<li class="custom-li">
+								<a href="{% url 'reactivos:crear_roles'%}" title="Redirecciona al formulario de creación de roles">Crear Roles</a>
+							</li>
+							{% endif %}
+							{% if request.user|has_group:"COORDINADOR" or request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
+							<li class="custom-li">
+								<a href="{% url 'reactivos:crear_usuarios'%}" title="Redirecciona al formulario de creación de usuarios">Crear Usuarios</a>
+							</li>
+							<li class="custom-li">
+								<a href="{% url 'reactivos:listado_usuarios'%}" title="Redirecciona a la vista listado de usuarios">Listado Usuarios</a>
+							</li>
+							{% endif %}
+							<li class="custom-li">
+								<a href="{% url 'reactivos:logout'%}" title="Cierra sesión de usuario">Cerrar sesión</a>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+			{% if request.user.is_superuser or request.user|has_group:"ADMINISTRADOR"%}
 
-		</script>
+			<div class="card">
+				<div class="card-header" id="headingEleven">
+					<h5 class="mb-0">
+						<button class="btn btn-primary" data-toggle="collapse" data-target="#collapseEleven" aria-expanded="true" aria-controls="collapseEleven" title="Opciones referentes a creación de reactivos" id="button_reagent">
+							<img style="vertical-align: middle; margin-right: 5px;" src="{% static 'inventarioreac/images/admin_icon.png' %}" width="32" height="32" alt="Reactivos">
+							Administrar
+						</button>
+					</h5>
+				</div>
+				<div id="collapseEleven" class="collapse" aria-labelledby="headingEleven" data-parent="#accordion">
+					<div class="card-body " style="color: white;">
+						<ul>
+									
+							{% if request.user.is_superuser %}
+							<li class="custom-li">
+								<a href="{% url 'admin:index'%}" title="Consola de superusuario">Consola de superusuario</a>
+							</li>	
+							{% endif %}										
+							
+							{% if request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}					
+							
+							<li class="custom-li">
+								<a href="{% url 'reactivos:configuraciones'%}" title="Configuraciones generales del sistema">Configuraciones</a>
+							</li>
+							<li class="custom-li">
+								<a href="{% url 'reactivos:listado_eventos'%}" title="Listado de eventos del sistema">Listado de eventos</a>
+							</li>
+							{% endif %}
+							
+						</ul>
+					</div>
+				</div>
+			</div>
+			{% endif %}	
+		</div>
 
-
-
-		{% block content %}{% endblock %}
+		<div class="intermedio"></div>
+		<div class="content">
+		{% block content %}
+		{% endblock %}
+	</div>
+</div>
+	
 
 	</main>
 

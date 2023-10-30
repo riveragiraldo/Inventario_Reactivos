@@ -716,7 +716,7 @@ main .breadcrumb-class a:hover {
 }
 
 main.detalle {
-	margin: 0 10% 50px 10%;
+	margin: 80px 10% 50px 1%;
 }
 
 footer {
@@ -1275,10 +1275,12 @@ footer .logos a img {
 
 /* Estilo para botón transparente con letras blancas */
 .btn-transparent {
-    background: transparent;
-    border: none;
-    color: #fff; /* Color de texto blanco */
-    text-align: left; /* Alinea el texto a la izquierda */
+	background: transparent;
+	border: none;
+	color: #fff;
+	/* Color de texto blanco */
+	text-align: left;
+	/* Alinea el texto a la izquierda */
 	font-family: 'Ancizar sans';
 }
 
@@ -1286,48 +1288,75 @@ footer .logos a img {
 .btn-transparent:active,
 .btn-transparent:hover,
 .btn-transparent:focus {
-    background: transparent;
-    box-shadow: none;
-    color: white;
-    outline: none !important; /* Asegura que ningún estilo de enfoque tenga prioridad */
-    font-family: 'Ancizar sans';
+	background: transparent;
+	box-shadow: none;
+	color: white;
+	outline: none !important;
+	/* Asegura que ningún estilo de enfoque tenga prioridad */
+	font-family: 'Ancizar sans';
 }
 
 
 
 /* Estilo para que el botón ocupe el 100% del contenedor */
 .card-header h5 {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
 }
 
 .card-header .btn {
-    width: 100%; /* Ocupar el 100% del ancho horizontal */
-    height: 100%; /* Ocupar el 100% del alto vertical */
-    text-align: left; /* Asegura que el texto esté alineado a la izquierda */
+	width: 100%;
+	/* Ocupar el 100% del ancho horizontal */
+	height: 100%;
+	/* Ocupar el 100% del alto vertical */
+	text-align: left;
+	/* Asegura que el texto esté alineado a la izquierda */
 }
 
 /* Estilo para los enlaces que parecen botones transparentes */
 .card-body a.btn {
-    background: transparent;
-    border: none;
-    color: white;
-    text-align: center;
-    display: block;
-    width: 100%;
-    padding: 0.375rem 1rem;
-    text-decoration: none;
-    transition: background 0.3s;
+	background: transparent;
+	border: none;
+	color: white;
+	text-align: center;
+	display: block;
+	width: 100%;
+	padding: 0.375rem 1rem;
+	text-decoration: none;
+	transition: background 0.3s;
 }
 
 /* Estilo para iluminar los enlaces al pasar el cursor sobre ellos */
 .card-body a.btn:hover {
-    background: rgba(255, 255, 255, 0.2);
-    transition: background 0.3s;
+	background: rgba(255, 255, 255, 0.2);
+	transition: background 0.3s;
 }
 
 .custom-li {
-    margin-left: 38px;
+	margin-left: 38px;
 }
 
+#button_reagent {
+	width: 100%;
+	/* Un tamaño de fuente que se ajuste a aproximadamente 5 cm en una pantalla de 14" */
+	padding: 0.6em 1.2em;
+	/* Padding del botón ajustado para un tamaño aproximado a 5 cm */
+}
+
+.sidebar-content {
+	display: flex;
+}
+
+.side-left-bar {
+	width: 24%; /* Ancho de la barra lateral derecha */
+    top: 20px; /* Ajustar según sea necesario */
+}
+.intermedio {
+	width: 1%; /* Ancho de la barra lateral derecha */
+}
+
+.contentTemplate {
+	width: 75%; /* Ancho del contenido principal (ajustar según sea necesario) */
+	position: sticky;
+}

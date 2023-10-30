@@ -78,7 +78,7 @@
 <body>
     {% block content %}
     <div class="row">
-        <div class="col-md-9 mx-auto">
+        <div class="col-md-12 mx-auto">
             <h1>Listado de Eventos</h1>
             <br>
 
@@ -130,7 +130,7 @@
     </div>
     <br>
 
-    <div class="col-md-11 mx-auto">
+    <div class="col-md-12 mx-auto">
         <!-- Control de paginación -->
         <div class="d-flex justify-content-between">
             <div>Ver&nbsp;
@@ -147,11 +147,14 @@
     </div>
     </form>
     <br>
-    <div class="col-md-8">
+    <div class="col-md-12">
     <div class="table-responsive">
-        <table class="table table-striped table-condensed table-bordered " id="tabla-inventario">
+        <table class="table table-striped table-condensed table-bordered " id="tabla-inventario" style="height:200px;
+        overflow:scroll;">
 
-            <thead style="background-color: rgba(168, 162, 162, 0.507);">
+            <thead style="background-color: rgba(168, 162, 162, 0.507);position: sticky;
+            top: 0;
+            z-index: 10;">
                 <tr>
                     <th class="sortable-header" data-column="0" data-column-name="id" title="Ordenar por Consecutivo">Id</th>
                     <th class="sortable-header" data-column="1" title="Ordenar por fecha" data-column-name="date">Fecha y hora del evento</th>

@@ -142,6 +142,7 @@ def check_edate():
     
     # Obtenemos la fecha actual
     today = now().date()
+    print(str(datetime.now()))
 
     # Iteramos a través de los laboratorios
     for lab in Laboratorios.objects.all():
@@ -161,8 +162,11 @@ def check_edate():
             
             message = f'Estimado(s) {", ".join([f"{coordinador.first_name} {coordinador.last_name}" for coordinador in coordinadores])},\n'
             message += f'Los siguientes reactivos están vencidos en el laboratorio {lab.name}:\n\n'
+            print(f'Enviando correo a {recipient_list}')
                        
             enviar_correo_alerta_vencimiento(subject, recipient_list, message, reactivos_vencidos)
+        else:
+            print(f'Para el laboratorio {lab} no hay reactivos vencidos')
         
 # Función que revisa los reactivos próximos a vencer
 def check_upcoming_edate():
@@ -178,8 +182,7 @@ def check_upcoming_edate():
         # Calculamos la fecha de final (90 días en el futuro)
         delta=90
     # Calculamos la fecha de inicio (mañana)
-    start_date = today + timedelta(days=1)
-    
+    start_date = today + timedelta(days=1)   
     
     end_date = today + timedelta(days=delta)
 
@@ -199,23 +202,37 @@ def check_upcoming_edate():
             
             message = f'Estimado(s) {", ".join([f"{coordinador.first_name} {coordinador.last_name}" for coordinador in coordinadores])},\n'
             message += f'Los siguientes reactivos están próximos a vencer en un lapso de los próximos {delta} días, en el laboratorio {lab.name}:\n\n'
+            print(f'Enviar correo a {recipient_list} laboratorio {lab}')
             enviar_correo_alerta_vencimiento(subject, recipient_list, message, reactivos_proximos_a_vencer)
-            
+        else:
+            print(f'Para el laboratorio {lab} no hay reactivos próximos a vencer')
 
-# Define una función para calcular el día específico (en segundos) basado en el día actual y el desplazamiento (120 días).
-# 1 días son 1 * 24 horas * 60 minutos * 60 segundos.
-def calculate_next_run_time():
-    import datetime
-    days=1
-    offset = datetime.timedelta(days=days)
-    next_run_time = datetime.datetime.now() + offset
-    return next_run_time
+
 scheduler = BackgroundScheduler()
-# Programa la función para que se ejecute a las 18:10 AM cada 1 días.
-scheduler.add_job(check_edate, 'cron', day_of_week='*', hour=18, minute=10, start_date=calculate_next_run_time())
 
-scheduler.add_job(check_upcoming_edate, 'interval', days=1, )
-scheduler.start()
+def programar_tareas():
+    
+    configuracion = ConfiguracionSistema.objects.first()  # Suponiendo que solo hay una configuración en la base de datos.
+    
+    global scheduler
+    if configuracion:
+        
+        start_date=configuracion.fecha_incio         
+        scheduler.add_job(check_upcoming_edate, 'interval', days=configuracion.intervalo_tiempo, start_date=start_date, )
+        scheduler.add_job(check_edate, 'interval', days=configuracion.intervalo_tiempo, start_date=start_date,)
+        print(scheduler.state)
+        if  configuracion.programacion_activa:
+            if scheduler.state==0:
+                scheduler.start()
+            elif scheduler.state==2:
+                scheduler.state=1
+
+        else:
+            print(scheduler.state)
+            if scheduler.state==1:
+                scheduler.pause()
+        print(scheduler.state)
+programar_tareas()
 
 # Vista para depuración de eventos
 def depurar_eventos_antiguos():
@@ -386,6 +403,7 @@ def configuraciones(request):
                 tipo_evento = 'MODIFICAR CONFIGURACIONES'
                 usuario_evento = request.user
                 crear_evento(tipo_evento, usuario_evento)
+                programar_tareas()
                 mensaje=f'Se han creado las configuraciones de manera correcta.'
                 return HttpResponse(mensaje, 200)
         else:
@@ -400,6 +418,7 @@ def configuraciones(request):
                 tipo_evento = 'MODIFICAR CONFIGURACIONES'
                 usuario_evento = request.user
                 crear_evento(tipo_evento, usuario_evento)
+                programar_tareas()
                 mensaje=f'Se han actualizado las configuraciones de manera correcta.'
                 return HttpResponse(mensaje, 200)
         else:
@@ -4793,6 +4812,10 @@ def export_to_excel(request):
     response['Content-Disposition'] = 'attachment; filename=inventario_insumos.xlsx'
 
     workbook.save(response)
+    # crear evento descarga de archivos
+    tipo_evento = 'DESCARGA DE ARCHIVOS'
+    usuario_evento = request.user
+    crear_evento(tipo_evento, usuario_evento)
 
     return response
 
@@ -5110,6 +5133,10 @@ def export_to_excel_input(request):
     response['Content-Disposition'] = 'attachment; filename=Registro_Entradas.xlsx'
 
     workbook.save(response)
+    # crear evento descarga de archivos
+    tipo_evento = 'DESCARGA DE ARCHIVOS'
+    usuario_evento = request.user
+    crear_evento(tipo_evento, usuario_evento)
 
     return response
 
@@ -5266,6 +5293,10 @@ def export_to_excel_event(request):
     response['Content-Disposition'] = 'attachment; filename=Listado_Eventos.xlsx'
 
     workbook.save(response)
+    # crear evento descarga de archivos
+    tipo_evento = 'DESCARGA DE ARCHIVOS'
+    usuario_evento = request.user
+    crear_evento(tipo_evento, usuario_evento)
 
     return response
 
@@ -5562,6 +5593,10 @@ def export_to_excel_output(request):
     response['Content-Disposition'] = 'attachment; filename=Registro_Salidas.xlsx'
 
     workbook.save(response)
+    # crear evento descarga de archivos
+    tipo_evento = 'DESCARGA DE ARCHIVOS'
+    usuario_evento = request.user
+    crear_evento(tipo_evento, usuario_evento)
 
     return response
 
@@ -5800,6 +5835,10 @@ def export_to_excel_solicitud(request):
     response['Content-Disposition'] = 'attachment; filename=Listado_Solicitudes.xlsx'
 
     workbook.save(response)
+    # crear evento descarga de archivos
+    tipo_evento = 'DESCARGA DE ARCHIVOS'
+    usuario_evento = request.user
+    crear_evento(tipo_evento, usuario_evento)
 
     return response
 
@@ -6038,6 +6077,10 @@ def export_to_excel_user(request):
     response['Content-Disposition'] = 'attachment; filename=Listado_de_Usuarios.xlsx'
 
     workbook.save(response)
+    # crear evento descarga de archivos
+    tipo_evento = 'DESCARGA DE ARCHIVOS'
+    usuario_evento = request.user
+    crear_evento(tipo_evento, usuario_evento)
 
     return response
 
@@ -6226,6 +6269,10 @@ def export_to_excel_react(request):
     response['Content-Disposition'] = 'attachment; filename=Listado_de_Reactivos.xlsx'
 
     workbook.save(response)
+    # crear evento descarga de archivos
+    tipo_evento = 'DESCARGA DE ARCHIVOS'
+    usuario_evento = request.user
+    crear_evento(tipo_evento, usuario_evento)
 
     return response
 
@@ -6493,6 +6540,10 @@ def export_to_excel_lab(request):
     response['Content-Disposition'] = 'attachment; filename=Listado_de_Laboratorios.xlsx'
 
     workbook.save(response)
+    # crear evento descarga de archivos
+    tipo_evento = 'DESCARGA DE ARCHIVOS'
+    usuario_evento = request.user
+    crear_evento(tipo_evento, usuario_evento)
 
     return response
 

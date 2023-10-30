@@ -176,6 +176,9 @@ class ConfiguracionSistema(models.Model):
     tiempo_eventos = models.PositiveIntegerField(default=90, verbose_name='Tiempo para depuración de eventos (días)')
     tiempo_vencimiento_reactivos = models.PositiveIntegerField(default=90, verbose_name='Tiempo para verificar vencimiento de reactivos (días)')
     correo_administrador = models.EmailField(max_length=100, verbose_name='Correo del Administrador del Sistema')
+    intervalo_tiempo= models.PositiveIntegerField(verbose_name='Tiempo de revisión de fechas de vencimiento')
+    fecha_incio= models.DateTimeField(blank=True, null=True, verbose_name="Fecha y hora de inicio")
+    programacion_activa=models.BooleanField(default=False, verbose_name="Activar / Desactivar programación")
 
     def __str__(self):
         return 'Configuración del Sistema'

@@ -7,10 +7,6 @@ from reactivos.models import User, Rol, Laboratorios,Solicitudes, ConfiguracionS
 import re
 
 
-
-
-
-
 class CustomAuthenticationForm(AuthenticationForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -263,10 +259,34 @@ class ConfiguracionSistemaForm(forms.ModelForm):
         label="Introduzca el tiempo previo de vencimeinto de reactivos para alertas",
         
     )
+    intervalo_tiempo=forms.IntegerField(
+        widget=forms.NumberInput(attrs={'class': 'form-control',
+                                        'title':'Introduzca el número de días para revisión de vencimiento de reactivos',
+                                        'placeholder':'Intervalo de días para revisión de vencimientos',}),
+        required=True,
+        label="Periodicidad para la  revisión de fecha de vencimientos (días)",
+        
+    )
+    fecha_incio= forms.DateTimeField(
+        widget=forms.DateTimeInput (attrs={'class': 'form-control',
+                                        'title':'Introduzca la fecha de inicio para revisión de los vencimientos',
+                                        'placeholder':'Fecha de incio',}),
+                                        required=True,
+                                        label="Fecha de inicio",
+    )
+    
+    programacion_activa=forms.BooleanField(
+        widget=forms.NullBooleanSelect (attrs={'class': 'form-control',
+                                        'title':'Activar / Desactivar Programación',
+                                        'value':"Activa",}),
+                                        required=False,
+                                        label="Activar o desactivar programación de revisión de fechas de vencimientos",
+                                        
+    )
 
     class Meta:
         model = ConfiguracionSistema
-        fields = ['tiempo_solicitudes', 'tiempo_eventos', 'correo_administrador','tiempo_vencimiento_reactivos']
+        fields = ['tiempo_solicitudes', 'tiempo_eventos', 'correo_administrador','tiempo_vencimiento_reactivos','intervalo_tiempo','fecha_incio','programacion_activa',]
 
     def clean(self):
         cleaned_data = super().clean()

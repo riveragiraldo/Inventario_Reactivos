@@ -106,29 +106,37 @@
 
                 <div class="col-md-6">
                     <label class="form-label" for="name" name="Nombre: ">*Nombre: "Cód. - Nom. - CAS"</label>
+
+                    {% if request.user|has_group:"COORDINADOR" or request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
                     <div class="input-group">
                         <input type="text" class="form-control" name="name" id="name" placeholder="Nombre, CI o CAS"
                             title="Se puede filtrar por nombre, CI o CAS" required />
-                        {% if request.user|has_group:"COORDINADOR" or request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
-                        <button type="button" id="add_reagent_btn" class="btn btn-secondary" title="Agregar Reactivo">+
-                        </button>
-                        {% endif %}
+                        <div class="input-group-btn">
+                            <button type="button" id="add_reagent_btn" class="btn btn-secondary"
+                                title="Agregar Reactivo">+
+                            </button>
+                        </div>
                     </div>
+                        {% else %}
+                        <input type="text" class="form-control" name="name" id="name" placeholder="Nombre, CI o CAS"
+                            title="Se puede filtrar por nombre, CI o CAS" required />
+                        {% endif %}
+                    
                 </div>
 
                 <div class="col-md-2">
-                    <label class="form-label" for="code" name="Código: ">*Código:</label>
+                    <label class="form-label" for="code" name="Código: ">Código:</label>
                     <input type="text" name="code" class="form-control" value="" id="code" readonly
                         placeholder="Cód. Interno">
                 </div>
 
                 <div class="col-md-2">
-                    <label class="form-label" for="cas" name="CAS: ">*CAS:</label>
+                    <label class="form-label" for="cas" name="CAS: ">CAS:</label>
                     <input type="text" name="cas" class="form-control" value="" id="cas" readonly
                         placeholder="Cód. CAS">
                 </div>
                 <div class="col-md-2">
-                    <label class="form-label" for="is_liquid" name="Estado: ">*Estado:</label>
+                    <label class="form-label" for="is_liquid" name="Estado: ">Estado:</label>
                     <input type="text" name="is_liquid" class="form-control" value="" id="is_liquid" readonly
                         placeholder="Estado">
                 </div>
@@ -136,7 +144,7 @@
                 <div class="col-md-4">
                     <label class="form-label" for="price" name="Valor: ">*Valor:</label>
                     <div class="input-group">
-                        <span class="input-group-text">$</span>
+                        <span class="input-group-addon">$</span>
                         <input type="number" class="form-control" placeholder="Valor en COP" name="price" required
                             id="price" min="0" max="1000000000" pattern="^(?:[1-9]\d{0,8}|1000000000)$"
                             title="Ingrese un valor entero positivo sin puntos ni comas (máximo $ 1000000000)">
@@ -153,8 +161,11 @@
                             <option value="{{ marca.id }}">{{ marca.name }}</option>
                             {% endfor %}
                         </select>
-                        <button type="button" id="add_trademark_btn" class="btn btn-secondary" title="Agregar Marca">+
-                            </Address></button>
+                        <div class="input-group-btn">
+                            <button type="button" id="add_trademark_btn" class="btn btn-secondary"
+                                title="Agregar Marca">+
+                                </Address></button>
+                        </div>
                     </div>
                 </div>
 
@@ -166,13 +177,13 @@
 
                 </div>
 
-                <div class="col-md-3" id="referenceBlock">
+                <div class="col-md-4" id="referenceBlock">
                     <label class="form-label" for="reference" name="Referencia: ">*Referencia:</label>
                     <input type="text" class="form-control" placeholder="Ref. reactivo" name="reference" id="reference"
                         required>
                 </div>
 
-                <div class="col-md-4" id="weightBlock">
+                <div class="col-md-5" id="weightBlock">
                     <label class="form-label" for="weight" name="Cantidad Ingreso: ">*Cantidad:</label>
                     <input type="number" step="any" class="form-control" placeholder="Cant. reactivo" id="weight"
                         name="weight" required min="0" max="100000000" pattern="^(?:[1-9]\d{0,7}|100000000)$"
@@ -180,8 +191,8 @@
                 </div>
 
 
-                <div class="col-md-2" id="unitBlock">
-                    <label class="form-label" for="unit" name="Unidad: ">*Unidades:</label>
+                <div class="col-md-3" id="unitBlock">
+                    <label class="form-label" for="unit" name="Unidad: ">Unidades:</label>
                     <input type="text" name="unit" class="form-control" value="" id="unit" readonly>
                 </div>
                 <!-- Agregar el checkbox para Control de Stock -->
@@ -193,42 +204,28 @@
 
                 </div>
 
-                <div class="col-md-3" id="minStockBlock">
+                <div class="col-md-6" id="minStockBlock">
                     <label class="form-label" for="minstock" name="Stock mínimo: ">*Min Stock:</label>
                     <input type="number" step="any" class="form-control" placeholder="Stock Mínimo" id="minstock"
                         name="minstock" min="0" max="100000" pattern="^(?:[1-9]\d{0,4}|100000)$"
                         title="Ingrese un valor entero positivo sin puntos ni comas (máximo 100000)">
 
                 </div>
-
-                <div class="col-md-6">
-                    <label class="form-label" for="order" name="Orden: ">Número de orden:</label>
-                    <input type="text" name="order" class="form-control" id="order" placeholder="Orden Número">
-                </div>
-
-                <div class="col-md-6">
-                    <label class="form-label" for="orderdate" name="Fecha de orden:">Fecha de orden:</label>
-                    <input type="date" class="form-control" name="orderdate" id="orderdate" title="Fecha de la orden"
-                        max="{{ yesterday|date:'Y-m-d' }}">
-                </div>
-
-
-                <div class="col-md-6">
-                    <label class="form-label" for="nproject" name="Proyecto No.: ">Número de proyecto:</label>
-                    <input type="text" name="nproject" class="form-control" id="nproject" placeholder="Proyecto Número">
-                </div>
-
-                <div class="col-md-6">
+                
+                <div class="col-md-6" id="locationBlock">
                     <label class="form-label" for="location"
                         name="Asignatura Ubicación: ">*Asignatura/Ubicación:</label>
                     <div class="input-group">
                         <input type="text" name="location" class="form-control" id="location" required
                             placeholder="Asignatura/Ubicación Destino">
+                        <div class="input-group-btn">
+                            <button type="button" id="add_location_btn" class="btn btn-secondary"
+                                title="Agregar Asignatura/Ubicación">+
+                                </Address></button>
+                        </div>
                         <input type="hidden" name="facultad" class="form-control" id="facultad" placeholder="Facultad"
                             readonly>
-                        <button type="button" id="add_location_btn" class="btn btn-secondary"
-                            title="Agregar Asignatura/Ubicación">+
-                            </Address></button>
+
                     </div>
                 </div>
 
@@ -251,16 +248,20 @@
                     <div class="input-group">
                         <input type="text" name="manager" class="form-control" id="manager" required
                             placeholder="Responsable del insumo">
+                        <div class="input-group-btn">
+                            <button type="button" id="add_manager_btn" class="btn btn-secondary"
+                                title="Agregar Responsable">+
+                                </Address></button>
+                        </div>
                         <input type="hidden" name="correo" class="form-control" id="correo"
                             placeholder="Correo Responsable" readonly>
-                        <button type="button" id="add_manager_btn" class="btn btn-secondary"
-                            title="Agregar Responsable">+
-                            </Address></button>
+
                     </div>
                 </div>
 
                 <div class="col-md-6">
                     <label class="form-label" for="wlocation" name="Ubicación física: ">*Ubicación en almacén:</label>
+
                     <div class="input-group">
                         <select name="wlocation" id="wlocation" class="form-control" required>
                             <option value="">Seleccione</option>
@@ -268,12 +269,32 @@
                             <option value="{{ wubicacion.id }}">{{ wubicacion.name }}</option>
                             {% endfor %}
                         </select>
-                        <button type="button" id="add_wlocation_btn" class="btn btn-secondary"
-                            title="Agregar ubicación en Almacén">+
-                            </Address></button>
+                        <div class="input-group-btn">
+                            <button type="button" id="add_wlocation_btn" class="btn btn-secondary"
+                                title="Agregar ubicación en Almacén">+</button>
+                        </div>
                     </div>
                 </div>
 
+
+                <div class="col-md-6">
+                    <label class="form-label" for="order" name="Orden: ">Número de orden:</label>
+                    <input type="text" name="order" class="form-control" id="order" placeholder="Orden Número">
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label" for="orderdate" name="Fecha de orden:">Fecha de orden:</label>
+                    <input type="date" class="form-control" name="orderdate" id="orderdate" title="Fecha de la orden"
+                        max="{{ yesterday|date:'Y-m-d' }}">
+                </div>
+
+
+                <div class="col-md-6">
+                    <label class="form-label" for="nproject" name="Proyecto No.: ">Número de proyecto:</label>
+                    <input type="text" name="nproject" class="form-control" id="nproject" placeholder="Proyecto Número">
+                </div>
+
+                
                 <div class="col-md-12">
                     <label class="form-label" for="observations" name="Observaciones: ">Observaciones:</label>
                     <textarea name="observations" class="form-control" placeholder="Escriba sus observaciones" rows="2"
@@ -283,17 +304,17 @@
                 <input type="hidden" name="wf" class="form-control" value="entrada" id="wf">
                 <!-- identificador para saber que tipo de ventana es -->
 
+
                 <div class="col-md-6">
-                    <input type="button" value="Registrar entrada Reactivo" class="btn btn-primary"
-                        id="open_confirm_in">
+                    <input type="button" value="Registrar entrada" class="btn btn-primary" id="open_confirm_in">
                 </div>
 
                 <div class="col-md-6">
                     <button type="button" class="btn btn-primary" onclick="limpiarCampos('in_form')">Cancelar</button>
                 </div>
-                
-                
-                
+
+
+
 
             </form>
             {% if messages %}
@@ -319,19 +340,19 @@
                         text: messageText,
                         confirmButtonText: 'Aceptar'
                     }).then((result) => {
-                    if (result.isConfirmed) {
-                        // Verificar si la ventana actual es una ventana emergente
-                        if (window.opener) {
-                            // Actualizar la ventana padre
-                            window.opener.location.reload();
+                        if (result.isConfirmed) {
+                            // Verificar si la ventana actual es una ventana emergente
+                            if (window.opener) {
+                                // Actualizar la ventana padre
+                                window.opener.location.reload();
 
-                            // Cerrar la ventana actual después de un retraso
-                            setTimeout(() => {
-                                window.close();
-                            }, 200);
+                                // Cerrar la ventana actual después de un retraso
+                                setTimeout(() => {
+                                    window.close();
+                                }, 200);
+                            }
                         }
-                    }
-                });
+                    });
                 };
             </script>
             {% endfor %}
