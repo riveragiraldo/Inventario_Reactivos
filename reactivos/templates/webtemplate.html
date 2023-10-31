@@ -214,7 +214,7 @@
 									width="32" height="32" alt="Configuraciones">
 								<button title="Opciones referentes a solicitudes" class="btn btn-transparent text-white" data-toggle="collapse"
 									data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree" id="solicitudes_button">
-									Solicitudes
+									Ayuda
 								</button>
 							</h5>
 						</div>
@@ -225,6 +225,9 @@
 									
 									<li class="custom-li">
 										<a href="{% url 'reactivos:registrar_solicitud'%}" title="Redirecciona al formulario de registro de solicitudes">Registrar solicitud</a>
+									</li>
+									<li class="custom-li">
+										<a href="{% url 'reactivos:descargar_manual'%}" title="Descargar Manual de usuario">Manual de usuario</a>
 									</li>
 									{% if request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
 									<li class="custom-li">
@@ -413,7 +416,7 @@
 			<div class="card">
 				<div class="card-header" id="headingSix">
 					<h5 class="mb-0">
-						<a class="btn btn-primary" href="{% url 'reactivos:index'%}" title="Ir a la página de inicio" id="button_reagent"> 
+						<a class="btn btn-primary" id="button_reagent" href="{% url 'reactivos:index'%}" title="Ir a la página de inicio" > 
 							<img style="vertical-align: middle; margin-right: 5px;" src="{% static 'inventarioreac/images/home_icon.png' %}" width="32" height="32" alt="Inicio">
 							Inicio
 						</a>
@@ -437,31 +440,28 @@
 					</h5>
 				</div>
 				<div id="collapseSeven" class="collapse" aria-labelledby="headingSeven" data-parent="#accordion">
-					<div class="card-body " style="color: white;">
-						<ul>
+					<div class="card-body" >
+						
 							{% if request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
-							<li class="custom-li">
-								<a href="{% url 'reactivos:crear_estado'%}"title="redirecciona al formulario de creación de estados">Crear Estados</a>
-							</li>
+							
+								<a class="side-bar-link btn-primary" href="{% url 'reactivos:crear_estado'%}"title="redirecciona al formulario de creación de estados">Crear Estados</a>
+							
 							{% endif %}
 							{% if request.user|has_group:"COORDINADOR" or request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
-							<li class="custom-li">
-								<a href="{% url 'reactivos:crear_unidades'%}" title="redirecciona al formulario de creación de unidades">Crear Unidades</a>
-							</li>
-							<li class="custom-li">
-								<a href="{% url 'reactivos:crear_almacenamiento_interno'%}" title="redirecciona al formulario de creación de almacenamiento interno">Crear almacenamiento interno</a>
-							</li>
-							<li class="custom-li">
-								<a href="{% url 'reactivos:crear_clase_almacenamiento'%}" title="redirecciona al formulario de creación de clase de almacenamiento">Crear clase de almacenamiento</a>
-							</li>
-							<li class="custom-li">
-								<a href="{% url 'reactivos:crear_reactivo'%}" title="redirecciona al formulario de creación de reactivos">Crear reactivos</a>
-							</li>
+							
+								<a class="side-bar-link btn-primary" href="{% url 'reactivos:crear_unidades'%}" title="redirecciona al formulario de creación de unidades">Crear Unidades</a>
+							
+						
+								<a class="side-bar-link btn-primary" href="{% url 'reactivos:crear_almacenamiento_interno'%}" title="redirecciona al formulario de creación de almacenamiento interno">Crear almacenamiento interno</a>
+						
+								<a class="side-bar-link btn-primary"  href="{% url 'reactivos:crear_clase_almacenamiento'%}" title="redirecciona al formulario de creación de clase de almacenamiento">Crear clase de almacenamiento</a>
+						
+								<a class="side-bar-link btn-primary" href="{% url 'reactivos:crear_reactivo'%}" title="redirecciona al formulario de creación de reactivos">Crear reactivos</a>
+						
 							{% endif %}
-							<li class="custom-li">
-								<a href="{% url 'reactivos:listado_reactivos'%}" title="redirecciona a la vista listado de reactivos">Listado de reactivos</a>
-							</li>
-						</ul>
+						
+								<a class="side-bar-link btn-primary" href="{% url 'reactivos:listado_reactivos'%}" title="redirecciona a la vista listado de reactivos">Listado de reactivos</a>
+						
 					</div>
 				</div>
 			</div>
@@ -477,48 +477,38 @@
 				</div>
 				<div id="collapseEight" class="collapse" aria-labelledby="headingEight" data-parent="#accordion">
 					<div class="card-body " style="color: white;">
-						<ul>
-							<li class="custom-li">
-								<a href="{% url 'reactivos:registrar_entrada'%}" title="Redirecciona al formulario de registro de entradas">Registrar Entradas</a>
-							</li>
-							<li class="custom-li">
-								<a href="{% url 'reactivos:registrar_salida'%}"title="Redirecciona al formulario de registro de salidas">Registrar Salidas</a>
-							</li>
-							<li class="custom-li">
-								<a href="{% url 'reactivos:crear_responsable'%}" title="Redirecciona al formulario de creación de responsables">Crear Responsables</a>
-							</li>
-							<li class="custom-li">
-								<a href="{% url 'reactivos:crear_marca'%}" title="Redirecciona al formulario de creación de marrcas">Crear Marcas</a>
-							</li>
+						
+								<a class="side-bar-link btn-primary" href="{% url 'reactivos:registrar_entrada'%}" title="Redirecciona al formulario de registro de entradas">Registrar Entradas</a>
 							
-							<li class="custom-li">
-								<a href="{% url 'reactivos:crear_ubicacion'%}" title="Redirecciona al formulario de creación de ubicaciones o asignaturas">Crear Ubicaciones / Asignaturas</a>
-							</li>
+								<a class="side-bar-link btn-primary" href="{% url 'reactivos:registrar_salida'%}"title="Redirecciona al formulario de registro de salidas">Registrar Salidas</a>
 							
-							<li class="custom-li">
-								<a href="{% url 'reactivos:crear_walmacen'%}" title="Redirecciona al formulario de creación de ubicaciones en el almacén">Crear Ubicaciones en Almacén</a>
-							</li>
+								<a class="side-bar-link btn-primary" href="{% url 'reactivos:crear_responsable'%}" title="Redirecciona al formulario de creación de responsables">Crear Responsables</a>
+							
+								<a class="side-bar-link btn-primary" href="{% url 'reactivos:crear_marca'%}" title="Redirecciona al formulario de creación de marrcas">Crear Marcas</a>
+							
+								<a class="side-bar-link btn-primary" href="{% url 'reactivos:crear_ubicacion'%}" title="Redirecciona al formulario de creación de ubicaciones o asignaturas">Crear Ubicaciones / Asignaturas</a>
+							
+								<a class="side-bar-link btn-primary" href="{% url 'reactivos:crear_walmacen'%}" title="Redirecciona al formulario de creación de ubicaciones en el almacén">Crear Ubicaciones en Almacén</a>
+							
 							
 							{% if request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
-							<li class="custom-li">
-								<a href="{% url 'reactivos:crear_facultad'%}" title="Redirecciona al formulario de creación de facultades">Crear Facultades</a>
-							</li>
-							<li class="custom-li">
-								<a href="{% url 'reactivos:crear_destino'%}" title="Redirecciona al formulario de creación de destinos">Crear Destinos</a>
-							</li>
+							
+								<a class="side-bar-link btn-primary" href="{% url 'reactivos:crear_facultad'%}" title="Redirecciona al formulario de creación de facultades">Crear Facultades</a>
+							
+								<a class="side-bar-link btn-primary" href="{% url 'reactivos:crear_destino'%}" title="Redirecciona al formulario de creación de destinos">Crear Destinos</a>
+							
 							{% endif %}
-							<li class="custom-li">
-								<a href="{% url 'reactivos:inventario'%}" title="Redirecciona a la vista listado de inventarios">Ver inventario</a>
-							</li>
+							
+								<a class="side-bar-link btn-primary" href="{% url 'reactivos:inventario'%}" title="Redirecciona a la vista listado de inventarios">Ver inventario</a>
+							
 							{% if request.user|has_group:"COORDINADOR" or request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
-							<li class="custom-li">
-								<a href="{% url 'reactivos:listado_entradas'%}" title="Redirecciona a la vista listado de entradas">Listado de entradas</a>
-							</li>
-							<li class="custom-li">
-								<a href="{% url 'reactivos:listado_salidas'%}" title="Redirecciona a la vista listado de salidas">Listado de salidas</a>
-							</li>									
+							
+								<a class="side-bar-link btn-primary" href="{% url 'reactivos:listado_entradas'%}" title="Redirecciona a la vista listado de entradas">Listado de entradas</a>
+							
+								<a class="side-bar-link btn-primary" href="{% url 'reactivos:listado_salidas'%}" title="Redirecciona a la vista listado de salidas">Listado de salidas</a>
+														
 							{% endif %}
-						</ul>
+						
 					</div>
 				</div>
 			</div>
@@ -528,26 +518,23 @@
 					<h5 class="mb-0">
 						<button class="btn btn-primary" data-toggle="collapse" data-target="#collapseNine" aria-expanded="true" aria-controls="collapseNine" title="Opciones referentes a creación de reactivos" id="button_reagent">
 							<img style="vertical-align: middle; margin-right: 5px;" src="{% static 'inventarioreac/images/request_icon.png' %}" width="32" height="32" alt="Reactivos">
-							Solicitudes
+							Ayuda
 						</button>
 					</h5>
 				</div>
 				<div id="collapseNine" class="collapse" aria-labelledby="headingNine" data-parent="#accordion">
 					<div class="card-body " style="color: white;">
-						<ul>
-									
-							<li class="custom-li">
-								<a href="{% url 'reactivos:registrar_solicitud'%}" title="Redirecciona al formulario de registro de solicitudes">Registrar solicitud</a>
-							</li>
+								<a class="side-bar-link btn-primary" target="_blank" href="{% url 'reactivos:descargar_manual'%}" title="Descargar Manual de usuario">Manual de usuario</a>
+								<a class="side-bar-link btn-primary" href="{% url 'reactivos:registrar_solicitud'%}" title="Redirecciona al formulario de registro de solicitudes">Registrar solicitud</a>
+							
 							{% if request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
-							<li class="custom-li">
-								<a href="{% url 'reactivos:crear_tipo_solicitud'%}" title="Redirecciona al formulario de creación de tipo de solicitud">Crear tipo de solicitud</a>
-							</li>
-							<li class="custom-li">
-								<a href="{% url 'reactivos:listado_solicitudes'%}" title="Redirecciona a la vista que muestra el listado de solicitudes">Listado de solicitudes</a>
-							</li>
+							
+								<a class="side-bar-link btn-primary" href="{% url 'reactivos:crear_tipo_solicitud'%}" title="Redirecciona al formulario de creación de tipo de solicitud">Crear tipo de solicitud</a>
+							
+								<a class="side-bar-link btn-primary" href="{% url 'reactivos:listado_solicitudes'%}" title="Redirecciona a la vista que muestra el listado de solicitudes">Listado de solicitudes</a>
+							
 							{% endif %}
-						</ul>
+						
 					</div>
 				</div>
 			</div>
@@ -563,33 +550,28 @@
 				</div>
 				<div id="collapseTen" class="collapse" aria-labelledby="headingTen" data-parent="#accordion">
 					<div class="card-body " style="color: white;">
-						<ul>
-							<li class="custom-li">
-								<a href="{% url 'reactivos:password_change'%}" title="Redirecciona al formulario de cambio de contraseña">Cambiar contraseña</a>
-							</li>
-							<li class="custom-li">
-								<a href="{% url 'reactivos:password_reset'%}" title="Redirecciona al formulario de restablecimiento de contraseña">¿Olvido su contraseña?</a>
-							</li>
+						
+								<a class="side-bar-link btn-primary" href="{% url 'reactivos:password_change'%}" title="Redirecciona al formulario de cambio de contraseña">Cambiar contraseña</a>
+							
+								<a class="side-bar-link btn-primary" href="{% url 'reactivos:password_reset'%}" title="Redirecciona al formulario de restablecimiento de contraseña">¿Olvido su contraseña?</a>
+							
 							{% if request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
-							<li class="custom-li">
-								<a href="{% url 'reactivos:crear_laboratorio'%}" title="Redirecciona al formulario de creación de laboratorios">Crear Laboratorio</a>
-							</li>
-							<li class="custom-li">
-								<a href="{% url 'reactivos:crear_roles'%}" title="Redirecciona al formulario de creación de roles">Crear Roles</a>
-							</li>
+							
+								<a class="side-bar-link btn-primary" href="{% url 'reactivos:crear_laboratorio'%}" title="Redirecciona al formulario de creación de laboratorios">Crear Laboratorio</a>
+							
+								<a class="side-bar-link btn-primary" href="{% url 'reactivos:crear_roles'%}" title="Redirecciona al formulario de creación de roles">Crear Roles</a>
+							
 							{% endif %}
 							{% if request.user|has_group:"COORDINADOR" or request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
-							<li class="custom-li">
-								<a href="{% url 'reactivos:crear_usuarios'%}" title="Redirecciona al formulario de creación de usuarios">Crear Usuarios</a>
-							</li>
-							<li class="custom-li">
-								<a href="{% url 'reactivos:listado_usuarios'%}" title="Redirecciona a la vista listado de usuarios">Listado Usuarios</a>
-							</li>
+							
+								<a class="side-bar-link btn-primary" href="{% url 'reactivos:crear_usuarios'%}" title="Redirecciona al formulario de creación de usuarios">Crear Usuarios</a>
+							
+								<a class="side-bar-link btn-primary" href="{% url 'reactivos:listado_usuarios'%}" title="Redirecciona a la vista listado de usuarios">Listado Usuarios</a>
+							
 							{% endif %}
-							<li class="custom-li">
-								<a href="{% url 'reactivos:logout'%}" title="Cierra sesión de usuario">Cerrar sesión</a>
-							</li>
-						</ul>
+							
+								<a class="side-bar-link btn-primary" href="{% url 'reactivos:logout'%}" title="Cierra sesión de usuario">Cerrar sesión</a>
+							
 					</div>
 				</div>
 			</div>
@@ -606,32 +588,29 @@
 				</div>
 				<div id="collapseEleven" class="collapse" aria-labelledby="headingEleven" data-parent="#accordion">
 					<div class="card-body " style="color: white;">
-						<ul>
-									
+							
 							{% if request.user.is_superuser %}
-							<li class="custom-li">
-								<a href="{% url 'admin:index'%}" title="Consola de superusuario">Consola de superusuario</a>
-							</li>	
+							
+								<a class="side-bar-link btn-primary" href="{% url 'admin:index'%}" title="Consola de superusuario">Consola de superusuario</a>
+								
 							{% endif %}										
 							
 							{% if request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}					
 							
-							<li class="custom-li">
-								<a href="{% url 'reactivos:configuraciones'%}" title="Configuraciones generales del sistema">Configuraciones</a>
-							</li>
-							<li class="custom-li">
-								<a href="{% url 'reactivos:listado_eventos'%}" title="Listado de eventos del sistema">Listado de eventos</a>
-							</li>
+							
+								<a class="side-bar-link btn-primary" href="{% url 'reactivos:configuraciones'%}" title="Configuraciones generales del sistema">Configuraciones</a>
+							
+								<a class="side-bar-link btn-primary" href="{% url 'reactivos:listado_eventos'%}" title="Listado de eventos del sistema">Listado de eventos</a>
+							
 							{% endif %}
 							
-						</ul>
 					</div>
 				</div>
 			</div>
 			{% endif %}	
 		</div>
 
-		<div class="intermedio"></div>
+		
 		<div class="content">
 		{% block content %}
 		{% endblock %}

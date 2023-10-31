@@ -179,6 +179,9 @@ class ConfiguracionSistema(models.Model):
     intervalo_tiempo= models.PositiveIntegerField(verbose_name='Tiempo de revisión de fechas de vencimiento')
     fecha_incio= models.DateTimeField(blank=True, null=True, verbose_name="Fecha y hora de inicio")
     programacion_activa=models.BooleanField(default=False, verbose_name="Activar / Desactivar programación")
+    manual = models.FileField(upload_to='manual/', null=True, blank=True)
+    
+    
 
     def __str__(self):
         return 'Configuración del Sistema'

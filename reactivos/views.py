@@ -104,11 +104,21 @@ from django.core.files.storage import FileSystemStorage
 from django import forms
 from django.utils import timezone
 from django.utils.timezone import now
+from django.http import FileResponse
 
 
 
 from apscheduler.schedulers.background import BlockingScheduler, BackgroundScheduler
 from time import sleep
+
+# Función para crear enlace de descarga de manual de usuario
+def descargar_manual(request):
+    configuracion_sistema = ConfiguracionSistema.objects.first()  # Obtiene el primer registro
+
+    if configuracion_sistema:
+        manual = configuracion_sistema.manual
+        response = FileResponse(manual)
+        return response
 
 # Función que envía correo a coordinadores de laboratorio de reactivos vencidos o próximos a vencer
 def enviar_correo_alerta_vencimiento(subject, recipient_list, message, reactivos):
@@ -219,6 +229,10 @@ def programar_tareas():
         
         start_date=configuracion.fecha_incio         
         scheduler.add_job(check_upcoming_edate, 'interval', days=configuracion.intervalo_tiempo, start_date=start_date, )
+        five_minutes=timedelta(minutes=5)
+        print(start_date)
+        start_date=start_date+five_minutes
+        print(start_date)
         scheduler.add_job(check_edate, 'interval', days=configuracion.intervalo_tiempo, start_date=start_date,)
         print(scheduler.state)
         if  configuracion.programacion_activa:
@@ -396,7 +410,7 @@ def configuraciones(request):
     if not configuracion:
         # Si no existe ningún registro en la tabla, crearemos uno nuevo
         if request.method == 'POST':
-            form = ConfiguracionSistemaForm(request.POST)
+            form = ConfiguracionSistemaForm(request.POST, request.FILES)
             if form.is_valid():
                 form.save()
                 # Crea un evento de modificar configuraciones
@@ -405,13 +419,14 @@ def configuraciones(request):
                 crear_evento(tipo_evento, usuario_evento)
                 programar_tareas()
                 mensaje=f'Se han creado las configuraciones de manera correcta.'
-                return HttpResponse(mensaje, 200)
+                messages.success(request, mensaje)
+                return redirect('reactivos:configuraciones')
         else:
             form = ConfiguracionSistemaForm()
     else:
         # Si ya existe un registro, actualizaremos el primero con los nuevos valores
         if request.method == 'POST':
-            form = ConfiguracionSistemaForm(request.POST, instance=configuracion)
+            form = ConfiguracionSistemaForm(request.POST, request.FILES, instance=configuracion)
             if form.is_valid():
                 form.save()
                 # Crea un evento de modificar configuraciones
@@ -420,7 +435,8 @@ def configuraciones(request):
                 crear_evento(tipo_evento, usuario_evento)
                 programar_tareas()
                 mensaje=f'Se han actualizado las configuraciones de manera correcta.'
-                return HttpResponse(mensaje, 200)
+                messages.success(request, mensaje)
+                return redirect('reactivos:configuraciones')
         else:
             form = ConfiguracionSistemaForm(instance=configuracion)
 

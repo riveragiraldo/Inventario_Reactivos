@@ -278,15 +278,24 @@ class ConfiguracionSistemaForm(forms.ModelForm):
     programacion_activa=forms.BooleanField(
         widget=forms.NullBooleanSelect (attrs={'class': 'form-control',
                                         'title':'Activar / Desactivar Programación',
-                                        'value':"Activa",}),
+                                        }),
                                         required=False,
                                         label="Activar o desactivar programación de revisión de fechas de vencimientos",
                                         
     )
+    manual=forms.FileField(
+        widget=forms.FileInput(attrs={'class':'form.control',
+                                      'title':'Manual de usuario - Máximo 5 MB',
+                                      'accept':'.pdf',
+                                      'size':'5242880',
+                                      }),
+                                        required=False,
+                                        label='Manual de usuario'
+    )
 
     class Meta:
         model = ConfiguracionSistema
-        fields = ['tiempo_solicitudes', 'tiempo_eventos', 'correo_administrador','tiempo_vencimiento_reactivos','intervalo_tiempo','fecha_incio','programacion_activa',]
+        fields = ['tiempo_solicitudes', 'tiempo_eventos', 'correo_administrador','tiempo_vencimiento_reactivos','intervalo_tiempo','fecha_incio','programacion_activa','manual']
 
     def clean(self):
         cleaned_data = super().clean()
