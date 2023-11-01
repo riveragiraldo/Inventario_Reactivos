@@ -54,21 +54,22 @@
 
 <body>
     {% block content %}
-    <div class="container mt-5">
-        <h1>Registrar salida de insumos</h1>
-        <div class="col-6">
+    <div class="card col-md-8">
+        <div class="card-header">
+            <h1>Registrar salida de insumos</h1>
+            <label class="form-label">Fecha:&nbsp;</label><span id="currentDate"></span>
+        </div>
+        <br>
+        <div class="card-body">
             <!-- HTML para mostrar el spinner -->
             <p id="message"></p>
             <div id="spinner"></div>
 
             <form method="post" class="row g-3" id="in_form" name="form">
                 {% csrf_token %}
-                <div class="col-md-12">
-                    <label class="form-label">Fecha: </label>
-                    <span id="currentDate"></span>
-                </div>
+                
 
-                <div class="col-md-12">
+                <div class="form-group col-md-12">
                     <label class="form-label" for="lab" name="Laboratorio: ">Laboratorio:</label>
 
                     {% if request.user|has_group:"COORDINADOR" or request.user|has_group:"TECNICO" %}
@@ -95,25 +96,25 @@
                     {% endif %}
                 </div>
 
-                <div class="col-md-6">
+                <div class="form-group col-md-6">
                     <label class="form-label" for="name" name="Nombre: ">*Reactivo: Código - Nombre - CAS</label>
                     <input type="text" class="form-control" name="name" id="name" placeholder="Nombre, CI o CAS"
                         title="Se puede filtrar por nombre, CI o CAS" required />
                 </div>
 
-                <div class="col-md-3">
+                <div class="form-group col-md-3">
                     <label class="form-label" for="code" name="Código: ">*Código:</label>
                     <input type="text" name="code" class="form-control" value="" id="code" readonly
                         placeholder="Cód. Interno">
                 </div>
 
-                <div class="col-md-3">
+                <div class="form-group col-md-3">
                     <label class="form-label" for="cas" name="CAS: ">*CAS:</label>
                     <input type="text" name="cas" class="form-control" value="" id="cas" readonly
                         placeholder="Cód. CAS">
                 </div>
 
-                <div class="col-md-4">
+                <div class="form-group col-md-4">
                     <label class="form-label" for="trademark" name="Marca: ">*Marca reactivo:</label>
                     <select id="trademark" name="trademark" class="form-control" required>
                         <option value="">Seleccione</option>
@@ -123,7 +124,7 @@
                     </select>
                 </div>
 
-                <div class="col-md-4">
+                <div class="form-group col-md-4">
                     <label class="form-label" for="reference" name="Referencia: ">*Referencia:</label>
                     <select id="reference" name="reference" class="form-control" required>
                         <option value="">Seleccione</option>
@@ -133,48 +134,48 @@
                     </select>
                 </div>
 
-                <div class="col-md-4">
+                <div class="form-group col-md-4">
                     <label class="form-label" for="is_liquid" name="Estado: ">*Estado:</label>
                     <input type="text" name="is_liquid" class="form-control" value="" id="is_liquid" readonly
                         placeholder="Estado">
                 </div>
 
-                <div class="col-md-4">
+                <div class="form-group col-md-4">
                     <label class="form-label" for="stock" name="Cantidad disponible: ">Cantidad disponible:</label>
                     <div class="input-group">
-                        <button type="button" id="stock-view" class="btn btn-secondary">Ver</button>
-                        <input type="text" name="stock" class="form-control" value="" id="stock" readonly
-                            placeholder="Stock">
-
+                        <div class="input-group-btn">
+                            <button type="button" id="stock-view" class="btn btn-secondary">Ver</button>
+                        </div>
+                        <input type="text" name="stock" class="form-control" value="" id="stock" readonly placeholder="Stock">
                     </div>
                 </div>
 
-                <div class="col-md-4">
+                <div class="form-group col-md-4">
                     <label class="form-label" for="weight" name="Cantidad retiro: ">*Cantidad retiro:</label>
                     <input type="number" step="any" class="form-control" placeholder="Cant. reactivo" id="weight"
                         name="weight" required min="0" max="100000000" pattern="^(?:[1-9]\d{0,7}|100000000)$"
                         title="Ingrese un valor entero positivo sin puntos ni comas (máximo 100000000)">
                 </div>
 
-                <div class="col-md-4">
+                <div class="form-group col-md-4">
                     <label class="form-label" for="unit" name="Unidades: ">*Unidades:</label>
                     <input type="text" name="unit" class="form-control" value="" id="unit" readonly>
                 </div>
 
-                <div class="col-md-6">
+                <div class="form-group col-md-6">
                     <label class="form-label" for="location"
                         name="Asigantura/Ubicación: ">*Asignatura/Ubicación:</label>
                     <div class="input-group">
-                        <input type="text" name="location" class="form-control" id="location" required
-                            placeholder="Asignatura/Ubicación Destino">
-                        <button type="button" id="add_location_btn" class="btn btn-secondary"
-                            title="Agregar Responsable">+
-                            </Address></button>
+                        <input type="text" name="location" class="form-control" id="location" required placeholder="Asignatura/Ubicación Destino">
+                        <div class="input-group-btn">
+                            <button type="button" id="add_location_btn" class="btn btn-secondary" title="Agregar Responsable">+</button>
+                        </div>
+                        
                     </div>
                 </div>
                 <input type="hidden" name="facultad" class="form-control" id="facultad" placeholder="Facultad" readonly>
 
-                <div class="col-md-6">
+                <div class="form-group col-md-6">
                     <label class="form-label" for="destination" name="Destino: ">*Destino:</label>
                     <select name="destination" id="destination" class="form-control" required>
                         <option value="">Seleccione</option>
@@ -184,36 +185,34 @@
                     </select>
                 </div>
 
-                <div class="col-md-12">
+                <div class="form-group col-md-12">
                     <label class="form-label" for="manager" name="Responsable : ">*Responsable:</label>
                     <div class="input-group">
-                        <input type="text" name="manager" class="form-control" id="manager" required
-                            placeholder="Responsable del insumo">
-                        <input type="hidden" name="correo" class="form-control" id="correo"
-                            placeholder="Correo Responsable" readonly>
-                        <button type="button" id="add_manager_btn" class="btn btn-secondary"
-                            title="Agregar Responsable">+
-                            </Address></button>
+                        <input type="text" name="manager" class="form-control" id="manager" required placeholder="Responsable del insumo">
+                        <input type="hidden" name="correo" class="form-control" id="correo" placeholder="Correo Responsable" readonly>
+                        <div class="input-group-btn">
+                            <button type="button" id="add_manager_btn" class="btn btn-secondary" title="Agregar Responsable">+</button>
+                        </div>                        
                     </div>
                 </div>
                 <input type="hidden" name="wf" class="form-control" value="salida" id="wf">
                 <!-- identificador para saber que tipo de ventana es -->
 
-                <div class="col-md-12">
+                <div class="form-group col-md-12">
                     <label class="form-label" for="observations" name="Observaciones: ">Observaciones:</label>
                     <textarea name="observations" class="form-control" placeholder="Escriba sus observaciones" rows="2"
                         id="observations"></textarea>
                 </div>
-
-                <div class="col-md-6 mt-3   ">
-                    <input type="button" value="Registrar salida Reactivo" class="btn btn-primary" id="open_confirm_in">
-                </div>
-                <div class="col-md-6">
-                    <button type="button" class="btn btn-primary" onclick="limpiarCampos('in_form')">Cancelar</button>
-                </div>
-                
-
-            </form>
+        </div>
+        <br>
+        <div class="card-footer">
+            <div class="form-group">
+                <button type="button" class="btn btn-primary" onclick="limpiarCampos('in_form')">Cancelar</button>
+                <input type="button" value="Registrar salida Reactivo" class="btn btn-primary" id="open_confirm_in">
+            </div>
+        </div>
+    </form>
+</div>
             <!-- Este script no puede ser invocado como un archivo externo, mostrará una alerta de éxito o error según
             corresponda. -->
             {% if messages %}
@@ -253,8 +252,7 @@
                 };
             </script>
             {% endfor %}
-            {% endif %}
-        </div>
+            {% endif %}        
 
         {% endblock %}
 </body>

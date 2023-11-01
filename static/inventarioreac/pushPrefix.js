@@ -1,5 +1,6 @@
-const input = document.querySelector("#phone");
+
 const prefixInput = document.querySelector('input[name="prefix"]');
+const input = document.querySelector("#phone");
 
 //Llama la api con el listado de banderas y prefijos
 const iti = window.intlTelInput(input, {

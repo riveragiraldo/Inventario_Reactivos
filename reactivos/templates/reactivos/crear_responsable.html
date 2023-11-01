@@ -35,21 +35,26 @@
 
   <script src="{% static 'inventarioreac/clearFds.js' %}"></script>
   <!-- Llama Script que borra los campos del formulario cuando se ejecuta cualquier acción -->
-  <script src="{% static 'inventarioreac/pushPrefix.js' %}" defer></script>
+  <!-- <script src="{% static 'inventarioreac/pushPrefix.js' %}" defer></script> -->
   <!-- Llama Script que inserta banderas y prefijos -->
   <script src="{% static 'inventarioreac/sendInfo.js' %}" defer></script>
   <!-- Llama Script al final genera alerta informativa con los datos que se va enviar al servidor y acepta-->
   <script src="{% static 'inventarioreac/putValueAccept.js' %}" defer></script>
   <!-- Llama Script que coloca valor al check de acepta -->
+  <script src="{% static 'inventarioreac/cancelButtonFunction.js' %}" defer></script>
+    <!-- Llama Script  que coloca función al botón cancelar -->
   {% endblock %}
 </head>
 
 <body>
   {% block content %}
 
-  <div class="container mt-5">
-    <h1>Crear Responsables</h1>
-    <div class="row">
+  <div class="card mt-5 col-md-5">
+    <div class="card-header">
+      <h1>Crear Responsables</h1>
+    </div>
+    <br>
+    <div class="card-body">
       <!-- HTML para mostrar el spinner -->
       <p id="message"></p>
       <div id="spinner"></div>
@@ -57,86 +62,62 @@
       <form method="post" class="row g-3" id="responsable_form" name="form">
         {% csrf_token %}
 
-        <div class="col-md-5">
-          <div class="col-md-12">
+        
+          <div class="form-group">
             <label class="form-label" for="cc" name="Cédula de ciudadanía: ">Cédula de ciudadanía:</label>
-            <input type="text" class="form-control" placeholder="Ingresa tu número de cédula" name="cc" required id="cc"
-              pattern="^(?:[1-9]\d{6,10}|9999999999)$"
-              title="Ingrese un número de cédula entre 1000000 y 9999999999 (sin puntos ni comas)">
-
-
+            <input type="text" class="form-control" placeholder="Ingresa tu número de cédula" name="cc" required id="cc" pattern="^(?:[1-9]\d{6,10}|9999999999)$" title="Ingrese un número de cédula entre 1000000 y 9999999999 (sin puntos ni comas)">
           </div>
 
-          <div class="col-md-12">
+          <div class="form-group">
             <label class="form-label" for="name" name="Nombre y apellidos: ">Nombres y apellidos:</label>
-            <input type="text" class="form-control" placeholder="Nombre y apellidos" name="name" required id="name"
-              pattern="^(?:[a-zA-Zá-úÁ-Ú]+\s){1,3}[a-zA-Zá-úÁ-Ú]+$"
-              title="Ingrese mínimo 2 y máximo 4 palabras (No se permiten números ni caracteres especiales)">
-
+            <input type="text" class="form-control" placeholder="Nombre y apellidos" name="name" required id="name" pattern="^(?:[a-zA-Zá-úÁ-Ú]+\s){1,3}[a-zA-Zá-úÁ-Ú]+$" title="Ingrese mínimo 2 y máximo 4 palabras (No se permiten números ni caracteres especiales)">
           </div>
+
           <div style="display: none;">
-            <input type="hidden" id="prefix"
-              name="prefix"><!-- prefifx oculto, lo toma automaticamente para ser concatenado e insertado en la db con el +57 -->
+            <input type="hidden" id="prefix" name="prefix"><!-- prefifx oculto, lo toma automaticamente para ser concatenado e insertado en la db con el +57 -->
           </div>
 
-          <div class="col-md-12">
-            <label class="form-label" for="phone" name="Teléfono: "><br>Teléfono:</label>
-            <div id="phone-input-wrapper" class="input-with-icon">
-              <span class="input-icon">
-                <img src="{% static 'inventarioreac/Images/phone.png' %}" alt="Icono de teléfono" class="input-icon-img">
-              </span>
-              <input type="text" class="form-control" placeholder="Escribe número telefónico" name="phone" required
-                id="phone" pattern="[0-9]{10,13}"
-                title="Ingrese su número telefónico (solo números enteros positivos de 10 a 13 dígitos)">
-            </div>
-          </div>
+          
 
-
-
-          <div class="col-md-12">
+          <div class="form-group">
             <label class="form-label" for="mail" name="Correo Electrónico: "><br>Correo Electrónico:</label>
             <div class="input-with-icon">
               <span class="input-icon">
                 <img src="{% static 'inventarioreac/Images/email.png' %}" alt="Icono de correo electrónico" class="input-icon-img">
               </span>
-              <input type="email" class="form-control" placeholder="Email" name="mail" required id="mail"
-                pattern="^[a-zA-Z0-9.-_]+@[a-zA-Z]+\.[a-zA-Z]{2,}(?:\.[a-zA-Z]+)?$"
-                title="Ingrese una dirección de correo electrónico válida (max 40 caracteres)" maxlength="40">
+              <input type="email" class="form-control" placeholder="Email" name="mail" required id="mail" pattern="^[a-zA-Z0-9.-_]+@[a-zA-Z]+\.[a-zA-Z]{2,}(?:\.[a-zA-Z]+)?$" title="Ingrese una dirección de correo electrónico válida (max 40 caracteres)" maxlength="40">
             </div>
           </div>
 
+          <div class="form-group">
+            <label class="form-label" for="phone" name="Teléfono: "><br>Teléfono:</label>
+            <div id="phone-input-wrapper" class="input-with-icon" >
+              <span class="input-icon">
+                <img src="{% static 'inventarioreac/Images/phone.png' %}" alt="Icono de teléfono" class="input-icon-img">
+              </span>
+              <input type="number" class="form-control" placeholder="Escribe número telefónico" name="phone" required
+                id="phone" pattern="[0-9]{10,13}" min="0" max="9999999999" maxlength="13" minlength="10"
+                title="Ingrese su número telefónico (solo números enteros positivos de 10 a 13 dígitos)" >
+            </div>
+          </div>
 
-          <div class="col-md-12">
-            <br>
-
+          <br>
+          <div class="form-group">
             <div class="politicaTratamiento">
-              <input type="checkbox" id="acceptDataProcessing" name="acceptDataProcessing" unchecked required
-                value="">
-              <label for="acceptDataProcessing" class="politica-label"
-                name="Acepta política de tratamiento de datos personales: ">
+              <input type="checkbox" id="acceptDataProcessing" name="acceptDataProcessing" unchecked required value="">
+              <label for="acceptDataProcessing" class="politica-label" name="Acepta política de tratamiento de datos personales: ">
                 <p class="politica">
-                  DE ACUERDO CON LA
-                  <a href="https://unal.edu.co/tratamiento-de-datos-personales" target="_blank">
-                    LEY 1581 DE 2012 DE PROTECCIÓN DE DATOS PERSONALES</a>, HE LEÍDO, ENTENDIDO Y ACEPTO, LOS TÉRMINOS
-                  DESCRITOS EN LA POLÍTICA DE TRATAMIENTO DE DATOS PERSONALES.<br><br>
+                  DE ACUERDO CON LA <a href="https://unal.edu.co/tratamiento-de-datos-personales" target="_blank"> LEY 1581 DE 2012 DE PROTECCIÓN DE DATOS PERSONALES</a>, HE LEÍDO, ENTENDIDO Y ACEPTO, LOS TÉRMINOS DESCRITOS EN LA POLÍTICA DE TRATAMIENTO DE DATOS PERSONALES.<br><br>
                 </p>
               </label>
             </div>
-            
-
-
           </div>
-        </div>
-
-
-        <div class="col-md-12">
-          <div class="col-md-2 mt-3">
-            <input type="button" value="Crear Responsable" class="btn btn-primary" id="open_confirm_in">
-          </div>
-          <div class="col-md-2 mt-3">
-            <input type="reset" value="Limpiar Campos" class="btn btn-primary">
-          </div>
-        </div>
+    </div>
+    <div class="card-footer">
+      <div class="form-group">
+        <button type="button" class="btn btn-primary" onclick="limpiarCampos('form')">Cancelar</button>
+        <input type="button" value="Crear Responsable" class="btn btn-primary" id="open_confirm_in">
+      </div>
     </div>
   </div>
 

@@ -62,97 +62,91 @@
 
 <body>
     {% block content %}
-    <div class="col-md-6 mx-auto">
-
-        <div class="container mt-5">
+    <div class="card col-md-8">
+        <div class="card-header">
             <h1>Registrar entrada de reactivos</h1>
+            <br>
+                <label class="form-label">Fecha:&nbsp;</label><span id="currentDate"></span>
+        </div>
+        <br>
+        
+        <div class="card-body">
             <!-- HTML para mostrar el spinner -->
             <p id="message"></p>
             <div id="spinner"></div>
 
-            <form method="post" class="row g-3" id="in_form" name="form">
+            <form method="post" id="in_form" name="form" class="row g-3">
                 {% csrf_token %}
-                <div class="col-md-12">
-                    <label class="form-label">Fecha: </label>
-                    <span id="currentDate"></span>
-                </div>
-                <div class="col-md-12">
+                <div class="form-group col-md-12">
                     <label class="form-label" for="lab" name="Laboratorio: ">Laboratorio:</label>
-
+    
                     {% if request.user|has_group:"COORDINADOR" or request.user|has_group:"TECNICO" %}
-                    <div id="add_reagent_btn"></div>
+                    
                     <select name="lab" class="form-control" required="" id="lab">
                         {% for lab in laboratorios %}
-
                         {% if lab.id == laboratorio.id %}
                         <option value="{{ lab.name }}" selected="">{{ lab.name }}</option>
-
                         {% endif %}
-
                         {% endfor %}
                     </select>
                     {% endif %}
+
                     {% if request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
                     <select name="lab" class="form-control" required="" id="lab">
                         <option value="" selected="">Seleccione</option>
                         {% for lab in laboratorios %}
-
                         <option value="{{ lab.name }}">{{ lab.name }}</option>
-
                         {% endfor %}
                     </select>
                     {% endif %}
                 </div>
-
-                <div class="col-md-6">
+                
+                <div class="form-group col-md-6">
                     <label class="form-label" for="name" name="Nombre: ">*Nombre: "Cód. - Nom. - CAS"</label>
-
+                    
                     {% if request.user|has_group:"COORDINADOR" or request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
                     <div class="input-group">
-                        <input type="text" class="form-control" name="name" id="name" placeholder="Nombre, CI o CAS"
-                            title="Se puede filtrar por nombre, CI o CAS" required />
+                        <input type="text" class="form-control" name="name" id="name" placeholder="Nombre, CI o CAS" title="Se puede filtrar por nombre, CI o CAS" required />
                         <div class="input-group-btn">
-                            <button type="button" id="add_reagent_btn" class="btn btn-secondary"
-                                title="Agregar Reactivo">+
-                            </button>
+                            <button type="button" id="add_reagent_btn" class="btn btn-secondary" title="Agregar Reactivo">+</button>
                         </div>
                     </div>
-                        {% else %}
-                        <input type="text" class="form-control" name="name" id="name" placeholder="Nombre, CI o CAS"
-                            title="Se puede filtrar por nombre, CI o CAS" required />
-                        {% endif %}
-                    
+                    {% else %}
+                    <div id="add_reagent_btn"></div>
+                    <input type="text" class="form-control" name="name" id="name" placeholder="Nombre, CI o CAS"
+                        title="Se puede filtrar por nombre, CI o CAS" required />
+                    {% endif %}
                 </div>
-
-                <div class="col-md-2">
+                
+                <div class="form-group col-md-2">
                     <label class="form-label" for="code" name="Código: ">Código:</label>
                     <input type="text" name="code" class="form-control" value="" id="code" readonly
                         placeholder="Cód. Interno">
                 </div>
-
-                <div class="col-md-2">
+                
+                <div class="form-group col-md-2">
                     <label class="form-label" for="cas" name="CAS: ">CAS:</label>
                     <input type="text" name="cas" class="form-control" value="" id="cas" readonly
                         placeholder="Cód. CAS">
                 </div>
-                <div class="col-md-2">
+            
+                <div class="form-group col-md-2">
                     <label class="form-label" for="is_liquid" name="Estado: ">Estado:</label>
                     <input type="text" name="is_liquid" class="form-control" value="" id="is_liquid" readonly
                         placeholder="Estado">
                 </div>
-
-                <div class="col-md-4">
-                    <label class="form-label" for="price" name="Valor: ">*Valor:</label>
+            
+                <div class="form-group col-md-4">
+                <label class="form-label" for="price" name="Valor: ">*Valor:</label>
                     <div class="input-group">
                         <span class="input-group-addon">$</span>
                         <input type="number" class="form-control" placeholder="Valor en COP" name="price" required
                             id="price" min="0" max="1000000000" pattern="^(?:[1-9]\d{0,8}|1000000000)$"
                             title="Ingrese un valor entero positivo sin puntos ni comas (máximo $ 1000000000)">
-
                     </div>
                 </div>
 
-                <div class="col-md-4">
+                <div class="form-group col-md-4">
                     <label class="form-label" for="trademark" name="Marca: ">*Marca:</label>
                     <div class="input-group">
                         <select name="trademark" id="trademark" class="form-control" required>
@@ -163,13 +157,12 @@
                         </select>
                         <div class="input-group-btn">
                             <button type="button" id="add_trademark_btn" class="btn btn-secondary"
-                                title="Agregar Marca">+
-                                </Address></button>
+                                title="Agregar Marca">+</button>
                         </div>
                     </div>
                 </div>
 
-                <div class="col-md-4">
+                <div class="form-group col-md-4">
                     <label class="form-label" for="edate" name="Vencimiento: ">*Vencimiento:</label>
                     <input type="date" class="form-control" name="edate" id="edate"
                         value="{{ date.tomorrow|date:'Y-m-d' }}" required
@@ -177,13 +170,13 @@
 
                 </div>
 
-                <div class="col-md-4" id="referenceBlock">
+                <div class="form-group col-md-4" id="referenceBlock">
                     <label class="form-label" for="reference" name="Referencia: ">*Referencia:</label>
                     <input type="text" class="form-control" placeholder="Ref. reactivo" name="reference" id="reference"
                         required>
                 </div>
 
-                <div class="col-md-5" id="weightBlock">
+                <div class="form-group col-md-5" id="weightBlock">
                     <label class="form-label" for="weight" name="Cantidad Ingreso: ">*Cantidad:</label>
                     <input type="number" step="any" class="form-control" placeholder="Cant. reactivo" id="weight"
                         name="weight" required min="0" max="100000000" pattern="^(?:[1-9]\d{0,7}|100000000)$"
@@ -191,12 +184,12 @@
                 </div>
 
 
-                <div class="col-md-3" id="unitBlock">
+                <div class="form-group col-md-3" id="unitBlock">
                     <label class="form-label" for="unit" name="Unidad: ">Unidades:</label>
                     <input type="text" name="unit" class="form-control" value="" id="unit" readonly>
                 </div>
                 <!-- Agregar el checkbox para Control de Stock -->
-                <div class="col-md-12">
+                <div class="form-group col-md-12">
 
                     <input type="checkbox" id="controlMinStock" name="controlMinStock" checked>
                     <input type="hidden" name="minStockControl" id="minStockControl" value="" readonly required>
@@ -204,15 +197,15 @@
 
                 </div>
 
-                <div class="col-md-6" id="minStockBlock">
+                <div class="form-group col-md-6" id="minStockBlock">
                     <label class="form-label" for="minstock" name="Stock mínimo: ">*Min Stock:</label>
                     <input type="number" step="any" class="form-control" placeholder="Stock Mínimo" id="minstock"
                         name="minstock" min="0" max="100000" pattern="^(?:[1-9]\d{0,4}|100000)$"
                         title="Ingrese un valor entero positivo sin puntos ni comas (máximo 100000)">
 
                 </div>
-                
-                <div class="col-md-6" id="locationBlock">
+
+                <div class="form-group col-md-6" id="locationBlock">
                     <label class="form-label" for="location"
                         name="Asignatura Ubicación: ">*Asignatura/Ubicación:</label>
                     <div class="input-group">
@@ -228,12 +221,8 @@
 
                     </div>
                 </div>
-
-
-
-
-
-                <div class="col-md-6">
+                
+                <div class="form-group col-md-6">
                     <label class="form-label" for="destination" name="Destino: ">*Destino:</label>
                     <select name="destination" id="destination" class="form-control" required>
                         <option value="">Seleccione</option>
@@ -243,23 +232,21 @@
                     </select>
                 </div>
 
-                <div class="col-md-6">
+                <div class="form-group col-md-6">
                     <label class="form-label" for="manager" name="Responsable: ">*Responsable:</label>
                     <div class="input-group">
                         <input type="text" name="manager" class="form-control" id="manager" required
                             placeholder="Responsable del insumo">
                         <div class="input-group-btn">
                             <button type="button" id="add_manager_btn" class="btn btn-secondary"
-                                title="Agregar Responsable">+
-                                </Address></button>
+                                title="Agregar Responsable">+</button>
                         </div>
-                        <input type="hidden" name="correo" class="form-control" id="correo"
-                            placeholder="Correo Responsable" readonly>
-
                     </div>
                 </div>
+                <input type="hidden" name="correo" class="form-control" id="correo" placeholder="Correo Responsable"
+                    readonly>
 
-                <div class="col-md-6">
+                <div class="form-group col-md-6">
                     <label class="form-label" for="wlocation" name="Ubicación física: ">*Ubicación en almacén:</label>
 
                     <div class="input-group">
@@ -276,26 +263,23 @@
                     </div>
                 </div>
 
-
-                <div class="col-md-6">
+                <div class="form-group col-md-6">
                     <label class="form-label" for="order" name="Orden: ">Número de orden:</label>
                     <input type="text" name="order" class="form-control" id="order" placeholder="Orden Número">
                 </div>
 
-                <div class="col-md-6">
+                <div class="form-group col-md-6">
                     <label class="form-label" for="orderdate" name="Fecha de orden:">Fecha de orden:</label>
                     <input type="date" class="form-control" name="orderdate" id="orderdate" title="Fecha de la orden"
                         max="{{ yesterday|date:'Y-m-d' }}">
                 </div>
 
-
-                <div class="col-md-6">
+                <div class="form-group col-md-6">
                     <label class="form-label" for="nproject" name="Proyecto No.: ">Número de proyecto:</label>
                     <input type="text" name="nproject" class="form-control" id="nproject" placeholder="Proyecto Número">
                 </div>
 
-                
-                <div class="col-md-12">
+                <div class="form-group col-md-12">
                     <label class="form-label" for="observations" name="Observaciones: ">Observaciones:</label>
                     <textarea name="observations" class="form-control" placeholder="Escriba sus observaciones" rows="2"
                         id="observations"></textarea>
@@ -303,66 +287,62 @@
 
                 <input type="hidden" name="wf" class="form-control" value="entrada" id="wf">
                 <!-- identificador para saber que tipo de ventana es -->
-
-
-                <div class="col-md-6">
-                    <input type="button" value="Registrar entrada" class="btn btn-primary" id="open_confirm_in">
-                </div>
-
-                <div class="col-md-6">
-                    <button type="button" class="btn btn-primary" onclick="limpiarCampos('in_form')">Cancelar</button>
-                </div>
-
-
-
-
-            </form>
-            {% if messages %}
-            {% for message in messages %}
-            <!-- Este script no puede ser invocado como un archivo externo, mostrará una alerta de éxito o error según
-            corresponda. -->
-            <script>
-                window.onload = function () {
-                    var messageText = '{{ message }}';
-                    var alertType = 'info';  // Tipo de alerta predeterminado para mensajes habituales
-
-                    // Verificar el contenido del mensaje para asignar el tipo de alerta adecuado
-                    if (messageText.includes('el ingreso del insumo')) {
-                        alertType = 'success';
-                    } else if (messageText.includes('Por favor seleccione') || messageText.includes('no se encuentra en la base de datos') || messageText.includes('fecha válida') || messageText.includes('Solo se permiten')) {
-                        alertType = 'warning';
-                    }
-
-                    // Mostrar la notificación con SweetAlert2
-                    Swal.fire({
-                        icon: alertType,
-                        title: 'Mensaje del servidor',
-                        text: messageText,
-                        confirmButtonText: 'Aceptar'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            // Verificar si la ventana actual es una ventana emergente
-                            if (window.opener) {
-                                // Actualizar la ventana padre
-                                window.opener.location.reload();
-
-                                // Cerrar la ventana actual después de un retraso
-                                setTimeout(() => {
-                                    window.close();
-                                }, 200);
-                            }
-                        }
-                    });
-                };
-            </script>
-            {% endfor %}
-            {% endif %}
-
         </div>
+        <br>
+        <div class="card-footer">
+            <div class="form-group">
+                <button type="button" class="btn btn-primary" onclick="limpiarCampos('in_form')">Cancelar</button>
+                <input type="button" value="Registrar entrada" class="btn btn-primary" id="open_confirm_in">
+            </div>
+            </form>
+        </div>
+    </div>
+    {% if messages %}
+    {% for message in messages %}
+    <!-- Este script no puede ser invocado como un archivo externo, mostrará una alerta de éxito o error según
+            corresponda. -->
+    <script>
+        window.onload = function () {
+            var messageText = '{{ message }}';
+            var alertType = 'info';  // Tipo de alerta predeterminado para mensajes habituales
+
+            // Verificar el contenido del mensaje para asignar el tipo de alerta adecuado
+            if (messageText.includes('el ingreso del insumo')) {
+                alertType = 'success';
+            } else if (messageText.includes('Por favor seleccione') || messageText.includes('no se encuentra en la base de datos') || messageText.includes('fecha válida') || messageText.includes('Solo se permiten')) {
+                alertType = 'warning';
+            }
+
+            // Mostrar la notificación con SweetAlert2
+            Swal.fire({
+                icon: alertType,
+                title: 'Mensaje del servidor',
+                text: messageText,
+                confirmButtonText: 'Aceptar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Verificar si la ventana actual es una ventana emergente
+                    if (window.opener) {
+                        // Actualizar la ventana padre
+                        window.opener.location.reload();
+
+                        // Cerrar la ventana actual después de un retraso
+                        setTimeout(() => {
+                            window.close();
+                        }, 200);
+                    }
+                }
+            });
+        };
+    </script>
+    {% endfor %}
+    {% endif %}
 
 
 
-        {% endblock %}
+
+
+    {% endblock %}
 </body>
 
 </html>
