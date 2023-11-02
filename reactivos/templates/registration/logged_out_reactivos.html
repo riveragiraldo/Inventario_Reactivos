@@ -1,14 +1,14 @@
-{% extends "base_site.html" %}
+{% extends "webtemplate_before.html" %}
 {% load i18n %}
-
+<title>{% block title %}Cierre de sesión: Universidad Nacional de Colombia{% endblock %}</title>
 {% block breadcrumbs %}<div class="breadcrumbs" style="background-color: #606060;"><a href="{% url 'reactivos:index' %}">{% translate 'Home' %}</a></div>{% endblock %}
 
 {% block nav-sidebar %}{% endblock %}
 
 {% block content %}
 
-<p>{% translate "Thanks for spending some quality time with the web site today." %}</p>
-
-<p><a href="{% url 'reactivos:index' %}">{% translate 'Log in again' %}</a></p>
+<p style="margin-top: 20px;">{% translate "Thanks for spending some quality time with the web site today." %}</p>
+<br>
+<p><a style="color: blue;" href="{% url 'reactivos:index' %}">{% translate 'Log in again' %}</a></p>
 
 {% endblock %}

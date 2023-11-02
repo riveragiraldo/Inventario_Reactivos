@@ -27,9 +27,12 @@
   <!-- Estilos para el letrero de la mitad del spinner -->
   <script src="{% static 'inventarioreac/sendInfoEdit.js' %}" defer></script>
   <!-- Llama Script al final genera alerta informativa con los datos que se va enviar al servidor y acepta-->
-  <script src="{% static 'inventarioreac/closeWindowSol.js' %}" defer></script>
+  <script src="{% static 'inventarioreac/closeWindow.js' %}" defer></script>
   <!-- Llama Script al final genera alerta informativa de cierre de ventana-->
-  
+  <script src="{% static 'inventarioreac/redirectHome.js' %}" defer></script>
+  <!-- Llama Script al final redirige al incio y coloca el contador de caracteres al mensaje-->
+  <script src="{% static 'inventarioreac/cancelButtonFunction.js' %}" defer></script>
+    <!-- Llama Script  que coloca función al botón cancelar -->
 
   {% endblock %}
 
@@ -119,7 +122,8 @@
 
       <div id="open_confirm_in"></div>
       {% else %}
-      <button type="button" class="btn btn-primary" id="close-link">Cancelar</button>
+      <button type="button" class="btn btn-primary" onclick="limpiarCamposSol('form')">Cancelar</button>
+      <div id="close-link"></div>
 
       <input type="button" value="Responder Solicitud" class="btn btn-primary" id="open_confirm_in">
       {% endif %}

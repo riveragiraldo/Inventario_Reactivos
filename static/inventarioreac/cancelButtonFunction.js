@@ -26,3 +26,24 @@ function limpiarCampos(formularioName) {
         window.close();
     }
 }
+
+
+function limpiarCamposSol(formularioName) {
+    // Verificar si la ventana actual es una ventana emergente
+    const isPopup = window.opener != null;
+
+    if (!isPopup) {
+        // Si es una ventana padre, realiza la acción de limpiar campos
+        const formulario = document.forms[formularioName];
+
+        if (formulario) {
+            // Recorrer y limpiar todos los campos del formulario, excepto los de tipo "button"
+            const observations = document.getElementById('observations')
+            observations.value = ''
+
+        } else {
+            // Si es una ventana emergente, cierra la ventana actual
+            window.close();
+        }
+    }
+}

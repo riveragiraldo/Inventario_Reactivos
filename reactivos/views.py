@@ -119,6 +119,18 @@ def descargar_manual(request):
         manual = configuracion_sistema.manual
         response = FileResponse(manual)
         return response
+    
+# Función para servir la imagen del logo institucional
+def logo_institucional(request):
+    configuracion_sistema = ConfiguracionSistema.objects.first()
+
+    if configuracion_sistema and configuracion_sistema.logo_institucional:
+        logo = configuracion_sistema.logo_institucional
+        return FileResponse(logo.open(), content_type='image')
+    else:
+        # Lógica para manejar el caso en que no se encuentre una imagen
+        # Por ejemplo, puedes devolver una imagen predeterminada o un error.
+        return HttpResponse("No se ha encontrado un logo institucional")
 
 # Función que envía correo a coordinadores de laboratorio de reactivos vencidos o próximos a vencer
 def enviar_correo_alerta_vencimiento(subject, recipient_list, message, reactivos):
@@ -462,6 +474,22 @@ class Index(LoginRequiredMixin, View):  # Utiliza LoginRequiredMixin como clase 
         context = {
             'usuarios': User.objects.all(),
             'laboratorio': laboratorio,
+        }
+        return render(request, self.template_name, context)
+
+# Vista para la visualización de enlaces, 
+
+class Enlaces(LoginRequiredMixin, View):  # Utiliza LoginRequiredMixin como clase base
+    template_name = 'reactivos/enlaces.html'  # Nombre de la plantilla
+
+    def get(self, request,*args,**kwargs):
+        laboratorio = request.user.lab
+        category = self.kwargs.get('category')  # Obtener el valor de la URL   
+             
+        context = {
+            'usuarios': User.objects.all(),
+            'laboratorio': laboratorio,
+            'category': category,  # Agregar 'category' al contexto
         }
         return render(request, self.template_name, context)
 # La vista "crear_unidades" se encarga de gestionar la creación de unidades. Esta vista toma los datos del formulario 
@@ -6917,6 +6945,7 @@ def estandarizar_nombre(nombre):
     nombre = re.sub('[úÚ]', 'U', nombre)  # Reemplazar ú y Ú por U
     nombre = re.sub('[ñÑ]', 'N', nombre)  # Reemplazar ñ y Ñ por N
     nombre = re.sub('[^A-Za-z0-9@ .,()%_-]', '', nombre)  # Eliminar caracteres especiales excepto números y espacios
+    nombre = nombre.strip()  # Eliminar espacios al principio y al final
     return nombre
 
 

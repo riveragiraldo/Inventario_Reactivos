@@ -180,6 +180,7 @@ class ConfiguracionSistema(models.Model):
     fecha_incio= models.DateTimeField(blank=True, null=True, verbose_name="Fecha y hora de inicio")
     programacion_activa=models.BooleanField(default=False, verbose_name="Activar / Desactivar programación")
     manual = models.FileField(upload_to='manual/', null=True, blank=True)
+    logo_institucional=models.ImageField(upload_to='logo',null=True, blank=True)
     
     
 

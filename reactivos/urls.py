@@ -10,9 +10,11 @@ app_name = 'reactivos'
 
 urlpatterns = [
     path('', Index.as_view(), name='index'),
+    path('categorias/<str:category>', Enlaces.as_view(), name='enlaces'),
     path('reactivos/<int:pk>', detalle_reactivo, name='detalle_reactivo'),
     path('administrar/configuraciones/', views.configuraciones, name='configuraciones'),
     path('administrar/manuales/descargar_manual_usuario/', descargar_manual, name='descargar_manual'),
+    path('administrar/imagenes/logo_institucional/', logo_institucional, name='logo_institucional'),
     path('reactivos/crear/', crear_reactivo, name='crear_reactivo'),
     path('unidades/crear/', CrearUnidades.as_view(), name='crear_unidades'),
     path('solicitudes/crear_tipo/', CrearTipoSolicitud.as_view(), name='crear_tipo_solicitud'),

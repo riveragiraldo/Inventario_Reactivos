@@ -76,103 +76,94 @@
 
 <body>
     {% block content %}
-    <div class="row">
-        <div class="col-md-10 mx-auto">
-            <h1>Listado de Usuarios</h1>
-            <br>
-
-            <form method="get" onsubmit="guardarValoresSelect()" name="listadoUsuarios">
-
-                <div class="row justify-content-between">
-
-                    <div class="col-md-3 d-flex flex-column align-items-left">
-                        <label for="lab">Laboratorio:</label>
-                        {% if request.user|has_group:"COORDINADOR" or request.user|has_group:"TECNICO" %}
-                        <select name="lab" class="form-control" id="lab">
-                            {% for lab in laboratorios %}
-                            {% if lab.id == laboratorio.id %}
-                            <option value="{{ lab.id }}" selected="">{{ lab.name }}</option>
-                            {% endif %}
-                            {% endfor %}
-                        </select>
-                        {% endif %}
-
-                        {% if request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
-                        <select name="lab" class="form-control" id="lab">
-                            <option value='0' selected="">Todos</option>
-                            {% for lab in laboratorios %}
-                            <option value="{{ lab.id }}">{{ lab.name }}</option>
-                            {% endfor %}
-                        </select>
-                        {% endif %}
-                    </div>
-                    <div class="col-md-3 d-flex flex-column align-items-left">
-                        <label for="rol">Rol:</label>
-                        {% if request.user|has_group:"COORDINADOR" or request.user|has_group:"TECNICO" %}
-                        <select name="rol" class="form-control" id="rol">
-                            <option value="" selected="">Todos</option>
-                            {% for rol in roles %}
-                            {% if rol.name == "TECNICO" or rol.name == "COORDINADOR" %}
-                            <option value="{{ rol.id }}">{{ rol.name }}</option>
-                            {% endif %}
-                            {% endfor %}
-                          </select>
-                        {% endif %}
-
-                        {% if request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
-                        <select name="rol" class="form-control" id="rol">
-                            <option value='' selected="">Todos</option>
-                            {% for rol in roles %}
-                            <option value="{{ rol.id }}">{{ rol.name }}</option>
-                            {% endfor %}
-                        </select>
-                        {% endif %}
-                    </div>
-                    <div class="col-md-3 d-flex flex-column align-items-left">
-                    <label for="is_active">Estado:</label>
-                            <select name="is_active" class="form-control" id="is_active">
-                            <option value="" selected="">Todos</option>
-                            <option value="True" >Activo</option>
-                            <option value="False" >Inactivo</option>
-                            
-                        </select>
-                    </div>
-                    <div class="col-md-3 d-flex flex-column align-items-left">
-                        <label for="name">Usuario:</label>
-                        <input type="text" id="name" name="name" class="form-control">
-
-                    </div>
-                    
-                    <input type="hidden" id="id_user" name="id_user" class="form-control" readonly>
-
-                    
-
-
-
-                    <div class="col-md-1 d-flex align-items-left">
-                        <div class="col-md-12">
-                            <label style="color: transparent;">Buscar</label>
-                        </div>
-                        <div class="col-md-12">
-                            <button id="boton-buscar" type="submit" class="btn btn-primary">Buscar</button>
-                        </div>
-                    </div>
-                    <div class="col-md-1 d-flex align-items-left">
-                        <div class="col-md-12">
-                            <label style="color: transparent;">Buscar</label>
-                        </div>
-                        <div class="col-md-12">
-                            <button type="button" class="btn btn-primary"
-                                onclick="limpiarCampos('listadoUsuarios')">Limpiar
-                                búsqueda</button>
-                        </div>
-                    </div>
-                </div>
+    <div class=" card col-md-8">
+        <div class="card-header">
+            <div class="form-group">
+                <h1>Listado de Usuarios</h1>
+            </div>
         </div>
-    </div>
-    <br>
+        <div class="card-body">
 
-    <div class="col-md-11 mx-auto">
+        <form method="get" onsubmit="guardarValoresSelect()" name="listadoUsuarios" class="row g-3">
+
+            
+
+                <div class="form-group col-md-3">
+                    <label for="lab">Laboratorio:</label>
+                    {% if request.user|has_group:"COORDINADOR" or request.user|has_group:"TECNICO" %}
+                    <select name="lab" class="form-control" id="lab">
+                        {% for lab in laboratorios %}
+                        {% if lab.id == laboratorio.id %}
+                        <option value="{{ lab.id }}" selected="">{{ lab.name }}</option>
+                        {% endif %}
+                        {% endfor %}
+                    </select>
+                    {% endif %}
+
+                    {% if request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
+                    <select name="lab" class="form-control" id="lab">
+                        <option value='0' selected="">Todos</option>
+                        {% for lab in laboratorios %}
+                        <option value="{{ lab.id }}">{{ lab.name }}</option>
+                        {% endfor %}
+                    </select>
+                    {% endif %}
+                </div>
+                <div class="form-group col-md-3">
+                    <label for="rol">Rol:</label>
+                    {% if request.user|has_group:"COORDINADOR" or request.user|has_group:"TECNICO" %}
+                    <select name="rol" class="form-control" id="rol">
+                        <option value="" selected="">Todos</option>
+                        {% for rol in roles %}
+                        {% if rol.name == "TECNICO" or rol.name == "COORDINADOR" %}
+                        <option value="{{ rol.id }}">{{ rol.name }}</option>
+                        {% endif %}
+                        {% endfor %}
+                    </select>
+                    {% endif %}
+
+                    {% if request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
+                    <select name="rol" class="form-control" id="rol">
+                        <option value='' selected="">Todos</option>
+                        {% for rol in roles %}
+                        <option value="{{ rol.id }}">{{ rol.name }}</option>
+                        {% endfor %}
+                    </select>
+                    {% endif %}
+                </div>
+                <div class="col-md-3 d-flex flex-column align-items-left">
+                    <label for="is_active">Estado:</label>
+                    <select name="is_active" class="form-control" id="is_active">
+                        <option value="" selected="">Todos</option>
+                        <option value="True">Activo</option>
+                        <option value="False">Inactivo</option>
+
+                    </select>
+                </div>
+                <div class="form-group col-md-3">
+                    <label for="name">Usuario:</label>
+                    <input type="text" id="name" name="name" class="form-control">
+                </div>
+                <input type="hidden" id="id_user" name="id_user" class="form-control" readonly>
+            </div>
+
+            <div class="card-footer">
+                <div class="form-group">
+                    <button id="boton-buscar" type="submit" class="btn btn-primary">Buscar</button>
+                    <button type="button" class="btn btn-primary" onclick="limpiarCampos('listadoUsuarios')">Limpiar
+                        búsqueda
+                    </button>
+                </div>
+            </div>
+        </form>
+
+    </div>
+
+    
+
+
+
+    <div class="col-md-11 mx-auto" style="margin-top: 20px;margin-bottom: 15px;">
         <!-- Control de paginación -->
         <div class="d-flex justify-content-between">
             <div>Ver&nbsp;
@@ -187,38 +178,39 @@
             </div>
         </div>
     </div>
-    </form>
-    <br>
-    <div class="table-responsive">
-        <table class="table" id="tabla-inventario">
 
-            <thead>
+
+    <div class="table-responsive">
+        <table class="table table-striped table-condensed table-bordered" id="tabla-inventario">
+
+            <thead style="background-color: rgb(171, 169, 169);position: sticky; top: 0; z-index: 10;">
                 <tr>
                     <th class="sortable-header" data-column="0" data-column-name="id" title="Ordenar por Consecutivo">Id
                     </th>
                     <th class="sortable-header" data-column="1" title="Ordenar por Nombres">Nombres</th>
                     <th class="sortable-header" data-column="2" title="Ordenar por cédula" data-column-name="id">
-                        Identificación</th>
-                    <th class="sortable-header" data-column="3" title="Ordenar por nombre de usuario">Nombre de usuario
+                        Id. Núm.</th>
+                    <th class="sortable-header" data-column="3" title="Ordenar por nombre de usuario">Usuario
                     </th>
-                    <th class="sortable-header" data-column="4" title="Ordenar por email">Correo Electrónico</th>
+                    <th class="sortable-header" data-column="4" title="Ordenar por email">Email</th>
                     <th class="sortable-header" data-column="5" title="Ordenar por teléfono" data-column-name="id">
-                        Teléfono</th>
-                    <th class="sortable-header" data-column="6" title="Ordenar por laboratorio">Laboratorio</th>
+                        Tel.</th>
+                    <th class="sortable-header" data-column="6" title="Ordenar por laboratorio">Lab.</th>
                     <th class="sortable-header" data-column="7" title="Ordenar por rol">Rol</th>
                     <th class="sortable-header" data-column="8" title="Ordenar por Último Acceso"
-                        data-column-name="date">Último Acceso</th>
-                    <th class="sortable-header" data-column="9" title="Ordenar por Acepta tratamiento de datos personales">Acepta TDP</th>
+                        data-column-name="date">Últ. Acceso</th>
+                    <th class="sortable-header" data-column="9"
+                        title="Ordenar por Acepta tratamiento de datos personales">Acepta TDP</th>
                     <th class="sortable-header" data-column="10" data-column-name="date"
-                        title="Ordenar por fecha de creación">Fecha de creación</th>
+                        title="Ordenar por fecha de creación">Fecha alta</th>
                     <th class="sortable-header" data-column="11" title="Ordenar por Responsable del Registro">Usuario
-                        registra</th>
+                        reg.</th>
                     <th class="sortable-header" data-column="12" title="Ordenar por Última Actualización por">Usuario
-                        actualiza</th>
-                    <th class="sortable-header" data-column="13" title="Ordenar por Activo">Activo</th>
-                    <th class="sortable-header" title="Visualización de detalle (no ordena)">Ver detalle</th>
-                    <th class="sortable-header" title="Acciones con el registro (no ordena)">Acciones<p
-                            style="color: transparent;">***********</p>
+                        act.</th>
+                    <th class="sortable-header" data-column="13" title="Ordenar por Activo">Estado</th>
+                    <th class="sortable-header" title="Visualización de detalle (no ordena)">Más</th>
+                    <th class="sortable-header" title="Acciones con el registro (no ordena)">
+                        <p style="color: transparent;">***********</p>Acciones
                     </th>
                 </tr>
             </thead>
@@ -272,7 +264,8 @@
                         date_user_lab="{{ item.last_updated_by.lab }}" date_user_rol="{{ item.last_updated_by.rol }}"
                         date_user_datejoined="{{ item.last_updated_by.date_joined }}"
                         date_user_lastlogin="{{ item.last_updated_by.last_login }}" date_user_type="actualiza"
-                        date_user_vist="el usuario">{{ item.last_updated_by.first_name }} {{item.last_updated_by.last_name }}
+                        date_user_vist="el usuario">{{ item.last_updated_by.first_name }}
+                        {{item.last_updated_by.last_name }}
                     </td>
                     <td title="Estado de registro de {{ item.name }}">
 
@@ -332,25 +325,25 @@
                         </a>
                         {% if request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
                         <!-- Editar -->
-                        
+
                         {% if item.is_active %}
                         <a href="javascript:void(0);" onclick="openEditFormUser({{ item.id }})">
                             <img src="{% static 'inventarioreac/Images/edit_register.png' %}" alt="" width="18"
                                 height="18" title="Editar registro número {{ item.id }}">
                         </a>
                         {% else %}
-                        <img src="{% static 'inventarioreac/Images/edit_register.png' %}" alt="" width="18"
-                                height="18" title="No se puede editar un usuario inactivo">
-                            
+                        <img src="{% static 'inventarioreac/Images/edit_register.png' %}" alt="" width="18" height="18"
+                            title="No se puede editar un usuario inactivo">
+
                         {% endif %}
-                            
-                       
+
+
                         <!-- Eliminar -->
                         {% if item.is_active %}
                         <a href="javascript:void(0);"
                             onclick="confirmDeleteUser({{ item.id }}, '{{ item.first_name }} {{ item.last_name }}')"><img
-                                src="{% static 'inventarioreac/Images/delete_register.png' %}" alt="" width="18" height="18"
-                                title="Eliminar registro número {{item.id}}"></a>
+                                src="{% static 'inventarioreac/Images/delete_register.png' %}" alt="" width="18"
+                                height="18" title="Eliminar registro número {{item.id}}"></a>
                         {% else %}
                         <a href="javascript:void(0);"
                             onclick="confirmActiveUser({{ item.id }}, '{{ item.first_name }} {{ item.last_name }}')"><img
@@ -363,11 +356,13 @@
                             title="Editar registro número {{ item.id }}, solo disponible para administradores">
                         <!-- Eliminar -->
                         {% if item.is_active %}
-                        <img src="{% static 'inventarioreac/Images/delete_register.png' %}" alt="" width="18" height="18"
-                                title="Eliminar registro número {{item.id}}, disponible solo para administradores">
+                        <img src="{% static 'inventarioreac/Images/delete_register.png' %}" alt="" width="18"
+                            height="18"
+                            title="Eliminar registro número {{item.id}}, disponible solo para administradores">
                         {% else %}
                         <img src="{% static 'inventarioreac/Images/restore_register.png' %}" alt="" width="18"
-                                height="18" title="Restaurar registro número {{item.id}}, disponible solo para administradores">
+                            height="18"
+                            title="Restaurar registro número {{item.id}}, disponible solo para administradores">
                         {% endif %}
                         {% endif %}
                     </td>

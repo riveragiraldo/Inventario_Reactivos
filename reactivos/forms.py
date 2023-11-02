@@ -11,7 +11,7 @@ class CustomAuthenticationForm(AuthenticationForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # Modifica el widget del campo username para que sea visible en el admin
-        self.fields['username'].widget = forms.EmailInput(attrs={'autocomplete': 'email'})
+        self.fields['username'].widget = forms.EmailInput(attrs={'autocomplete': 'email', 'class':'form-control'})
 
 class ReCaptchaForm(forms.Form):
     # Campo de reCAPTCHA
@@ -34,6 +34,7 @@ def estandarizar_nombre(nombre):
     nombre = re.sub('[úÚ]', 'U', nombre)
     nombre = re.sub('[ñÑ]', 'N', nombre)
     nombre = re.sub('[^A-Za-z0-9@ .,()_-]', '', nombre)
+    nombre = nombre.strip()  # Eliminar espacios al principio y al final
     return nombre
 
 class FormularioUsuario(forms.ModelForm):
@@ -156,15 +157,15 @@ class FormularioUsuario(forms.ModelForm):
         cleaned_data['last_name'] = estandarizar_nombre(cleaned_data['last_name'])
         return cleaned_data
     
-    def clean_password2(self):
-        password1 = self.cleaned_data.get('password1')
-        password2 = self.cleaned_data.get('password2')
+    # def clean_password2(self):
+    #     password1 = self.cleaned_data.get('password1')
+    #     password2 = self.cleaned_data.get('password2')
         
-        # Validación de que las contraseñas sean iguales
-        if password1 != password2:
-            raise forms.ValidationError('Las contraseñas no coinciden')
+    #     # Validación de que las contraseñas sean iguales
+    #     if password1 != password2:
+    #         raise forms.ValidationError('Las contraseñas no coinciden')
         
-        return password2
+    #     return password2
 
     def save(self, commit=True):
         user = super().save(commit=False)
@@ -292,10 +293,19 @@ class ConfiguracionSistemaForm(forms.ModelForm):
                                         required=False,
                                         label='Manual de usuario'
     )
+    logo_institucional=forms.ImageField (
+        widget=forms.FileInput (attrs={'class':'form.control',
+                                      'title':'Imagen de logo insitucional',
+                                      'accept':'image/*',
+                                      'size':'5242880',
+                                      }),
+                                        required=False,
+                                        label='Logo Institucional'
+    )
 
     class Meta:
         model = ConfiguracionSistema
-        fields = ['tiempo_solicitudes', 'tiempo_eventos', 'correo_administrador','tiempo_vencimiento_reactivos','intervalo_tiempo','fecha_incio','programacion_activa','manual']
+        fields = ['tiempo_solicitudes', 'tiempo_eventos', 'correo_administrador','tiempo_vencimiento_reactivos','intervalo_tiempo','fecha_incio','programacion_activa','manual','logo_institucional']
 
     def clean(self):
         cleaned_data = super().clean()
