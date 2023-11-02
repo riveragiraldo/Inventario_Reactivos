@@ -62,7 +62,7 @@
         var laboratorio = '{{ entrada.lab }}'
         var marca = '{{ entrada.trademark.id }}'
         var destino = '{{ entrada.destination.id }}'
-        
+
 
     </script>
 
@@ -73,21 +73,25 @@
 
 <body>
     {% block content %}
-    <div class="col-md-6 mx-auto">
+    <div class="card col-md-6 mx-auto">
 
-        <div class="container mt-5">
+        <div class="card-header mt-5">
+            <div class="form-group">
             <h1>Editar entrada de reactivos</h1>
             <!-- HTML para mostrar el spinner -->
+            
+                <label class="form-label">Fecha: </label>
+                <span id="currentDate"></span>
+            </div>
+        </div>
+        <div class="card-body">
             <p id="message"></p>
             <div id="spinner"></div>
 
             <form method="post" class="row g-3" id="in_form" name="form">
                 {% csrf_token %}
-                <div class="col-md-12">
-                    <label class="form-label">Fecha: </label>
-                    <span id="currentDate"></span>
-                </div>
-                <div class="col-md-12">
+
+                <div class="form-group col-md-12">
                     <label class="form-label" for="lab" name="Laboratorio: ">Laboratorio:</label>
 
                     {% if request.user|has_group:"COORDINADOR" or request.user|has_group:"TECNICO" %}
@@ -115,39 +119,46 @@
                     {% endif %}
                 </div>
 
-                <div class="col-md-6">
+                <div class="form-group col-md-6">
                     <label class="form-label" for="name" name="Nombre: ">*Nombre: "Cód. - Nom. - CAS"</label>
-                    <div class="input-group">
+                    <div class="input-group" id="name-block">
                         <input type="text" class="form-control" name="name" id="name" placeholder="Nombre, CI o CAS"
                             title="Se puede filtrar por nombre, CI o CAS" required value="{{ entrada.name }}" />
                         {% if request.user|has_group:"COORDINADOR" or request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
-                        <button type="button" id="add_reagent_btn" class="btn btn-secondary" title="Agregar Reactivo">+
-                        </button>
+                        <div class="input-group-btn">
+                            <button type="button" id="add_reagent_btn" class="btn btn-secondary"
+                                title="Agregar Reactivo">+
+                            </button>
+                        </div>
+
                         {% endif %}
                     </div>
                 </div>
 
-                <div class="col-md-2">
+                <div class="form-group col-md-2">
                     <label class="form-label" for="code" name="Código: ">*Código:</label>
                     <input type="text" name="code" class="form-control" id="code" readonly placeholder="Cód. Interno"
                         value="{{ entrada.name.code }}">
                 </div>
 
-                <div class="col-md-2">
+                <div class="form-group col-md-2">
                     <label class="form-label" for="cas" name="CAS: ">*CAS:</label>
                     <input type="text" name="cas" class="form-control" value="{{ entrada.name.cas }}" id="cas" readonly
                         placeholder="Cód. CAS">
                 </div>
-                <div class="col-md-2">
+                <div class="form-group col-md-2">
                     <label class="form-label" for="is_liquid" name="Estado: ">*Estado:</label>
                     <input type="text" name="is_liquid" class="form-control" value="{{ entrada.name.state }}"
                         id="is_liquid" readonly placeholder="Estado">
                 </div>
 
-                <div class="col-md-4">
+                <div class="form-group col-md-4">
                     <label class="form-label" for="price" name="Valor: ">*Valor:</label>
                     <div class="input-group">
-                        <span class="input-group-text">$</span>
+                        <div class="input-group-addon">
+                            <span class="input-group-text">$</span>
+                        </div>
+
                         <input type="number" class="form-control" placeholder="Valor en COP" name="price" required
                             id="price" min="0" max="1000000000" pattern="^(?:[1-9]\d{0,8}|1000000000)$"
                             title="Ingrese un valor entero positivo sin puntos ni comas (máximo $ 1000000000)"
@@ -156,21 +167,25 @@
                     </div>
                 </div>
 
-                <div class="col-md-4">
+                <div class="form-group col-md-4">
                     <label class="form-label" for="trademark" name="Marca: ">*Marca:</label>
-                    <div class="input-group">
+                    <div class="input-group" id="trademark-block">
                         <select name="trademark" id="trademark" class="form-control" required>
                             <option value="">Seleccione</option>
                             {% for marca in marcas %}
                             <option value="{{ marca.id }}">{{ marca.name }}</option>
                             {% endfor %}
                         </select>
-                        <button type="button" id="add_trademark_btn" class="btn btn-secondary" title="Agregar Marca">+
-                            </Address></button>
+                        <div class="input-group-btn">
+                            <button type="button" id="add_trademark_btn" class="btn btn-secondary"
+                                title="Agregar Marca">+
+                                </Address></button>
+                        </div>
+
                     </div>
                 </div>
 
-                <div class="col-md-4">
+                <div class="form-group col-md-4">
                     <label class="form-label" for="edate" name="Vencimiento: ">*Vencimiento:</label>
                     <input type="date" class="form-control" name="edate" id="edate" value="{{ vdate }}" required
                         title="Registre una fecha futura (hasta 31/12/2100)" min="{{ tomorrow|date:'Y-m-d' }}"
@@ -178,13 +193,13 @@
 
                 </div>
 
-                <div class="col-md-3" id="referenceBlock">
+                <div class="form-group col-md-4" id="referenceBlock">
                     <label class="form-label" for="reference" name="Referencia: ">*Referencia:</label>
                     <input type="text" class="form-control" placeholder="Ref. reactivo" name="reference" id="reference"
                         value="{{ entrada.inventario.reference }}" required>
                 </div>
 
-                <div class="col-md-4" id="weightBlock">
+                <div class="form-group col-md-4" id="weightBlock">
                     <label class="form-label" for="weight" name="Cantidad Ingreso: ">*Cantidad:</label>
                     <input type="number" step="any" class="form-control" placeholder="Cant. reactivo" id="weight"
                         name="weight" required min="0" max="100000000" pattern="^(?:[1-9]\d{0,7}|100000000)$"
@@ -193,13 +208,13 @@
                 </div>
 
 
-                <div class="col-md-2" id="unitBlock">
+                <div class="form-group col-md-4" id="unitBlock">
                     <label class="form-label" for="unit" name="Unidad: ">*Unidades:</label>
                     <input type="text" name="unit" class="form-control" value="{{ entrada.name.unit }}" id="unit"
                         readonly>
                 </div>
                 <!-- Agregar el checkbox para Control de Stock -->
-                <div class="col-md-12">
+                <div class="form-group col-md-12">
 
                     <input type="checkbox" id="controlMinStock" name="controlMinStock" {{minStockControl}}>
                     <input type="hidden" name="minStockControl" id="minStockControl" value="{{ controlMinStock }}"
@@ -208,7 +223,7 @@
 
                 </div>
 
-                <div class="col-md-3" id="minStockBlock">
+                <div class="form-group col-md-6" id="minStockBlock">
                     <label class="form-label" for="minstock" name="Stock mínimo: ">*Min Stock:</label>
                     <input type="number" step="any" class="form-control" placeholder="Stock Mínimo" id="minstock"
                         name="minstock" min="0" max="100000" pattern="^(?:[1-9]\d{0,4}|100000)$"
@@ -216,8 +231,70 @@
                         value="{{ minstock }}">
 
                 </div>
+                
+                <div class="form-group col-md-6" id="locationBlock">
+                    <label class="form-label" for="location"
+                        name="Asignatura Ubicación: ">*Asignatura/Ubicación:</label>
+                    <div class="input-group" id="location-block">
+                        <input type="text" name="location" class="form-control" id="location" required
+                            placeholder="Asignatura/Ubicación Destino" value="{{ entrada.location }}">
+                        <input type="hidden" name="facultad" class="form-control" id="facultad" placeholder="Facultad"
+                            readonly value="{{ entrada.location.facultad }}">
+                        <div class="input-group-btn">
+                            <button type="button" id="add_location_btn" class="btn btn-secondary"
+                                title="Agregar Asignatura/Ubicación">+
+                                </Address></button>
+                        </div>
 
-                <div class="col-md-6">
+                    </div>
+                </div>
+                
+                <div class="form-group col-md-6">
+                    <label class="form-label" for="destination" name="Destino: ">*Destino:</label>
+                    <select name="destination" id="destination" class="form-control" required>
+                        <option value="">Seleccione</option>
+                        {% for destino in destinos %}
+                        <option value="{{ destino.id }}">{{ destino.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group col-md-6">
+                    <label class="form-label" for="manager" name="Responsable: ">*Responsable:</label>
+                    <div class="input-group" id="manager-block">
+                        <input type="text" name="manager" class="form-control" id="manager" required
+                            placeholder="Responsable del insumo" value="{{ entrada.manager }}">
+                        <input type="hidden" name="correo" class="form-control" id="correo"
+                            placeholder="Correo Responsable" readonly value="{{ entrada.manager.mail }}">
+                        <div class="input-group-btn">
+                            <button type="button" id="add_manager_btn" class="btn btn-secondary"
+                                title="Agregar Responsable">+
+                                </Address></button>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="form-group col-md-6">
+                    <label class="form-label" for="wlocation" name="Ubicación física: ">*Ubicación en almacén:</label>
+                    <div class="input-group" id="wlocation-block">
+                        <select name="wlocation" id="wlocation" class="form-control" required>
+                            <option value="{{ entrada.inventario.wlocation.id }}" selected="">{{
+                                entrada.inventario.wlocation }}</option>
+                            {% for wubicacion in wubicaciones %}
+                            <option value="{{ wubicacion.id }}">{{ wubicacion.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <div class="input-group-btn">
+                            <button type="button" id="add_wlocation_btn" class="btn btn-secondary"
+                                title="Agregar ubicación en Almacén">+
+                                </Address></button>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="form-group col-md-6">
                     <label class="form-label" for="order" name="Orden: ">Número de orden:</label>
                     <input type="text" name="order" class="form-control" id="order" placeholder="Orden Número"
                         value="{{ entrada.order }}">
@@ -230,96 +307,32 @@
                 </div>
 
 
-                <div class="col-md-6">
+                <div class="form-group col-md-6">
                     <label class="form-label" for="nproject" name="Proyecto No.: ">Número de proyecto:</label>
                     <input type="text" name="nproject" class="form-control" id="nproject" placeholder="Proyecto Número"
                         value="{{ entrada.nproject }}">
                 </div>
 
-                <div class="col-md-6">
-                    <label class="form-label" for="location"
-                        name="Asignatura Ubicación: ">*Asignatura/Ubicación:</label>
-                    <div class="input-group">
-                        <input type="text" name="location" class="form-control" id="location" required
-                            placeholder="Asignatura/Ubicación Destino" value="{{ entrada.location }}">
-                        <input type="hidden" name="facultad" class="form-control" id="facultad" placeholder="Facultad"
-                            readonly value="{{ entrada.location.facultad }}">
-                        <button type="button" id="add_location_btn" class="btn btn-secondary"
-                            title="Agregar Asignatura/Ubicación">+
-                            </Address></button>
-                    </div>
-                </div>
-
-
-
-
-
-                <div class="col-md-6">
-                    <label class="form-label" for="destination" name="Destino: ">*Destino:</label>
-                    <select name="destination" id="destination" class="form-control" required>
-                        <option value="">Seleccione</option>
-                        {% for destino in destinos %}
-                        <option value="{{ destino.id }}">{{ destino.name }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-
-                <div class="col-md-6">
-                    <label class="form-label" for="manager" name="Responsable: ">*Responsable:</label>
-                    <div class="input-group">
-                        <input type="text" name="manager" class="form-control" id="manager" required
-                            placeholder="Responsable del insumo" value="{{ entrada.manager }}">
-                        <input type="hidden" name="correo" class="form-control" id="correo"
-                            placeholder="Correo Responsable" readonly value="{{ entrada.manager.mail }}">
-                        <button type="button" id="add_manager_btn" class="btn btn-secondary"
-                            title="Agregar Responsable">+
-                            </Address></button>
-                    </div>
-                </div>
-
-                <div class="col-md-6">
-                    <label class="form-label" for="wlocation" name="Ubicación física: ">*Ubicación en almacén:</label>
-                    <div class="input-group">
-                        <select name="wlocation" id="wlocation" class="form-control" required>
-                            <option value="{{ entrada.inventario.wlocation.id }}" selected="">{{
-                                entrada.inventario.wlocation }}</option>
-                            {% for wubicacion in wubicaciones %}
-                            <option value="{{ wubicacion.id }}">{{ wubicacion.name }}</option>
-                            {% endfor %}
-                        </select>
-                        <button type="button" id="add_wlocation_btn" class="btn btn-secondary"
-                            title="Agregar ubicación en Almacén">+
-                            </Address></button>
-                    </div>
-                </div>
-
-                <div class="col-md-12">
+                <div class="form-group col-md-12">
                     <label class="form-label" for="observations" name="Observaciones: ">Observaciones:</label>
                     <textarea name="observations" class="form-control" placeholder="Escriba sus observaciones" rows="2"
                         id="observations">{{ entrada.observations }}</textarea>
                 </div>
 
-                <input type="hidden" name="wf" class="form-control" value="entrada" id="wf">
-                <!-- identificador para saber que tipo de ventana es -->
-
-                <div class="col-md-6">
-                    <input type="button" value="Realizar Modificaciones" class="btn btn-primary"
-                        id="open_confirm_in">
-                </div>
-
-                <div class="col-md-6">
-                    <button type="button" class="btn btn-primary" onclick="limpiarCampos('in_form')">Cancelar</button>
-                </div>
-                
-
-            </form>
-
-
         </div>
 
+        <input type="hidden" name="wf" class="form-control" value="entrada" id="wf">
+        <!-- identificador para saber que tipo de ventana es -->
+        <div class="card-footer">
+            <div class="form-group">
+                <button type="button" class="btn btn-primary" onclick="limpiarCampos('in_form')">Cancelar</button>
+                <input type="button" value="Realizar Modificaciones" class="btn btn-primary" id="open_confirm_in">
+            </div>
+        </div>
+    </form>
+</div>
 
-
-        {% endblock %}
+    {% endblock %}
 </body>
 
 </html>

@@ -27,10 +27,9 @@
   <!-- Estilos para el letrero de la mitad del spinner -->
   <script src="{% static 'inventarioreac/sendInfoEdit.js' %}" defer></script>
   <!-- Llama Script al final genera alerta informativa con los datos que se va enviar al servidor y acepta-->
-  <script src="{% static 'inventarioreac/closeWindow.js' %}" defer></script>
-    <!-- Llama Script al final genera alerta informativa de cierre de ventana-->
-    <script src="{% static 'inventarioreac/redirectHome.js' %}" defer></script>
-    <!-- Llama Script al final redirige al incio y coloca el contador de caracteres al mensaje-->
+  <script src="{% static 'inventarioreac/closeWindowSol.js' %}" defer></script>
+  <!-- Llama Script al final genera alerta informativa de cierre de ventana-->
+  
 
   {% endblock %}
 
@@ -101,7 +100,7 @@
           
           
             
-          <textarea name="observations" id="observations" cols="2" rows="5" class="form-control" {% if solicitud.tramitado %} readonly {% endif %}>{% if solicitud.tramitado %}{{ solicitud.observaciones }}{% endif %}</textarea>
+          <textarea required name="observations" id="observations" cols="2" rows="5" class="form-control" {% if solicitud.tramitado %} readonly {% endif %}>{% if solicitud.tramitado %}{{ solicitud.observaciones }}{% endif %}</textarea>
           <span id="contador" style="display: none">0/1000 caracteres</span>
           <!-- Mensaje de confirmación en verde si la solicitud ha sido tramitada -->
           {% if solicitud.tramitado %}
@@ -120,7 +119,7 @@
 
       <div id="open_confirm_in"></div>
       {% else %}
-      <button type="button" class="btn btn-primary" onclick="limpiarCampos('form')">Cancelar</button>
+      <button type="button" class="btn btn-primary" id="close-link">Cancelar</button>
 
       <input type="button" value="Responder Solicitud" class="btn btn-primary" id="open_confirm_in">
       {% endif %}

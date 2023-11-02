@@ -12,6 +12,11 @@ function hideAddButtonsIfPopup() {
     var addLocationCont = document.getElementById("add_location_btn");
     var addManagerCont = document.getElementById("add_manager_btn");
     var addWlocationCont = document.getElementById("add_wlocation_btn");
+    var nameBlock = document.getElementById("name-block");
+    var trademarkBlock = document.getElementById("trademark-block");
+    var locationBlock = document.getElementById("location-block");
+    var managerBlock = document.getElementById("manager-block");
+    var wlocationBlock = document.getElementById("wlocation-block");
 
     if (isPopupWindow()) {
 
@@ -20,7 +25,11 @@ function hideAddButtonsIfPopup() {
         addLocationCont.style.display = "none";
         addManagerCont.style.display = "none";
         addWlocationCont.style.display = "none";
-        
+        nameBlock.classList.remove('input-group');
+        trademarkBlock.classList.remove('input-group');
+        locationBlock.classList.remove('input-group');
+        managerBlock.classList.remove('input-group');
+        wlocationBlock.classList.remove('input-group');        
 
     }
 }

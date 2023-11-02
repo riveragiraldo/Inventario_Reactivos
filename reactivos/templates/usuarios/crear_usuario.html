@@ -96,7 +96,7 @@
           <label for="{{ form.rol.id_for_label }}" name="Rol:">Rol:</label>
 
           {% if request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
-          <div class="input-group">
+          <div class="input-group" id="rol-block">
             {{ form.rol }}
             {% if request.user.is_superuser %}
             <button type="button" id="add_rol_btn" class="btn btn-secondary" title="Agregar Rol">+</button>
@@ -122,7 +122,7 @@
           <label for="{{ form.lab.id_for_label }}" name="Laboratorio:">Laboratorio:</label>
 
           {% if request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
-          <div class="input-group">
+          <div class="input-group" id="lab-block">
             {{ form.lab }}
             <button type="button" id="add_lab_btn" class="btn btn-secondary" title="Agregar Laboratorio">+</button>
 

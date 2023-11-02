@@ -27,6 +27,8 @@
     <!-- Llama Script al final genera alerta informativa con los datos que se va enviar al servidor y acepta-->
     <script src="{% static 'inventarioreac/clearFds.js' %}"></script>
     <!-- Llama Script que borra los campos del formulario cuando se ejecuta cualquier acción -->
+    <script src="{% static 'inventarioreac/cancelButtonFunction.js' %}" defer></script>
+    <!-- Llama Script  que coloca función al botón cancelar -->
 
 
 
@@ -35,87 +37,87 @@
 
 <body>
     {% block content %}
+    
+    <div class="card">
+        <div class="card-header">
+            <div class="form-group">
+                <h1>Crear tipo de solicitud</h1>
+            </div>
+        </div>
 
-
-
-    <div class="container mt-5">
-        <h1>Crear tipo de solicitud</h1>
-        <br>
-
-        <div class="row">
+        <div class="card-body">
             <!-- HTML para mostrar el spinner -->
             <p id="message"></p>
             <div id="spinner"></div>
 
-            <form method="post" class="row g-3" id="tipo_solicitud_form" name="form">
+            <form method="post" id="tipo_solicitud_form" name="form">
                 {% csrf_token %}
 
-                <div class="col-md-5">
+                <div class="form-group">
                     <label class="form-label" for="name" name="Nombre del tipo de solicitud: ">Nombre del tipo de
                         solitud:</label>
                     <input type="text" class="form-control" placeholder="Tipo de solicitud" name="name" required
-                        id="name" pattern="^[a-zA-Z áéíóúÁÉÍÓÚ]{1,100}$" title="Ingrese solo letras (máximo 100 caracteres)">
+                        id="name" pattern="^[a-zA-Z áéíóúÁÉÍÓÚ]{1,100}$"
+                        title="Ingrese solo letras (máximo 100 caracteres)">
 
                 </div>
-                <div class="col-md-12">
-                </div>
-                
-                <div class="col-md-12">
-                    <div class="col-md-2 mt-3">
-                        <input type="button" value="Crear Tipo de solicitud" class="btn btn-primary"
-                            id="open_confirm_in">
-                    </div>
-                    <div class="col-md-2 mt-3">
-                        <input type="reset" value="Limpiar Campos" class="btn btn-primary">
-                    </div>
+            </div>
 
-                </div>
-            </form>
+        <div class="card-footer">
+            <div class="form-group">
+                <button type="button" class="btn btn-primary" onclick="limpiarCampos('form')">Cancelar</button>
+                <input type="button" value="Crear Tipo de solicitud" class="btn btn-primary" id="open_confirm_in">
+            </div>
 
-            {% if messages %}
-            {% for message in messages %}
-            <!-- Este script no puede ser invocado como un archivo externo. Después de recibir una respuesta del servidor, se
+
+        </div>
+    </form>
+    </div>
+
+    {% if messages %}
+    {% for message in messages %}
+    <!-- Este script no puede ser invocado como un archivo externo. Después de recibir una respuesta del servidor, se
             verifica si la ventana actual es emergente. En caso afirmativo, se muestra una alerta de confirmación o de
             error,se obtienen los valores de los campos de la ventana principal, se recarga la página para actualizar la
             selección y se vuelven a escribir o seleccionar los valores previamente ingresados. Si se agregó un nuevo
             registro de UNIDAD en la base de datos o si este ya existe, se insertará en el campo de selección
             correspondiente. Luego, la ventana emergente se cerrará. Si la ventana no es emergente, se mostrará una alerta
             de éxito o error según corresponda. -->
-            <script>
+    <script>
 
 
-                window.onload = function () {
+        window.onload = function () {
 
-                    var messageText = '{{ message|safe }}';
+            var messageText = '{{ message|safe }}';
 
-                    var alertType = 'info';  // Tipo de alerta predeterminado para mensajes habituales
+            var alertType = 'info';  // Tipo de alerta predeterminado para mensajes habituales
 
-                    // Verificar el contenido del mensaje para asignar el tipo de alerta adecuado
-                    if (messageText.includes('Se ha creado exitosamente')) {
-                        alertType = 'success';
-                    } else if (messageText.includes('Por favor seleccione') || messageText.includes('Ya existe') || messageText.includes('Solo se permiten registros ')) {
-                        alertType = 'warning';
-                    }
+            // Verificar el contenido del mensaje para asignar el tipo de alerta adecuado
+            if (messageText.includes('Se ha creado exitosamente')) {
+                alertType = 'success';
+            } else if (messageText.includes('Por favor seleccione') || messageText.includes('Ya existe') || messageText.includes('Solo se permiten registros ')) {
+                alertType = 'warning';
+            }
 
-                    // Mostrar la notificación con SweetAlert2
-                    Swal.fire({
-                        icon: alertType,
-                        title: 'Mensaje del servidor',
-                        text: messageText,
-                        confirmButtonText: 'Aceptar'
-                    });
-
-
-                };
-
-            </script>
-            {% endfor %}
-            {% endif %}
-
-        </div>
+            // Mostrar la notificación con SweetAlert2
+            Swal.fire({
+                icon: alertType,
+                title: 'Mensaje del servidor',
+                text: messageText,
+                confirmButtonText: 'Aceptar'
+            });
 
 
-        {% endblock %}
+        };
+
+    </script>
+    {% endfor %}
+    {% endif %}
+
+
+
+
+    {% endblock %}
 </body>
 
 </html>

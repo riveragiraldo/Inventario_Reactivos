@@ -2,13 +2,10 @@ document.addEventListener("DOMContentLoaded", function () {
     const closeLink = document.getElementById("close-link");
 
     closeLink.addEventListener("click", function (event) {
-        if (window.opener){
+       
             window.close()
-        }
-        else{
-        event.preventDefault(); // Prevenir el comportamiento predeterminado del enlace
-        closeTab();
-    }
+        
+        
     });
 
 

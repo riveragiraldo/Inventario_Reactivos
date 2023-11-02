@@ -209,7 +209,7 @@ class SolicitudForm(forms.ModelForm):
             ),
             'archivos_adjuntos': forms.FileInput(
                 attrs={
-                    'class': 'form-control',
+                    'class':'custom-file-input',
                     'id': 'archivos_adjuntos',
                     'title': 'Adjunte archivos de tamaño maximo 5 MB',
                     'rows': '5',  # Máximo de 5 filas

@@ -62,16 +62,16 @@
 
 <body>
     {% block content %}
-    <div class="row">
-        <div class="col-md-9 mx-auto">
-            <h1>Inventario Reactivos</h1>
+    <div class="row col-md-7 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h1>Inventario Reactivos</h1>
+            </div>
             <br>
+            <div class="card-body">
+                <form method="get" onsubmit="guardarValoresSelect()" class="row g-3">
 
-            <form method="get" onsubmit="guardarValoresSelect()">
-
-                <div class="row justify-content-between">
-
-                    <div class="col-md-3 d-flex flex-column align-items-left">
+                    <div class="form-group col-md-4">
                         <label for="lab">Laboratorio:</label>
                         {% if request.user|has_group:"COORDINADOR" or request.user|has_group:"TECNICO" %}
                         <select name="lab" class="form-control" id="lab">
@@ -93,7 +93,7 @@
                         {% endif %}
                     </div>
 
-                    <div class="col-md-3 d-flex flex-column align-items-left">
+                    <div class="form-group col-md-4">
                         <label for="name">Nombre Reactivo:</label>
                         <select id="name" name="name" class="form-control">
                             <option value="">Todos</option>
@@ -103,7 +103,7 @@
                         </select>
                     </div>
 
-                    <div class="col-md-2 d-flex flex-column align-items-left">
+                    <div class="form-group col-md-4">
                         <label for="trademark">Marca:</label>
                         <select id="trademark" name="trademark" class="form-control">
                             <option value="">Todas</option>
@@ -112,18 +112,16 @@
                             {% endfor %}
                         </select>
                     </div>
+            </div>
 
-                    <div class="col-md-2 d-flex align-items-end">
-                        <button id="boton-buscar" type="submit" class="btn btn-primary">Buscar</button>
-                    </div>
-                </div>
+            <div class="card-footer">
+                <button id="boton-buscar" type="submit" class="btn btn-primary">Buscar</button>
+            </div>
             </form>
         </div>
     </div>
 
-    <br>
-
-    <div class="col-md-11 mx-auto">
+    <div class="row col-md-7" style="margin-top: 20px; margin-bottom: 10px;">
         <!-- Control de paginación -->
         <div class="d-flex justify-content-between">
             <div>Ver&nbsp;
@@ -140,30 +138,31 @@
             </div>
         </div>
     </div>
-    <br>
+    
     <br>
     <div class="table-responsive">
-        <table class="table" id="tabla-inventario">
-            <thead>
+        <table class="table table-striped table-condensed table-bordered" id="tabla-inventario">
+            <thead style="background-color: rgb(171, 169, 169);position: sticky; top: 0; z-index: 10;">
                 <tr>
                     <th class="sortable-header" data-column="0" data-column-name="id" title="Ordenar por Consecutivo">Id
                     </th>
-                    <th class="sortable-header" data-column="1" title="Ordenar por código">Código</th>
+                    <th class="sortable-header" data-column="1" title="Ordenar por código">Cód.</th>
                     <th class="sortable-header" data-column="2" title="Ordenar por cas">CAS</th>
                     <th class="sortable-header" data-column="3" title="Ordenar por nombre">Nombre</th>
                     <th class="sortable-header" data-column="4" title="Ordenar por marca">Marca</th>
-                    <th class="sortable-header" data-column="5" title="Ordenar por referencia">Referencia</th>
-                    <th class="sortable-header" data-column="6" title="Ordenar por cantidad">Cantidad</th>
-                    <th class="sortable-header" data-column="7" title="Ordenar por Stock Mínimo">Stock Mínimo</th>
+                    <th class="sortable-header" data-column="5" title="Ordenar por referencia">Ref.</th>
+                    <th class="sortable-header" data-column="6" title="Ordenar por cantidad">Cant.</th>
+                    <th class="sortable-header" data-column="7" title="Ordenar por Stock Mínimo">Stock Mín.</th>
                     <th class="sortable-header" data-column="8" title="Ordenar por ubicación">Ubicación</th>
-                    <th class="sortable-header" data-column="9" title="Ordenar por laboratorio">Laboratorio</th>
-                    <th class="sortable-header" data-column="10" data-column-name="date" title="Ordenar por fecha de vencimiento">Vencimiento</th>
-                    <th class="sortable-header" data-column="11" title="Ordenar por Responsable del Registro">Usuario registra</th>
-                    <th class="sortable-header" data-column="12" title="Ordenar por Última Actualización por">Usuario actualiza</th>
-                    <th class="sortable-header" title="Visualización de detalle (no ordena)">Ver detalle</th>
+                    <th class="sortable-header" data-column="9" title="Ordenar por laboratorio">Lab.</th>
+                    <th class="sortable-header" data-column="10" data-column-name="date"
+                        title="Ordenar por fecha de vencimiento">Venc.</th>
+                    <th class="sortable-header" data-column="11" title="Ordenar por Responsable del Registro">Usuario reg.</th>
+                    <th class="sortable-header" data-column="12" title="Ordenar por Última Actualización por">Usuario act.</th>
+                    <th class="sortable-header" title="Visualización de detalle (no ordena)">Más</th>
                 </tr>
             </thead>
-            
+
             <tbody>
                 {% for item in object_list %}
                 <tr class="table-row">
@@ -177,14 +176,12 @@
                     <td title="Stock Mínimo">{{ item.minstock|floatformat:0 }} {{ item.name.unit }}</td>
                     <td title="Ubicación en almacén de {{ item.name }}">{{ item.wlocation }}</td>
                     <td title="Labratorio al que pertenece el reactivo {{ item.name }}">{{ item.lab }}</td>
-                    <td 
-                        title="Fecha de vencimiento del reactivo {{ item.name }}"
-                        data-reactivo-name="{{ item.name }}"
+                    <td title="Fecha de vencimiento del reactivo {{ item.name }}" data-reactivo-name="{{ item.name }}"
                         data-reactivo-edate="{{ item.edate }}">
                         {% if item.edate %}
-                            {{ item.edate }}
+                        {{ item.edate }}
                         {% endif %}
-                            </td>
+                    </td>
                     <td class="created_by_cell"
                         title="Más información de: {{ item.created_by.first_name }} {{ item.created_by.last_name }}"
                         date_user_create="{{ item.created_by.first_name }} {{ item.created_by.last_name }}"
@@ -195,7 +192,8 @@
                         date_user_rol="{{ item.created_by.rol }}"
                         date_user_datejoined="{{ item.created_by.date_joined }}"
                         date_user_lastlogin="{{ item.created_by.last_login }}" date_user_type="crea"
-                        date_user_vist="el registro de inventario">{{ item.created_by.first_name }} {{item.created_by.last_name }}
+                        date_user_vist="el registro de inventario">{{ item.created_by.first_name }}
+                        {{item.created_by.last_name }}
                     </td>
                     <td class="created_by_cell"
                         title="Más información de: {{ item.last_updated_by.first_name }} {{ item.last_updated_by.last_name }}"
@@ -208,7 +206,8 @@
                         date_user_lab="{{ item.last_updated_by.lab }}" date_user_rol="{{ item.last_updated_by.rol }}"
                         date_user_datejoined="{{ item.last_updated_by.date_joined }}"
                         date_user_lastlogin="{{ item.last_updated_by.last_login }}" date_user_type="actualiza"
-                        date_user_vist="el registro de inventario">{{ item.last_updated_by.first_name }} {{item.last_updated_by.last_name }}</td>
+                        date_user_vist="el registro de inventario">{{ item.last_updated_by.first_name }}
+                        {{item.last_updated_by.last_name }}</td>
 
                     <!-- Modifica el evento click de la imagen para mostrar SweetAlert -->
                     <td>
@@ -220,7 +219,8 @@
                             data-reactivo-quantity="{{ item.weight|floatformat:1 }}"
                             data-reactivo-unit="{{ item.name.unit }}" data-reactivo-wlocation="{{ item.wlocation }}"
                             data-reactivo-lab="{{ item.lab }}" data-reactivo-edate="{{ item.edate }}"
-                            data-reactivo-almacenamiento_interno="{{ item.name.almacenamiento_interno }}" data-reactivo-clase_almacenamiento="{{ item.name.clase_almacenamiento }} {{ item.name.clase_almacenamiento.description }}"
+                            data-reactivo-almacenamiento_interno="{{ item.name.almacenamiento_interno }}"
+                            data-reactivo-clase_almacenamiento="{{ item.name.clase_almacenamiento }} {{ item.name.clase_almacenamiento.description }}"
                             data-reactivo-state="{{ item.name.state }}"
                             data-reactivo-date_create="{{ item.date_create }}"
                             data-reactivo-create_by="{{ item.created_by.first_name }} {{ item.created_by.last_name }}"
@@ -233,7 +233,7 @@
                 {% endfor %}
             </tbody>
         </table>
-        
+
         <br>
         <div class="d-flex justify-content-between">
             <!-- Controles de navegación de página -->
@@ -252,20 +252,20 @@
                     {% endif %}
                 </span>
             </div>
-            
+
             <!-- Información de paginación -->
             <div class="pagination-info">
                 Mostrando {{ page_obj.start_index }} - {{ page_obj.end_index }} de {{ paginator.count }} registros
             </div>
         </div>
-        
+
         <br>
         <!-- Opciones de exportación -->
         <a href="{% url 'reactivos:export_to_excel' %}" class="btn btn-primary">Exportar a Excel</a>
         <!-- <a href="{% url 'reactivos:export_to_pdf' %}" class="btn btn-primary">Exportar a PDF</a> -->
 
     </div>
-    
+
     <!-- Este script no puede ser llamado de manera independiente ya que tiene muchas variables provenientes del servidor -->
     <script>
         document.addEventListener('DOMContentLoaded', function () {

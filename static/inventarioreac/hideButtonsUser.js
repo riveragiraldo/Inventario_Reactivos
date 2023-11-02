@@ -9,12 +9,16 @@ function hideAddButtonsIfPopup() {
 
     var addLabCont = document.getElementById("add_lab_btn");
     var addRolCont = document.getElementById("add_rol_btn");
+    var labBlock = document.getElementById("lab-block");
+    var rolBlock = document.getElementById("rol-block");
     
 
     if (isPopupWindow()) {
 
         addLabCont.style.display = "none";
         addRolCont.style.display = "none";
+        labBlock.classList.remove('input-group');
+        rolBlock.classList.remove('input-group');
         
 
     }

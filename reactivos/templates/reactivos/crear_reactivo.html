@@ -79,7 +79,7 @@
                 <div class="form-group">
                     <label class="form-label" for="almacenamiento_interno"
                         name="Almacenamiento Interno: ">*Almacenamiento Interno:</label>
-                    <div class="input-group">
+                    <div class="input-group" id="almacenamiento-block">
                         <select name="almacenamiento_interno" id="almacenamiento_interno" class="form-control" required>
                             <option value="">Seleccione</option>
                             {% for almacenamiento_interno in almacenamiento_internos %}
@@ -95,7 +95,7 @@
                 <div class="form-group">
                     <label class="form-label" for="clase_almacenamiento" name="Clase de almacenamiento: ">*Clase de
                         almacenamiento:</label>
-                    <div class="input-group">
+                    <div class="input-group" id="clase-block">
                         <select name="clase_almacenamiento" id="clase_almacenamiento" class="form-control" required>
                             <option value="">Seleccione</option>
                             {% for clase_almacenamiento in clase_almacenamientos %}
@@ -127,7 +127,7 @@
 
                 <div class="from-group">
                     <label class="form-label" for="selectUnidades" name="Unidades: ">*Unidades:</label>
-                    <div class="input-group">
+                    <div class="input-group" id="unit-block">
                         <select name="unit" class="form-control" required id="selectUnidades">
                             <option value="">Seleccione</option>
                             {% for unidad in unidades %}

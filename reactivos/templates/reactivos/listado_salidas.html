@@ -52,7 +52,7 @@
     <script src="{% static 'inventarioreac/highlightPaginationControl.js' %}" defer></script>
     <!-- Llama Script que resalta los controles de paginación -->
     <script>var inventarioUrl = "{% url 'reactivos:inventario' %}";</script>
-    <script src="{% static 'inventarioreac/sortByControl.js' %}" ></script>
+    <script src="{% static 'inventarioreac/sortByControl.js' %}"></script>
     <!-- Llama Script que envía datos de ordenamiento de registros -->
     <script src="{% static 'inventarioreac/openDetailOut.js' %}" defer></script>
     <script src="{% static 'inventarioreac/openDetailUser.js' %}" defer></script>
@@ -63,22 +63,22 @@
     <!-- Llama Script que actualiza URL -->
     <script src="{% static 'inventarioreac/listActionsControl.js' %}" defer></script>
     <!-- Llama Script que controla las acciones de la lista -->
-    
+
     {% endblock %}
 </head>
 
 <body>
     {% block content %}
-    <div class="row">
-        <div class="col-md-10 mx-auto">
-            <h1>Listado de registros de salidas</h1>
+    <div class="row col-md-10">
+        <div class="card">
+            <div class="card-header">
+                <h1>Listado de registros de salidas</h1>
+            </div>
             <br>
+            <div class="card-body">
+                <form method="get" onsubmit="guardarValoresSelect()" class="row g-3">
 
-            <form method="get" onsubmit="guardarValoresSelect()">
-
-                <div class="row justify-content-between">
-                    
-                    <div class="col-md-4 d-flex flex-column align-items-left">
+                    <div class="form-group col-md-4">
                         <label for="lab">Laboratorio:</label>
                         {% if request.user|has_group:"COORDINADOR" or request.user|has_group:"TECNICO" %}
                         <select name="lab" class="form-control" id="lab">
@@ -89,7 +89,7 @@
                             {% endfor %}
                         </select>
                         {% endif %}
-                        
+
                         {% if request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
                         <select name="lab" class="form-control" id="lab">
                             <option value='0' selected="">Todos</option>
@@ -99,8 +99,8 @@
                         </select>
                         {% endif %}
                     </div>
-                    
-                    <div class="col-md-4 d-flex flex-column align-items-left">
+
+                    <div class="form-group col-md-4">
                         <label for="name">Nombre Reactivo:</label>
                         <select id="name" name="name" class="form-control">
                             <option value="">Todos</option>
@@ -109,8 +109,8 @@
                             {% endfor %}
                         </select>
                     </div>
-                    
-                    <div class="col-md-4 d-flex flex-column align-items-left">
+
+                    <div class="form-group col-md-4">
                         <label for="destination">Destino:</label>
                         <select id="destination" name="destination" class="form-control">
                             <option value="">Todos</option>
@@ -120,7 +120,7 @@
                         </select>
                     </div>
 
-                    <div class="col-md-4 d-flex flex-column align-items-left">
+                    <div class="form-group col-md-4">
                         <label for="location">Asignatura/Ubicación:</label>
                         <select id="location" name="location" class="form-control">
                             <option value="">Todas</option>
@@ -129,8 +129,8 @@
                             {% endfor %}
                         </select>
                     </div>
-                    
-                    <div class="col-md-4 d-flex flex-column align-items-left">
+
+                    <div class="form-group col-md-4">
                         <label for="created_by">Usuario que registra:</label>
                         <select id="created_by" name="created_by" class="form-control">
                             <option value="">Todos</option>
@@ -140,87 +140,108 @@
                         </select>
                     </div>
 
-                    <div class="col-md-2 d-flex flex-column align-items-left">
+                    <div class="form-group col-md-2">
                         <label for="start_date">Fecha Inicial:</label>
-                        <input type="date" id="start_date" name="start_date" class="form-control" max="{{ today|date:'Y-m-d' }}">
-                        <span class="validation-message" id="start-date-validation" style="color: red;">La fecha incial debe ser igual o anterior a "{{ today|date:'Y-m-d' }}".</span>
+                        <input type="date" id="start_date" name="start_date" class="form-control"
+                            max="{{ today|date:'Y-m-d' }}">
+                        <span class="validation-message" id="start-date-validation" style="color: red;">La fecha
+                            incial
+                            debe ser igual o anterior a "{{ today|date:'Y-m-d' }}".</span>
                     </div>
 
-                    <div class="col-md-2 d-flex flex-column align-items-left">
+                    <div class="form-group col-md-2">
                         <label for="end_date">Fecha Final:</label>
-                        <input type="date" id="end_date" name="end_date" class="form-control" value="{{ today|date:'Y-m-d' }}" max="{{ today|date:'Y-m-d' }}">
-                        <span class="validation-message" id="end-date-validation" style="color: red;">La fecha incial debe ser igual o anterior a "{{ today|date:'Y-m-d' }}"</span>
+                        <input type="date" id="end_date" name="end_date" class="form-control"
+                            value="{{ today|date:'Y-m-d' }}" max="{{ today|date:'Y-m-d' }}">
+                        <span class="validation-message" id="end-date-validation" style="color: red;">La fecha
+                            incial
+                            debe ser igual o anterior a "{{ today|date:'Y-m-d' }}"</span>
                     </div>
-                    
-                    <div class="col-md-4 d-flex align-items-end">
-                        <button id="boton-buscar" type="submit" class="btn btn-primary">Buscar</button>
-                    </div>
+            </div>
+
+            <div class="card-footer">
+                <div class="form-group">
+                    <button id="boton-buscar" type="submit" class="btn btn-primary">Buscar</button>
                 </div>
             </div>
+            </form>
         </div>
-        <br>
-    
-        <div class="col-md-11 mx-auto">
-            <!-- Control de paginación -->
-            <div class="d-flex justify-content-between">
-                <div>Ver&nbsp;
-                    <div class="btn-group btn-group-toggle" data-toggle="buttons">
-                        <a href="{% url 'reactivos:GuardarPerPageOut' per_page=10 %}" class="btn btn-secondary btn-sm" id="per-page-10">10</a>
-                        <a href="{% url 'reactivos:GuardarPerPageOut' per_page=20 %}" class="btn btn-secondary btn-sm" id="per-page-20">20</a>
-                        <a href="{% url 'reactivos:GuardarPerPageOut' per_page=50 %}" class="btn btn-secondary btn-sm" id="per-page-50">50</a>
-                    </div>&nbsp;Registros por página
-                </div>
+    </div>
+
+    <div class="col-md-12 mx-auto" style="margin-bottom: 10px; margin-top: 10px;">
+        <!-- Control de paginación -->
+        <div class="d-flex justify-content-between">
+            <div>Ver&nbsp;
+                <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                    <a href="{% url 'reactivos:GuardarPerPageOut' per_page=10 %}" class="btn btn-secondary btn-sm"
+                        id="per-page-10">10</a>
+                    <a href="{% url 'reactivos:GuardarPerPageOut' per_page=20 %}" class="btn btn-secondary btn-sm"
+                        id="per-page-20">20</a>
+                    <a href="{% url 'reactivos:GuardarPerPageOut' per_page=50 %}" class="btn btn-secondary btn-sm"
+                        id="per-page-50">50</a>
+                </div>&nbsp;Registros por página
             </div>
         </div>
-    </form>
-    <br>
+    </div>
+
     <div class="table-responsive">
-        <table class="table" id="tabla-inventario">
-            
-            <thead>
+        <table class="table table-striped table-condensed table-bordered" id="tabla-inventario">
+
+            <thead style="background-color: rgb(171, 169, 169);position: sticky; top: 0; z-index: 10;">
                 <tr>
-                    <th class="sortable-header" data-column="0" data-column-name="id" title="Ordenar por Consecutivo">Id salida</th>
-                    <th class="sortable-header" data-column="1" data-column-name="date" title="Ordenar por fecha">Fecha Creación</th>
+                    <th class="sortable-header" data-column="0" data-column-name="id" title="Ordenar por Consecutivo">Id
+                    </th>
+                    <th class="sortable-header" data-column="1" data-column-name="date" title="Ordenar por fecha">
+                        Fecha
+                        Reg.</th>
                     <th class="sortable-header" data-column="2" title="Ordenar por nombre">Nombre</th>
                     <th class="sortable-header" data-column="3" title="Ordenar por marca">Marca</th>
-                    <th class="sortable-header" data-column="4" title="Ordenar por referencia">Referencia</th>
-                    <th class="sortable-header" data-column="5" title="Ordenar por cantidad">Cantidad</th>
-                    <th class="sortable-header" data-column="6" title="Ordenar por laboratorio">Laboratorio</th>
+                    <th class="sortable-header" data-column="4" title="Ordenar por referencia">Ref.</th>
+                    <th class="sortable-header" data-column="5" title="Ordenar por cantidad">Cant.</th>
+                    <th class="sortable-header" data-column="6" title="Ordenar por laboratorio">Lab.</th>
                     <th class="sortable-header" data-column="7" title="Ordenar por Destino">Destino</th>
-                    <th class="sortable-header" data-column="8" title="Ordenar por Responsable">Responsable</th>
-                    <th class="sortable-header" data-column="9" title="Ordenar por Asignatura/Ubicación">Asignatura</th>
+                    <th class="sortable-header" data-column="8" title="Ordenar por Responsable">Resp.</th>
+                    <th class="sortable-header" data-column="9" title="Ordenar por Asignatura/Ubicación">Asign.</th>
                     <th class="sortable-header" data-column="10" title="Facultad">Facultad</th>
-                    <th class="sortable-header" data-column="11" title="Ordenar por Responsable del Registro">Usuario registra</th>
-                    <th class="sortable-header" data-column="12" title="Ordenar por Última Actualización por">Usuario actualiza</th>
-                    <th class="sortable-header" title="Visualización de detalle (no ordena)">Ver detalle</th>
-                    <th class="sortable-header" title="Acciones con el registro (no ordena)">Acciones<p style="color: transparent;">***********</p></th>
+                    <th class="sortable-header" data-column="11" title="Ordenar por Responsable del Registro">
+                        Usuario
+                        reg.</th>
+                    <th class="sortable-header" data-column="12" title="Ordenar por Última Actualización por">
+                        Usuario
+                        act.</th>
+                    <th class="sortable-header" title="Visualización de detalle (no ordena)">Más</th>
+                    <th class="sortable-header" title="Acciones con el registro (no ordena)">Acciones<p
+                            style="color: transparent;">***********</p>
+                    </th>
                 </tr>
             </thead>
-            
+
             <tbody>
                 {% for item in object_list %}
                 <tr class="table-row">
                     <td title="Número de registro de la entrada">{{ item.id }} </td>
                     <td title="Fecha de salida">{{ item.date_create|date:"d/m/Y" }}</td>
-                    <td title="Reactivo: {{ item.name }}, Id Inventario: {{ item.inventario.id }}, Cantidad en inventario:{{ item.inventario.weight }} ">{{ item.name }}</td>
+                    <td
+                        title="Reactivo: {{ item.name }}, Id Inventario: {{ item.inventario.id }}, Cantidad en inventario:{{ item.inventario.weight }} ">
+                        {{ item.name }}</td>
                     <td title="Marca">{{ item.trademark }}</td>
                     <td title="Referencia ">{{ item.reference }}</td>
-                    <td title="Cantidad  de {{ item.name }}">{{ item.weight|floatformat:1 }} {{ item.name.unit }}</td>
+                    <td title="Cantidad  de {{ item.name }}">{{ item.weight|floatformat:1 }} {{ item.name.unit }}
+                    </td>
                     <td title="Laboratorio al que pertenece el reactivo {{ item.name }}">{{ item.lab }}</td>
                     <td title="Destino de ingreso {{ item.name }}">{{ item.destination }}</td>
-                    <td title="Correo: {{ item.manager.mail }} Teléfono: {{ item.manager.phone }}">{{ item.manager }}</td>
+                    <td title="Correo: {{ item.manager.mail }} Teléfono: {{ item.manager.phone }}">{{ item.manager }}
+                    </td>
                     <td title="Ubicación de ingreso {{ item.name }}">{{ item.location }}</td>
                     <td title="Facultad de ingreso {{ item.name }}">{{ item.location.facultad }}</td>
                     <td class="created_by_cell"
                         title="Más información de: {{ item.created_by.first_name }} {{ item.created_by.last_name }}"
                         date_user_create="{{ item.created_by.first_name }} {{ item.created_by.last_name }}"
-                        data-reactivo-name="{{ item.name }}"
-                        data-reactivo-date="{{ item.date_create|date:'d/m/Y' }}"
+                        data-reactivo-name="{{ item.name }}" data-reactivo-date="{{ item.date_create|date:'d/m/Y' }}"
                         date_user_id="{{ item.created_by.id_number }}"
-                        date_user_username="{{ item.created_by.username }}"
-                        date_user_mail="{{ item.created_by.email }}"
-                        date_user_phone="{{ item.created_by.phone_number }}"
-                        date_user_lab="{{ item.created_by.lab }}" date_user_rol="{{ item.created_by.rol }}"
+                        date_user_username="{{ item.created_by.username }}" date_user_mail="{{ item.created_by.email }}"
+                        date_user_phone="{{ item.created_by.phone_number }}" date_user_lab="{{ item.created_by.lab }}"
+                        date_user_rol="{{ item.created_by.rol }}"
                         date_user_datejoined="{{ item.created_by.date_joined }}"
                         date_user_lastlogin="{{ item.created_by.last_login }}" date_user_type="crea"
                         date_user_vist="la salida de inventario">
@@ -230,39 +251,33 @@
                     <td class="created_by_cell"
                         title="Más información de: {{ item.last_updated_by.first_name }} {{ item.last_updated_by.last_name }}"
                         date_user_create="{{ item.last_updated_by.first_name }} {{ item.last_updated_by.last_name }}"
-                        data-reactivo-name="{{ item.name }}"
-                        data-reactivo-date="{{ item.last_update|date:'d/m/Y' }}"
+                        data-reactivo-name="{{ item.name }}" data-reactivo-date="{{ item.last_update|date:'d/m/Y' }}"
                         date_user_id="{{ item.last_updated_by.id_number }}"
                         date_user_username="{{ item.last_updated_by.username }}"
                         date_user_mail="{{ item.last_updated_by.email }}"
                         date_user_phone="{{ item.last_updated_by.phone_number }}"
-                        date_user_lab="{{ item.last_updated_by.lab }}"
-                        date_user_rol="{{ item.last_updated_by.rol }}"
+                        date_user_lab="{{ item.last_updated_by.lab }}" date_user_rol="{{ item.last_updated_by.rol }}"
                         date_user_datejoined="{{ item.last_updated_by.date_joined }}"
                         date_user_lastlogin="{{ item.last_updated_by.last_login }}" date_user_type="actualiza"
-                        date_user_vist="la salida de inventario">{{ item.last_updated_by.first_name }} {{item.last_updated_by.last_name }}
+                        date_user_vist="la salida de inventario">{{ item.last_updated_by.first_name }}
+                        {{item.last_updated_by.last_name }}
                     </td>
 
                     <!-- Modifica el evento click de la imagen para mostrar SweetAlert -->
                     <td>
                         <img src="{% static 'inventarioreac/Images/moreInfo.ico' %}" alt="" width="18" height="18"
-                            class="detalle-reactivo"
-                            data-reactivo-id="{{ item.id }}"
-                            data-reactivo-name="{{ item.name }}"
-                            data-reactivo-order="{{ item.order }}"
+                            class="detalle-reactivo" data-reactivo-id="{{ item.id }}"
+                            data-reactivo-name="{{ item.name }}" data-reactivo-order="{{ item.order }}"
                             data-reactivo-date="{{ item.date_create|date:'d/m/Y' }}"
                             data-reactivo-trademark="{{ item.trademark }}"
                             data-reactivo-reference="{{ item.reference }}"
                             data-reactivo-quantity="{{ item.weight|floatformat:1 }}"
-                            data-reactivo-unit="{{ item.name.unit }}"
-                            data-reactivo-date_order="{{ item.date_order }}"
-                            data-reactivo-lab="{{ item.lab }}"
-                            data-reactivo-date_create="{{ item.date_create }}"
+                            data-reactivo-unit="{{ item.name.unit }}" data-reactivo-date_order="{{ item.date_order }}"
+                            data-reactivo-lab="{{ item.lab }}" data-reactivo-date_create="{{ item.date_create }}"
                             data-reactivo-nproject="{{ item.nproject }}"
                             data-reactivo-price="{{ item.price|floatformat:0 }}"
                             data-reactivo-destination="{{ item.destination }}"
-                            data-reactivo-manager="{{ item.manager }}"
-                            data-reactivo-location="{{ item.location }}"
+                            data-reactivo-manager="{{ item.manager }}" data-reactivo-location="{{ item.location }}"
                             data-reactivo-school="{{ item.location.facultad }}"
                             data-reactivo-observations="{{ item.observations }}"
                             data-reactivo-create_by="{{ item.created_by.first_name }} {{ item.created_by.last_name }}"
@@ -274,8 +289,7 @@
 
                     <td><!-- si es administrador permite crud, de lo contrario solo permite agregar -->
                         <!-- Agregar -->
-                        <a href="javascript:void(0);"
-                            onclick="openPopupAdd('{% url 'reactivos:registrar_salida' %}')">
+                        <a href="javascript:void(0);" onclick="openPopupAdd('{% url 'reactivos:registrar_salida' %}')">
                             <img src="{% static 'inventarioreac/Images/add_register.png' %}" alt="" width="18"
                                 height="18" title="Agregar una nueva salida de reactivo">
                         </a>
@@ -291,19 +305,20 @@
                                 height="18" title="Borrar registro número {{ item.id }}">
                         </a>
                         {% elif request.user|has_group:"COORDINADOR" or request.user|has_group:"TECNICO" %}
-                        <!-- Editar -->                        
-                            <img src="{% static 'inventarioreac/Images/edit_register.png' %}" alt="" width="18"
-                                height="18" title="Editar registro número {{ item.id }}, solo disponible para administradores">
-                        <!-- Eliminar -->                        
-                            <img src="{% static 'inventarioreac/Images/delete_register.png' %}" alt="" width="18"
-                                height="18" title="Borrar registro número {{ item.id }}, solo disponible para administradores">
+                        <!-- Editar -->
+                        <img src="{% static 'inventarioreac/Images/edit_register.png' %}" alt="" width="18" height="18"
+                            title="Editar registro número {{ item.id }}, solo disponible para administradores">
+                        <!-- Eliminar -->
+                        <img src="{% static 'inventarioreac/Images/delete_register.png' %}" alt="" width="18"
+                            height="18"
+                            title="Borrar registro número {{ item.id }}, solo disponible para administradores">
                         {% endif %}
                     </td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
-        
+
         <br>
         <div class="d-flex justify-content-between">
             <!-- Controles de navegación de página -->
@@ -314,7 +329,7 @@
                     <a href="" id="previous-page-link">Anterior</a>
                     {% endif %}
                     <span class="current-page">Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages}}.</span>
-                    
+
                     {% if page_obj.has_next %}
                     <a href="" id="next-page-link">Siguiente</a>
                     <a href="" id="last-page-link">Última</a>
@@ -331,7 +346,7 @@
         <!-- Opciones de exportación -->
         <a href="{% url 'reactivos:export_to_excel_output' %}" class="btn btn-primary">Exportar a Excel</a>
     </div>
-    
+
     <!-- Este script no puede ser llamado de manera independiente ya que tiene muchas variables provenientes del servidor -->
     <script>
         document.addEventListener('DOMContentLoaded', function () {
@@ -358,7 +373,7 @@
             '{% endif %}'
         });
     </script>
-    
+
     {% endblock %}
 </body>
 

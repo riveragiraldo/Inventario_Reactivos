@@ -10,12 +10,15 @@ function hideAddButtonsIfPopup() {
     
     var addManagerCont = document.getElementById("add_manager_btn");
     var addLocationCont = document.getElementById("add_location_btn");
+    var locationBlock = document.getElementById("location-block");
+    var managerBlock = document.getElementById("manager-block");
 
     if (isPopupWindow()) {
        
         addManagerCont.style.display = "none";
         addLocationCont.style.display = "none";
-        
+        locationBlock.classList.remove('input-group');
+        managerBlock.classList.remove('input-group');
 
     }
 }
