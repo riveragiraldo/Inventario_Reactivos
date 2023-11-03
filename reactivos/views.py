@@ -7049,9 +7049,9 @@ class LoginView(RedirectURLMixin, FormView):
         """Security check complete. Log the user in."""
         auth_login(self.request, form.get_user())
         # Crea un evento de inicio de sesión
-        tipo_evento = 'INICIO DE SESION'
-        usuario_evento = self.request.user
-        crear_evento(tipo_evento, usuario_evento)
+        # tipo_evento = 'INICIO DE SESION'
+        # usuario_evento = self.request.user
+        # crear_evento(tipo_evento, usuario_evento)
         return HttpResponseRedirect(self.get_success_url())
 
     def get_context_data(self, **kwargs):
