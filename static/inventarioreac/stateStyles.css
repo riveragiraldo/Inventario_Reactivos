@@ -1,0 +1,23 @@
+.card {
+    width: 500px;
+    margin: 0 auto;
+    margin-top: 50px;
+  }
+
+  .card-header {
+    font-weight: bold;
+    font-size: 26px;
+    margin-bottom: 5px;
+
+  }
+
+  .card-body ul li {
+    /* margin-top: 1px; */
+    padding: 5px 0;
+  }
+
+  .close-button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+  }

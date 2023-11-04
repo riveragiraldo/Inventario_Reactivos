@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Confirmación de registro</title>
+
+</head>
+
+<body>
+
+    <p>Se ha realizado exitosamente el registro de entrada de reactivos con la siguiente información:</p>
+
+    <p>Fecha de registro: {{ fecha_actual }}
+        <br>Id de registro: {{ entrada.id }}
+        <br>Laboratorio: {{ entrada.lab.name }}
+        <br>Reactivo: {{ entrada.name }}
+        <br>Código: {{ entrada.name.code }}
+        <br>Cas: {{ entrada.name.cas }}
+        <br>Valor: $ {{ formatted_price }}
+        <br>Marca: {{ entrada.trademark }}
+        <br>Referencia: {{ entrada.reference }}
+        <br>Fecha de vencimiento: {{ formatted_edate }}
+        <br>Cantidad: {{ formatted_weight }} {{ entrada.name.unit }}
+        {% if inventario.minStockControl %}
+        <br>Control de stock mínimo: HABILITADO
+        <br>Stock mínimo: {{ formatted_weight }} {{ entrada.name.unit }}
+        {% else %}
+        <br>Control de stock mínimo: NO HABILITADO
+        {% endif %}
+        {% if entrada.order %}
+        <br>Orden: {{ entrada.order }} {{ formatted_orderdate }}
+        {% endif %}
+        {% if entrada.nproject %}
+        <br>Número de proyecto: {{ entrada.nproject }}
+        {% endif %}
+        <br>Asignatura: {{ entrada.location }} - {{ entrada.location.facultad }}
+        <br>Destino: {{ entrada.destination }}
+        <br>Responsable: {{ entrada.manager }} - Correo electrónico: {{ entrada.manager.mail }}
+        <br>Ubicación en almacén: {{ inventario.wlocation }}
+        {% if entrada.observations %}
+        <br>Observaciones: {{ entrada.observations }}
+        {% endif %}
+        <br>Usuario que realiza el registro: {{ user }}
+    </p>
+
+    <p>Esperamos tenerte pronto de vuelta.</p>
+
+
+    <p>Cordialmente,
+        <br>Equipo de dirección de Laboratorios
+        <br>Universidad Nacional de Colombia - Sede Manizales
+        <br>{{ url }}
+    </p>
+    <p>
+        Agradecemos no responder este correo electrónico
+        <br>🌿 Por favor sea consciente con el medio ambiente y no imprima este mensaje 🌳
+
+    </p>
+
+</body>
+
+</html>

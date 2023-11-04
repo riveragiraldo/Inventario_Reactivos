@@ -106,6 +106,91 @@ class Unidades(models.Model):
         verbose_name_plural = 'Unidades'
         verbose_name = 'Unidad'
 
+# Modelo para tabla TipoSolicitudes en base de datos Reactivos
+class TipoSolicitud(models.Model):
+    name = models.CharField(max_length=100, verbose_name="Nombre")
+    is_active = models.BooleanField(default=True)
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Usuario')
+    date_create = models.DateTimeField(auto_now_add=True,verbose_name='Fecha registro',)
+    last_update = models.DateTimeField(auto_now=True,verbose_name='Última Actualización')
+    last_updated_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Actualizado por', related_name='updateby_TipoS',)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name_plural = 'Tipo de solicitud'
+        verbose_name = 'Tipo de solicitud'
+
+# Modelo para tabla TipoEventos en base de datos Reactivos
+class TipoEvento(models.Model):
+    name = models.CharField(max_length=100, verbose_name="Nombre del tipo de evento")
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name_plural = 'Tipos de eventos'
+        verbose_name = 'Tipo de evento'
+
+# Modelo para tabla Eventos en base de datos Reactivos
+class Eventos(models.Model):
+    tipo_evento=models.ForeignKey(TipoEvento, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Tipo de evento')
+    usuario_evento = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Usuario evento')
+    fecha_evento = models.DateTimeField(auto_now_add=True,verbose_name='Fecha evento', null=True, blank=True)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name_plural = 'Eventos'
+        verbose_name = 'Evento'
+
+# Modelo para tabla TipoSolicitudes en base de datos Reactivos
+class Solicitudes(models.Model):
+    tipo_solicitud=models.ForeignKey(TipoSolicitud, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Tipo de solicitud')
+    name=models.CharField(max_length=200, null=True, blank=True, verbose_name='Asunto')
+    mensaje=models.TextField(max_length=1000)
+    archivos_adjuntos = models.FileField(upload_to='archivos/', null=True, blank=True)
+    tramitado = models.BooleanField(default=False, null=True, blank=True)
+    observaciones = models.TextField(max_length=1000, null=True, blank=True)
+    fecha_tramite = models.DateTimeField(verbose_name='Fecha de trámite', null=True, blank=True)
+    usuario_tramita = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Usuario Tramita', related_name='UserTramite')
+    is_active = models.BooleanField(default=True, null=True, blank=True)
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Usuario')
+    date_create = models.DateTimeField(auto_now_add=True,verbose_name='Fecha registro', null=True, blank=True)
+    last_update = models.DateTimeField(auto_now=True,verbose_name='Última Actualización', null=True, blank=True)
+    last_updated_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Actualizado por', related_name='updateby_solicitudes',)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name_plural = 'Solicitudes'
+        verbose_name = 'Solicitud'
+
+
+# Modelo para configuraciones del sistema
+class ConfiguracionSistema(models.Model):
+    tiempo_solicitudes = models.PositiveIntegerField(default=90, verbose_name='Tiempo para depuración de solicitudes (días)')
+    tiempo_eventos = models.PositiveIntegerField(default=90, verbose_name='Tiempo para depuración de eventos (días)')
+    tiempo_vencimiento_reactivos = models.PositiveIntegerField(default=90, verbose_name='Tiempo para verificar vencimiento de reactivos (días)')
+    correo_administrador = models.EmailField(max_length=100, verbose_name='Correo del Administrador del Sistema')
+    intervalo_tiempo= models.PositiveIntegerField(verbose_name='Tiempo de revisión de fechas de vencimiento')
+    fecha_incio= models.DateTimeField(blank=True, null=True, verbose_name="Fecha y hora de inicio")
+    programacion_activa=models.BooleanField(default=False, verbose_name="Activar / Desactivar programación")
+    manual = models.FileField(upload_to='manual/', null=True, blank=True)
+    logo_institucional=models.ImageField(upload_to='logo',null=True, blank=True)
+    
+    
+
+    def __str__(self):
+        return 'Configuración del Sistema'
+    
+    class Meta:
+        verbose_name_plural = 'Configuraciones del aplicativo'
+        verbose_name = 'Configuración del aplicativo'
+
 # Modelo para tabla Marcas en base de datos Reactivos
 class Marcas(models.Model):
     name = models.CharField(max_length=30, verbose_name="Marca")
@@ -120,8 +205,7 @@ class Marcas(models.Model):
     class Meta:
         verbose_name_plural = 'Marcas'
         verbose_name = 'Marca'
-
-    
+   
 # Modelo para tabla Estados en base de datos Reactivos
 class Estados(models.Model):
     name = models.CharField(max_length=30, verbose_name="Estado")
@@ -207,9 +291,9 @@ class Facultades(models.Model):
         verbose_name = 'Facultad'
 
 
-# Modelo para tabla RespelC en base de datos Reactivos
-class RespelC(models.Model):
-    name = models.CharField(max_length=100, verbose_name="Clasificación Respel")
+# Modelo para tabla AlmacenamientoInterno en base de datos Reactivos
+class AlmacenamientoInterno(models.Model):
+    name = models.CharField(max_length=100, verbose_name="Nombre")
     description=models.TextField(max_length=1000, verbose_name="Descripción")
     is_active = models.BooleanField(default=True)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Usuario')
@@ -221,25 +305,25 @@ class RespelC(models.Model):
         return self.name
 
     class Meta:
-        verbose_name_plural = 'Clasificación Respel'
-        verbose_name = 'Clasificación Respel'
+        verbose_name_plural = 'Almacenamiento Interno'
+        verbose_name = 'Almacenamiento Interno'
 
-# Modelo para tabla SGA en base de datos Reactivos
-class SGA(models.Model):
-    name = models.CharField(max_length=100, verbose_name="Codificiación SGA")
+# Modelo para tabla Clase Almacenamiento en base de datos Reactivos
+class ClaseAlmacenamiento(models.Model):
+    name = models.CharField(max_length=100, verbose_name="Nombre")
     description=models.TextField(max_length=1000, verbose_name="Descripción")
     is_active = models.BooleanField(default=True)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Usuario')
     date_create = models.DateTimeField(auto_now_add=True,verbose_name='Fecha registro',)
     last_update = models.DateTimeField(auto_now=True,verbose_name='Última Actualización')
-    last_updated_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Actualizado por',related_name='updateby_SGA',)
+    last_updated_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Actualizado por',related_name='updateby_Clase_Alamcenamiento',)
 
     def __str__(self):
         return self.name
 
     class Meta:
-        verbose_name_plural = 'Codificiación SGA'
-        verbose_name = 'Codificiación SGA'
+        verbose_name_plural = 'Clase de almacenamiento'
+        verbose_name = 'Clase de almacenamiento'
 
 # Modelo para tabla Ubicaciones en base de datos Reactivos
 class Ubicaciones(models.Model):
@@ -281,20 +365,17 @@ class Almacenamiento(models.Model):
 
 # Modelo para tabla Reactivos en base de datos Reactivos
 class Reactivos(models.Model):
-    color = models.PositiveIntegerField(verbose_name="Color CGA")
-    number = models.CharField(max_length=5, verbose_name="Número")
-    subnumber = models.CharField(max_length=3, verbose_name="Sub-número")
-    code = models.CharField(max_length=255, verbose_name="Código")
-    name = models.CharField(max_length=255, verbose_name="Nombre")
+    code = models.CharField(max_length=255, verbose_name="Código", unique=True)
+    name = models.CharField(max_length=255, verbose_name="Nombre", unique=True)
     unit = models.ForeignKey(Unidades, on_delete=models.CASCADE,
                              related_name='reactive', verbose_name="Unidad")
-    cas = models.CharField(max_length=20, verbose_name="Código CAS")
+    cas = models.CharField(max_length=20, verbose_name="Código CAS", unique=False)
     state = models.ForeignKey(Estados, on_delete=models.CASCADE,
                               related_name='state', verbose_name="Presentación")
-    respel = models.ForeignKey(RespelC, on_delete=models.CASCADE,
-                              related_name='respel', verbose_name="Clasificación Respel")
-    sga = models.ForeignKey(SGA, on_delete=models.CASCADE,
-                              related_name='resp', verbose_name="Clasificación SGA")
+    almacenamiento_interno = models.ForeignKey(AlmacenamientoInterno, on_delete=models.CASCADE,
+                              related_name='AlmacenamientoInterno', verbose_name="Almacenamiento Interno")
+    clase_almacenamiento = models.ForeignKey(ClaseAlmacenamiento, on_delete=models.CASCADE,
+                              related_name='ClaseAlmacenamiento', verbose_name="Clase Almacenamiento")
     is_active = models.BooleanField(default=True)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Usuario')
     date_create = models.DateTimeField(auto_now_add=True,verbose_name='Fecha registro',)
@@ -335,6 +416,7 @@ class Entradas(models.Model):
     destination=models.ForeignKey(Destinos, on_delete=models.CASCADE, verbose_name='Destino')
     lab=models.ForeignKey(Laboratorios, on_delete=models.CASCADE, related_name='labs', verbose_name='Laboratorio')
     is_active = models.BooleanField(default=True)
+    inventario=models.ForeignKey('reactivos.Inventarios', on_delete=models.CASCADE, related_name='inv', verbose_name='Id_Inventario', blank=True, null=True)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Usuario')
     date_create = models.DateTimeField(auto_now_add=True,verbose_name='Fecha registro',)
     last_update = models.DateTimeField(auto_now=True,verbose_name='Última Actualización')
@@ -369,6 +451,7 @@ class Salidas(models.Model):
     location = models.ForeignKey(
         Ubicaciones, on_delete=models.CASCADE, related_name='location', verbose_name='Ubicación')
     lab=models.ForeignKey(Laboratorios, on_delete=models.CASCADE, related_name='lab', verbose_name='Laboratorio')
+    inventario=models.ForeignKey('reactivos.Inventarios', on_delete=models.CASCADE, related_name='inventory', verbose_name='Id_Inventario', blank=True, null=True)
     is_active = models.BooleanField(default=True)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Usuario')
     date_create = models.DateTimeField(auto_now_add=True,verbose_name='Fecha registro',)
@@ -394,7 +477,7 @@ class Inventarios(models.Model):
     reference = models.CharField(max_length=20, verbose_name="Referencia")
     lab=models.ForeignKey(Laboratorios, on_delete=models.CASCADE, related_name='laboratorio', verbose_name='Laboratorio')
     wlocation=models.ForeignKey(Almacenamiento, on_delete=models.CASCADE, related_name='wloc', verbose_name='Ubicación en Almacén')
-    edate=models.DateField(verbose_name="Fecha de vencimiento")
+    edate=models.DateField(verbose_name="Fecha de vencimiento", null=True, blank=True)
     minStockControl = models.BooleanField(default=True, verbose_name='Control de Stock Mínimo')
     minstock = models.DecimalField(
         max_digits=8, decimal_places=2, blank=True, null=True, default=0, help_text="Ingrese el stock mínimo (puede ser nulo).", verbose_name="Stock mínimo")

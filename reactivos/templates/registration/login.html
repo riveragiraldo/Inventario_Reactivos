@@ -1,11 +1,12 @@
-{% extends "base_site.html" %}
+{% extends "webtemplate_before.html" %}
 
-
+<title>{% block title %}Inicio de sesión: Universidad Nacional de Colombia{% endblock %}</title>
 {% block content_title %}<h1 id="site-name">Ingrese sus datos de inicio de sesión</h1>{% endblock %}
 
 {% load i18n static %}
 
-{% block extrastyle %}{{ block.super }}<link rel="stylesheet" href="{% static "admin/css/login.css" %}">
+{% block extrastyle %}{{ block.super }}
+<link rel="stylesheet" href="{% static "inventarioreac/admin/css/login.css" %}">
 {{ form.media }}
 {% endblock %}
 
@@ -24,56 +25,91 @@
 {% block content %}
 {% if form.errors and not form.non_field_errors %}
 <p class="errornote">
-{% blocktranslate count counter=form.errors.items|length %}Please correct the error below.{% plural %}Please correct the errors below.{% endblocktranslate %}
+  {% blocktranslate count counter=form.errors.items|length %}Please correct the error below.{% plural %}Please correct
+  the errors below.{% endblocktranslate %}
 </p>
 {% endif %}
 
 {% if form.non_field_errors %}
 {% for error in form.non_field_errors %}
-<p class="errornote">
-    {{ error }}
+<p class="errornote" style="color: red;">
+  {{ error }}
 </p>
 {% endfor %}
 {% endif %}
 
-<div id="content-main">
+<div id="content-main" >
 
-{% if user.is_authenticated %}
-<p class="errornote">
-{% blocktranslate trimmed %}
+  {% if user.is_authenticated %}
+  <p class="errornote" style="color: red;">
+    {% blocktranslate trimmed %}
     No está autorizado para acceder a está página ¿Desea acceder con una cuenta distinta?
-{% endblocktranslate %}
-</p>
-{% endif %}
-
-<form action="{{ app_path }}" method="post" id="login-form">{% csrf_token %}
-  <div class="form-row">
-    {{ form.username.errors }}
-    {{ form.username.label_tag }} {{ form.username }}
-  </div>
-  <br>
-  <div class="form-row">
-    {{ form.password.errors }}
-    {{ form.password.label_tag }} {{ form.password }}
-    <input type="hidden" name="next" value="{{ next }}">
-  </div>
-  {% url 'admin_password_reset' as password_reset_url %}
-  {% if password_reset_url %}
-  <div class="password-reset-link">
-    <a href="{{ password_reset_url }}">{% translate 'Forgotten your password or username?' %}</a>
-  </div>
+    {% endblocktranslate %}
+  </p>
   {% endif %}
-  <div class="password-reset-link">
-    <a href="{% url 'reactivos:password_reset' %}">{% translate 'Forgotten your password or username?' %}</a>
+  <div class="container vertical-center custom-border non-bold-label " style="margin-top: 35px;">
+    <div class="card col-md-4 col-md-offset-4" style="border: 1px solid #000; padding: 15px; border-radius: 5px;position: relative;">
+      
+      <div class="card-header">
+        <div class="form-group">
+          <h3 style="text-align: center;">Bienvenido a UniCLab</h3>
+          <img src="{% url 'reactivos:logo_institucional'%}" alt="" width="100px" height="100px" style="display: block; margin: 0 auto; border: 1px solid #000; border-radius: 5px;">
+          <p style="text-align: justify;">Su solución para inventario, control y gestión de reactivos químicos de la Universidad Nacional de Colombia</p>
+          <br>
+          <p>Por favor ingrese sus datos de incio de sesión</p>
+        </div>
+      </div>
+      <div class="card-body">
+    <form action="{{ app_path }}" method="post" id="login-form" class="mx-auto" >
+      {%csrf_token %}
+      
+      <div class="form-row" >
+        <div  style="color: red;">{{ form.username.errors }}</div>
+        <div class="form-group">
+        {{ form.username.label_tag }}
+        {{ form.username }}
+      </div>
+      </div>
+      <br>
+      <div class="form-row">
+        <div  style="color: red;">{{ form.password.errors }}</div>
+        <div class="form-group">
+        {{ form.password.label_tag }}
+        {{ form.password }}
+      </div>
+        <input type="hidden" name="next" value="{{ next }}">
+      </div>
+    </div>
+    <div class="card-footer">
+      <div class="form-group">
+      {% url 'admin_password_reset' as password_reset_url %}
+      {% if password_reset_url %}
+      <div class="password-reset-link">
+        <a href="{{ password_reset_url }}">{% translate 'Forgotten your password or username?' %}</a>
+      </div>
+      {% endif %}
+      <div class="password-reset-link text-center">
+        <a href="{% url 'reactivos:password_reset' %}">{% translate 'Forgotten your password or username?' %}</a>
+      </div>
+    </div>
+      <div class="submit-row form-group text-center">
+        <input type="submit" class="btn btn-primary" value="{% translate 'Log in' %}" style="width: 50%;">
+      </div>
+    </div>
+    </form>
   </div>
-  
-  <br>
-
-  <div class="submit-row">
-    <input type="submit" value="{% translate 'Log in' %}">
   </div>
-</form>
 
 </div>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+      
+      const usernameField = document.getElementById("id_username");
+      const passField = document.getElementById("id_password");
+  if (usernameField,passField) {
+      usernameField.classList.add("form-control");
+      passField.classList.add("form-control");
+  }
+  });
+</script>
 {% endblock %}
-

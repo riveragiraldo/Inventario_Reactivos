@@ -1,17 +1,31 @@
 .input-icon-img {
-    width: 26px;
-    /* Tamaño personalizado */
-    height: 26px;
-    /* Tamaño personalizado */
-  }
+  width: 26px;
+  /* Tamaño personalizado */
+  height: 26px;
+  /* Tamaño personalizado */
+}
 
-  .input-with-icon {
-    display: flex;
-    align-items: center;
-  }
+.input-with-icon {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
 
-  .input-with-icon .input-icon {
-    margin-right: 8px;
-  }
+.input-with-icon .input-icon {
+  margin-right: 8px;
+}
 
-  
+#phone-input-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+/* .input-icon {
+  padding: 5px;
+}
+
+/* Asegúrate de que la imagen no exceda el alto del contenedor */
+/* input.form-control {
+  width: calc(100% - 30px); 
+  padding: 5px;
+} */ 

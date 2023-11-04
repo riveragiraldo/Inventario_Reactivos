@@ -40,7 +40,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'captcha',
     'reactivos',
-    
+    'import_export',
+    "django_apscheduler", 
 ]
 
 MIDDLEWARE = [
@@ -124,6 +125,17 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = 'staticfiles'
+
+#Ubicacioón de archivos adjuntos
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+BASE_URL = 'https://laboratorios.manizales.unal.edu.co/chemicaltracker'
+
+# Tiempo de inactividad en segundos antes de que la sesión expire (60 minutos)
+SESSION_COOKIE_AGE = 3600  # 60 minutos
+
+
 
 
 # Default primary key field type

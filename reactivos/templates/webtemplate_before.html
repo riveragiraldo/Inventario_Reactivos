@@ -105,7 +105,7 @@
            
             
             <div class="btn-group hidden-sm hidden-md hidden-lg hidden-print">
-					<div class="btn btn-default dropdown-toggle" data-toggle="dropdown" id="unalOpenMenuServicios" data-target="#services">Servicios<span class="caret"> </span>
+					<div class="btn btn-default dropdown-toggle" data-toggle="dropdown" id="unalOpenMenuServicios" data-target="#services">Opciones<span class="caret"> </span>
 					</div>
             </div>
             <div class="btn-group hidden-sm hidden-md hidden-lg hidden-print">
@@ -119,7 +119,7 @@
 		
 
 		<main class="detalle">
-			<div class="breadcrumb-class">Está en:<a href="#" target="_self" title="Inicio" id="breadcrumb_title">{{ laboratorio|title}}</a><container id="breadcrumb-title"></container></div>
+			<div class="breadcrumb-class" style="margin-top: 0%;">Está en:<a href="#" target="_self" title="Inicio" id="breadcrumb_title">{{ laboratorio|title}}</a><container id="breadcrumb-title"></container></div>
 
 		<script>
 			// Obtener el valor del campo HTML 'title'
@@ -129,7 +129,8 @@
 			document.getElementById("breadcrumb-title").textContent = pageTitle;
 			document.getElementById("breadcrumb_title").setAttribute("title", pageTitle);
 		</script>
-			{% block contenido %}{% endblock %}
+			{% block content %}
+			{% endblock %}
 
 		</main>
 

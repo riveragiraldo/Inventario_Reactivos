@@ -1,0 +1,14 @@
+{% extends "base_reactivos.html" %}
+
+{% block title %}{% if subtitle %}{{ subtitle }} | {% endif %}{{ title }} | {{ site_title|default:_('Gestión de insumos químicos') }}{% endblock %}
+
+{% block branding %}
+<h1 id="site-name" ><a href="{% url 'reactivos:index' %}" style="color: white;">{{ site_header|default:_('Gestión de reactivos e insumos químicos') }}</a></h1>
+{% if user.is_anonymous %}
+  {% include "admin/color_theme_toggle.html" %}
+{% endif %}
+{% endblock %}
+
+{% block nav-global %}{% endblock %}
+
+

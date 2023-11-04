@@ -25,225 +25,237 @@
     <!-- Estilos para el letrero de la mitad del spinner -->
     <script src="{% static 'inventarioreac/clearFds.js' %}"></script>
     <!-- Llama Script que borra los campos del formulario cuando se ejecuta cualquier acción -->
-    <script src="{% static 'inventarioreac/codeconst.js' %}" defer></script>
-    <!-- Llama Script que concatena los campos color - number y sub-number para crear code -->
     <script src="{% static 'inventarioreac/callPopUp.js' %}" defer></script>
     <!-- Llama Script al final llama las ventanas emergentes -->
     <script src="{% static 'inventarioreac/hideButtonsReactive.js' %}" defer></script>
     <!-- Llama Script al final oculta botones si la página se muestra como emergente -->
     <script src="{% static 'inventarioreac/sendInfo.js' %}" defer></script>
     <!-- Llama Script al final genera alerta informativa con los datos que se va enviar al servidor y acepta-->
-    <script src="{% static 'inventarioreac/validateSubnumber.js' %}" defer></script>
-    <!-- Llama Script al final genera alerta cuando no se escribe bien el subnumero-->
+    <script src="{% static 'inventarioreac/cancelButtonFunction.js' %}" defer></script>
+    <!-- Llama Script  que coloca función al botón cancelar -->
+    <script src="{% static 'inventarioreac/putValueCAS.js' %}" defer></script>
+    <!-- Llama Script  que controla el checkbox acepta CAS -->
     {% endblock %}
 </head>
 
 <body>
     {% block content %}
 
-    <div class="col-md-6 mx-auto">
-        <h1>Crear reactivo</h1>
-        <div class="container mt-5">
-            <div class="row">
-                <!-- HTML para mostrar el spinner -->
-                <p id="message"></p>
-                <div id="spinner"></div>
-                <div class="col-md-12">
-                    <form method="post" class="row g-3" id="createForm" name="form">
-                        {% csrf_token %}
+    <div class="card">
+        <div class="card-header">
+            <h1>Crear reactivo</h1>
+        </div>
+        <br>
+        <div class="card-body">
+            <!-- HTML para mostrar el spinner -->
+            <p id="message"></p>
+            <div id="spinner"></div>
 
-                        <div class="col-md-3">
-                            <label class="form-label" for="color" name="Color: ">*Color:</label>
-                            <input type="number" class="form-control" placeholder="Número" id="color" name="color"
-                                required title="Escriba un número positivo máximo 2 dígitos" pattern="^(?!0$)\d{1,2}$">
+            <form method="post" id="createForm" name="form">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label class="form-label" for="code" name="Código: ">*Código interno:</label>
+                    <input type="text" class="form-control" name="code" id="code" placeholder="Código interno"
+                        title="Código interno" value="{{ nuevo_codigo }}" readonly>
+                </div>
+                <div class="form-group">
+                    <div class="politicaTratamiento">
+                        <input type="checkbox" id="aplicaCAS" name="aplicaCAS" checked value="Aplica">
+                        <label for="aplicaCAS" class="politica-label" name="Aplica CAS: ">
+                            <p class="politica">
+                                Aplica CAS
+                            </p>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="cas" name="CAS: ">*Código CAS:</label>
+                    <input type="text" step="any" class="form-control" placeholder="Código CAS" name="cas" required
+                        id="cas" pattern="[0-9A-Z\ -]{1,15}"
+                        title="El CAS debe tener letras mayúsculas, números y guiones (-). Longituf máxima 15 caracteres">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="almacenamiento_interno"
+                        name="Almacenamiento Interno: ">*Almacenamiento Interno:</label>
+                    <div class="input-group" id="almacenamiento-block">
+                        <select name="almacenamiento_interno" id="almacenamiento_interno" class="form-control" required>
+                            <option value="">Seleccione</option>
+                            {% for almacenamiento_interno in almacenamiento_internos %}
+                            <option value="{{ almacenamiento_interno.id }}">{{ almacenamiento_interno.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <div class="input-group-btn">
+                            <button type="button" id="add_almacenamiento_interno_btn" class="btn btn-secondary"
+                                title="Agregar Almacenamiento Interno">+</button>
                         </div>
-                        <div class="col-md-3">
-                            <label class="form-label" for="number" name="Número: ">*Número:</label>
-                            <input type="number" class="form-control" placeholder="Núm. reactivo" id="number"
-                                name="number" required min="0" required
-                                title="Escriba un número positivo máximo 3 dígitos" pattern="^(?!0$)\d{1,3}$">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="clase_almacenamiento" name="Clase de almacenamiento: ">*Clase de
+                        almacenamiento:</label>
+                    <div class="input-group" id="clase-block">
+                        <select name="clase_almacenamiento" id="clase_almacenamiento" class="form-control" required>
+                            <option value="">Seleccione</option>
+                            {% for clase_almacenamiento in clase_almacenamientos %}
+                            <option value="{{ clase_almacenamiento.id }}">{{ clase_almacenamiento.name }} {{clase_almacenamiento.description }}</option>
+                            {% endfor %}
+                        </select>
+                        <div class="input-group-btn">
+                            <button type="button" id="add_clase_almacenamiento_btn" class="btn btn-secondary"
+                                title="Agregar Clase de almacenamiento">+</button>
                         </div>
-                        <div class="col-md-3">
-                            <label class="form-label" for="subnumber" name="Subnúmero: ">Sub - Número:</label>
-                            <input type="text" class="form-control" name="subnumber" id="subnumber"
-                                placeholder="Ingresa un número positivo o una letra mayúscula"
-                                pattern="^(?:[1-9]|[1-9][0-9]|A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z)$"
-                                title="Ingresa un número de 1 a 99 o una letra mayúscula (sin espacios ni caracteres especiales)">
+                    </div>
+                </div>
 
+                <div class="form-group">
+                    <label class="form-label" for="name" name="Nombre: ">*Nombre del reactivo:</label>
+                    <input type="text" class="form-control" placeholder="Nombre de reactivo" name="name" required
+                        id="name" pattern=".{1,80}" title="El nombre del reactivo debe tener 80 caracteres o menos">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="selectState" name="Estado: ">*Estado:</label>
+                    <select name="state" class="form-control" id="selectState" required>
+                        <option value="">Seleccione</option>
+                        {% for estado in estados %}
+                        <option value="{{ estado.id }}">{{ estado.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="from-group">
+                    <label class="form-label" for="selectUnidades" name="Unidades: ">*Unidades:</label>
+                    <div class="input-group" id="unit-block">
+                        <select name="unit" class="form-control" required id="selectUnidades">
+                            <option value="">Seleccione</option>
+                            {% for unidad in unidades %}
+                            <option value="{{ unidad.id }}">{{ unidad.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <div class="input-group-btn">
+                            <button type="button" id="add_unit_btn" class="btn btn-secondary"
+                                title="Agregar Unidad">+</button>
                         </div>
+                    </div>
+                </div>
+                <input type="hidden" name="wf" class="form-control" value="crear" id="wf">
+        </div>
+        <br>
+        <div class="card-footer">
+            <div class="form-group">
+                <button type="button" class="btn btn-primary" onclick="limpiarCampos('form')">Cancelar</button>
+                <input type="button" value="Crear Reactivo" class="btn btn-primary" id="open_confirm_in">
+            </div>
+        </div>
+        </form>
+    </div>
 
-                        <div class="col-md-3">
-                            <label class="form-label" for="code" name="Código: ">*Código interno:</label>
-                            <input type="text" class="form-control" name="code" id="code" placeholder="Código interno"
-                                title="Código interno" readonly>
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label" for="cas" name="CAS: ">*Código CAS:</label>
-                            <input type="text" step="any" class="form-control" placeholder="Código CAS" name="cas"
-                                required id="cas" pattern="[0-9\-]{1,15}"
-                                title="El CAS debe tener números y guiones (-). Longituf máxima 15 caracteres">
-                        </div>
-
-                        <div class="col-md-4">
-                            <label class="form-label" for="respel" name="Respel: ">*Clasificación Respel:</label>
-                            <div class="input-group">
-                                <select name="respel" id="respel" class="form-control" required>
-                                    <option value="">Seleccione</option>
-                                    {% for respel in respels %}
-                                    <option value="{{ respel.id }}">{{ respel.name }}</option>
-                                    {% endfor %}
-                                </select>
-
-                                <button type="button" id="add_respel_btn" class="btn btn-secondary"
-                                    title="Agregar Clasificación Respel">+</button>
-
-                            </div>
-                        </div>
-
-
-                        <div class="col-md-4">
-                            <label class="form-label" for="sga" name="SGA: ">*Códificación SGA:</label>
-                            <div class="input-group">
-                                <select name="sga" id="sga" class="form-control" required>
-                                    <option value="">Seleccione</option>
-                                    {% for sga in sgas %}
-                                    <option value="{{ sga.id }}">{{ sga.name }}</option>
-                                    {% endfor %}
-                                </select>
-                                <button type="button" id="add_sga_btn" class="btn btn-secondary"
-                                    title="Agregar Códificación SGA">+</button>
-                            </div>
-                        </div>
-                        
-
-                        <div class="col-md-4">
-                            <label class="form-label" for="name" name="Nombre: ">*Nombre del reactivo:</label>
-                            <input type="text" class="form-control" placeholder="Nombre de reactivo" name="name"
-                                required id="name" pattern=".{1,80}"
-                                title="El nombre del reactivo debe tener 80 caracteres o menos">
-
-
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label" for="selectState" name="Estado: ">*Estado:</label>
-                            <select name="state" class="form-control" id="selectState" required>
-                                <option value="">Seleccione</option>
-
-                                {% for estado in estados %}
-                                <option value="{{ estado.id }}">{{ estado.name }}</option>
-                                {% endfor %}
-
-                            </select>
-
-                        </div>
-
-                        <div class="col-md-4">
-                            <label class="form-label" for="selectUnidades" name="Unidades: ">*Unidades:</label>
-                            <div class="input-group">
-                                <select name="unit" class="form-control" required id="selectUnidades">
-                                    <option value="">Seleccione</option>
-                                    {% for unidad in unidades %}
-                                    <option value="{{ unidad.id }}">{{ unidad.name }}</option>
-                                    {% endfor %}
-                                </select>
-                                <button type="button" id="add_unit_btn" class="btn btn-secondary"
-                                    title="Agregar Unidad">+</button>
-                            </div>
-                        </div>
-
-                        <input type="hidden" name="wf" class="form-control" value="crear" id="wf">
-
-                        <div class="col-md-3 mt-3">
-                            <input type="button" value="Crear Reactivo" class="btn btn-primary" id="open_confirm_in">
-                        </div>
-                        <div class="col-md-3 mt-3">
-                            <input type="reset" value="Limpiar Campos" class="btn btn-primary">
-                        </div>
-
-                    </form>
-                    {% if messages %}
-                    {% for message in messages %}
-                    <!-- Este script no puede ser invocado como un archivo externo. Después de recibir una respuesta del servidor, se
+    {% if messages %}
+    {% for message in messages %}
+    <!-- Este script no puede ser invocado como un archivo externo. Después de recibir una respuesta del servidor, se
                     verifica si la ventana actual es emergente. En caso afirmativo, se muestra una alerta de confirmación o de error,
                     se obtienen los valores de los campos de la ventana principal, se recarga la página para actualizar la selección y
                     se vuelven a escribir o seleccionar los valores previamente ingresados. Si se agregó un nuevo registro de REACTIVO
                     en la base de datos o si este ya existe, se insertará en el campo de selección correspondiente. Luego, la ventana emergente se
                     cerrará. Si la ventana no es emergente, se mostrará una alerta de éxito o error según corresponda. -->
-                    <script>
-                        if (window.opener) {
+    <script>
+        if (window.opener) {
+            wf = window.opener.document.getElementById('wf')
+            console.log(wf.value)
 
-                            window.onload = function () {
-                                //Obtener nombre despues del mensaje
-                                mensaje = "{{ message }}";
-                                var name = mensaje.split(": ")[1];
+            window.onload = function () {
+                //Obtener nombre despues del mensaje
+                mensaje = "{{ message }}";
+                var name = mensaje.split(": ")[1];
 
-                                var messageText = '{{ message }}';
+                var messageText = '{{ message }}';
 
-                                var alertType = 'info';  // Tipo de alerta predeterminado para mensajes habituales
+                var alertType = 'info';  // Tipo de alerta predeterminado para mensajes habituales
 
-                                // Verificar el contenido del mensaje para asignar el tipo de alerta adecuado
-                                if (messageText.includes('Se ha creado exitosamente')) {
-                                    alertType = 'success';
-                                } else if (messageText.includes('Por favor seleccione') || messageText.includes('Ya existe') || messageText.includes('Solo se permiten registros ')) {
-                                    alertType = 'warning';
-                                }
+                // Verificar el contenido del mensaje para asignar el tipo de alerta adecuado
+                if (messageText.includes('Se ha creado exitosamente')) {
+                    alertType = 'success';
+                } else if (messageText.includes('Por favor seleccione') || messageText.includes('Ya existe') || messageText.includes('Solo se permiten registros ')) {
+                    alertType = 'warning';
+                }
 
-                                // Mostrar la notificación con SweetAlert2
-                                Swal.fire({
-                                    icon: alertType,
-                                    title: 'Mensaje del servidor',
-                                    text: messageText,
-                                    confirmButtonText: 'Aceptar'
-                                });
+                // Mostrar la notificación con SweetAlert2
+                Swal.fire({
+                    icon: alertType,
+                    title: 'Mensaje del servidor',
+                    text: messageText,
+                    confirmButtonText: 'Aceptar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        wf = window.opener.document.getElementById('wf')
+                        // Verificar si la ventana actual es una ventana emergente
+                        if (wf.value == 'listado') {
+                            console.log('Hola Mundo')
+                            // Actualizar la ventana padre
+                            window.opener.location.reload();
 
-                                //retardo para que los valores se escriban despues de recargar la página
-                                setTimeout(function () {
-                                    window.opener.document.querySelector("#name").value = name;
-                                    if (window.opener && typeof window.opener.updateFields === "function") {
-                                        //Llama la función que actualiza los campos según el nombre del reactivo una vez se escriba en el campo name
-                                        window.opener.updateFields();
-                                    } else {
-                                        console.error("La función updateFields() no está definida en la ventana padre");
-                                    }
-                                    window.close();
-
-                                }, 500);
-                            };
+                            // Cerrar la ventana actual después de un retraso
+                            setTimeout(() => {
+                                window.close();
+                            }, 200);
                         }
-
                         else {
-                            window.onload = function () {
-
-                                var messageText = '{{ message }}';
-
-                                var alertType = 'info';  // Tipo de alerta predeterminado para mensajes habituales
-
-                                // Verificar el contenido del mensaje para asignar el tipo de alerta adecuado
-                                if (messageText.includes('Se ha creado exitosamente')) {
-                                    alertType = 'success';
-                                } else if (messageText.includes('Por favor seleccione') || messageText.includes('Ya existe') || messageText.includes('Solo se permiten registros ')) {
-                                    alertType = 'warning';
+                            //retardo para que los valores se escriban despues de recargar la página
+                            setTimeout(function () {
+                                window.opener.document.querySelector("#name").value = name;
+                                if (window.opener && typeof window.opener.updateFields === "function") {
+                                    //Llama la función que actualiza los campos según el nombre del reactivo una vez se escriba en el campo name
+                                    window.opener.updateFields();
+                                } else {
+                                    console.error("La función updateFields() no está definida en la ventana padre");
                                 }
+                                window.close();
 
-                                // Mostrar la notificación con SweetAlert2
-                                Swal.fire({
-                                    icon: alertType,
-                                    title: 'Mensaje del servidor',
-                                    text: messageText,
-                                    confirmButtonText: 'Aceptar'
-                                });
-                            };
-                        }
-                    </script>
-                    {% endfor %}
-                    {% endif %}
+                            }, 500);
+                        };
 
-                </div>
-            </div>
-        </div>
 
-        {% endblock %}
 
+                    }
+                })
+
+            }
+        }
+
+        else {
+            window.onload = function () {
+
+                var messageText = '{{ message }}';
+
+                var alertType = 'info';  // Tipo de alerta predeterminado para mensajes habituales
+
+                // Verificar el contenido del mensaje para asignar el tipo de alerta adecuado
+                if (messageText.includes('Se ha creado exitosamente')) {
+                    alertType = 'success';
+                } else if (messageText.includes('Por favor seleccione') || messageText.includes('Ya existe') || messageText.includes('Solo se permiten registros ')) {
+                    alertType = 'warning';
+                }
+
+                // Mostrar la notificación con SweetAlert2
+                Swal.fire({
+                    icon: alertType,
+                    title: 'Mensaje del servidor',
+                    text: messageText,
+                    confirmButtonText: 'Aceptar'
+                });
+            };
+        }
+    </script>
+    {% endfor %}
+    {% endif %}
+
+    </div>
+    </div>
+    </div>
+
+    {% endblock %}
 </body>
 
 </html>

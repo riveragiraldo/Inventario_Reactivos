@@ -1,0 +1,288 @@
+{% extends "webtemplate.html" %}
+{% load has_group %}
+<!doctype html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Edición de usuarios{% endblock %}</title>
+    {% block head %}
+    <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe"
+      crossorigin="anonymous" defer></script> -->
+    <!-- Incluir SweetAlert2 desde CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.min.css">
+    <!-- Agrega el enlace al CDN de spin.js antes de tu script -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/spin.js/2.3.2/spin.min.js"></script>
+    <!-- Agrega el enlace de estilos para ícono de ojo -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    {% load static %}
+
+    <link rel="stylesheet" href="{% static 'inventarioreac/stylesShowSpinner.css' %}">
+    <!-- Estilos para el letrero de la mitad del spinner -->
+    <link rel="stylesheet" href="{% static 'inventarioreac/stylesCheckBox.css' %}">
+    <!-- Estilos para organizar la políca de tratamiento de datos -->
+    <script src="{% static 'inventarioreac/sendInfoEdit.js' %}" defer></script>
+    <!-- Llama Script al final genera alerta informativa con los datos que se va enviar al servidor y acepta-->
+
+    <script src="{% static 'inventarioreac/callPopUp.js' %}" defer></script>
+    <!-- Llama Script al final llama las ventanas emergentes -->
+    <script src="{% static 'inventarioreac/putValueAccept.js' %}" defer></script>
+    <!-- Llama Script que coloca valor al check de acepta -->
+    <script src="{% static 'inventarioreac/cancelButtonFunction.js' %}" defer></script>
+    <!-- Llama Script  que coloca función al botón cancelar -->
+    <script src="{% static 'inventarioreac/controlSelectores.js' %}" defer></script>
+    <!-- Llama Script  que inserta valores actuales de los selectores -->
+    <script src="{% static 'inventarioreac/hideButtonsUser.js' %}" defer></script>
+    <!-- Llama Script al final oculta botones si la página se muestra como emergente -->
+
+    <script>
+        var lab = '{{ usuario.lab.id }}'
+        var rol = '{{ usuario.rol.id }}'
+    </script>
+    {% endblock %}
+
+</head>
+
+<body>
+    {% block content %}
+    <div class="card col-md-6">
+        <div class="card-header">
+
+            <strong class="card-title">
+                <h2>Edición de Usuarios</h2>
+            </strong>
+        </div>
+        <br>
+        <div class="card-body">
+            <!-- HTML para mostrar el spinner -->
+            <p id="message"></p>
+            <div id="spinner"></div>
+
+            <form method="post" id="in_form" name="form">
+                {% csrf_token %}
+
+                <div class="form-group">
+                    <label for="id_number" name="Identificación:">Identificación:</label>
+                    <input type="number" name="id_number" id="id_number" class="form-control"
+                        pattern="^(?:[1-9]\d{6,10}|9999999999)$" placeholder="Número de identificación"
+                        title="Ingrese un número de cédula entre 1000000 y 9999999999 (sin puntos ni comas)"
+                        required="required" value="{% if usuario.id_number %}{{ usuario.id_number }}{% endif %}"
+                        min="1000000" max="9999999999">
+                </div>
+
+                <div class="form-group">
+                    <label for="phone_number" name="Teléfono:">Teléfono:</label>
+                    <input type="number" name="phone_number" id="phone_number" class="form-control"
+                        pattern="[0-9]{10,13}" placeholder="Número Telefónico"
+                        title="Ingrese su número telefónico (solo números enteros positivos de 10 a 13 dígitos)"
+                        required value="{% if usuario.phone_number %}{{ usuario.phone_number }}{% endif %}"
+                        min="1000000" max="9999999999">
+                </div>
+
+                <div class="form-group">
+                    <label for="email" name="Correo Electrónico:">Correo Electrónico:</label>
+
+
+                    <input type="email" name="email" id="email" class="form-control"
+                        pattern="^[a-zA-Z0-9.-_]+@[a-zA-Z]+\.[a-zA-Z]{2,}(?:\.[a-zA-Z]+)?$"
+                        placeholder="Correo Electrónico"
+                        title="Ingrese una dirección de correo electrónico válida (max 40 caracteres)" required
+                        value="{% if usuario.email %}{{ usuario.email }}{% endif %}" maxlength='100'>
+
+                </div>
+                <div class="form-group">
+                    <label for="username" name="Nombre de usuario:">Nombre de usuario:</label>
+                    <input type="text" name="username" id="username" class="form-control"
+                        pattern="^(?:[a-zA-Zá-úÁ-Ú]+\s){0,1}[a-zA-Zá-úÁ-Ú]+$"
+                        placeholder="{{ form.username.field.widget.attrs.placeholder }}"
+                        title="Ingrese solo una palabras sin números ni caracteres especiales" required
+                        value="{% if usuario.username %}{{ usuario.username }}{% endif %}">
+
+                </div>
+                <div class="form-group">
+                    <label for="first_name" name="Nombres:">Nombres:</label>
+                    <input type="text" class="form-control" id="first_name" name="first_name"
+                        placeholder="Escriba los nombres" required pattern="^(?:[a-zA-Zá-úÁ-Ú]+\s){0,1}[a-zA-Zá-úÁ-Ú]+$"
+                        title="Ingrese máximos dos palabras sin números ni caracteres especiales"
+                        value="{% if usuario.first_name %}{{ usuario.first_name }}{% endif %}">
+                </div>
+                <div class="form-group">
+                    <label for="last_name" name="Apellidos:">Apellidos:</label>
+                    <input type="text" class="form-control" placeholder="Escriba sus apellidos" id="last_name"
+                        name="last_name" required pattern="^(?:[a-zA-Zá-úÁ-Ú]+\s){0,1}[a-zA-Zá-úÁ-Ú]+$"
+                        title="Ingrese máximos dos palabras sin números ni caracteres especiales"
+                        value="{% if usuario.last_name %}{{ usuario.last_name }}{% endif %}">
+
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.rol.id_for_label }}" name="Rol:">Rol:</label>
+
+                    {% if request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
+                    <div class="input-group" id="rol-block">
+                        <select name="rol" class="form-control" required="" id="id_rol">
+                            <option value="" selected="">---------</option>
+                            {% for rol in roles %}
+
+                            <option value="{{ rol.id }}">{{ rol.name }}</option>
+
+                            {% endfor %}
+                        </select>
+                        {% if request.user.is_superuser %}
+                        <div class="input-group-btn">
+                            <button type="button" id="add_rol_btn" class="btn btn-secondary"
+                                title="Agregar Rol">+</button>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div id="add_rol_btn"></div>
+                    {% endif %}
+
+                    {% if request.user|has_group:"COORDINADOR" %}
+                    <select name="rol" class="form-control" required="" id="id_rol">
+                        <option value="" selected="">---------</option>
+                        {% for rol in roles %}
+                        {% if rol.name == "TECNICO" %}
+                        <option value="{{ rol.id }}">{{ rol.name }}</option>
+                        {% endif %}
+                        {% endfor %}
+                    </select>
+                    <div id="add_rol_btn"></div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.lab.id_for_label }}" name="Laboratorio:">Laboratorio:</label>
+
+                    {% if request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
+                    <div class="input-group" id="lab-block">
+                        <select name="lab" class="form-control" required="" id="id_lab">
+                            <option value="" selected="">---------</option>
+                            {% for lab in laboratorios %}
+
+                            <option value="{{ lab.id }}">{{ lab.name }}</option>
+
+
+                            {% endfor %}
+                        </select>
+                        <div class="input-group-btn">
+                            <button type="button" id="add_lab_btn" class="btn btn-secondary"
+                                title="Agregar Laboratorio">+</button>
+                        </div>
+                    </div>
+                    {% endif %}
+
+
+                    {% if request.user|has_group:"COORDINADOR" %}
+                    <select name="lab" class="form-control" required="" id="id_lab">
+                        <option value="" selected="">---------</option>
+                        {% for lab in laboratorios %}
+                        {% if lab.name == labname %}
+                        <option value="{{ lab.id }}">{{ lab.name }}</option>
+
+                        {% endif %}
+                        {% endfor %}
+                    </select>
+                    <div id="add_lab_btn"></div>
+                    {% endif %}
+                </div>
+
+
+                <div class="form-group">
+
+
+                    <div class="politicaTratamiento">
+
+                        <input type="checkbox" class="" required id="acceptDataProcessing" name="acceptDataProcessing"
+                            unchecked value="">
+                        <label for="acceptDataProcessing" class="politica-label"
+                            name="Acepta política de tratamiento de datos personales: ">
+                            <p class="politica">
+                                DE ACUERDO CON LA
+                                <a href="https://unal.edu.co/tratamiento-de-datos-personales" target="_blank">
+                                    LEY 1581 DE 2012 DE PROTECCIÓN DE DATOS PERSONALES</a>, HE LEÍDO, ENTENDIDO Y
+                                ACEPTO, LOS TÉRMINOS
+                                DESCRITOS EN LA POLÍTICA DE TRATAMIENTO DE DATOS PERSONALES.<br><br>
+                            </p>
+                        </label>
+                    </div>
+
+
+
+
+                </div>
+
+
+                <br>
+                <div class="card-footer">
+                    <input type="hidden" name="wf" class="form-control" value="usuarios" id="wf">
+                    <!-- identificador para saber que tipo de ventana es -->
+
+                    <button type="button" class="btn btn-primary" onclick="limpiarCampos('form')">Cancelar</button>
+
+                    <input type="button" value="Editar Usuario" class="btn btn-primary" id="open_confirm_in">
+
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {% if messages %}
+    {% for message in messages %}
+    <!-- Este script no puede ser invocado desde un archivo externo. Después de recibir una respuesta del servidor, se
+      verifica si la ventana actual es emergente. En caso afirmativo, se muestra una alerta de confirmación o de error,
+      se obtienen los valores de los campos de la ventana principal, se recarga la página para actualizar la selección y
+      se vuelven a escribir o seleccionar los valores previamente ingresados. Si se agregó un nuevo registro de MARCA
+      en la base de datos o si este ya existe, se insertará en el campo de selección correspondiente. Luego, la ventana emergente se
+      cerrará. Si la ventana no es emergente, se mostrará una alerta de éxito o error según corresponda. -->
+    <script>
+
+
+
+        window.onload = function () {
+            //Alerta
+            var messageText = '{{ message|safe }}';
+
+            var alertType = 'info';  // Tipo de alerta predeterminado para mensajes habituales
+
+            // Verificar el contenido del mensaje para asignar el tipo de alerta adecuado
+            if (messageText.includes('Se ha creado exitosamente')) {
+                alertType = 'success';
+            } else if (messageText.includes('Por favor seleccione') || messageText.includes('Ya existe') || messageText.includes('Solo se permiten registros ') || messageText.includes('No es posible ')) {
+                alertType = 'warning';
+            } else if (messageText.includes('No se puedo crear el usuario') || messageText.includes('Contraseña no cumple')) {
+                alertType = 'error';
+            }
+
+            // Mostrar la notificación con SweetAlert2
+            Swal.fire({
+                icon: alertType,
+                title: 'Mensaje del servidor',
+                text: messageText,
+                confirmButtonText: 'Aceptar'
+            }).then(function (result) {
+                // Verificar si la ventana actual es una ventana emergente
+                if (window.opener != null) {
+                    // Recargar la página principal antes de cerrar la ventana emergente
+                    window.opener.location.reload();
+                    // Si es una ventana emergente, cierra la ventana actual
+                    window.close();
+                }
+            });
+        };
+
+    </script>
+    {% endfor %}
+    {% endif %}
+
+
+    {% endblock %}
+</body>
+
+</html>
