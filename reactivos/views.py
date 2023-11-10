@@ -272,17 +272,20 @@ def depurar_eventos_antiguos():
         # Elimina eventos antiguos
         Eventos.objects.filter(fecha_evento__lt=fecha_limite).delete()
 
-# Vista para la creación de eventos
+from django.shortcuts import get_object_or_404
+
 def crear_evento(tipo_evento, usuario_evento):
-    tipo_evento=get_object_or_404(TipoEvento, name=tipo_evento)
+    # Verifica si el tipo de evento existe
+    tipo_evento_obj, created = TipoEvento.objects.get_or_create(name=tipo_evento)
+
+    # Si no existía, se creó un nuevo objeto tipo_evento
+    if created:
+        print(f"Se ha creado un nuevo tipo de evento: {tipo_evento}")
+
     evento = Eventos.objects.create(
-
-            tipo_evento=tipo_evento,
-            usuario_evento=usuario_evento,            
-
-        )
-    # Después de crear el evento, depura los eventos antiguos
-    depurar_eventos_antiguos()
+        tipo_evento=tipo_evento_obj,
+        usuario_evento=usuario_evento,
+    )
 
 
 #-------------------------------------------------#
@@ -461,7 +464,18 @@ def configuraciones(request):
         }
 
     return render(request, 'admin/configuraciones.html', context)
+# Vista para la creación del index Dirlab, 
 
+class HomeDirLab(View):  # Utiliza LoginRequiredMixin como clase base
+    template_name = 'dir_lab/index.html'  # Nombre de la plantilla
+
+    def get(self, request,*args,**kwargs):
+        
+             
+        context = {
+            
+        }
+        return render(request, self.template_name, context)
 
 # Vista para la creación del index, 
 
@@ -635,7 +649,7 @@ class RegistrarSolicitud(LoginRequiredMixin, CreateView):
             # Enviar correo al usuario que registra la solicitud
             id = solicitud.id
             solicitud_code = base64.urlsafe_b64encode(str(id).encode()).decode()
-            suffix = f'solicitudes/estado_solicitud/{solicitud_code}'
+            suffix = f'UniCLab/solicitudes/estado_solicitud/{solicitud_code}'
             shipping_email=solicitud.created_by.email
             email_type=f'Registro de solicitud'
             initial_message= f'El presente mensaje de correo electrónico es porque recientemente se ha registrado una solicitud en el aplicativo de inventario y gestión de reactivos, con la siguiente información:'
@@ -652,9 +666,9 @@ class RegistrarSolicitud(LoginRequiredMixin, CreateView):
             id = solicitud.id
             protocol = 'https' if request.is_secure() else 'http'
             domain = request.get_host()
-            url=f'{protocol}://{domain}/solicitudes/listado_solicitudes'
+            url=f'{protocol}://{domain}/UniCLab/solicitudes/listado_solicitudes'
             solicitud_code = base64.urlsafe_b64encode(str(id).encode()).decode()
-            suffix = f'solicitudes/responder_solicitud/{solicitud_code}\no visita: {url}'
+            suffix = f'UniCLab/solicitudes/responder_solicitud/{solicitud_code} o visita: {url}'
             shipping_email=admin_email
             email_type=f'Registro de solicitud'
             initial_message= f'Recientemente se ha registrado una solicitud en el aplicativo de inventario y gestión de reactivos, con la siguiente información:'
@@ -715,7 +729,7 @@ def responder_solicitud(request, solicitud_code):
         # Enviar correo al usuario que registra la solicitud
         id = solicitud.id
         solicitud_code = base64.urlsafe_b64encode(str(id).encode()).decode()
-        suffix = f'solicitudes/estado_solicitud/{solicitud_code}'
+        suffix = f'UniCLab/solicitudes/estado_solicitud/{solicitud_code}'
         shipping_email=solicitud.created_by.email
         initial_message= f'Cordial saludo se ha dado respuesta a una solicitud realizada por usted en el aplicativo de inventario y gestión de reactivos, con la siguiente información:'
         email_type=f'Respuesta a solicitud'
@@ -7049,9 +7063,9 @@ class LoginView(RedirectURLMixin, FormView):
         """Security check complete. Log the user in."""
         auth_login(self.request, form.get_user())
         # Crea un evento de inicio de sesión
-        # tipo_evento = 'INICIO DE SESION'
-        # usuario_evento = self.request.user
-        # crear_evento(tipo_evento, usuario_evento)
+        tipo_evento = 'INICIO DE SESION'
+        usuario_evento = self.request.user
+        crear_evento(tipo_evento, usuario_evento)
         return HttpResponseRedirect(self.get_success_url())
 
     def get_context_data(self, **kwargs):

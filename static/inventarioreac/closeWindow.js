@@ -21,7 +21,7 @@ function closeTab() {
             clearInterval(countdownInterval);
             Swal.close(); // Cierra la SweetAlert.
             
-                window.location.href = '/';
+                window.location.href = '/UniCLab/';
             
         }
     }, 1000); // 1000 ms = 1 segundo

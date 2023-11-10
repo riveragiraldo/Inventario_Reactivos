@@ -62,7 +62,7 @@
 					<a href="http://bibliotecas.unal.edu.co" target="_blank"><img src="{% static 'inventarioreac/images/icnServLibrary.png' %}" width="32" height="32" alt="Biblioteca">Bibliotecas</a>
             </li>
             <li>
-				<a href="http://laboratorios.manizales.unal.edu.co/"target="_blank"><img src="{% static 'inventarioreac/images/icnLrn.png' %}" width="32" height="32" alt="Direccion de Laboratorios">Direccion de Laboratorios Sede Manizales </a>
+				<a href="{% url 'reactivos:home_dir_lab' %}"target="_blank"><img src="{% static 'inventarioreac/images/icnLrn.png' %}" width="32" height="32" alt="Direccion de Laboratorios">Direccion de Laboratorios Sede Manizales </a>
             </li>
             <li>
 				<a href="https://d1xb30i372mnxf.cloudfront.net/" target="_blank"><img src="{% static 'inventarioreac/images/icnLrn.png' %}" width="32" height="32" alt="Plataforma de Laboratorios Remotos">Plataforma de Laboratorios Remotos</a>	
@@ -99,9 +99,18 @@
            
 			</div>
 			<div id="bs-navbar" class="navbar-collapse collapse navigation">
-            <div class="site-url">
-					<a href="http://subdominio.unal.edu.co/"  target="_blank">subdominio.unal.edu.co</a>
-            </div>
+				<div class="site-url">
+					<a href="#" target="_blank" class="custom-url">Cargando URL...</a>
+				</div>
+				<script>
+						document.addEventListener("DOMContentLoaded", function() {
+			const customUrl = document.querySelector('.custom-url');
+			if (customUrl) {
+				customUrl.textContent = window.location.origin + "{% url 'reactivos:home_dir_lab' %}";
+				customUrl.href = "{% url 'reactivos:home_dir_lab' %}";
+			}
+		});
+				</script>
            
             
             <div class="btn-group hidden-sm hidden-md hidden-lg hidden-print">

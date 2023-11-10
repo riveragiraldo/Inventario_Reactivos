@@ -167,7 +167,8 @@ EMAIL_HOST_PASSWORD = 'vfruavgehdlymyaz'  # Contraseña para autenticación SMTP
 # Correo del remitente predeterminado
 DEFAULT_FROM_EMAIL = 'andresrgiraldo@gmail.com'
 
-LOGIN_REDIRECT_URL = "/"
+LOGIN_REDIRECT_URL = "/UniCLab/"
+LOGIN_URL = "accounts/login/?next=/"
 
 
 

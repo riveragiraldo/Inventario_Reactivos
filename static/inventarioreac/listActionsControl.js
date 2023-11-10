@@ -15,7 +15,7 @@ function openPopupAdd(url) {
 
 function openEditFormReact(itemId) {
     // Construye la URL del formulario de edición con el ID del elemento
-    var editUrl = '/reactivos/editar_reactivo/' + itemId + '/';
+    var editUrl = '/UniCLab/reactivos/editar_reactivo/' + itemId + '/';
 
     // Abre una nueva ventana emergente con el formulario de edición
     window.open(editUrl, '_blank', 'width=600,height=800');
@@ -26,7 +26,7 @@ function openEditFormReact(itemId) {
 
 function openEditFormIn(itemId) {
     // Construye la URL del formulario de edición con el ID del elemento
-    var editUrl = '/reactivos/editar_entrada/' + itemId + '/';
+    var editUrl = '/UniCLab/reactivos/editar_entrada/' + itemId + '/';
 
     // Abre una nueva ventana emergente con el formulario de edición
     window.open(editUrl, '_blank', 'width=600,height=800');
@@ -36,7 +36,7 @@ function openEditFormIn(itemId) {
 
 function openEditFormOut(itemId) {
     // Construye la URL del formulario de edición con el ID del elemento
-    var editUrl = '/reactivos/editar_salida/' + itemId + '/';
+    var editUrl = '/UniCLab/reactivos/editar_salida/' + itemId + '/';
 
     // Abre una nueva ventana emergente con el formulario de edición
     window.open(editUrl, '_blank', 'width=600,height=800');
@@ -46,7 +46,7 @@ function openEditFormOut(itemId) {
 
 function openRespondRequest(itemId) {
     // Construye la URL del formulario de edición con el ID del elemento
-    var editUrl = '/solicitudes/responder_solicitud/' + itemId + '/';
+    var editUrl = '/UniCLab/solicitudes/responder_solicitud/' + itemId + '/';
 
     // Abre una nueva ventana emergente con el formulario de edición
     window.open(editUrl, '_blank', 'width=600,height=800');
@@ -56,7 +56,7 @@ function openRespondRequest(itemId) {
 
 function openEditFormUser(itemId) {
     // Construye la URL del formulario de edición con el ID del elemento
-    var editUrl = '/usuarios/editar/' + itemId + '/';
+    var editUrl = '/UniCLab/usuarios/editar/' + itemId + '/';
 
     // Abre una nueva ventana emergente con el formulario de edición
     window.open(editUrl, '_blank', 'width=600,height=800');

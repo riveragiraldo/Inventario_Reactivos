@@ -348,7 +348,7 @@ class Ubicaciones(models.Model):
 # Modelo para tabla Almacenamiento (Ubicaciones en almacén) en base de datos Reactivos
 class Almacenamiento(models.Model):
     name = models.CharField(
-        max_length=100, verbose_name="Ubicación/Asignaturas")
+        max_length=100, verbose_name="Ubicación en almacen")
     lab=models.ForeignKey(Laboratorios, on_delete=models.CASCADE, related_name='labrel', verbose_name='Laboratorio')    
     description=models.TextField(max_length=1000, verbose_name="Descripción")
     is_active = models.BooleanField(default=True)

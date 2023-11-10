@@ -1341,69 +1341,75 @@ footer .logos a img {
 	padding: 0.6em 1.2em;
 	/* Padding del botón ajustado para un tamaño aproximado a 5 cm */
 }
+
 .sidebar-content {
 	display: flex;
 }
 
 .side-left-bar {
-	width: 15%; /* Ancho de la barra lateral derecha */
-    top: 20px; /* Ajustar según sea necesario */
+	width: 15%;
+	/* Ancho de la barra lateral derecha */
+	top: 20px;
+	/* Ajustar según sea necesario */
 	margin-right: 2%;
 	margin-left: -1%;
 }
 
 .contentTemplate {
-	width: 85%; /* Ancho del contenido principal (ajustar según sea necesario) */
+	width: 85%;
+	/* Ancho del contenido principal (ajustar según sea necesario) */
 	font-family: 'Ancizar sans';
-	
+
 }
 
 /* clase para el botón de la side bar */
 
 .side-bar-link {
-    color: #fff;
-    background-color: #2200ff;
-    border-color: #007bff;
-    display: inline-block;
-    font-weight: 400;
-    text-align: center;
-    white-space: nowrap;
-    vertical-align: middle;
-    user-select: none;
-    border: 1px solid transparent;
-    padding: 0.375rem 0.75rem;
-    font-size: 1rem;
-    line-height: 1.5;
-    border-radius: 0.25rem;
-    transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-    cursor: pointer;
-    text-decoration: none;
-    text-transform: none;
+	color: #fff;
+	background-color: #2200ff;
+	border-color: #007bff;
+	display: inline-block;
+	font-weight: 400;
+	text-align: center;
+	white-space: nowrap;
+	vertical-align: middle;
+	user-select: none;
+	border: 1px solid transparent;
+	padding: 0.375rem 0.75rem;
+	font-size: 1rem;
+	line-height: 1.5;
+	border-radius: 0.25rem;
+	transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+	cursor: pointer;
+	text-decoration: none;
+	text-transform: none;
 	width: 100%;
 	margin-right: -30px;
-	
+
 }
 
 .side-bar-link:hover {
-    color: #fff;
-    background-color: #0056b3;
-    border-color: #004185;
+	color: #fff;
+	background-color: #0056b3;
+	border-color: #004185;
 }
 
-.side-bar-link:focus, .btn-primary.focus {
-    color: #fff;
-    background-color: #0056b3;
-    border-color: #004185;
-    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.5);
+.side-bar-link:focus,
+.btn-primary.focus {
+	color: #fff;
+	background-color: #0056b3;
+	border-color: #004185;
+	box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.5);
 }
 
 /* Otros estados del botón, como active, disabled, etc. */
 
 /* Ejemplo para el estado active */
-.side-bar-link:active, .btn-primary.active {
-    color: #fff;
-    background-color: #004185;
-    border-color: #003157;
+.side-bar-link:active,
+.btn-primary.active {
+	color: #fff;
+	background-color: #004185;
+	border-color: #003157;
 }
 
 .background-image-login {
@@ -1411,9 +1417,18 @@ footer .logos a img {
 	left: 0;
 	width: 100px;
 	height: 100px;
-	background-image: url(../images/login_image_2.jpg); /* Agrega la ruta de tu imagen */
-	opacity: 0.7; /* Ajusta la opacidad a tu preferencia */
+	background-image: url(../images/login_image_2.jpg);
+	/* Agrega la ruta de tu imagen */
+	opacity: 0.7;
+	/* Ajusta la opacidad a tu preferencia */
 	z-index: 0;
-  }
-  
+}
 
+
+.carousel-inner img {
+	width: 70%;
+	height: auto;
+	opacity: 0.6;
+	margin-left: auto;
+    margin-right: auto;
+}

@@ -1,6 +1,6 @@
 {% extends "webtemplate_before.html" %}
 
-<title>{% block title %}Inicio de sesión: Universidad Nacional de Colombia{% endblock %}</title>
+<title>{% block title %}Inicio de sesión: UniCLab{% endblock %}</title>
 {% block content_title %}<h1 id="site-name">Ingrese sus datos de inicio de sesión</h1>{% endblock %}
 
 {% load i18n static %}
@@ -53,8 +53,8 @@
       <div class="card-header">
         <div class="form-group">
           <h3 style="text-align: center;">Bienvenido a UniCLab</h3>
-          <img src="{% url 'reactivos:logo_institucional'%}" alt="" width="100px" height="100px" style="display: block; margin: 0 auto; border: 1px solid #000; border-radius: 5px;">
-          <p style="text-align: justify;">Su solución para inventario, control y gestión de reactivos químicos de la Universidad Nacional de Colombia</p>
+          <img src="{% url 'reactivos:logo_institucional'%}" alt="" width="100px" height="100px" style="display: block; margin: 0 auto; margin-bottom: 20px; margin-top: 15px;">
+          <p style="text-align: justify;">Su solución para inventario, control y gestión de reactivos químicos de la <strong>Universidad Nacional de Colombia</strong></p>
           <br>
           <p>Por favor ingrese sus datos de incio de sesión</p>
         </div>

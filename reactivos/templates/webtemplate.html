@@ -77,7 +77,7 @@
 						alt="Biblioteca">Bibliotecas</a>
 			</li>
 			<li>
-				<a href="http://laboratorios.manizales.unal.edu.co/" target="_blank"><img
+				<a href="{% url 'reactivos:home_dir_lab' %}" target="_blank"><img
 						src="{% static 'inventarioreac/images/icnLrn.png' %}" width="32" height="32"
 						alt="Direccion de Laboratorios">Direccion de Laboratorios Manizales </a>
 			</li>
@@ -167,8 +167,17 @@
 		</div>
 		<div id="bs-navbar" class="navbar-collapse collapse navigation">
 			<div class="site-url">
-				<a href="http://subdominio.unal.edu.co/" target="_blank">subdominio.unal.edu.co</a>
+				<a href="#" target="_blank" class="custom-url">Cargando URL...</a>
 			</div>
+			<script>
+				    document.addEventListener("DOMContentLoaded", function() {
+        const customUrl = document.querySelector('.custom-url');
+        if (customUrl) {
+            customUrl.textContent = window.location.origin + "{% url 'reactivos:home_dir_lab' %}";
+            customUrl.href = "{% url 'reactivos:home_dir_lab' %}";
+        }
+    });
+			</script>
 
 
 		</div>
