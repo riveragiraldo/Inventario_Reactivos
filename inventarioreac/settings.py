@@ -130,7 +130,7 @@ STATIC_ROOT = 'staticfiles'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-BASE_URL = 'https://laboratorios.manizales.unal.edu.co/chemicaltracker'
+BASE_URL = 'https://laboratorios.manizales.unal.edu.co/UniCLab'
 
 # Tiempo de inactividad en segundos antes de que la sesión expire (60 minutos)
 SESSION_COOKIE_AGE = 3600  # 60 minutos
@@ -168,7 +168,9 @@ EMAIL_HOST_PASSWORD = 'vfruavgehdlymyaz'  # Contraseña para autenticación SMTP
 DEFAULT_FROM_EMAIL = 'andresrgiraldo@gmail.com'
 
 LOGIN_REDIRECT_URL = "/UniCLab/"
-LOGIN_URL = "accounts/login/?next=/"
+# LOGIN_URL = "accounts/login/?next=/"
+LOGIN_URL = "/UniCLab/accounts/login/"
+
 
 
 

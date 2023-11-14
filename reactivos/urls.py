@@ -54,7 +54,7 @@ urlpatterns = [
     path('UniCLab/solicitudes/estado_solicitud/<str:solicitud_code>/', estado_solicitud, name='estado_solicitud'),# Estado de solicitud
     path('UniCLab/solicitudes/responder_solicitud/<str:solicitud_code>/', responder_solicitud, name='responder_solicitud'),# Responder solicitud    
     path('UniCLab/administrar/listado_eventos/', EventosListView.as_view(), name='listado_eventos'), # LIstado de eventos
-
+    path('UniCLab/administrar/enviar_correo/', enviar_correo, name='enviar_correo'), # ENviar Correo Admin
     # Usuarios
     path('UniCLab/laboratorios/crear/', crear_laboratorio, name='crear_laboratorio'),# Crear Laboratorio
     path('UniCLab/usuarios/editar/<int:pk>/', editar_usuario, name='editar_usuario'), #Editar Usuarios

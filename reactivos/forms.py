@@ -310,4 +310,53 @@ class ConfiguracionSistemaForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
         cleaned_data['correo_administrador'] = estandarizar_nombre(cleaned_data['correo_administrador'])
-        
+
+# Fomrulario de envío de correo
+class CorreoForm(forms.Form):
+    DESTINO_CHOICES = [
+        ('TODOS', 'TODOS'),
+    ] + [(rol.id, rol.name) for rol in Rol.objects.all()] + [('USUARIO_ESPECIFICO', 'USUARIO ESPECÍFICO')]
+
+    LAB_CHOICES = [
+        ('TODOS', 'TODOS'),
+    ] + [(lab.id, lab.name) for lab in Laboratorios.objects.all()]
+
+    destino = forms.ChoiceField(
+        choices=DESTINO_CHOICES,
+        label='Destino',
+        widget=forms.Select(attrs={'class': 'form-control', 'required':'required','title':'Seleccione un destino',})
+    )
+    laboratorio = forms.ChoiceField(
+        choices=LAB_CHOICES,
+        label='Laboratorio',
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-control', 'title':'Seleccione un laboratorio',})
+    )
+    usuario = forms.EmailField(
+        label='Usuario',
+        required=False,
+        widget=forms.EmailInput(attrs={'class': 'form-control','title':'El correo electrónico debe cumplir con los formatos válidos de un correo electrónico','pattern':'^[a-zA-Z0-9.-_]+@[a-zA-Z]+\.[a-zA-Z]{2,}(?:\.[a-zA-Z]+)?$',})
+    )
+    asunto = forms.CharField(
+    max_length=100,  # Limitar a 100 caracteres
+    label='Asunto',
+    widget=forms.TextInput(
+        attrs={
+            'class': 'form-control',
+            'required': 'required',
+            'placeholder': 'Escribe el asunto del mensaje',
+            'title': 'Escribe el asunto con un máximo de 100 caracteres',
+            'pattern': '.{1,100}',
+            }
+            )
+            )
+
+    mensaje = forms.CharField(
+        widget=forms.Textarea(attrs={'class': 'form-control','required':'required','rows':'3','maxlength': '1000','title':'Escribe el mensaje con un máximo de 1000 caracteres', 'placeholder':'Escribe aquí el mensaje, (máx 1000 caracteres)'}),
+        label='Mensaje'
+    )
+    adjunto = forms.FileField(
+        label='Adjuntar Archivo',
+        required=False,
+        widget=forms.ClearableFileInput(attrs={'class': 'form.control','title':'Adjunte archivos de máximo 5 MB',})
+    )

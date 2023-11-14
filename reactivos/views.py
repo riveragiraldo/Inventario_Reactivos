@@ -85,7 +85,7 @@ from django.views.generic.base import TemplateView
 from django.views.generic.edit import FormView
 from django.utils.dateparse import parse_date
 from datetime import datetime, timedelta, date
-from .forms import ReCaptchaForm,CustomPasswordResetForm, FormularioUsuario, SolicitudForm,ConfiguracionSistemaForm 
+from .forms import ReCaptchaForm,CustomPasswordResetForm, FormularioUsuario, SolicitudForm,ConfiguracionSistemaForm, CorreoForm
 from django.core.mail import send_mail
 from django.utils.translation import gettext as _
 from django.contrib.auth.tokens import default_token_generator
@@ -105,11 +105,100 @@ from django import forms
 from django.utils import timezone
 from django.utils.timezone import now
 from django.http import FileResponse
+from django.core.mail import EmailMessage
+from django.core.mail import EmailMultiAlternatives
+from django.utils.html import strip_tags
 
 
 
 from apscheduler.schedulers.background import BlockingScheduler, BackgroundScheduler
 from time import sleep
+
+
+# Enviar correo electrónico administrativo
+@login_required(login_url='/UniCLab/accounts/login/')
+def enviar_correo(request):
+    if request.method == 'POST':
+        form = CorreoForm(request.POST, request.FILES)
+        if form.is_valid():
+            destino = form.cleaned_data['destino']
+            print(destino)
+            laboratorio = form.cleaned_data['laboratorio']
+            usuario = form.cleaned_data['usuario']
+            asunto = form.cleaned_data['asunto']
+            contenido = form.cleaned_data['mensaje']
+            adjunto = form.cleaned_data['adjunto']
+            if adjunto and adjunto.size > 5 * 1024 * 1024:  # 2 MB en bytes
+                nombre=adjunto.name
+                peso=adjunto.size / (1024 * 1024)
+                mensaje = f'No se ha podido enviar el mensaje porque el tamaño del archivo adjunto con nombre {nombre}, con tamaño de {peso:.2f} MB es superior al máximo permitido (5 MB).'
+                messages.error(request, mensaje)  # Agregar mensaje de error
+                return redirect('reactivos:enviar_correo')
+        
+
+            # Lógica para determinar a quién enviar el correo y construir la lista de destinatarios
+            if destino=='USUARIO_ESPECIFICO':
+                destinatarios=[usuario,]
+            elif destino=='TODOS' and laboratorio=='TODOS':
+                destinatarios = UserModel.objects.filter(is_active=True).values_list('email', flat=True)
+            elif destino=='TODOS' and laboratorio!='TODOS':
+                destinatarios = UserModel.objects.filter(is_active=True, lab=laboratorio).values_list('email', flat=True)
+            elif destino!='TODOS' and laboratorio=='TODOS':
+                destinatarios = UserModel.objects.filter(is_active=True, rol=destino).values_list('email', flat=True)
+            elif destino!='TODOS' and laboratorio!='TODOS':
+                destinatarios = UserModel.objects.filter(is_active=True, rol=destino, lab=laboratorio).values_list('email', flat=True)
+                
+            else:
+                destinatarios = ['andresrgiraldo@gmail.com']
+
+            # Lógica para construir el mensaje de correo
+
+            # Crear de contexto para el mensaje de correo
+            # Obtener el dominio
+            url = settings.BASE_URL
+            # Obtener la fecha y hora actual en el formato "dd/mm/aaaa hh:mm:ss"
+            fecha_actual = localtime().strftime('%d/%m/%Y %H:%M:%S')
+            # Formatear el valor con separadores de miles
+            locale.setlocale(locale.LC_ALL, 'es_ES.UTF-8')
+
+            # Contexto del template del diseño del correo 
+            context = {
+                'url': url,
+                'fecha_actual': fecha_actual,
+                'message': contenido,
+            }
+
+            # Template
+            html_message = render_to_string('admin/enviar_correo_admin.html', context)
+            plain_message = strip_tags(html_message)
+            from_email = "noreply@unal.edu.co"  # Agrega el correo electrónico desde el cual se enviará el mensaje
+            recipient_list = destinatarios
+            subject = f'Mensaje desde {url} -  {asunto}'
+
+            # Adjuntar el archivo al correo si se proporciona
+            if adjunto:
+                # Si hay archivos adjuntos, enviar con mensaje HTML y adjunto
+                email = EmailMultiAlternatives(subject, plain_message, from_email, recipient_list)
+                email.attach_alternative(html_message, "text/html")  # Agregar versión HTML del mensaje
+                email.attach(adjunto.name, adjunto.read(), adjunto.content_type)
+                email.send()
+                print('Se ha enviado el correo con mensaje HTML y adjunto')
+            else:
+                print('Se ha enviado el correo')
+                send_mail(subject, plain_message, from_email, recipient_list, fail_silently=False, html_message=html_message,)
+            
+            mensaje=f'Se ha enviado el mensaje de manera correcta'
+            messages.success(request, mensaje)  # Agregar mensaje de éxito
+            return redirect('reactivos:enviar_correo')
+        else:
+            mensaje=f'{form.errors}'
+            messages.error(request, mensaje)  # Agregar mensaje de error
+            return redirect('reactivos:enviar_correo')
+    else:
+        form = CorreoForm()
+
+    return render(request, 'admin/enviar_correo.html', {'form': form})
+
 
 # Función para crear enlace de descarga de manual de usuario
 def descargar_manual(request):
