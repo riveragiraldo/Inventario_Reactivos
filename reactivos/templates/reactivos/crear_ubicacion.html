@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{% block title %}Creación de Ubicaciones y Asignaturas{% endblock %}</title>
+  <title>{% block title %}Creación de Asignatura / Ubicación{% endblock %}</title>
   {% block head %}
   <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
@@ -38,7 +38,7 @@
   {% block content %}
   <div class="card">
     <div class="card-header">
-      <h1>Crear Ubicación/Asignatura</h1>
+      <h1>Crear Asignatura / Ubicación</h1>
     </div>
     <br>
     <div class="card-body">
@@ -50,14 +50,14 @@
         {% csrf_token %}
 
         <div class="form-group">
-          <label for="name" class="form-label" name="Nombre Ubicación/Asignatura: ">Nombre:</label>
-          <input type="text" class="form-control" placeholder="Nombre de Ubicación/Asignatura" name="name" required
+          <label for="name" class="form-label" name="Nombre Asignatura / Ubicación: ">*Nombre:</label>
+          <input type="text" class="form-control" placeholder="Nombre de Asignatura / Ubicación" name="name" required
             id="name" pattern="[A-Za-záéíóúÁÉÍÓÚñÑ\s]{1,80}"
-            title="Ingrese ubicación/asignatura, solo letras, máximo 80 caracteres">
+            title="Ingrese Asignatura / Ubicación, solo letras, máximo 80 caracteres">
         </div>
 
         <div class="form-group">
-          <label for="selectFacultad" class="form-label" name="Facultad: ">Facultad:</label>
+          <label for="selectFacultad" class="form-label" name="Facultad: ">*Facultad:</label>
           <select name="facultad" class="form-control" id="selectFacultad" required>
             <option value="">Seleccione</option>
             {% for facultad in facultades %}

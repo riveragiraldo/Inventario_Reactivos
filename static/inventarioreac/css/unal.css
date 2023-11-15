@@ -1432,3 +1432,7 @@ footer .logos a img {
 	margin-left: auto;
     margin-right: auto;
 }
+
+.multiline {
+    white-space: normal;
+}

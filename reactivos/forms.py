@@ -46,7 +46,9 @@ class FormularioUsuario(forms.ModelForm):
             'id': 'password1',
             'required': 'required',
             'title':'La contraseña debe tener mínimo 8 caracteres,  al menos una mayúscula, un número, y un caracter especial',
-            'pattern': '^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$'
+            'pattern': '^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$',
+            'autocomplete':'off',
+
         }
     ))
 
@@ -57,7 +59,8 @@ class FormularioUsuario(forms.ModelForm):
             'id': 'password2',
             'required': 'required',
             'title':'La contraseñas debe tener mínimo 8 caracteres,  al menos una mayúscula, un número, y un caracter especial',
-            'pattern': '^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$'
+            'pattern': '^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$',
+            'autocomplete':'new-password',
         }
     ))
     rol = forms.ModelChoiceField(queryset=Rol.objects.all(), label='Rol', required=True,
@@ -233,7 +236,7 @@ class ConfiguracionSistemaForm(forms.ModelForm):
                                         'title':'Introduzca el número de días que durará los eventos en el sistema',
                                         'placeholder':'Número de días de los eventos en el sistema',}),
         required=True,
-        label="Introduzca el tiempo para depuración de solicitudes",
+        label="*Introduzca el tiempo para depuración de solicitudes",
     )
 
     tiempo_eventos = forms.IntegerField(
@@ -241,7 +244,7 @@ class ConfiguracionSistemaForm(forms.ModelForm):
                                         'title':'Introduzca el número de días que durará las solicitudes tramitadas',
                                         'placeholder':'Número de días de solicitudes tramitadas',}),
         required=True,
-        label="Introduzca el tiempo para depuración de eventos",
+        label="*Introduzca el tiempo para depuración de eventos",
         
     )
 
@@ -250,14 +253,14 @@ class ConfiguracionSistemaForm(forms.ModelForm):
                                        'title':'Introduzca el correo para recepción de solicitudes',
                                        'placeholder':'Correo para recepción de solicitudes',}),
         required=True,
-        label="Introduzca el correo de administrador para solicitudes",
+        label="*Introduzca el correo de administrador para solicitudes",
     )
     tiempo_vencimiento_reactivos=forms.IntegerField(
         widget=forms.NumberInput(attrs={'class': 'form-control',
                                         'title':'Introduzca el número de días previos al vencimiento de reactivos',
                                         'placeholder':'Número de días antes del vencimiento de reactivos',}),
         required=True,
-        label="Introduzca el tiempo previo de vencimeinto de reactivos para alertas",
+        label="*Introduzca el tiempo previo de vencimeinto de reactivos para alertas",
         
     )
     intervalo_tiempo=forms.IntegerField(
@@ -265,7 +268,7 @@ class ConfiguracionSistemaForm(forms.ModelForm):
                                         'title':'Introduzca el número de días para revisión de vencimiento de reactivos',
                                         'placeholder':'Intervalo de días para revisión de vencimientos',}),
         required=True,
-        label="Periodicidad para la  revisión de fecha de vencimientos (días)",
+        label="*Periodicidad para la  revisión de fecha de vencimientos (días)",
         
     )
     fecha_incio= forms.DateTimeField(
@@ -273,7 +276,7 @@ class ConfiguracionSistemaForm(forms.ModelForm):
                                         'title':'Introduzca la fecha de inicio para revisión de los vencimientos',
                                         'placeholder':'Fecha de incio',}),
                                         required=True,
-                                        label="Fecha de inicio",
+                                        label="*Fecha de inicio",
     )
     
     programacion_activa=forms.BooleanField(
@@ -281,7 +284,7 @@ class ConfiguracionSistemaForm(forms.ModelForm):
                                         'title':'Activar / Desactivar Programación',
                                         }),
                                         required=False,
-                                        label="Activar o desactivar programación de revisión de fechas de vencimientos",
+                                        label="*Activar o desactivar programación de revisión de fechas de vencimientos",
                                         
     )
     manual=forms.FileField(
@@ -339,7 +342,7 @@ class CorreoForm(forms.Form):
     )
     asunto = forms.CharField(
     max_length=100,  # Limitar a 100 caracteres
-    label='Asunto',
+    label='*Asunto',
     widget=forms.TextInput(
         attrs={
             'class': 'form-control',
@@ -353,7 +356,7 @@ class CorreoForm(forms.Form):
 
     mensaje = forms.CharField(
         widget=forms.Textarea(attrs={'class': 'form-control','required':'required','rows':'3','maxlength': '1000','title':'Escribe el mensaje con un máximo de 1000 caracteres', 'placeholder':'Escribe aquí el mensaje, (máx 1000 caracteres)'}),
-        label='Mensaje'
+        label='*Mensaje'
     )
     adjunto = forms.FileField(
         label='Adjuntar Archivo',

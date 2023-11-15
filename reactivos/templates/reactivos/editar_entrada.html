@@ -92,7 +92,7 @@
                 {% csrf_token %}
 
                 <div class="form-group col-md-12">
-                    <label class="form-label" for="lab" name="Laboratorio: ">Laboratorio:</label>
+                    <label class="form-label" for="lab" name="Laboratorio: ">*Laboratorio:</label>
 
                     {% if request.user|has_group:"COORDINADOR" or request.user|has_group:"TECNICO" %}
                     <div id="add_reagent_btn"></div>
@@ -152,8 +152,8 @@
                         id="is_liquid" readonly placeholder="Estado">
                 </div>
 
-                <div class="form-group col-md-4">
-                    <label class="form-label" for="price" name="Valor: ">*Valor:</label>
+                <div class="form-group col-md-5">
+                    <label class="form-label" for="price" name="Valor: ">*Valor (Enteros positivos, sin puntos ni comas):</label>
                     <div class="input-group">
                         <div class="input-group-addon">
                             <span class="input-group-text">$</span>
@@ -185,7 +185,7 @@
                     </div>
                 </div>
 
-                <div class="form-group col-md-4">
+                <div class="form-group col-md-3">
                     <label class="form-label" for="edate" name="Vencimiento: ">*Vencimiento:</label>
                     <input type="date" class="form-control" name="edate" id="edate" value="{{ vdate }}" required
                         title="Registre una fecha futura (hasta 31/12/2100)" min="{{ tomorrow|date:'Y-m-d' }}"

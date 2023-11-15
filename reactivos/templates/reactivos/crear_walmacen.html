@@ -49,7 +49,7 @@
                 {% csrf_token %}
 
                 <div class="form-group">
-                    <label class="form-label">Laboratorio:</label>
+                    <label class="form-label">*Laboratorio:</label>
                     {% if request.user|has_group:"COORDINADOR" or request.user|has_group:"TECNICO" %}
                     <select name="lab" class="form-control" required="" id="lab">
                         {% for lab in laboratorios %}

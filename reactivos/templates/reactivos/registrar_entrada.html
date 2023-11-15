@@ -78,7 +78,7 @@
             <form method="post" id="in_form" name="form" class="row g-3">
                 {% csrf_token %}
                 <div class="form-group col-md-12">
-                    <label class="form-label" for="lab" name="Laboratorio: ">Laboratorio:</label>
+                    <label class="form-label" for="lab" name="Laboratorio: ">*Laboratorio:</label>
     
                     {% if request.user|has_group:"COORDINADOR" or request.user|has_group:"TECNICO" %}
                     
@@ -136,8 +136,8 @@
                         placeholder="Estado">
                 </div>
             
-                <div class="form-group col-md-4">
-                <label class="form-label" for="price" name="Valor: ">*Valor:</label>
+                <div class="form-group col-md-5">
+                <label class="form-label" for="price" name="Valor: ">*Valor (Enteros positivos, sin puntos ni comas):</label>
                     <div class="input-group">
                         <span class="input-group-addon">$</span>
                         <input type="number" class="form-control" placeholder="Valor en COP" name="price" required
@@ -162,7 +162,7 @@
                     </div>
                 </div>
 
-                <div class="form-group col-md-4">
+                <div class="form-group col-md-3">
                     <label class="form-label" for="edate" name="Vencimiento: ">*Vencimiento:</label>
                     <input type="date" class="form-control" name="edate" id="edate"
                         value="{{ date.tomorrow|date:'Y-m-d' }}" required

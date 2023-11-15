@@ -64,12 +64,12 @@
 
         
           <div class="form-group">
-            <label class="form-label" for="cc" name="Cédula de ciudadanía: ">Cédula de ciudadanía:</label>
+            <label class="form-label" for="cc" name="Cédula de ciudadanía: ">*Identificación:</label>
             <input type="text" class="form-control" placeholder="Ingresa tu número de cédula" name="cc" required id="cc" pattern="^(?:[1-9]\d{6,10}|9999999999)$" title="Ingrese un número de cédula entre 1000000 y 9999999999 (sin puntos ni comas)">
           </div>
 
           <div class="form-group">
-            <label class="form-label" for="name" name="Nombre y apellidos: ">Nombres y apellidos:</label>
+            <label class="form-label" for="name" name="Nombre y apellidos: ">*Nombres y Apellidos:</label>
             <input type="text" class="form-control" placeholder="Nombre y apellidos" name="name" required id="name" pattern="^(?:[a-zA-Zá-úÁ-Ú]+\s){1,3}[a-zA-Zá-úÁ-Ú]+$" title="Ingrese mínimo 2 y máximo 4 palabras (No se permiten números ni caracteres especiales)">
           </div>
 
@@ -80,7 +80,7 @@
           
 
           <div class="form-group">
-            <label class="form-label" for="mail" name="Correo Electrónico: "><br>Correo Electrónico:</label>
+            <label class="form-label" for="mail" name="Correo Electrónico: "><br>*Correo Electrónico:</label>
             <div class="input-with-icon">
               <span class="input-icon">
                 <img src="{% static 'inventarioreac/Images/email.png' %}" alt="Icono de correo electrónico" class="input-icon-img">
@@ -90,7 +90,7 @@
           </div>
 
           <div class="form-group">
-            <label class="form-label" for="phone" name="Teléfono: "><br>Teléfono:</label>
+            <label class="form-label" for="phone" name="Teléfono: "><br>*Teléfono:</label>
             <div id="phone-input-wrapper" class="input-with-icon" >
               <span class="input-icon">
                 <img src="{% static 'inventarioreac/Images/phone.png' %}" alt="Icono de teléfono" class="input-icon-img">
@@ -107,7 +107,7 @@
               <input type="checkbox" id="acceptDataProcessing" name="acceptDataProcessing" unchecked required value="">
               <label for="acceptDataProcessing" class="politica-label" name="Acepta política de tratamiento de datos personales: ">
                 <p class="politica">
-                  DE ACUERDO CON LA <a href="https://unal.edu.co/tratamiento-de-datos-personales" target="_blank"> LEY 1581 DE 2012 DE PROTECCIÓN DE DATOS PERSONALES</a>, HE LEÍDO, ENTENDIDO Y ACEPTO, LOS TÉRMINOS DESCRITOS EN LA POLÍTICA DE TRATAMIENTO DE DATOS PERSONALES.<br><br>
+                  *DE ACUERDO CON LA <a href="https://unal.edu.co/tratamiento-de-datos-personales" target="_blank"> LEY 1581 DE 2012 DE PROTECCIÓN DE DATOS PERSONALES</a>, HE LEÍDO, ENTENDIDO Y ACEPTO, LOS TÉRMINOS DESCRITOS EN LA POLÍTICA DE TRATAMIENTO DE DATOS PERSONALES.<br><br>
                 </p>
               </label>
             </div>

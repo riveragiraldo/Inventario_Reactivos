@@ -51,10 +51,10 @@ Creación
                 {% csrf_token %}
 
                 <div class="form-group">
-                    <label for="name" name="Nombre del estado: ">Nombre del estado:</label>
+                    <label for="name" name="Nombre del estado: ">*Nombre del estado:</label>
                     <input type="text" class="form-control" placeholder="Nombre" name="name" required id="name"
                         pattern="^[a-zA-ZáéíóúÁÉÍÓÚ]{1,10}$"
-                        title="Ingrese valores alfabéticos de máximo 10 caracteres">
+                        title="Ingrese valores alfabéticos de máximo 10 caracteres" autocomplete="off">
                 </div>
         </div>
         <br>

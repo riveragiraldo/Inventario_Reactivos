@@ -46,9 +46,9 @@
             <form method="post" id="unit_form" name="form">
                 {% csrf_token %}
                 <div class="form-group">
-                    <label class="form-label" for="name" name="Nombre de la unidad: ">Nombre de la unidad:</label>
+                    <label class="form-label" for="name" name="Nombre de la unidad: ">*Nombre de la unidad:</label>
                     <input type="text" class="form-control" placeholder="Nombre unidad" name="name" required id="name"
-                        pattern="^[a-zA-Z]{1,3}$" title="Ingrese solo letras (máximo 3 caracteres)">
+                        pattern="^[a-zA-Z]{1,3}$" title="Ingrese solo letras (máximo 3 caracteres)" autocomplete="off">
                 </div>
         </div>
         <div class="card-footer">
@@ -59,9 +59,9 @@
         </div>
         </form>
     </div>
+    
+    
 
-    {% if messages %}
-    {% for message in messages %}
     <!-- Este script no puede ser invocado como un archivo externo. Después de recibir una respuesta del servidor, se
             verifica si la ventana actual es emergente. En caso afirmativo, se muestra una alerta de confirmación o de
             error,se obtienen los valores de los campos de la ventana principal, se recarga la página para actualizar la
@@ -69,6 +69,8 @@
             registro de UNIDAD en la base de datos o si este ya existe, se insertará en el campo de selección
             correspondiente. Luego, la ventana emergente se cerrará. Si la ventana no es emergente, se mostrará una alerta
             de éxito o error según corresponda. -->
+    {% if messages %}
+    {% for message in messages %}
     <script>
 
         //Verificar si es ventana emergente
@@ -77,6 +79,7 @@
             window.onload = function () {
 
                 mensaje = "{{ message|safe }}";
+                console.log(mensaje)
 
                 //Obtener id después del mensaje
                 var unidad = mensaje.split(": ")[1];
@@ -160,7 +163,7 @@
     {% endfor %}
     {% endif %}
 
-    </div>
+
 
 
     {% endblock %}

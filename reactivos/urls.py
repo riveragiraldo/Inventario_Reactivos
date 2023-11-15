@@ -55,6 +55,7 @@ urlpatterns = [
     path('UniCLab/solicitudes/responder_solicitud/<str:solicitud_code>/', responder_solicitud, name='responder_solicitud'),# Responder solicitud    
     path('UniCLab/administrar/listado_eventos/', EventosListView.as_view(), name='listado_eventos'), # LIstado de eventos
     path('UniCLab/administrar/enviar_correo/', enviar_correo, name='enviar_correo'), # ENviar Correo Admin
+    
     # Usuarios
     path('UniCLab/laboratorios/crear/', crear_laboratorio, name='crear_laboratorio'),# Crear Laboratorio
     path('UniCLab/usuarios/editar/<int:pk>/', editar_usuario, name='editar_usuario'), #Editar Usuarios
@@ -99,7 +100,8 @@ urlpatterns = [
     path('guardar-per-page-user/<int:per_page>/', GuardarPerPageViewUser.as_view(), name='GuardarPerPageUser'),# Maneja paginación en listado de usuarios
     path('guardar-per-page-solicitud/<int:per_page>/', GuardarPerPageViewSolicitud.as_view(), name='GuardarPerPageSolicitud'),# Maneja paginación en listado de solicitudes
     path("obtener_stock/", obtener_stock, name="obtener_stock"),# Obtiene el stock de un reactivo en registro de salidas
-    
+    path('check_auth_status/', check_auth_status, name='check_auth_status'),# Cerificar estado de autenticación
+
     # Transversales
     path('templates/webtemplate/', webtemplate, name='webtemplate'),# Visualiza WebTemplate
     path('UniCLab/accounts/login/', LoginView.as_view(), name='login'),# Login

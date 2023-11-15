@@ -1,3 +1,28 @@
+// Bloquear Enter
+// Agregar un controlador de eventos al formulario
+document.forms['form'].addEventListener('keypress', function (e) {
+    // Verificar si la tecla presionada es "Enter"
+    if (e.key === 'Enter') {
+        // Cancelar la acción predeterminada del formulario
+        e.preventDefault();
+    }
+});
+
+
+// Quitar autocompletado de los campos de texto
+var form = document.forms['form'];  // Obtener el formulario por nombre
+
+if (form) {
+    var textAndEmailInputs = form.querySelectorAll('input[type="text"], input[type="email"]');  // Obtener campos de texto y correo electrónico
+
+    textAndEmailInputs.forEach(function (input) {
+        input.setAttribute('autocomplete', 'off');  // Establecer el atributo autocomplete en "off"
+    });
+}
+
+
+
+
 // Opciones del Spinner
 const opts = {
     lines: 16, // número de líneas
@@ -143,14 +168,27 @@ function enviarInformacion(formData, csrfToken) {
         body: formData
     })
         .then(response => {
-            if (response.ok) {
-                // La solicitud se realizó con éxito
-                console.log('Datos enviados correctamente');
-                //window.location.reload();
+            if (response.status == 500) {
+                respuesta = "Error en el servidor, consulte soporte técnico"
+                return respuesta
             }
+            
             else {
-                // La solicitud falló
-                console.error('Error al enviar los datos');
+
+
+                if (response.ok) {
+                    // La solicitud se realizó con éxito
+                    console.log('Datos enviados correctamente');
+                    //window.location.reload();
+
+
+                }
+                else {
+                    // La solicitud falló
+                    console.error('Error al enviar los datos');
+                }
+                respuesta = response.text()
+                return respuesta
             }
         })
         .then(data => {

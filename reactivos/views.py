@@ -604,6 +604,7 @@ class Enlaces(LoginRequiredMixin, View):  # Utiliza LoginRequiredMixin como clas
 
 class CrearUnidades(LoginRequiredMixin, View):
     template_name = 'reactivos/crear_unidades.html'
+    template_exito = 'reactivos:crear_estado'
 
     @check_group_permission(groups_required=['COORDINADOR','ADMINISTRADOR'])
     def get(self, request, *args, **kwargs):
@@ -622,28 +623,35 @@ class CrearUnidades(LoginRequiredMixin, View):
         if Unidades.objects.filter(name=name).exists():
             unidad = Unidades.objects.get(name=name)
             unidad_id = unidad.id
-            messages.error(
-                request, 'Ya existe una unidad con nombre ' + name + ' id: ' + str(unidad_id))
-            return HttpResponse('Error al insertar en la base de datos', status=400)
+            mensaje=f'Ya existe una unidad con nombre {name} id: {str(unidad_id)}'
+            messages.error(request, mensaje)
+            return HttpResponse(mensaje,400)            
 
         unidad = Unidades.objects.create(
             name=name,
             created_by=request.user,
             last_updated_by=request.user,
         )
-        unidad_id = unidad.id
-
-        messages.success(
-            request, 'Se ha creado exitosamente la unidad con nombre ' + name + ' id: ' + str(unidad_id))
+        unidad_id = unidad.id        
 
         context = {'unidad_id': unidad.id, 'unidad_name': unidad.name}
         
         tipo_evento = 'CREAR UNIDAD'
         usuario_evento = request.user
         crear_evento(tipo_evento, usuario_evento)
-        
-        return HttpResponse('Operación exitosa', status=200)
-# La vista "crear_tipo de solicitude" se encarga de gestionar la creación de tipo de solictudes. Esta vista toma los datos del formulario 
+        mensaje=f'Se ha creado exitosamente la unidad con nombre {name} id: {str(unidad_id)}'
+        messages.success(request, mensaje)
+        return HttpResponse(mensaje,200)
+
+# Verificar estado de autenticación
+def check_auth_status(request):
+    if request.user.is_authenticated:
+        return JsonResponse({}, status=200)
+    else:
+        return JsonResponse({}, status=401)
+
+    
+# La vista "crear_tipo de solicitudes" se encarga de gestionar la creación de tipo de solictudes. Esta vista toma los datos del formulario 
 # existente en el template "crear_tipo_solicitudes.html" y realiza las operaciones necesarias en la base de datos utilizando 
 # el modelo "TipoSolicitud". El objetivo es garantizar la unicidad de los registros, lo que implica verificar si el tipo de solicitud
 # ya existe en la base de datos antes de crearla. Si el tipo de solictud es única, se crea un nuevo registro en la tabla 

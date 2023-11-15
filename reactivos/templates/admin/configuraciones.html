@@ -73,17 +73,17 @@
 
         {% csrf_token %}
         <div class="form-group">
-          <label for="{{ form.tiempo_solicitudes.id_for_label }}" name="Tiempo solicitudes: ">Tiempo para depuración
+          <label for="{{ form.tiempo_solicitudes.id_for_label }}" name="Tiempo solicitudes: ">*Tiempo para depuración
             de solicitudes</label>
           {{ form.tiempo_solicitudes }}
         </div>
         <div class="form-group">
-          <label for="{{ form.tiempo_eventos.id_for_label }}" name="Tiempo eventos: ">Tiempo para depuración de
+          <label for="{{ form.tiempo_eventos.id_for_label }}" name="Tiempo eventos: ">*Tiempo para depuración de
             eventos</label>
           {{ form.tiempo_eventos }}
         </div>
         <div class="form-group">
-          <label for="{{ form.correo_administrador.id_for_label }}" name="Correo Administrador: ">Correo de
+          <label for="{{ form.correo_administrador.id_for_label }}" name="Correo Administrador: ">*Correo de
             administrador</label>
           {{ form.correo_administrador }}
         </div>

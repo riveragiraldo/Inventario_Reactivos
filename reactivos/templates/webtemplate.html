@@ -248,32 +248,32 @@
 
 							{% if request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
 
-							<a class="side-bar-link btn-primary" href="{% url 'reactivos:crear_estado'%}"
+							<a class="side-bar-link btn-primary multiline" href="{% url 'reactivos:crear_estado'%}"
 								title="redirecciona al formulario de creación de estados">Crear Estados</a>
 
 							{% endif %}
 							{% if request.user|has_group:"COORDINADOR" or request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
 
-							<a class="side-bar-link btn-primary" href="{% url 'reactivos:crear_unidades'%}"
+							<a class="side-bar-link btn-primary multiline" href="{% url 'reactivos:crear_unidades'%}"
 								title="redirecciona al formulario de creación de unidades">Crear Unidades</a>
 
 
-							<a class="side-bar-link btn-primary"
+							<a class="side-bar-link btn-primary multiline"
 								href="{% url 'reactivos:crear_almacenamiento_interno'%}"
 								title="redirecciona al formulario de creación de almacenamiento interno">Crear
-								almacenamiento interno</a>
+								Almacenamiento Interno</a>
 
-							<a class="side-bar-link btn-primary" href="{% url 'reactivos:crear_clase_almacenamiento'%}"
-								title="redirecciona al formulario de creación de clase de almacenamiento">Crear clase de
-								almacenamiento</a>
+							<a class="side-bar-link btn-primary multiline" href="{% url 'reactivos:crear_clase_almacenamiento'%}"
+								title="redirecciona al formulario de creación de clase de almacenamiento">Crear Clase de
+								Almacenamiento</a>
 
-							<a class="side-bar-link btn-primary" href="{% url 'reactivos:crear_reactivo'%}"
-								title="redirecciona al formulario de creación de reactivos">Crear reactivos</a>
+							<a class="side-bar-link btn-primary multiline" href="{% url 'reactivos:crear_reactivo'%}"
+								title="redirecciona al formulario de creación de reactivos">Crear Reactivos</a>
 
 							{% endif %}
 
-							<a class="side-bar-link btn-primary" href="{% url 'reactivos:listado_reactivos'%}"
-								title="redirecciona a la vista listado de reactivos">Listado de reactivos</a>
+							<a class="side-bar-link btn-primary multiline" href="{% url 'reactivos:listado_reactivos'%}"
+								title="redirecciona a la vista listado de reactivos">Listado de Reactivos</a>
 
 						</div>
 					</div>
@@ -295,47 +295,47 @@
 					<div id="collapseEight" class="collapse" aria-labelledby="headingEight" data-parent="#accordion">
 						<div class="card-body " style="color: white;">
 
-							<a class="side-bar-link btn-primary" href="{% url 'reactivos:registrar_entrada'%}"
+							<a class="side-bar-link btn-primary multiline" href="{% url 'reactivos:registrar_entrada'%}"
 								title="Redirecciona al formulario de registro de entradas">Registrar Entradas</a>
 
-							<a class="side-bar-link btn-primary" href="{% url 'reactivos:registrar_salida'%}"
+							<a class="side-bar-link btn-primary multiline" href="{% url 'reactivos:registrar_salida'%}"
 								title="Redirecciona al formulario de registro de salidas">Registrar Salidas</a>
 
-							<a class="side-bar-link btn-primary" href="{% url 'reactivos:crear_responsable'%}"
+							<a class="side-bar-link btn-primary multiline" href="{% url 'reactivos:crear_responsable'%}"
 								title="Redirecciona al formulario de creación de responsables">Crear Responsables</a>
 
-							<a class="side-bar-link btn-primary" href="{% url 'reactivos:crear_marca'%}"
+							<a class="side-bar-link btn-primary multiline" href="{% url 'reactivos:crear_marca'%}"
 								title="Redirecciona al formulario de creación de marrcas">Crear Marcas</a>
 
-							<a class="side-bar-link btn-primary" href="{% url 'reactivos:crear_ubicacion'%}"
-								title="Redirecciona al formulario de creación de ubicaciones o asignaturas">Crear
-								Ubicaciones / Asignaturas</a>
+							<a class="side-bar-link btn-primary multiline" href="{% url 'reactivos:crear_ubicacion'%}"
+								title="Redirecciona al formulario de creación de Asignatura / Ubicación">Crear
+								Asignatura / Ubicación</a>
 
-							<a class="side-bar-link btn-primary" href="{% url 'reactivos:crear_walmacen'%}"
+							<a class="side-bar-link btn-primary multiline" href="{% url 'reactivos:crear_walmacen'%}"
 								title="Redirecciona al formulario de creación de ubicaciones en el almacén">Crear
 								Ubicaciones en Almacén</a>
 
 
 							{% if request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
 
-							<a class="side-bar-link btn-primary" href="{% url 'reactivos:crear_facultad'%}"
+							<a class="side-bar-link btn-primary multiline" href="{% url 'reactivos:crear_facultad'%}"
 								title="Redirecciona al formulario de creación de facultades">Crear Facultades</a>
 
-							<a class="side-bar-link btn-primary" href="{% url 'reactivos:crear_destino'%}"
+							<a class="side-bar-link btn-primary multiline" href="{% url 'reactivos:crear_destino'%}"
 								title="Redirecciona al formulario de creación de destinos">Crear Destinos</a>
 
 							{% endif %}
 
-							<a class="side-bar-link btn-primary" href="{% url 'reactivos:inventario'%}"
-								title="Redirecciona a la vista listado de inventarios">Ver inventario</a>
+							<a class="side-bar-link btn-primary multiline" href="{% url 'reactivos:inventario'%}"
+								title="Redirecciona a la vista listado de inventarios">Ver Inventario</a>
 
 							{% if request.user|has_group:"COORDINADOR" or request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
 
-							<a class="side-bar-link btn-primary" href="{% url 'reactivos:listado_entradas'%}"
-								title="Redirecciona a la vista listado de entradas">Listado de entradas</a>
+							<a class="side-bar-link btn-primary multiline" href="{% url 'reactivos:listado_entradas'%}"
+								title="Redirecciona a la vista listado de entradas">Listado de Entradas</a>
 
-							<a class="side-bar-link btn-primary" href="{% url 'reactivos:listado_salidas'%}"
-								title="Redirecciona a la vista listado de salidas">Listado de salidas</a>
+							<a class="side-bar-link btn-primary multiline" href="{% url 'reactivos:listado_salidas'%}"
+								title="Redirecciona a la vista listado de salidas">Listado de Salidas</a>
 
 							{% endif %}
 
@@ -358,21 +358,21 @@
 					</div>
 					<div id="collapseNine" class="collapse" aria-labelledby="headingNine" data-parent="#accordion">
 						<div class="card-body " style="color: white;">
-							<a class="side-bar-link btn-primary" target="_blank"
+							<a class="side-bar-link btn-primary multiline" target="_blank"
 								href="{% url 'reactivos:descargar_manual'%}" title="Descargar Manual de usuario">Manual
-								de usuario</a>
-							<a class="side-bar-link btn-primary" href="{% url 'reactivos:registrar_solicitud'%}"
-								title="Redirecciona al formulario de registro de solicitudes">Registrar solicitud</a>
+								de Usuario</a>
+							<a class="side-bar-link btn-primary multiline" href="{% url 'reactivos:registrar_solicitud'%}"
+								title="Redirecciona al formulario de registro de solicitudes">Registrar Solicitud</a>
 
 							{% if request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
 
-							<a class="side-bar-link btn-primary" href="{% url 'reactivos:crear_tipo_solicitud'%}"
-								title="Redirecciona al formulario de creación de tipo de solicitud">Crear tipo de
-								solicitud</a>
+							<a class="side-bar-link btn-primary multiline" href="{% url 'reactivos:crear_tipo_solicitud'%}"
+								title="Redirecciona al formulario de creación de tipo de solicitud">Crear Tipo de
+								Solicitud</a>
 
-							<a class="side-bar-link btn-primary" href="{% url 'reactivos:listado_solicitudes'%}"
+							<a class="side-bar-link btn-primary multiline" href="{% url 'reactivos:listado_solicitudes'%}"
 								title="Redirecciona a la vista que muestra el listado de solicitudes">Listado de
-								solicitudes</a>
+								Solicitudes</a>
 
 							{% endif %}
 
@@ -396,34 +396,34 @@
 					<div id="collapseTen" class="collapse" aria-labelledby="headingTen" data-parent="#accordion">
 						<div class="card-body " style="color: white;">
 
-							<a class="side-bar-link btn-primary" href="{% url 'reactivos:password_change'%}"
-								title="Redirecciona al formulario de cambio de contraseña">Cambiar contraseña</a>
+							<a class="side-bar-link btn-primary multiline" href="{% url 'reactivos:password_change'%}"
+								title="Redirecciona al formulario de cambio de contraseña">Cambiar Contraseña</a>
 
-							<a class="side-bar-link btn-primary" href="{% url 'reactivos:password_reset'%}"
+							<a class="side-bar-link btn-primary multiline" href="{% url 'reactivos:password_reset'%}"
 								title="Redirecciona al formulario de restablecimiento de contraseña">¿Olvido su
-								contraseña?</a>
+								Contraseña?</a>
 
 							{% if request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
 
-							<a class="side-bar-link btn-primary" href="{% url 'reactivos:crear_laboratorio'%}"
+							<a class="side-bar-link btn-primary multiline" href="{% url 'reactivos:crear_laboratorio'%}"
 								title="Redirecciona al formulario de creación de laboratorios">Crear Laboratorio</a>
 
-							<a class="side-bar-link btn-primary" href="{% url 'reactivos:crear_roles'%}"
+							<a class="side-bar-link btn-primary multiline" href="{% url 'reactivos:crear_roles'%}"
 								title="Redirecciona al formulario de creación de roles">Crear Roles</a>
 
 							{% endif %}
 							{% if request.user|has_group:"COORDINADOR" or request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
 
-							<a class="side-bar-link btn-primary" href="{% url 'reactivos:crear_usuarios'%}"
+							<a class="side-bar-link btn-primary multiline" href="{% url 'reactivos:crear_usuarios'%}"
 								title="Redirecciona al formulario de creación de usuarios">Crear Usuarios</a>
 
-							<a class="side-bar-link btn-primary" href="{% url 'reactivos:listado_usuarios'%}"
+							<a class="side-bar-link btn-primary multiline" href="{% url 'reactivos:listado_usuarios'%}"
 								title="Redirecciona a la vista listado de usuarios">Listado Usuarios</a>
 
 							{% endif %}
 
-							<a class="side-bar-link btn-primary" href="{% url 'reactivos:logout'%}"
-								title="Cierra sesión de usuario">Cerrar sesión</a>
+							<a class="side-bar-link btn-primary multiline" href="{% url 'reactivos:logout'%}"
+								title="Cierra sesión de usuario">Cerrar <S></S>esión</a>
 
 						</div>
 					</div>
@@ -448,21 +448,21 @@
 
 							{% if request.user.is_superuser %}
 
-							<a class="side-bar-link btn-primary" href="{% url 'admin:index'%}"
-								title="Consola de superusuario">Consola de superusuario</a>
+							<a class="side-bar-link btn-primary multiline" href="{% url 'admin:index'%}"
+								title="Consola de superusuario">Consola de Superusuario</a>
 
 							{% endif %}
 
 							{% if request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
 
 
-							<a class="side-bar-link btn-primary" href="{% url 'reactivos:configuraciones'%}"
+							<a class="side-bar-link btn-primary multiline" href="{% url 'reactivos:configuraciones'%}"
 								title="Configuraciones generales del sistema">Configuraciones</a>
 
-							<a class="side-bar-link btn-primary" href="{% url 'reactivos:listado_eventos'%}"
-								title="Listado de eventos del sistema">Listado de eventos</a>
-								<a class="side-bar-link btn-primary" href="{% url 'reactivos:enviar_correo'%}"
-								title="Listado de eventos del sistema">Mensajería</a>
+							<a class="side-bar-link btn-primary multiline" href="{% url 'reactivos:listado_eventos'%}"
+								title="Listado de eventos del sistema">Listado de Eventos</a>
+								<a class="side-bar-link btn-primary multiline" href="{% url 'reactivos:enviar_correo'%}"
+								title="Enviar Mensajes de correo a usuarios del sistena">Mensajería</a>
 
 							{% endif %}
 
@@ -492,17 +492,17 @@
 		</nav>
 		<nav class="col-md-3 col-lg-3 col-sm-3 col-xs-4 col-xxs-6 ">
 		</nav>
-		<div class="col-md-4 col-lg-4 col-sm-4 col-xs-4 col-xxs-12 footer-info">
+		<div class="col-md-4 col-lg-4 col-sm-4 col|-xs-4 col-xxs-12 footer-info">
 			<p class="col-sm-12 col-md-6 contacto">
 				<b>Contacto página web:</b>
-				<br /> Dirección .....<br /> Edificio ...<br /> Bogotá D.C., Colombia<br />
-				(+57 1) 316 5000 Ext.
+				<br /> Carrera 27 # 64-60<br /> 01 8000 916956<br /> Manizales, Caldas - Colombia<br />
+				(57+606) 8879300
 			</p>
 			<p class="col-sm-12 col-md-6 derechos">
-				&copy; Copyright 2014<br /> Algunos derechos reservados.<br />
-				<a title="Comuníquese con el administrador de este sitio web" href="mailto:EMAIL@unal.edu.co"
-					target="_blank">EMAIL@unal.edu.co</a><br />
-				<a href="index.html#" target="_blank">Acerca de este sitio web</a><br /> Actualización:13/07/2023
+				&copy; Copyright 2023<br /> Algunos derechos reservados.<br />
+				<a title="Comuníquese con el administrador de este sitio web" href="mailto:UniClab_man@unal.edu.co"
+					target="_blank">UniClab_man@unal.edu.co</a><br />
+				<a href="{% url 'reactivos:home_dir_lab'%}" target="_blank">Acerca de este sitio web</a><br /> Actualización:14/11/2023
 			</p>
 		</div>
 
