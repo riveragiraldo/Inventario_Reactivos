@@ -1,0 +1,262 @@
+{% extends "webtemplate.html" %}
+<!doctype html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Edición de reactivos{% endblock %}</title>
+    {% block head %}
+    <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe"
+        crossorigin="anonymous" defer></script> -->
+
+    <!-- Incluir SweetAlert2 desde CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.min.css">
+    <!-- Agrega el enlace al CDN de spin.js antes de tu script -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/spin.js/2.3.2/spin.min.js"></script>
+
+    {% load static %}
+    <script>
+        almacenamiento_interno = '{{ reactivo.almacenamiento_interno.id }}'
+        clase_almacenamiento = '{{ reactivo.clase_almacenamiento.id }}'
+        estado = '{{ reactivo.state.id }}'
+        unidad = '{{ reactivo.unit.id }}'
+    </script>
+
+    <link rel="stylesheet" href="{% static 'inventarioreac/stylesShowSpinner.css' %}">
+    <!-- Estilos para el letrero de la mitad del spinner -->
+    <script src="{% static 'inventarioreac/clearFds.js' %}"></script>
+    <!-- Llama Script que borra los campos del formulario cuando se ejecuta cualquier acción -->
+    <script src="{% static 'inventarioreac/callPopUp.js' %}" defer></script>
+    <!-- Llama Script al final llama las ventanas emergentes -->
+    <script src="{% static 'inventarioreac/hideButtonsReactive.js' %}" defer></script>
+    <!-- Llama Script al final oculta botones si la página se muestra como emergente -->
+    <script src="{% static 'inventarioreac/sendInfoEdit.js' %}" defer></script>
+    <!-- Llama Script al final genera alerta informativa con los datos que se va enviar al servidor y acepta-->
+    <script src="{% static 'inventarioreac/cancelButtonFunction.js' %}" defer></script>
+    <!-- Llama Script  que coloca función al botón cancelar -->
+    <script src="{% static 'inventarioreac/controlSelectores.js' %}" defer></script>
+    <!-- Llama Script  que inserta valores actuales de los selectores -->
+    <script src="{% static 'inventarioreac/putValueCAS.js' %}" defer></script>
+    <!-- Llama Script  que controla el checkbox acepta CAS -->
+    {% endblock %}
+</head>
+
+<body>
+    {% block content %}
+    <div class="card">
+        <div class="card-head">
+            <h1>Editar reactivo</h1>
+        </div>
+        <br>
+        <div class="card-body">
+            <!-- HTML para mostrar el spinner -->
+            <p id="message"></p>
+            <div id="spinner"></div>
+            <form method="post"  id="createForm" name="form">
+                {% csrf_token %}
+
+                <div class="form-group">
+                    <label class="form-label" for="code" name="Código: ">*Código interno:</label>
+                    <input type="text" class="form-control" name="code" id="code" placeholder="Código interno" title="Código interno" readonly value="{{ reactivo.code }}">
+                </div>
+
+                <div class="form-group">
+                    <div class="politicaTratamiento">
+                        <input type="checkbox" id="aplicaCAS" name="aplicaCAS" checked value="Aplica">
+                        <label for="aplicaCAS" class="politica-label" name="Aplica CAS: ">
+                            <p class="politica">
+                                Aplica CAS
+                            </p>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="cas" name="CAS: ">*Código CAS:</label>
+                    <input type="text" step="any" class="form-control" placeholder="Código CAS" name="cas" required id="cas" pattern="[0-9A-Z\ -]{1,15}" title="El CAS debe tener letras mayúsculas, números y guiones (-). Longitud máxima 15 caracteres" value="{{ reactivo.cas }}">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="almacenamiento_interno" name="Almacenamiento Interno: ">*Almacenamiento Interno:</label>
+                    <div class="input-group" id="almacenamiento-block">
+                        <select name="almacenamiento_interno" id="almacenamiento_interno" class="form-control" required>
+                            <option value="">Seleccione</option>
+                            {% for almacenamiento_interno in almacenamiento_internos %}
+                            <option value="{{ almacenamiento_interno.id }}">{{ almacenamiento_interno.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                        <div class="input-group-btn">
+                            <button type="button" id="add_almacenamiento_interno_btn" class="btn btn-secondary" title="Agregar Almacenamiento Interno">+</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="clase_almacenamiento" name="Clase de almacenamiento: ">*Clase de Almacenamiento:</label>
+                    <div class="input-group" id="clase-block">
+                        <select name="clase_almacenamiento" id="clase_almacenamiento" class="form-control" required>
+                            <option value="">Seleccione</option>
+                            {% for clase_almacenamiento in clase_almacenamientos %}
+                            <option value="{{ clase_almacenamiento.id }}">{{ clase_almacenamiento.name }} {{ clase_almacenamiento.description }}</option>
+                            {% endfor %}
+                        </select>
+                        <div class="input-group-btn">
+                            <button type="button" id="add_clase_almacenamiento_btn" class="btn btn-secondary" title="Agregar Clase de Almacenamiento">+</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="name" name="Nombre: ">*Nombre del reactivo:</label>
+                    <input type="text" class="form-control" placeholder="Nombre de reactivo" name="name" required id="name" pattern=".{1,80}" title="El nombre del reactivo debe tener 80 caracteres o menos" value="{{ reactivo.name }}">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="selectState" name="Estado: ">*Estado:</label>
+                    <select name="state" class="form-control" id="selectState" required>
+                        <option value="">Seleccione</option>
+                        {% for estado in estados %}
+                        <option value="{{ estado.id }}">{{ estado.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="selectUnidades" name="Unidades: ">*Unidades:</label>
+                    <div class="input-group" id="unit-block">
+                        <select name="unit" class="form-control" required id="selectUnidades">
+                            <option value="">Seleccione</option>
+                            {% for unidad in unidades %}
+                            <option value="{{ unidad.id }}">{{ unidad.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <div class="input-group-btn">
+                            <button type="button" id="add_unit_btn" class="btn btn-secondary" title="Agregar Unidad">+</button>
+                        </div>
+                    </div>
+                </div>
+                <input type="hidden" name="wf" class="form-control" value="crear" id="wf">
+        </div>
+        <br>
+        <div class="card-head">
+            <div class="form-group">
+                <button type="button" class="btn btn-primary" onclick="limpiarCampos('form')">Cancelar</button>
+                <input type="button" value="Realizar Modificaciones" class="btn btn-primary" id="open_confirm_in">
+            </div>
+        </form>
+    </div>
+</div>
+
+   
+        
+                    {% if messages %}
+                    {% for message in messages %}
+                    <!-- Este script no puede ser invocado como un archivo externo. Después de recibir una respuesta del servidor, se
+                    verifica si la ventana actual es emergente. En caso afirmativo, se muestra una alerta de confirmación o de error,
+                    se obtienen los valores de los campos de la ventana principal, se recarga la página para actualizar la selección y
+                    se vuelven a escribir o seleccionar los valores previamente ingresados. Si se agregó un nuevo registro de REACTIVO
+                    en la base de datos o si este ya existe, se insertará en el campo de selección correspondiente. Luego, la ventana emergente se
+                    cerrará. Si la ventana no es emergente, se mostrará una alerta de éxito o error según corresponda. -->
+                    <script>
+                        if (window.opener) {
+                            wf = window.opener.document.getElementById('wf')
+                            console.log(wf.value)
+
+                            window.onload = function () {
+                                //Obtener nombre despues del mensaje
+                                mensaje = "{{ message }}";
+                                var name = mensaje.split(": ")[1];
+
+                                var messageText = '{{ message }}';
+
+                                var alertType = 'info';  // Tipo de alerta predeterminado para mensajes habituales
+
+                                // Verificar el contenido del mensaje para asignar el tipo de alerta adecuado
+                                if (messageText.includes('Se ha creado exitosamente')) {
+                                    alertType = 'success';
+                                } else if (messageText.includes('Por favor seleccione') || messageText.includes('Ya existe') || messageText.includes('Solo se permiten registros ')) {
+                                    alertType = 'warning';
+                                }
+
+                                // Mostrar la notificación con SweetAlert2
+                                Swal.fire({
+                                    icon: alertType,
+                                    title: 'Mensaje del servidor',
+                                    text: messageText,
+                                    confirmButtonText: 'Aceptar'
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        wf = window.opener.document.getElementById('wf')
+                                        // Verificar si la ventana actual es una ventana emergente
+                                        if (wf.value == 'listado') {
+                                            console.log('Hola Mundo')
+                                            // Actualizar la ventana padre
+                                            window.opener.location.reload();
+
+                                            // Cerrar la ventana actual después de un retraso
+                                            setTimeout(() => {
+                                                window.close();
+                                            }, 200);
+                                        }
+                                        else {
+                                            //retardo para que los valores se escriban despues de recargar la página
+                                            setTimeout(function () {
+                                                window.opener.document.querySelector("#name").value = name;
+                                                if (window.opener && typeof window.opener.updateFields === "function") {
+                                                    //Llama la función que actualiza los campos según el nombre del reactivo una vez se escriba en el campo name
+                                                    window.opener.updateFields();
+                                                } else {
+                                                    console.error("La función updateFields() no está definida en la ventana padre");
+                                                }
+                                                window.close();
+
+                                            }, 500);
+                                        };
+
+
+
+                                    }
+                                })
+
+                            }
+                        }
+
+                        else {
+                            window.onload = function () {
+
+                                var messageText = '{{ message }}';
+
+                                var alertType = 'info';  // Tipo de alerta predeterminado para mensajes habituales
+
+                                // Verificar el contenido del mensaje para asignar el tipo de alerta adecuado
+                                if (messageText.includes('Se ha creado exitosamente')) {
+                                    alertType = 'success';
+                                } else if (messageText.includes('Por favor seleccione') || messageText.includes('Ya existe') || messageText.includes('Solo se permiten registros ')) {
+                                    alertType = 'warning';
+                                }
+
+                                // Mostrar la notificación con SweetAlert2
+                                Swal.fire({
+                                    icon: alertType,
+                                    title: 'Mensaje del servidor',
+                                    text: messageText,
+                                    confirmButtonText: 'Aceptar'
+                                });
+                            };
+                        }
+                    </script>
+                    {% endfor %}
+                    {% endif %}
+
+
+        {% endblock %}
+
+</body>
+
+</html>

@@ -1,0 +1,13 @@
+.politicaTratamiento {
+    display: flex; /* Usar el modelo de caja flexible para alinear elementos en línea */
+    align-items: flex-start; /* Alinear elementos en la parte superior */
+}
+
+#acceptProcessingData {
+    margin-top: 4px; /* Espacio superior para alinear con el primer renglón del párrafo */
+}
+
+.politica-label {
+    font-size: 13px; /* Tamaño de fuente deseado */
+    padding-left: 10px; /* Espacio entre el checkbox y el texto */
+}

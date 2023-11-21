@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{% block title %}Creación de Ubicaciones y Asignaturas{% endblock %}</title>
+  <title>{% block title %}Creación de Asignatura / Ubicación{% endblock %}</title>
   {% block head %}
   <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
@@ -21,12 +21,14 @@
 
   {% load static %}
 
-  <link rel="stylesheet" href="{% static 'stylesShowSpinner.css' %}">
+  <link rel="stylesheet" href="{% static 'inventarioreac/stylesShowSpinner.css' %}">
   <!-- Estilos para el letrero de la mitad del spinner -->
-  <script src="{% static 'clearFds.js' %}"></script>
+  <script src="{% static 'inventarioreac/clearFds.js' %}"></script>
   <!-- Llama Script que borra los campos del formulario cuando se ejecuta cualquier acción -->
-  <script src="{% static 'sendInfo.js' %}" defer></script>
+  <script src="{% static 'inventarioreac/sendInfo.js' %}" defer></script>
   <!-- Llama Script al final genera alerta informativa con los datos que se va enviar al servidor y acepta-->
+  <script src="{% static 'inventarioreac/cancelButtonFunction.js' %}" defer></script>
+  <!-- Llama Script  que coloca función al botón cancelar -->
 
   {% endblock %}
 
@@ -34,98 +36,115 @@
 
 <body>
   {% block content %}
-  <div class="container mt-5">
-    <div class="row">
+  <div class="card">
+    <div class="card-header">
+      <h1>Crear Asignatura / Ubicación</h1>
+    </div>
+    <br>
+    <div class="card-body">
       <!-- HTML para mostrar el spinner -->
       <p id="message"></p>
       <div id="spinner"></div>
-      <div class="col-md-6 ml-md-5">
-        <h1>Crear Ubicación/Asignatura</h1>
-        <form method="post" class="row g-3" id="ubicacion_form" name="form">
-          {% csrf_token %}
 
-          <div class="col-md-9">
-            <label for="name" class="form-label" name="Nombre Ubicación/Asignatura: ">Nombre:</label>
-            <input type="text" class="form-control" placeholder="Nombre de reactivo" name="name" required id="name"
-              pattern="[A-Za-záéíóúÁÉÍÓÚñÑ\s]{1,80}"
-              title="Ingrese ubicación/asignatura, solo letras, máximo 80 caracteres">
+      <form method="post" id="ubicacion_form" name="form">
+        {% csrf_token %}
 
-          </div>
+        <div class="form-group">
+          <label for="name" class="form-label" name="Nombre Asignatura / Ubicación: ">*Nombre:</label>
+          <input type="text" class="form-control" placeholder="Nombre de Asignatura / Ubicación" name="name" required
+            id="name" pattern="[A-Za-záéíóúÁÉÍÓÚñÑ\s]{1,80}"
+            title="Ingrese Asignatura / Ubicación, solo letras, máximo 80 caracteres">
+        </div>
 
-          <div class="col-md-9">
-            <label for="selectFacultad" class="form-label" name="Facultad: ">Facultad:</label>
-            <select name="facultad" class="form-control" id="selectFacultad" required>
-              <option value="">Seleccione</option>
-              {% for facultad in facultades %}
-              <option value="{{ facultad.id }}">{{ facultad.name }}</option>
-              {% endfor %}
-            </select>
-          </div>
+        <div class="form-group">
+          <label for="selectFacultad" class="form-label" name="Facultad: ">*Facultad:</label>
+          <select name="facultad" class="form-control" id="selectFacultad" required>
+            <option value="">Seleccione</option>
+            {% for facultad in facultades %}
+            <option value="{{ facultad.id }}">{{ facultad.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
 
+        <input type="hidden" name="wf" class="form-control" value="ubicacion" id="wf">
+        <!-- identificador para saber que tipo de ventana es -->
+    </div>
 
-          <input type="hidden" name="wf" class="form-control" value="ubicacion" id="wf">
-          <!-- identificador para saber que tipo de ventana es -->
-
-
-          <div class="col-md-6 mt-3">
-            <input type="button" value="Crear Ubicación" class="btn btn-primary" id="open_confirm_in">
-          </div>
-          <div class="col-md-6 mt-3">
-            <input type="reset" value="Limpiar Campos" class="btn btn-primary">
-          </div>
-        </form>
-
-        {% if messages %}
-        {% for message in messages %}
-        <!-- Este script no puede ser invocado como un archivo externo.  se mostrará una alerta
-        de éxito o error según corresponda. -->
-        <script>
-          //Verifica si es ventana emergente
-          if (window.opener) {
-            window.onload = function () {
-              var mensaje = '{{ message|safe }}';
-              alert(mensaje)
-              var location = mensaje.split(": ")[1];
-              setTimeout(function () {
-
-                window.opener.document.querySelector("#location").value = location;
-                window.close();
-
-              }, 500);
-            }
-          }
-          else {
-
-            window.onload = function () {
-
-              var messageText = '{{ message|safe }}';
-
-              var alertType = 'info';  // Tipo de alerta predeterminado para mensajes habituales
-
-              // Verificar el contenido del mensaje para asignar el tipo de alerta adecuado
-              if (messageText.includes('Se ha creado exitosamente')) {
-                alertType = 'success';
-              } else if (messageText.includes('Por favor seleccione') || messageText.includes('Ya existe') || messageText.includes('Solo se permiten registros ')) {
-                alertType = 'warning';
-              }
-
-              // Mostrar la notificación con SweetAlert2
-              Swal.fire({
-                icon: alertType,
-                title: 'Mensaje del servidor',
-                text: messageText,
-                confirmButtonText: 'Aceptar'
-              });
-
-            };
-          }
-
-        </script>
-        {% endfor %}
-        {% endif %}
+    <div class="card-footer">
+      <div class="form-group">
+        <button type="button" class="btn btn-primary" onclick="limpiarCampos('form')">Cancelar</button>
+        <input type="button" value="Crear Ubicación" class="btn btn-primary" id="open_confirm_in">
       </div>
     </div>
+
+    </form>
   </div>
+
+  {% if messages %}
+  {% for message in messages %}
+  <!-- Este script no puede ser invocado como un archivo externo.  se mostrará una alerta
+        de éxito o error según corresponda. -->
+  <script>
+    //Verifica si es ventana emergente
+    if (window.opener) {
+      window.onload = function () {
+        var mensaje = '{{ message|safe }}';
+        alert(mensaje)
+        // Expresión regular para extraer el nombre y el correo
+        var regex = /nombre: (.*?), facultad: (.*?$)/;
+
+        // Ejecutar la expresión regular en el mensaje
+        var matches = mensaje.match(regex);
+
+        if (matches) {
+          var location = matches[1]; // Captura el nombre
+          var facultad = matches[2]; // Captura el correo
+          console.log(location)
+          console.log(facultad)
+
+
+        } else {
+          console.log('No se encontró información de nombre y correo en el mensaje.');
+        }
+        setTimeout(function () {
+
+          window.opener.document.querySelector("#location").value = location;
+          window.opener.document.querySelector("#facultad").value = facultad;
+          window.close();
+
+        }, 500);
+      }
+    }
+    else {
+
+      window.onload = function () {
+
+        var messageText = '{{ message|safe }}';
+
+        var alertType = 'info';  // Tipo de alerta predeterminado para mensajes habituales
+
+        // Verificar el contenido del mensaje para asignar el tipo de alerta adecuado
+        if (messageText.includes('Se ha creado exitosamente')) {
+          alertType = 'success';
+        } else if (messageText.includes('Por favor seleccione') || messageText.includes('Ya existe') || messageText.includes('Solo se permiten registros ')) {
+          alertType = 'warning';
+        }
+
+        // Mostrar la notificación con SweetAlert2
+        Swal.fire({
+          icon: alertType,
+          title: 'Mensaje del servidor',
+          text: messageText,
+          confirmButtonText: 'Aceptar'
+        });
+
+      };
+    }
+
+  </script>
+  {% endfor %}
+  {% endif %}
+
   {% endblock %}
 
 </body>

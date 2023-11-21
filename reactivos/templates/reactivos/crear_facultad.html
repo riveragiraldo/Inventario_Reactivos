@@ -20,131 +20,134 @@
 
     {% load static %}
 
-    <link rel="stylesheet" href="{% static 'stylesShowSpinner.css' %}">
+    <link rel="stylesheet" href="{% static 'inventarioreac/stylesShowSpinner.css' %}">
     <!-- Estilos para el letrero de la mitad del spinner -->
-    <<script src="{% static 'sendInfo.js' %}" defer>
-        </script>
-        <!-- Llama Script al final genera alerta informativa con los datos que se va enviar al servidor y acepta-->
-        <script src="{% static 'clearFds.js' %}"></script>
-        <!-- Llama Script que borra los campos del formulario cuando se ejecuta cualquier acción -->
-        {% endblock %}
+    <script src="{% static 'inventarioreac/sendInfo.js' %}" defer>
+    </script>
+    <!-- Llama Script al final genera alerta informativa con los datos que se va enviar al servidor y acepta-->
+    <script src="{% static 'inventarioreac/clearFds.js' %}"></script>
+    <!-- Llama Script que borra los campos del formulario cuando se ejecuta cualquier acción -->
+    <script src="{% static 'inventarioreac/cancelButtonFunction.js' %}" defer></script>
+    <!-- Llama Script  que coloca función al botón cancelar -->
+    {% endblock %}
 </head>
 
 <body>
     {% block content %}
-    <div class="container mt-5">
-        <h1>Crear Facultades</h1>
-        <div class="row">
+    <div class="card">
+        <div class="card-header">
+            <h1>Crear Facultades</h1>
+        </div>
+        <br>
+        <div class="card-body">
             <!-- HTML para mostrar el spinner -->
             <p id="message"></p>
             <div id="spinner"></div>
 
-            <form method="post" class="row g-3" id="marca_form" name="form">
+            <form method="post" id="marca_form" name="form">
                 {% csrf_token %}
 
-                <div class="col-md-12">
+                <div class="form-group">
                     <label class="form-label" for="name" name="Nombre Facultad: ">*Nombre de la Facultad:</label>
                     <input type="text" class="form-control" placeholder="Facultad" name="name" required id="name"
                         pattern="^[A-Za-z0-9áéíóúÁÉÍÓÚ\s]{1,50}$" title="Palabras o número de máximo 50 caracteres">
                 </div>
+        </div>
+        <div class="card-footer">
+            <div class="form-group">
+                <button type="button" class="btn btn-primary" onclick="limpiarCampos('form')">Cancelar</button>
+                <input type="button" value="Crear Facultad" class="btn btn-primary" id="open_confirm_in">
+            </div>
 
-                <div class="col-md-12">
-                    <div class="col-md-2 mt-3">
-                        <input type="button" value="Crear Facultad" class="btn btn-primary" id="open_confirm_in">
-                    </div>
-                    <div class="col-md-2 mt-3">
-                        <input type="reset" value="Limpiar Campos" class="btn btn-primary">
-                    </div>
-                </div>
-            </form>
-            {% if messages %}
-            {% for message in messages %}
-            <!-- Este script no puede ser invocado desde un archivo externo. Después de recibir una respuesta del servidor, se
+        </div>
+        </form>
+    </div>
+    {% if messages %}
+    {% for message in messages %}
+    <!-- Este script no puede ser invocado desde un archivo externo. Después de recibir una respuesta del servidor, se
             verifica si la ventana actual es emergente. En caso afirmativo, se muestra una alerta de confirmación o de error,
             se obtienen los valores de los campos de la ventana principal, se recarga la página para actualizar la selección y
             se vuelven a escribir o seleccionar los valores previamente ingresados. Si se agregó un nuevo registro de FACULTAD
             en la base de datos o si este ya existe, se insertará en el campo de selección correspondiente. Luego, la ventana emergente se
             cerrará. Si la ventana no es emergente, se mostrará una alerta de éxito o error según corresponda. -->
 
-            <script>
-                if (window.opener) {
+    <script>
+        if (window.opener) {
 
-                    window.onload = function () {
+            window.onload = function () {
 
-                        mensaje = "{{ message }}";
+                mensaje = "{{ message }}";
 
-                        var facultad = mensaje.split(": ")[1];
+                var facultad = mensaje.split(": ")[1];
 
-                        //Alerta
-                        var messageText = '{{ message|safe }}';
+                //Alerta
+                var messageText = '{{ message|safe }}';
 
-                        var alertType = 'info';  // Tipo de alerta predeterminado para mensajes habituales
+                var alertType = 'info';  // Tipo de alerta predeterminado para mensajes habituales
 
-                        // Verificar el contenido del mensaje para asignar el tipo de alerta adecuado
-                        if (messageText.includes('Se ha creado exitosamente')) {
-                            alertType = 'success';
-                        } else if (messageText.includes('Por favor seleccione') || messageText.includes('Ya existe') || messageText.includes('Solo se permiten registros ')) {
-                            alertType = 'warning';
-                        }
-
-                        // Mostrar la notificación con SweetAlert2
-                        Swal.fire({
-                            icon: alertType,
-                            title: 'Mensaje del servidor',
-                            text: messageText,
-                            confirmButtonText: 'Aceptar'
-                        });
-
-                        // Obtener los valores de los elementos necesarios de la ventana padre
-                        var name = window.opener.document.getElementById("name").value;
-
-                        // Recargar la página padre
-                        window.opener.location.replace(window.opener.location.href);
-
-                        setTimeout(function () {
-                            // Acceder a la ventana padre y actualizar los valores
-                            window.opener.document.querySelector("#name").value = name;
-
-                            //Actualiza Select Facultad
-                            console.log(facultad);
-                            var facultad_new = window.opener.document.querySelector("#selectFacultad");
-                            facultad_new.value = facultad;
-                            facultad_new.setAttribute("selected", true);
-                            window.close();
-
-                        }, 1000);
-                    };
+                // Verificar el contenido del mensaje para asignar el tipo de alerta adecuado
+                if (messageText.includes('Se ha creado exitosamente')) {
+                    alertType = 'success';
+                } else if (messageText.includes('Por favor seleccione') || messageText.includes('Ya existe') || messageText.includes('Solo se permiten registros ')) {
+                    alertType = 'warning';
                 }
 
-                else {
-                    window.onload = function () {
-                        //Alerta
-                        var messageText = '{{ message|safe }}';
+                // Mostrar la notificación con SweetAlert2
+                Swal.fire({
+                    icon: alertType,
+                    title: 'Mensaje del servidor',
+                    text: messageText,
+                    confirmButtonText: 'Aceptar'
+                });
 
-                        var alertType = 'info';  // Tipo de alerta predeterminado para mensajes habituales
+                // Obtener los valores de los elementos necesarios de la ventana padre
+                var name = window.opener.document.getElementById("name").value;
 
-                        // Verificar el contenido del mensaje para asignar el tipo de alerta adecuado
-                        if (messageText.includes('Se ha creado exitosamente')) {
-                            alertType = 'success';
-                        } else if (messageText.includes('Por favor seleccione') || messageText.includes('Ya existe') || messageText.includes('Solo se permiten registros ')) {
-                            alertType = 'warning';
-                        }
+                // Recargar la página padre
+                window.opener.location.replace(window.opener.location.href);
 
-                        // Mostrar la notificación con SweetAlert2
-                        Swal.fire({
-                            icon: alertType,
-                            title: 'Mensaje del servidor',
-                            text: messageText,
-                            confirmButtonText: 'Aceptar'
-                        });
-                    };
+                setTimeout(function () {
+                    // Acceder a la ventana padre y actualizar los valores
+                    window.opener.document.querySelector("#name").value = name;
+
+                    //Actualiza Select Facultad
+                    console.log(facultad);
+                    var facultad_new = window.opener.document.querySelector("#selectFacultad");
+                    facultad_new.value = facultad;
+                    facultad_new.setAttribute("selected", true);
+                    window.close();
+
+                }, 1000);
+            };
+        }
+
+        else {
+            window.onload = function () {
+                //Alerta
+                var messageText = '{{ message|safe }}';
+
+                var alertType = 'info';  // Tipo de alerta predeterminado para mensajes habituales
+
+                // Verificar el contenido del mensaje para asignar el tipo de alerta adecuado
+                if (messageText.includes('Se ha creado exitosamente')) {
+                    alertType = 'success';
+                } else if (messageText.includes('Por favor seleccione') || messageText.includes('Ya existe') || messageText.includes('Solo se permiten registros ')) {
+                    alertType = 'warning';
                 }
-            </script>
-            {% endfor %}
-            {% endif %}
-        </div>
 
-        {% endblock %}
+                // Mostrar la notificación con SweetAlert2
+                Swal.fire({
+                    icon: alertType,
+                    title: 'Mensaje del servidor',
+                    text: messageText,
+                    confirmButtonText: 'Aceptar'
+                });
+            };
+        }
+    </script>
+    {% endfor %}
+    {% endif %}
+    {% endblock %}
 </body>
 
 </html>

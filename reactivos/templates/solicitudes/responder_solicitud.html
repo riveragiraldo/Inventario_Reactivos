@@ -1,0 +1,186 @@
+{% extends "webtemplate.html" %}
+{% load has_group %}
+<!doctype html>
+<html lang="es">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Responder solicitud {{ solicitud.id|stringformat:"04d" }}{% endblock %}</title>
+  {% block head %}
+  <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe"
+      crossorigin="anonymous" defer></script> -->
+  <!-- Incluir SweetAlert2 desde CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.min.css">
+  <!-- Agrega el enlace al CDN de spin.js antes de tu script -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/spin.js/2.3.2/spin.min.js"></script>
+  <!-- Agrega el enlace de estilos para ícono de ojo -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+  {% load static %}
+
+  <link rel="stylesheet" href="{% static 'inventarioreac/stylesShowSpinner.css' %}">
+  <!-- Estilos para el letrero de la mitad del spinner -->
+  <script src="{% static 'inventarioreac/sendInfoEdit.js' %}" defer></script>
+  <!-- Llama Script al final genera alerta informativa con los datos que se va enviar al servidor y acepta-->
+  <script src="{% static 'inventarioreac/closeWindow.js' %}" defer></script>
+  <!-- Llama Script al final genera alerta informativa de cierre de ventana-->
+  <script src="{% static 'inventarioreac/redirectHome.js' %}" defer></script>
+  <!-- Llama Script al final redirige al incio y coloca el contador de caracteres al mensaje-->
+  <script src="{% static 'inventarioreac/cancelButtonFunction.js' %}" defer></script>
+    <!-- Llama Script  que coloca función al botón cancelar -->
+
+  {% endblock %}
+
+</head>
+
+<body>
+  {% block content %}
+  <div class="card">
+    <div class="card-header">
+
+      <strong class="card-title">
+        <h2>Responder solicitud número {{solicitud.id|stringformat:"04d"}}</h2>
+      </strong>
+    </div>
+    <br>
+    <div class="card-body">
+      <!-- HTML para mostrar el spinner -->
+      <p id="message"></p>
+      <div id="spinner"></div>
+
+      <form method="post" id="in_form" name="form">
+        {% csrf_token %}
+
+        <div class="form-group">
+          <label for="tipo_solicitud" name="Tipo de solicitud:">Tipo de solicitud:</label>
+          <input type="text" name="tipo_solicitud" id="tipo_solicitud" class="form-control" title="Tipo de solicitud"
+            value="{% if solicitud.tipo_solicitud %}{{ solicitud.tipo_solicitud.name }}{% endif %}" readonly>
+        </div>
+
+        {% if solicitud.tipo_solicitud and solicitud.tipo_solicitud.name == 'OTRA' %}
+        <div class="form-group">
+          <label for="name" name="Otra solicitud:">¿Cuál?</label>
+          <input type="text" name="name" id="name" class="form-control" title="Otro tipo de solicitud" readonly
+            value="{% if solicitud.name %}{{ solicitud.name }}{% endif %}">
+        </div>
+        {% endif %}
+
+
+        <div class="form-group">
+          <label for="mensaje" name="Mensaje:">Mensaje:</label>
+          <textarea name="mensaje" id="mensaje" cols="2" rows="5" class="form-control"
+            readonly>{% if solicitud.mensaje %}{{ solicitud.mensaje }}{% endif %}</textarea>
+
+        </div>
+        <div class="form-group">
+          <label for="usuario" name="Usuario que realiza la solicitud:">Usuario que realiza la solicitud:</label>
+          <input type="text" name="usuario" id="usuario" class="form-control" title="Usuario que realiza la solicitud"
+            readonly
+            value="{% if solicitud.created_by %}{{ solicitud.created_by.first_name }} {{ solicitud.created_by.last_name }}{% endif %}">
+
+        </div>
+        <div class="form-group">
+          <label for="telefono" name="Teléfono:">Teléfono:</label>
+          <input type="text" class="form-control" id="telefono" name="telefono" readonly
+            title="Teléfono de quien realiza la solicitud"
+            value="{% if solicitud.created_by.phone_number %}{{ solicitud.created_by.phone_number }}{% endif %}">
+        </div>
+        <div class="form-group">
+          <label for="correo" name="Correo electrónico:">Correo Electrónico:</label>
+          <input type="text" class="form-control" id="correo" name="correo" readonly
+            title="Correo de quien realiza la solicitud"
+            value="{% if solicitud.created_by.email %}{{ solicitud.created_by.email }}{% endif %}">
+
+        </div>
+
+        <div class="form-group">
+          <label for="observations" name="Respuesta:">Respuesta:</label>
+          
+          
+            
+          <textarea required name="observations" id="observations" cols="2" rows="5" class="form-control" {% if solicitud.tramitado %} readonly {% endif %}>{% if solicitud.tramitado %}{{ solicitud.observaciones }}{% endif %}</textarea>
+          <span id="contador" style="display: none">0/1000 caracteres</span>
+          <!-- Mensaje de confirmación en verde si la solicitud ha sido tramitada -->
+          {% if solicitud.tramitado %}
+          <div class="alert alert-success" role="alert">
+            Ya se ha dado respuesta a esta solicitud.
+          </div>
+          {% endif %}
+        </div>
+    </div>
+
+    <br>
+    <div class="card-footer">
+      
+      {% if solicitud.tramitado %}
+      <a href="#" class="btn btn-primary close-button" id="close-link">Aceptar</a>
+
+      <div id="open_confirm_in"></div>
+      {% else %}
+      <button type="button" class="btn btn-primary" onclick="limpiarCamposSol('form')">Cancelar</button>
+      <div id="close-link"></div>
+
+      <input type="button" value="Responder Solicitud" class="btn btn-primary" id="open_confirm_in">
+      {% endif %}
+        
+    </div>
+    </form>
+  </div>
+  </div>
+
+  {% if messages %}
+  {% for message in messages %}
+  <!-- Este script no puede ser invocado desde un archivo externo. Después de recibir una respuesta del servidor, se
+      verifica si la ventana actual es emergente. En caso afirmativo, se muestra una alerta de confirmación o de error,
+      se obtienen los valores de los campos de la ventana principal, se recarga la página para actualizar la selección y
+      se vuelven a escribir o seleccionar los valores previamente ingresados. Si se agregó un nuevo registro de MARCA
+      en la base de datos o si este ya existe, se insertará en el campo de selección correspondiente. Luego, la ventana emergente se
+      cerrará. Si la ventana no es emergente, se mostrará una alerta de éxito o error según corresponda. -->
+  <script>
+
+
+
+    window.onload = function () {
+      //Alerta
+      var messageText = '{{ message|safe }}';
+
+      var alertType = 'info';  // Tipo de alerta predeterminado para mensajes habituales
+
+      // Verificar el contenido del mensaje para asignar el tipo de alerta adecuado
+      if (messageText.includes('Se ha creado exitosamente')) {
+        alertType = 'success';
+      } else if (messageText.includes('Por favor seleccione') || messageText.includes('Ya existe') || messageText.includes('Solo se permiten registros ') || messageText.includes('No es posible ')) {
+        alertType = 'warning';
+      } else if (messageText.includes('No se puedo crear el usuario') || messageText.includes('Contraseña no cumple')) {
+        alertType = 'error';
+      }
+
+      // Mostrar la notificación con SweetAlert2
+      Swal.fire({
+        icon: alertType,
+        title: 'Mensaje del servidor',
+        text: messageText,
+        confirmButtonText: 'Aceptar'
+      }).then(function (result) {
+        // Verificar si la ventana actual es una ventana emergente
+        if (window.opener != null) {
+          // Recargar la página principal antes de cerrar la ventana emergente
+          window.opener.location.reload();
+          // Si es una ventana emergente, cierra la ventana actual
+          window.close();
+        }
+      });
+    };
+
+  </script>
+  {% endfor %}
+  {% endif %}
+  {% endblock %}
+</body>
+
+</html>

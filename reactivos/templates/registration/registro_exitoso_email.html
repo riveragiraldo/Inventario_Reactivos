@@ -18,6 +18,9 @@
     <p>Laboratorio: {{ user.lab }}</p>
     <p>Rol: {{ user.rol }}</p>
     <p>Contraseña: [contraseña no mostrada por razones de seguridad]</p>
+    <p>Acepta política de tratamiento de datos personales: {{ aceptapolitica }}</p>
+    <p>Para acceder al aplicativo puedes hacerlo dando click a continuación:</p>
+    <p><a href="{{ home_url }}">{{ home_url }}</a></p>
 
     <p>Si deseas cambiar tu contraseña (es opcional, usa la que te suministraron en el momento del registro), puedes hacerlo en el siguiente enlace:</p>
     <p><a href="{{ reset_url }}">Restablecer contraseña</a></p>

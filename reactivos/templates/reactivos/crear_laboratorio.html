@@ -20,45 +20,52 @@
 
     {% load static %}
 
-    <link rel="stylesheet" href="{% static 'stylesShowSpinner.css' %}">
+    <link rel="stylesheet" href="{% static 'inventarioreac/stylesShowSpinner.css' %}">
     <!-- Estilos para el letrero de la mitad del spinner -->
-    <script src="{% static 'sendInfo.js' %}" defer></script>
+    <script src="{% static 'inventarioreac/sendInfo.js' %}" defer></script>
     <!-- Llama Script al final genera alerta informativa con los datos que se va enviar al servidor y acepta-->
-    <script src="{% static 'clearFds.js' %}"></script>
+    <script src="{% static 'inventarioreac/clearFds.js' %}"></script>
     <!-- Llama Script que borra los campos del formulario cuando se ejecuta cualquier acción -->
+    <script src="{% static 'inventarioreac/cancelButtonFunction.js' %}" defer></script>
+    <!-- Llama Script  que coloca función al botón cancelar -->
     {% endblock %}
 </head>
 
 <body>
     {% block content %}
-    <div class="container mt-5">
-        <h1>Crear Laboratorios</h1>
-        <div class="row">
+    <div class="card mt-5">
+        <div class="card-header">
+            <div class="form-group">
+                <h1>Crear Laboratorios</h1>
+            </div>
+        </div>
+        <div class="card-body">
             <!-- HTML para mostrar el spinner -->
             <p id="message"></p>
             <div id="spinner"></div>
 
-            <form method="post" class="row g-3" id="marca_form" name="form">
+            <form method="post"  id="marca_form" name="form">
                 {% csrf_token %}
 
-                <div class="col-md-12">
+                <div class="form-group">
                     <label class="form-label" for="name" name="Nombre Laboratorio: ">*Nombre de Laboratorio:</label>
                     <input type="text" class="form-control" placeholder="Nombre del laboratorio" name="name" required
                         id="name" pattern="^[A-Za-záéíóúÁÉÍÓÚ\s]{1,80}$" title="Palabras de máximo 80 caracteres">
                 </div>
+        </div>
 
-                <div class="col-md-12">
-                    <div class="col-md-2 mt-3">
-                        <input type="button" value="Crear Laboratorio" class="btn btn-primary" id="open_confirm_in">
-                    </div>
-                    <div class="col-md-2 mt-3">
-                        <input type="reset" value="Limpiar Campos" class="btn btn-primary">
-                    </div>
-                </div>
-            </form>
-            {% if messages %}
-            {% for message in messages %}
-            <!-- Este script no puede ser invocado desde un archivo externo. Después de recibir una respuesta del servidor,
+        <div class="card-footer">
+            <div class="form-group">
+                <button type="button" class="btn btn-primary" onclick="limpiarCampos('form')">Cancelar</button>
+                <input type="button" value="Crear Laboratorio" class="btn btn-primary" id="open_confirm_in">
+            </div>
+            
+        </div>
+        </form>
+    </div>
+        {% if messages %}
+        {% for message in messages %}
+        <!-- Este script no puede ser invocado desde un archivo externo. Después de recibir una respuesta del servidor,
             se verifica si la ventana actual es emergente. En caso afirmativo (AUN NO SE HA DEFINIDO LOS FORMULARIOS EN
             QUE ESTE SERÁ EMERGENTE), se muestra una alerta de confirmación o de error, se obtienen los valores de los
             campos de la ventana principal, se recarga la página para actualizar la selección y se vuelven a escribir o
@@ -66,93 +73,93 @@
             datos o si este ya existe, se insertará en el campo de selección correspondiente. Luego, la ventana
             emergente se cerrará. Si la ventana no es emergente, se mostrará una alerta de éxito o error según
             corresponda. -->
-            <script>
-                if (window.opener) {
-                    // Código para actualizar formulario padre según corresponda
+        <script>
+            if (window.opener) {
+                // Código para actualizar formulario padre según corresponda
 
-                    window.onload = function () {
+                window.onload = function () {
 
-                        mensaje = "{{ message|safe }}";
-                        alert(mensaje)
+                    mensaje = "{{ message|safe }}";
+                    alert(mensaje)
 
-                        //Obtener el id desde el mensaje
-                        var id_lab = mensaje.split(": ")[1];
-
-
-                        // Obtener los valores de los elementos necesarios de la ventana padre
-                        var id_number = window.opener.document.getElementById("id_number").value;
-                        var id_phone_number = window.opener.document.getElementById("id_phone_number").value;
-                        var email = window.opener.document.getElementById("email").value;
-                        var username = window.opener.document.getElementById("username").value;
-                        var first_name = window.opener.document.getElementById("first_name").value;
-                        var last_name = window.opener.document.getElementById("last_name").value;
-                        var id_rol = window.opener.document.getElementById("id_rol").value;
-                        var password1 = window.opener.document.getElementById("password1").value;
-                        var password2 = window.opener.document.getElementById("password2").value;
-                        // Recargar la página padre
-                        window.opener.location.replace(window.opener.location.href);
-
-                        setTimeout(function () {
-                            // // Acceder a la ventana padre y actualizar los valores
-
-                            window.opener.document.querySelector("#id_number").value = id_number;
-                            window.opener.document.querySelector("#id_phone_number").value = id_phone_number;
-                            window.opener.document.querySelector("#email").value = email;
-                            window.opener.document.querySelector("#username").value = username;
-                            window.opener.document.querySelector("#first_name").value = first_name;
-                            window.opener.document.querySelector("#last_name").value = last_name;
-
-                            //Actualiza Select Rol
-                            var rol_new = window.opener.document.querySelector("#id_rol");
-                            rol_new.value = id_rol;
-                            rol_new.setAttribute("selected", true);
-
-                            //Actualiza Select Lab
-                            var lab_new = window.opener.document.querySelector("#id_lab");
-                            lab_new.value = id_lab;
-                            lab_new.setAttribute("selected", true);
-
-                            window.opener.document.querySelector("#password1").value = password1;
-                            window.opener.document.querySelector("#password2").value = password2;
-
-                            window.close();
-
-                        }, 2500);
-                    };
+                    //Obtener el id desde el mensaje
+                    var id_lab = mensaje.split(": ")[1];
 
 
-                }
+                    // Obtener los valores de los elementos necesarios de la ventana padre
+                    var id_number = window.opener.document.getElementById("id_number").value;
+                    var id_phone_number = window.opener.document.getElementById("id_phone_number").value;
+                    var email = window.opener.document.getElementById("email").value;
+                    var username = window.opener.document.getElementById("username").value;
+                    var first_name = window.opener.document.getElementById("first_name").value;
+                    var last_name = window.opener.document.getElementById("last_name").value;
+                    var id_rol = window.opener.document.getElementById("id_rol").value;
+                    var password1 = window.opener.document.getElementById("password1").value;
+                    var password2 = window.opener.document.getElementById("password2").value;
+                    // Recargar la página padre
+                    window.opener.location.replace(window.opener.location.href);
 
-                else {
-                    window.onload = function () {
+                    setTimeout(function () {
+                        // // Acceder a la ventana padre y actualizar los valores
 
-                        //Alerta
-                        var messageText = '{{ message|safe }}';
+                        window.opener.document.querySelector("#id_number").value = id_number;
+                        window.opener.document.querySelector("#id_phone_number").value = id_phone_number;
+                        window.opener.document.querySelector("#email").value = email;
+                        window.opener.document.querySelector("#username").value = username;
+                        window.opener.document.querySelector("#first_name").value = first_name;
+                        window.opener.document.querySelector("#last_name").value = last_name;
 
-                        var alertType = 'info';  // Tipo de alerta predeterminado para mensajes habituales
+                        //Actualiza Select Rol
+                        var rol_new = window.opener.document.querySelector("#id_rol");
+                        rol_new.value = id_rol;
+                        rol_new.setAttribute("selected", true);
 
-                        // Verificar el contenido del mensaje para asignar el tipo de alerta adecuado
-                        if (messageText.includes('Se ha creado exitosamente')) {
-                            alertType = 'success';
-                        } else if (messageText.includes('Por favor seleccione') || messageText.includes('Ya existe') || messageText.includes('Solo se permiten registros ')) {
-                            alertType = 'warning';
-                        }
+                        //Actualiza Select Lab
+                        var lab_new = window.opener.document.querySelector("#id_lab");
+                        lab_new.value = id_lab;
+                        lab_new.setAttribute("selected", true);
 
-                        // Mostrar la notificación con SweetAlert2
-                        Swal.fire({
-                            icon: alertType,
-                            title: 'Mensaje del servidor',
-                            text: messageText,
-                            confirmButtonText: 'Aceptar'
-                        });
+                        window.opener.document.querySelector("#password1").value = password1;
+                        window.opener.document.querySelector("#password2").value = password2;
+
+                        window.close();
+
+                    }, 2500);
+                };
 
 
-                    };
-                }
-            </script>
-            {% endfor %}
-            {% endif %}
-        </div>
+            }
+
+            else {
+                window.onload = function () {
+
+                    //Alerta
+                    var messageText = '{{ message|safe }}';
+
+                    var alertType = 'info';  // Tipo de alerta predeterminado para mensajes habituales
+
+                    // Verificar el contenido del mensaje para asignar el tipo de alerta adecuado
+                    if (messageText.includes('Se ha creado exitosamente')) {
+                        alertType = 'success';
+                    } else if (messageText.includes('Por favor seleccione') || messageText.includes('Ya existe') || messageText.includes('Solo se permiten registros ')) {
+                        alertType = 'warning';
+                    }
+
+                    // Mostrar la notificación con SweetAlert2
+                    Swal.fire({
+                        icon: alertType,
+                        title: 'Mensaje del servidor',
+                        text: messageText,
+                        confirmButtonText: 'Aceptar'
+                    });
+
+
+                };
+            }
+        </script>
+        {% endfor %}
+        {% endif %}
+
 
         {% endblock %}
 </body>

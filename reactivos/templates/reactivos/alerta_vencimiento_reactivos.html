@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Alerta Reactivo</title>
+
+</head>
+
+<body>
+
+    <p>Has recibido este correo porque se generó una alerta en el vecimiento de reactivos:</p>
+    
+    <p>Fecha : {{ fecha_actual }}
+        <p>{{ message }}</p>
+        <ul>
+            {% for reactivo in reactivos %}
+                <li>{{ reactivo.name }}, Marca {{ reactivo.trademark }}, Referencia {{reactivo.reference}}, Vencimiento {{ reactivo.edate }}</li>
+            {% endfor %}
+        </ul>
+    </p>
+
+    <p>Este mensaje se genera automáticamente, con la finalidad de generar alertas informativas, considere no responder este correo.</p>
+
+
+    <p>Cordialmente,
+        <br>Equipo de dirección de Laboratorios
+        <br>Universidad Nacional de Colombia - Sede Manizales
+        <br>{{ url }}
+    </p>
+    <p>
+        Agradecemos no responder este correo electrónico
+        <br>🌿 Por favor sea consciente con el medio ambiente y no imprima este mensaje 🌳
+
+    </p>
+
+</body>
+
+</html>

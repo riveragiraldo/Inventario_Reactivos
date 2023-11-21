@@ -1,0 +1,191 @@
+{% extends "webtemplate.html" %}
+
+<!doctype html>
+<html lang="es">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Configuración del sistema{% endblock %}</title>
+  {% block head %}
+  <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe" crossorigin="anonymous"
+        defer></script> -->
+  <!-- Incluir SweetAlert2 desde CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.min.css">
+  <!-- Agrega el enlace al CDN de spin.js antes de tu script -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/spin.js/2.3.2/spin.min.js"></script>
+  <!-- CSS de Bootstrap y DateTimePicker -->
+  <!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"> -->
+  <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
+
+  <!-- Scripts de Bootstrap y DateTimePicker -->
+  <!-- <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script> -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+  <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
+  <!-- <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script> -->
+
+
+  {% load static %}
+
+  <link rel="stylesheet" href="{% static 'inventarioreac/stylesShowSpinner.css' %}">
+  <!-- Estilos para el letrero de la mitad del spinner -->
+  <script src="{% static 'inventarioreac/sendInfoSolicitud.js' %}" defer></script>
+  <!-- Llama Script al final genera alerta informativa con los datos que se va enviar al servidor y acepta-->
+  <script src="{% static 'inventarioreac/clearFds.js' %}"></script>
+  <!-- Llama Script que borra los campos del formulario cuando se ejecuta cualquier acción -->
+  <script src="{% static 'inventarioreac/cancelButtonFunction.js' %}" defer></script>
+  <!-- Llama Script  que coloca función al botón cancelar -->
+
+
+
+
+
+  {% endblock %}
+</head>
+
+<body>
+  {% block content %}
+  <div class="card">
+
+    <div class="card-header">
+      <div class="form-group">
+        <strong>
+          <h1>Configuraciones generales</h1>
+        </strong>
+        <br>
+        <p>A continuación podrá configurar valores relacionados con el aplicativo</p>
+      </div>
+    </div>
+
+    <div class="card-body">
+      <!-- HTML para mostrar el spinner -->
+      <p id="message"></p>
+      <div id="spinner"></div>
+
+      <form method="post" id="solicitud_form" name="form" enctype="multipart/form-data">
+
+
+        {% csrf_token %}
+        <div class="form-group">
+          <label for="{{ form.tiempo_solicitudes.id_for_label }}" name="Tiempo solicitudes: ">*Tiempo para depuración
+            de solicitudes</label>
+          {{ form.tiempo_solicitudes }}
+        </div>
+        <div class="form-group">
+          <label for="{{ form.tiempo_eventos.id_for_label }}" name="Tiempo eventos: ">*Tiempo para depuración de
+            eventos</label>
+          {{ form.tiempo_eventos }}
+        </div>
+        <div class="form-group">
+          <label for="{{ form.correo_administrador.id_for_label }}" name="Correo Administrador: ">*Correo de
+            administrador</label>
+          {{ form.correo_administrador }}
+        </div>
+        <div class="form-group">
+          <label for="{{ form.tiempo_vencimiento_reactivos.id_for_label }}"
+            name="Tiempo previo al vencimiento de reactivos: ">{{ form.tiempo_vencimiento_reactivos.label}}</label>
+          {{ form.tiempo_vencimiento_reactivos }}
+        </div>
+        <div class="form-group">
+          <label for="{{ form.intervalo_tiempo.id_for_label }}" name="Intervalo de tiempo para vencimientos: ">{{ form.intervalo_tiempo.label}}</label>
+          {{ form.intervalo_tiempo }}
+        </div>
+        <div class="form-group">
+          <label for="{{ form.fecha_incio.id_for_label }}" name="Fecha de incio: ">{{ form.fecha_incio.label}}</label>
+          <div class='input-group date' id='datetimepicker'>
+            {{ form.fecha_incio }}
+            <span class="input-group-addon">
+              <span class="glyphicon glyphicon-calendar"></span>
+            </span>
+            <span class="input-group-addon" id="now-button">
+              Ahora
+            </span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="{{ form.programacion_activa.id_for_label }}" name="Activar desactivar programación: ">{{ form.programacion_activa.label}}</label>
+          {{ form.programacion_activa }}
+        </div>
+        <div class="form-group">
+          <label for="{{ form.manual.id_for_label }}" name="Manual de usuario: ">{{ form.manual.label}}</label>
+          {{ form.manual }}
+        </div>
+        <div class="form-group">
+          <label for="{{ form.logo_institucional.id_for_label }}" name="Manual de usuario: ">{{ form.logo_institucional.label}}</label>
+          {{ form.logo_institucional }}
+        </div>
+      </div>
+        <div class="card-footer">
+          <div class="form-group">
+            <button type="button" class="btn btn-primary" onclick="limpiarCampos('form')">Cancelar</button>
+          <input type="button" value="Guardar Configuración" class="btn btn-primary" id="open_confirm_in">
+          
+        </div>
+      </form>
+    </div>
+
+  </div>
+  <script>
+    $(function () {
+      $('#datetimepicker').datetimepicker({
+        format: 'DD/MM/YYYY HH:mm:ss',  // Establece el formato de fecha y hora deseado
+        useCurrent: false,  // Para evitar el uso automático de la hora actual
+      });
+
+      $('#now-button').click(function () {
+        $('#datetimepicker').data('DateTimePicker').date(new Date());  // Establecer la fecha y hora actual
+      });
+    });
+
+
+  </script>
+  {% if messages %}
+  {% for message in messages %}
+  <!-- Este script no puede ser invocado desde un archivo externo. Después de recibir una respuesta del servidor, se
+      verifica si la ventana actual es emergente. En caso afirmativo, se muestra una alerta de confirmación o de error. -->
+  <script>
+    window.onload = function () {
+      //Alerta
+      var messageText = '{{ message|safe }}';
+
+      var alertType = 'info';  // Tipo de alerta predeterminado para mensajes habituales
+
+      // Verificar el contenido del mensaje para asignar el tipo de alerta adecuado
+      if (messageText.includes('La solicitud se ha registrado correctamente')) {
+        alertType = 'success';
+      } else if (messageText.includes('La solicitud no se ha podido enviar')) {
+        alertType = 'error';
+      }
+
+      // Mostrar la notificación con SweetAlert2
+      Swal.fire({
+        icon: alertType,
+        title: 'Mensaje del servidor',
+        text: messageText,
+        confirmButtonText: 'Aceptar'
+      }).then(function (result) {
+        // Verificar si la ventana actual es una ventana emergente
+        if (window.opener != null) {
+          // Recargar la página principal antes de cerrar la ventana emergente
+          window.opener.location.reload();
+          // Si es una ventana emergente, cierra la ventana actual
+          window.close();
+        }
+      });
+    };
+
+  </script>
+  {% endfor %}
+  {% endif %}
+
+
+  {% endblock %}
+</body>
+
+</html>

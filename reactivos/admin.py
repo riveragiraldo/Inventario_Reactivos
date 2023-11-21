@@ -7,6 +7,8 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.forms import UserChangeForm, UserCreationForm
 from .forms import CustomAuthenticationForm
 from django.contrib.auth.models import Group, Permission
+from import_export import resources
+from import_export.admin import ImportExportModelAdmin
 
 # Inclusión de creación de nuevos permisos en el admin de Dajango
 
@@ -19,21 +21,51 @@ class Permisosadmin(admin.ModelAdmin):
 
 # Inclusión de creación de nuevos Roles en el admin de Dajango
 @admin.register(Rol)
-class UnidadesRolesmin(admin.ModelAdmin):
+class Rolesmin(admin.ModelAdmin):
     list_display=('id','name','date_created', 'user_create','last_update','last_updated_by',)
     ordering=('id',)
 
+class UnidadesResources(resources.ModelResource):
+    class Meta:
+        model = Unidades
+
+
 # Inclusión de el modelo UNIDADES en la consola de administración de Django
 @admin.register(Unidades)
-class Unidadesadmin(admin.ModelAdmin):
+class Unidadesadmin(ImportExportModelAdmin, admin.ModelAdmin):
+    list_display=('id','name','created_by', 'date_create','last_update','last_updated_by',)
+    ordering=('id',)
+    resource_class = UnidadesResources
+
+# Inclusión de el modelo TIPOSOLICITUD en la consola de administración de Django
+@admin.register(TipoSolicitud)
+class TipoSolicitudadmin(admin.ModelAdmin):
     list_display=('id','name','created_by', 'date_create','last_update','last_updated_by',)
     ordering=('id',)
 
+# Inclusión de el modelo SOLICITUDES en la consola de administración de Django
+@admin.register(Solicitudes)
+class Solicitudadmin(admin.ModelAdmin):
+    list_display=('id','tipo_solicitud','name','tramitado','observaciones','archivos_adjuntos','created_by', 'date_create','last_update','last_updated_by',)
+    ordering=('id',)
+
+# Inclusión de el modelo Configuración del sistema en la consola de administración de Django
+@admin.register(ConfiguracionSistema)
+class Configuraciónadmin(admin.ModelAdmin):
+    list_display=('id','tiempo_solicitudes','tiempo_eventos','correo_administrador')
+    ordering=('id',)
+
+
+class MarcasResources(resources.ModelResource):
+    class Meta:
+        model = Marcas
+
 # Inclusión de el modelo MARCAS en la consola de administración de Django  
 @admin.register(Marcas)
-class Marcasadmin(admin.ModelAdmin):
+class Marcasadmin(ImportExportModelAdmin,admin.ModelAdmin):
     list_display=('id','name','created_by', 'date_create','last_update','last_updated_by',)
     ordering=('id',)
+    resource_class = MarcasResources
 
 # Inclusión de el modelo DESTINOS en la consola de administración de Django    
 @admin.register(Destinos)
@@ -41,11 +73,18 @@ class Destinoadmin(admin.ModelAdmin):
     list_display=('id','name','created_by', 'date_create','last_update','last_updated_by',)
     ordering=('id',)
 
+
+class EstadosResources(resources.ModelResource):
+    class Meta:
+        model = Estados
+
+
 # Inclusión de el modelo ESTADOS en la consola de administración de Django
 @admin.register(Estados)
-class Estadoadmin(admin.ModelAdmin):
+class Estadoadmin(ImportExportModelAdmin, admin.ModelAdmin):
     list_display=('id','name','created_by', 'date_create','last_update','last_updated_by',)
     ordering=('id',)
+    resource_class = EstadosResources
 
 # Inclusión de el modelo UBICACIONES en la consola de administración de Django
 @admin.register(Ubicaciones)
@@ -59,49 +98,114 @@ class Facultadadmin(admin.ModelAdmin):
     list_display=('id','name','created_by', 'date_create','last_update','last_updated_by')
     ordering=('id',)
 
-# Inclusión de el modelo CLASIFICACIÓN RESPEL en la consola de administración de Django
-@admin.register(RespelC)
-class Respeladmin(admin.ModelAdmin):
-    list_display=('id','name','description','created_by', 'date_create','last_update','last_updated_by',)
-    ordering=('id',)
+class AlmacenamientoInternoResources(resources.ModelResource):
+    class Meta:
+        model = AlmacenamientoInterno
 
-# Inclusión de el modelo CLASIFICACIÓN SGA en la consola de administración de Django
-@admin.register(SGA)
-class SGIadmin(admin.ModelAdmin):
+# Inclusión de el modelo ALMACENAMIENTO INTERNO en la consola de administración de Django
+@admin.register(AlmacenamientoInterno)
+class AlmacenamientoInternoadmin(ImportExportModelAdmin, admin.ModelAdmin):
     list_display=('id','name','description','created_by', 'date_create','last_update','last_updated_by',)
     ordering=('id',)
+    resource_class = AlmacenamientoInternoResources
+
+
+class ClaseAlmacenamientoResources(resources.ModelResource):
+    class Meta:
+        model = ClaseAlmacenamiento
+
+# Inclusión de el modelo CLASE DE ALAMCENAMIENTO en la consola de administración de Django
+@admin.register(ClaseAlmacenamiento)
+class ClaseAlmacenamientoadmin(ImportExportModelAdmin, admin.ModelAdmin):
+    list_display=('id','name','description','created_by', 'date_create','last_update','last_updated_by',)
+    ordering=('id',)
+    resource_class = ClaseAlmacenamiento
+
+class LaboratoriosResources(resources.ModelResource):
+    class Meta:
+        model = Laboratorios    
 
 # Inclusión de el modelo LABORATORIOS en la consola de administración de Django
 @admin.register(Laboratorios)
-class Laboratorioadmin(admin.ModelAdmin):
+class Laboratorioadmin(ImportExportModelAdmin, admin.ModelAdmin):
     list_display=('id','name','created_by', 'date_create','last_update','last_updated_by',)
     ordering=('id',)
+    resource_class = LaboratoriosResources
 
 # Inclusión de el modelo RESPONSABLES en la consola de administración de Django
 @admin.register(Responsables)
 class Responsableadmin(admin.ModelAdmin):
-    list_display=('id','name','mail','phone','is_active','cc','created_by', 'date_create','last_update','last_updated_by',)
+    list_display=('id','name','mail','phone','is_active','cc','acceptDataProcessing','created_by', 'date_create','last_update','last_updated_by',)
     ordering=('id',)
+
+
+class AlmacenamientoResources(resources.ModelResource):
+    class Meta:
+        model = Almacenamiento
+
 
 # Inclusión de el modelo ALMACENAMIENTO en la consola de administración de Django
 @admin.register(Almacenamiento)
-class Almacenamientoadmin(admin.ModelAdmin):
+class Almacenamientoadmin(ImportExportModelAdmin, admin.ModelAdmin):
     list_display=('id','lab','name','description','created_by', 'date_create','last_update','last_updated_by',)
     ordering=('id',)
+    resource_class = AlmacenamientoResources
+
+class ReactivosResources(resources.ModelResource):
+    class Meta:
+        model = Reactivos
+
 
 # Inclusión de el modelo REACTIVOS en la consola de administración de Django
 @admin.register(Reactivos)
-class Reactivosadmin(admin.ModelAdmin):
-    list_display=('id','code','cas','name','state','unit','respel','sga','created_by', 'date_create','last_update','last_updated_by',)
+class Reactivosadmin(ImportExportModelAdmin, admin.ModelAdmin):
+    list_display=('id','code','cas','name','state','unit','almacenamiento_interno','clase_almacenamiento','created_by', 'date_create','last_update','last_updated_by',)
     list_filter=('code','name',)
     search_fields=('code','name',)
     list_per_page=10
     ordering=('id',)
+    resource_class = ReactivosResources
+
+class TipoEventoResources(resources.ModelResource):
+    class Meta:
+        model = TipoEvento
+
+
+# Inclusión de el modelo TIPO DE EVENTO en la consola de administración de Django
+@admin.register(TipoEvento)
+class TipoEventoadmin(ImportExportModelAdmin, admin.ModelAdmin):
+    list_display=('name','id',)
+    list_filter=('id','name',)
+    search_fields=('name',)
+    list_per_page=20
+    ordering=('id',)
+    resource_class = TipoEventoResources
+
+# Inclusión de el modelo EVENTOS en la consola de administración de Django
+@admin.register(Eventos)
+class Eventoadmin(admin.ModelAdmin):
+    list_display = ('tipo_evento', 'id', 'display_usuario_evento', 'fecha_evento',)
+    list_filter = ('tipo_evento', 'usuario_evento',)
+    search_fields = ('tipo_evento', 'usuario_evento',)
+    list_per_page = 20
+    ordering = ('-fecha_evento',)
+
+    def display_usuario_evento(self, obj):
+        # Personaliza cómo se muestra usuario_evento en la lista
+        return f"{obj.usuario_evento.first_name} {obj.usuario_evento.last_name}"
+    
+    display_usuario_evento.short_description = 'Usuario del Evento'  # Cambia el encabezado de la columna
+
+    def get_queryset(self, request):
+        # Optimiza la consulta para reducir la carga de la base de datos
+        return super().get_queryset(request).select_related('usuario_evento')
+
+
 
 # Inclusión de el modelo ENTRADAS en la consola de administración de Django
 @admin.register(Entradas)
 class Entradaadmin(admin.ModelAdmin):
-    list_display=('id','name','trademark','reference','weight','order','date_order','manager','observations','location','price','nproject','destination','lab','observations', 'created_by', 'date_create','last_update','last_updated_by',)
+    list_display=('id','is_active','name','created_by', 'date_create','last_updated_by','last_update','trademark','reference','weight','order','date_order','manager','observations','location','price','nproject','destination','lab','observations', )
     list_filter=('date_create','name','lab',)
     search_fields=('date_create','name','lab',)
     list_per_page=10
@@ -119,7 +223,7 @@ class Salidaadmin(admin.ModelAdmin):
 # Inclusión de el modelo INVENTARIOS en la consola de administración de Django
 @admin.register(Inventarios)
 class Inventarioadmin(admin.ModelAdmin):
-    list_display=('id','name','trademark','weight','reference','lab','wlocation','minStockControl','minstock','edate','is_active','created_by', 'date_create','last_update','last_updated_by',)
+    list_display=('id','name','is_active','trademark','weight','reference','lab','wlocation','minStockControl','minstock','edate','created_by', 'date_create','last_update','last_updated_by',)
     list_filter=('trademark','name','reference','lab',)
     search_fields=('trademark','name','reference','lab',)
     list_per_page=10
@@ -129,7 +233,7 @@ class Inventarioadmin(admin.ModelAdmin):
 
 class UserAdmin(BaseUserAdmin):
     # Especifica los campos a mostrar en la lista de usuarios en el admin
-    list_display = ('id','first_name', 'last_name','rol','email', 'lab','is_active','user_create', 'date_joined','last_update','last_updated_by','id_number','phone_number',)
+    list_display = ('id','first_name', 'last_name','acceptDataProcessing','rol','email', 'lab','is_active','user_create', 'date_joined','last_update','last_updated_by','id_number','phone_number',)
     list_editable = ['first_name', 'last_name','email','lab', 'rol',]
     ordering=('id',)
 

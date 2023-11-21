@@ -1,0 +1,166 @@
+{% extends "webtemplate.html" %}
+
+<!doctype html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Enviar Mensajes{% endblock %}</title>
+    {% block head %}
+    <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe" crossorigin="anonymous"
+        defer></script> -->
+    <!-- Incluir SweetAlert2 desde CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.min.css">
+    <!-- Agrega el enlace al CDN de spin.js antes de tu script -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/spin.js/2.3.2/spin.min.js"></script>
+    <!-- para el autocompletado -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+    <!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> -->
+    <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script> -->
+    <script src="https://code.jquery.com/ui/1.13.0/jquery-ui.min.js"></script>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.0/themes/smoothness/jquery-ui.css">
+
+    {% load static %}
+
+    <link rel="stylesheet" href="{% static 'inventarioreac/stylesShowSpinner.css' %}">
+    <!-- Estilos para el letrero de la mitad del spinner -->
+    <script src="{% static 'inventarioreac/sendInfoSolicitud.js' %}" defer></script>
+    <!-- Llama Script al final genera alerta informativa con los datos que se va enviar al servidor y acepta-->
+    <script src="{% static 'inventarioreac/clearFds.js' %}"></script>
+    <!-- Llama Script que borra los campos del formulario cuando se ejecuta cualquier acción -->
+    <script src="{% static 'inventarioreac/hideUser.js' %}" defer></script>
+    <!-- Llama Script que oculta el otro asunto y genera el contador de caracteres del área de texto -->
+    <script src="{% static 'inventarioreac/cancelButtonFunction.js' %}" defer></script>
+    <!-- Llama Script  que coloca función al botón cancelar -->
+    <script src="{% static 'inventarioreac/autocompleteUsuariosCorreo.js' %}"></script>
+    <!-- Llama Script que coloca una lista autocompletable de usuarios sobre el campo name -->
+
+
+
+    {% endblock %}
+</head>
+
+<body>
+    {% block content %}
+    <div class="card">
+
+
+        <div class="card-header">
+            <strong class="card-title">
+                <h1>Enviar Mensajes</h1>
+            </strong>
+            <br>
+            <p>A continuación podrá enviar mensajes de correo electrónico a los usuarios del sistema</p>
+            <br>
+        </div>
+
+        <div class="card-body">
+            <!-- HTML para mostrar el spinner -->
+            <p id="message"></p>
+            <div id="spinner"></div>
+
+            <form method="post" id="solicitud_form" name="form" enctype="multipart/form-data">
+
+
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="{{ form.destino.id_for_label }}" name="Destino:">{{form.destino.label}}</label>
+                    {{ form.destino }}
+                </div>
+                <div id="lab-container">
+                <div class="form-group">
+
+                    <label for="{{ form.laboratorio.id_for_label }}" name="Laboratorio:">{{ form.laboratorio.label }}</label>
+                    {{ form.laboratorio }}
+                </div>
+            </div>
+                <div id="user-container">
+                    <div class="form-group">
+
+                        <label for="{{ form.usuario.id_for_label }}" name="Usuario Específico:">{{ form.usuario.label }}</label>
+                        {{ form.usuario }}
+                    </div>
+                </div>
+                <div class="form-group">
+
+                    <label for="{{ form.asunto.id_for_label }}" name="Asunto:">{{ form.asunto.label }}</label>
+                    {{ form.asunto }}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.mensaje.id_for_label }}" name="Mensaje:">{{ form.mensaje.label }}</label>
+                    {{ form.mensaje }}
+                    <span id="contador" style="display: none">0/1000 caracteres</span>
+                </div>
+
+
+                <div class="form-group">
+                    <label for="{{ form.adjunto.id_for_label }}" name="Archivos adjuntos:">{{ form.adjunto.label    }}</label>
+                    {{ form.adjunto }}
+                </div>
+
+        </div>
+
+        <div class="card-footer">
+            <div class="form-group">
+                <button type="button" class="btn btn-primary" onclick="limpiarCampos('form')">Cancelar</button>
+                <input type="button" value="Enviar Mensaje" class="btn btn-primary" id="open_confirm_in">
+            </div>
+            </form>
+
+
+        </div>
+
+    </div>
+    {% if messages %}
+    {% for message in messages %}
+    <!-- Este script no puede ser invocado desde un archivo externo. Después de recibir una respuesta del servidor, se
+      verifica si la ventana actual es emergente. En caso afirmativo, se muestra una alerta de confirmación o de error. -->
+    <script>
+
+
+
+        window.onload = function () {
+            //Alerta
+            var messageText = '{{ message|safe }}';
+
+            var alertType = 'info';  // Tipo de alerta predeterminado para mensajes habituales
+
+            // Verificar el contenido del mensaje para asignar el tipo de alerta adecuado
+            if (messageText.includes('La solicitud se ha registrado correctamente')) {
+                alertType = 'success';
+            } else if (messageText.includes('La solicitud no se ha podido enviar')) {
+                alertType = 'error';
+            }
+
+            // Mostrar la notificación con SweetAlert2
+            Swal.fire({
+                icon: alertType,
+                title: 'Mensaje del servidor',
+                text: messageText,
+                confirmButtonText: 'Aceptar'
+            }).then(function (result) {
+                // Verificar si la ventana actual es una ventana emergente
+                if (window.opener != null) {
+                    // Recargar la página principal antes de cerrar la ventana emergente
+                    window.opener.location.reload();
+                    // Si es una ventana emergente, cierra la ventana actual
+                    window.close();
+                }
+            });
+        };
+
+    </script>
+    {% endfor %}
+    {% endif %}
+
+
+    {% endblock %}
+</body>
+
+</html>

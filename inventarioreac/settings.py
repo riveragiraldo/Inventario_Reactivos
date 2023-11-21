@@ -40,7 +40,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'captcha',
     'reactivos',
-    
+    'import_export',
+    "django_apscheduler", 
 ]
 
 MIDDLEWARE = [
@@ -125,6 +126,17 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = 'staticfiles'
 
+#Ubicacioón de archivos adjuntos
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+BASE_URL = 'https://laboratorios.manizales.unal.edu.co/UniCLab'
+
+# Tiempo de inactividad en segundos antes de que la sesión expire (60 minutos)
+SESSION_COOKIE_AGE = 3600  # 60 minutos
+
+
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
@@ -155,7 +167,10 @@ EMAIL_HOST_PASSWORD = 'vfruavgehdlymyaz'  # Contraseña para autenticación SMTP
 # Correo del remitente predeterminado
 DEFAULT_FROM_EMAIL = 'andresrgiraldo@gmail.com'
 
-LOGIN_REDIRECT_URL = "/"
+LOGIN_REDIRECT_URL = "/UniCLab/"
+# LOGIN_URL = "accounts/login/?next=/"
+LOGIN_URL = "/UniCLab/accounts/login/"
+
 
 
 

@@ -1,10 +1,7 @@
 {% load static %}<!-- Permite invocar archivos estáticos -->
+{% load has_group %}<!-- Template tag de configuración de grupos -->
 <!DOCTYPE html>
-<!--[if lt IE 7]> <html class="ie6 oldie"> <![endif]-->
-<!--[if IE 7]> <html class="ie7 oldie"> <![endif]-->
-<!--[if IE 8]> <html class="ie8 oldie"> <![endif]-->
-<!--[if IE 9]> <html class="ie9 oldie"> <![endif]-->
-<!--[if (gt IE 9)|!(IE)]><!-->
+
 <html>
 <!--<![endif]-->
 
@@ -31,7 +28,6 @@
 
 	<link rel="stylesheet" type="text/css" href="{% static 'inventarioreac/css/bootstrap.min.css' %}" media="all">
 	<link rel="stylesheet" type="text/css" href="{% static 'inventarioreac/css/bootstrap-theme.min.css' %}" media="all">
-	<link rel="stylesheet" type="text/css" href="{% static 'inventarioreac/css/accesibilidad.css' %}" media="all">
 	<link rel="stylesheet" type="text/css" href="{% static 'inventarioreac/css/reset.css' %}" media="all">
 	<link rel="stylesheet" type="text/css" href="{% static 'inventarioreac/css/unal.css' %}" media="all">
 	<link rel="stylesheet" type="text/css" href="{% static 'inventarioreac/css/base.css' %}" media="all">
@@ -41,9 +37,21 @@
 	<link rel="stylesheet" type="text/css" href="{% static 'inventarioreac/css/printer.css' %}" media="print">
 
 
+
 	<script src="{% static 'inventarioreac/js/jquery.js' %}" type="text/javascript"></script>
 	<script src="{% static 'inventarioreac/js/unal.js' %}" type="text/javascript"></script>
-	
+	<script src="{% static 'inventarioreac/js/webtemplate.js' %}" type="text/javascript" defer></script>
+
+	<!-- Incluir SweetAlert2 desde CDN -->
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.min.js"></script>
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.min.css">
+	<!-- Incluye el archivo CSS de Bootstrap -->
+
+	<!-- Incluye el archivo JavaScript de Bootstrap -->
+	<!-- <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" type="text/javascript" defer></script> -->
+
+
+
 
 	{% block head %}{% endblock %}
 	<title>{% block title %}Inicio: Universidad Nacional de Colombia{% endblock %}</title>
@@ -54,36 +62,74 @@
 		<div class="indicator hidden-xs"></div>
 		<ul class="dropdown-menu">
 			<li>
-				<a href="http://correo.unal.edu.co" target="_blank"><img src="{% static 'inventarioreac/images/icnServEmail.png' %}" width="32" height="32" alt="Correo Electrónico">Correo Electrónico</a>
-		</li>
-		<li>
-				<a href="https://dninfoa.unal.edu.co" target="_blank"><img src="{% static 'inventarioreac/images/icnServSia.png' %}" width="32" height="32" alt="Dirección Nacional de Información Académica">DNINFOA - SIA</a>
-		</li>
-		<li>
-				<a href="http://bibliotecas.unal.edu.co" target="_blank"><img src="{% static 'inventarioreac/images/icnServLibrary.png' %}" width="32" height="32" alt="Biblioteca">Bibliotecas</a>
-		</li>
-		<li>
-			<a href="http://laboratorios.manizales.unal.edu.co/"target="_blank"><img src="{% static 'inventarioreac/images/icnLrn.png' %}" width="32" height="32" alt="Direccion de Laboratorios">Direccion de Laboratorios Sede Manizales </a>
-		</li>
-		<li>
-			<a href="https://d1xb30i372mnxf.cloudfront.net/" target="_blank"><img src="{% static 'inventarioreac/images/icnLrn.png' %}" width="32" height="32" alt="Plataforma de Laboratorios Remotos">Plataforma de Laboratorios Remotos</a>	
-			
-		</li>
+				<a href="http://correo.unal.edu.co" target="_blank"><img
+						src="{% static 'inventarioreac/images/icnServEmail.png' %}" width="32" height="32"
+						alt="Correo Electrónico">Correo Electrónico</a>
+			</li>
+			<li>
+				<a href="https://dninfoa.unal.edu.co" target="_blank"><img
+						src="{% static 'inventarioreac/images/icnServSia.png' %}" width="32" height="32"
+						alt="Dirección Nacional de Información Académica">DNINFOA - SIA</a>
+			</li>
+			<li>
+				<a href="http://bibliotecas.unal.edu.co" target="_blank"><img
+						src="{% static 'inventarioreac/images/icnServLibrary.png' %}" width="32" height="32"
+						alt="Biblioteca">Bibliotecas</a>
+			</li>
+			<li>
+				<a href="{% url 'reactivos:home_dir_lab' %}" target="_blank"><img
+						src="{% static 'inventarioreac/images/icnLrn.png' %}" width="32" height="32"
+						alt="Direccion de Laboratorios">Direccion de Laboratorios Manizales </a>
+			</li>
+			<li>
+				<a href="https://d1xb30i372mnxf.cloudfront.net/" target="_blank"><img
+						src="{% static 'inventarioreac/images/icnLrn.png' %}" width="32" height="32"
+						alt="Plataforma de Laboratorios Remotos">Plataforma de Laboratorios Remotos</a>
+
+			</li>
+			<li>
+				<a href="{% url 'reactivos:index'%}" title="Volver al inicio"><img
+						src="{% static 'inventarioreac/images/home_icon.png' %}" width="32" height="32">Inicio</a>
+
+			</li>
+			<li>
+				<a href="{% url 'reactivos:enlaces' category='reactivos' %}" title="Enlaces referentes a Reactivos"><img
+						src="{% static 'inventarioreac/images/reagent_icon.png' %}" width="32" height="32">Reactivos</a>
+
+			</li>
+			<li>
+				<a href="{% url 'reactivos:enlaces' category='inventario' %}"
+					title="Enlaces referentes a Inventarios"><img
+						src="{% static 'inventarioreac/images/inventory_icon.png' %}" width="32"
+						height="32">Inventarios</a>
+
+			</li>
+			<li>
+				<a href="{% url 'reactivos:enlaces' category='ayuda' %}" title="Enlaces referentes a Ayuda"><img
+						src="{% static 'inventarioreac/images/request_icon.png' %}" width="32" height="32">Ayuda</a>
+
+			</li>
+			<li>
+				<a href="{% url 'reactivos:enlaces' category='usuarios' %}" title="Enlaces referentes a Usuarios"><img
+						src="{% static 'inventarioreac/images/user_icon.png' %}" width="32" height="32">Usuarios</a>
+
+			</li>
+			<li>
+				<a href="{% url 'reactivos:enlaces' category='administrar' %}"
+					title="Enlaces referentes a Administrar"><img
+						src="{% static 'inventarioreac/images/admin_icon.png' %}" width="32" height="32">Administrar</a>
+
+			</li>
 		</ul>
 	</div>
+
 	<header id="unalTop">
 		<div class="logo">
 			<a href="http://unal.edu.co">
-				<!--[if (gte IE 9)|!(IE)]><!-->
 				<svg width="93%" height="93%">
 					<image xlink:href="{% static 'inventarioreac/images/escudoUnal.svg' %}" width="100%" height="100%"
 						class="hidden-print" />
 				</svg>
-
-				<!--<![endif]-->
-				<!--[if lt IE 9]>
-			<img src="{% static 'images/escudoUnal.png' %}" width="93%" height="auto" class="hidden-print"/> 
-	  <![endif]-->
 				<img src="{% static 'inventarioreac/images/escudoUnal_black.png' %}" class="visible-print" />
 			</a>
 		</div>
@@ -92,7 +138,7 @@
 				src="{% static 'inventarioreac/images/sealColombia.png' %}" width="66" height="66" />
 
 			<img class="visible-print" alt="Escudo de la República de Colombia"
-				src="{% static 'Inventarioreac/inventarioreac/images/sealColombia_black.png' %}" width="66" height="66" />
+				src="{% static '/inventarioreac/images/sealColombia_black.png' %}" width="66" height="66" />
 		</div>
 		<div class="firstMenu">
 
@@ -100,116 +146,393 @@
 				aria-controls="bs-navbar" aria-expanded="false">
 				<span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span>
 			</button>
-			
-			
-			
+
+
+			<div class="navbar-default">
+				<nav id="profiles">
+					<ul class="nav navbar-nav dropdown-menu">
+						<li class="item_Docentes #>"><a href="{% url 'reactivos:index' %}" title="Volver al inicio">{{ request.user.lab|title}}</a>
+						</li>
+						<li class="item_Docentes #>"><a href="#" title="Datos de usuario" id="datosusuario"
+								class="datos-usuario"
+								data-name="{{ request.user.first_name }} {{request.user.last_name }}"
+								data-message="<li><strong>Nombre:</strong> {{ request.user.first_name }} {{request.user.last_name }}</li><li><strong>Nombre de usuario:</strong> {{request.user.username }}</li><li><strong>Correo eléctrónico:</strong> {{request.user.email }}</li><li><strong>Teléfono:</strong> {{request.user.phone_number }}</li><li><strong>Laboratorio:</strong>{{request.user.lab }}</li><li><strong>Rol:</strong> {{request.user.rol }}</li><li><strong>Su último acceso:</strong> {{request.user.last_login }}</li>">{{ request.user.first_name|title }} {{request.user.last_name|title }}</a></li>
+						<li class="item_Docentes #>"><a href="{% url 'reactivos:password_change' %}"
+								title="Cambiar contraseña">Cambiar Contraseña</a></li>
+						<li class="item_Docentes #>"><a href="{% url 'reactivos:logout'%}" title="Cerrar sesión">Cerrar
+								Sesión</a></li>
+					</ul>
+				</nav>
+			</div>
 		</div>
 		<div id="bs-navbar" class="navbar-collapse collapse navigation">
 			<div class="site-url">
-				<a href="http://subdominio.unal.edu.co/" target="_blank">subdominio.unal.edu.co</a>
+				<a href="#" target="_blank" class="custom-url">Cargando URL...</a>
 			</div>
-			
-			
+			<script>
+				    document.addEventListener("DOMContentLoaded", function() {
+        const customUrl = document.querySelector('.custom-url');
+        if (customUrl) {
+            customUrl.textContent = window.location.origin + "{% url 'reactivos:home_dir_lab' %}";
+            customUrl.href = "{% url 'reactivos:home_dir_lab' %}";
+        }
+    });
+			</script>
+
+
+		</div>
+		<div class="btn-group hidden-sm hidden-md hidden-lg hidden-print">
+			<div class="btn btn-default dropdown-toggle" data-toggle="dropdown" id="unalOpenMenuServicios"
+				data-target="#services">Opciones<span class="caret"> </span>
 			</div>
-			<div class="btn-group hidden-sm hidden-md hidden-lg hidden-print">
-				<div class="btn btn-default dropdown-toggle" data-toggle="dropdown" id="unalOpenMenuServicios"
-					data-target="#services">Servicios<span class="caret"> </span>
-				</div>
+		</div>
+		<div class="btn-group hidden-sm hidden-md hidden-lg hidden-print">
+			<div class="btn btn-default dropdown-toggle" data-toggle="dropdown" id="unalOpenMenuPerfiles"
+				data-target="#profiles">Perfiles<span class="caret"> </span>
 			</div>
-			<div class="btn-group hidden-sm hidden-md hidden-lg hidden-print">
-				<div class="btn btn-default dropdown-toggle" data-toggle="dropdown" id="unalOpenMenuPerfiles"
-					data-target="#profiles">Perfiles<span class="caret"> </span>
-				</div>
-			</div>
+		</div>
 		</div>
 
 	</header>
-
-	
-	<nav class="navbar navbar-expand-lg navbar-light bg-light">
-		<div class="collapse navbar-collapse" id="navbarNav">
-			<ul class="navbar-nav ml-auto">
-				<br>
-				<li class="nav-item">
-					<p>Laboratorio: {{ laboratorio|title }}&nbsp;&nbsp;</p>
-
-				</li>
-
-				<li class="nav-item">
-					<span class="navbar-item">&nbsp;BIENVENIDO, {{ request.user.first_name|title }} {{ request.user.last_name|title }}&nbsp;</span>
-				</li>
-				<li class="nav-item">
-					<a class="nav-link" href="/admin/password_change/">&nbsp;CAMBIAR CONTRASEÑA&nbsp;</a>
-				</li>
-				<li class="nav-item">
-					<a class="nav-link" href="/admin/logout/">CERRAR SESIÓN</a>
-				</li>
-			</ul>
-		</div>
-	</nav>
-
 	<main class="detalle">
-		<div class="breadcrumb-class">Está en:<a href="{% url 'reactivos:index' %}" target="_self" title="Inicio" id="breadcrumb_title">{{ laboratorio|title}}</a>/<container id="breadcrumb-title"></container></div>
-
-		<script>
-			// Obtener el valor del campo HTML 'title'
-			var pageTitle = document.title;
-
-			// Asignar el valor al elemento de breadcrumb
-			document.getElementById("breadcrumb-title").textContent = pageTitle;
-			document.getElementById("breadcrumb_title").setAttribute("title", "Inicio "+"{{ laboratorio|title}}");
-		</script>
 
 
-		{% block content %}{% endblock %}
+		<nav aria-label="breadcrumb">
+			<ol class="breadcrumb" style="background-color: transparent;">
+				<li class="breadcrumb-item active" title="Inicio">Está en:</li>
+				<li class="breadcrumb-item"><a href="{% url 'reactivos:index' %}" target="_self" title="Inicio: "
+						id="breadcrumb_title">{{ request.user.lab|title}}</a></li>
+				<li class="breadcrumb-item active" aria-current="page" id="breadcrumb-title"></li>
+			</ol>
+		</nav>
+
+
+		{% if not category %}
+		<div class="sidebar-content ">
+			<div id="accordion" class="side-left-bar hidden-xs">
+				<div class="card">
+					<div class="card-header" id="headingSix">
+						<h5 class="mb-0">
+							<a class="btn btn-primary" id="button_reagent" href="{% url 'reactivos:index'%}"
+								title="Ir a la página de inicio">
+								<img style="vertical-align: middle; margin-right: 5px;"
+									src="{% static 'inventarioreac/images/home_icon.png' %}" width="32" height="32"
+									alt="Inicio">
+								Inicio
+							</a>
+						</h5>
+					</div>
+					<div id="collapseSix" class="collapse" aria-labelledby="headingSix" data-parent="#accordion">
+						<div class="card-body " style="color: white;">
+
+						</div>
+					</div>
+				</div>
+
+
+				<div class="card">
+					<div class="card-header" id="headingSeven">
+						<h5 class="mb-0">
+							<button class="btn btn-primary" data-toggle="collapse" data-target="#collapseSeven"
+								aria-expanded="true" aria-controls="collapseSeven"
+								title="Opciones referentes a creación de reactivos" id="button_reagent">
+								<img style="vertical-align: middle; margin-right: 5px;"
+									src="{% static 'inventarioreac/images/reagent_icon.png' %}" width="32" height="32"
+									alt="Reactivos">
+								Reactivos
+							</button>
+						</h5>
+					</div>
+					<div id="collapseSeven" class="collapse" aria-labelledby="headingSeven" data-parent="#accordion">
+						<div class="card-body">
+
+							{% if request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
+
+							<a class="side-bar-link btn-primary multiline" href="{% url 'reactivos:crear_estado'%}"
+								title="redirecciona al formulario de creación de estados">Crear Estados</a>
+
+							{% endif %}
+							{% if request.user|has_group:"COORDINADOR" or request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
+
+							<a class="side-bar-link btn-primary multiline" href="{% url 'reactivos:crear_unidades'%}"
+								title="redirecciona al formulario de creación de unidades">Crear Unidades</a>
+
+
+							<a class="side-bar-link btn-primary multiline"
+								href="{% url 'reactivos:crear_almacenamiento_interno'%}"
+								title="redirecciona al formulario de creación de almacenamiento interno">Crear
+								Almacenamiento Interno</a>
+
+							<a class="side-bar-link btn-primary multiline" href="{% url 'reactivos:crear_clase_almacenamiento'%}"
+								title="redirecciona al formulario de creación de clase de almacenamiento">Crear Clase de
+								Almacenamiento</a>
+
+							<a class="side-bar-link btn-primary multiline" href="{% url 'reactivos:crear_reactivo'%}"
+								title="redirecciona al formulario de creación de reactivos">Crear Reactivos</a>
+
+							{% endif %}
+
+							<a class="side-bar-link btn-primary multiline" href="{% url 'reactivos:listado_reactivos'%}"
+								title="redirecciona a la vista listado de reactivos">Listado de Reactivos</a>
+
+						</div>
+					</div>
+				</div>
+
+				<div class="card">
+					<div class="card-header" id="headingEight">
+						<h5 class="mb-0">
+							<button class="btn btn-primary" data-toggle="collapse" data-target="#collapseEight"
+								aria-expanded="true" aria-controls="collapseEight"
+								title="Opciones referentes a creación de reactivos" id="button_reagent">
+								<img style="vertical-align: middle; margin-right: 5px;"
+									src="{% static 'inventarioreac/images/inventory_icon.png' %}" width="32" height="32"
+									alt="Reactivos">
+								Inventario
+							</button>
+						</h5>
+					</div>
+					<div id="collapseEight" class="collapse" aria-labelledby="headingEight" data-parent="#accordion">
+						<div class="card-body " style="color: white;">
+
+							<a class="side-bar-link btn-primary multiline" href="{% url 'reactivos:registrar_entrada'%}"
+								title="Redirecciona al formulario de registro de entradas">Registrar Entradas</a>
+
+							<a class="side-bar-link btn-primary multiline" href="{% url 'reactivos:registrar_salida'%}"
+								title="Redirecciona al formulario de registro de salidas">Registrar Salidas</a>
+
+							<a class="side-bar-link btn-primary multiline" href="{% url 'reactivos:crear_responsable'%}"
+								title="Redirecciona al formulario de creación de responsables">Crear Responsables</a>
+
+							<a class="side-bar-link btn-primary multiline" href="{% url 'reactivos:crear_marca'%}"
+								title="Redirecciona al formulario de creación de marrcas">Crear Marcas</a>
+
+							<a class="side-bar-link btn-primary multiline" href="{% url 'reactivos:crear_ubicacion'%}"
+								title="Redirecciona al formulario de creación de Asignatura / Ubicación">Crear
+								Asignatura / Ubicación</a>
+
+							<a class="side-bar-link btn-primary multiline" href="{% url 'reactivos:crear_walmacen'%}"
+								title="Redirecciona al formulario de creación de ubicaciones en el almacén">Crear
+								Ubicaciones en Almacén</a>
+
+
+							{% if request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
+
+							<a class="side-bar-link btn-primary multiline" href="{% url 'reactivos:crear_facultad'%}"
+								title="Redirecciona al formulario de creación de facultades">Crear Facultades</a>
+
+							<a class="side-bar-link btn-primary multiline" href="{% url 'reactivos:crear_destino'%}"
+								title="Redirecciona al formulario de creación de destinos">Crear Destinos</a>
+
+							{% endif %}
+
+							<a class="side-bar-link btn-primary multiline" href="{% url 'reactivos:inventario'%}"
+								title="Redirecciona a la vista listado de inventarios">Ver Inventario</a>
+
+							{% if request.user|has_group:"COORDINADOR" or request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
+
+							<a class="side-bar-link btn-primary multiline" href="{% url 'reactivos:listado_entradas'%}"
+								title="Redirecciona a la vista listado de entradas">Listado de Entradas</a>
+
+							<a class="side-bar-link btn-primary multiline" href="{% url 'reactivos:listado_salidas'%}"
+								title="Redirecciona a la vista listado de salidas">Listado de Salidas</a>
+
+							{% endif %}
+
+						</div>
+					</div>
+				</div>
+
+				<div class="card">
+					<div class="card-header" id="headingNine">
+						<h5 class="mb-0">
+							<button class="btn btn-primary" data-toggle="collapse" data-target="#collapseNine"
+								aria-expanded="true" aria-controls="collapseNine"
+								title="Opciones referentes a creación de reactivos" id="button_reagent">
+								<img style="vertical-align: middle; margin-right: 5px;"
+									src="{% static 'inventarioreac/images/request_icon.png' %}" width="32" height="32"
+									alt="Reactivos">
+								Ayuda
+							</button>
+						</h5>
+					</div>
+					<div id="collapseNine" class="collapse" aria-labelledby="headingNine" data-parent="#accordion">
+						<div class="card-body " style="color: white;">
+							<a class="side-bar-link btn-primary multiline" target="_blank"
+								href="{% url 'reactivos:descargar_manual'%}" title="Descargar Manual de usuario">Manual
+								de Usuario</a>
+							<a class="side-bar-link btn-primary multiline" href="{% url 'reactivos:registrar_solicitud'%}"
+								title="Redirecciona al formulario de registro de solicitudes">Registrar Solicitud</a>
+
+							{% if request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
+
+							<a class="side-bar-link btn-primary multiline" href="{% url 'reactivos:crear_tipo_solicitud'%}"
+								title="Redirecciona al formulario de creación de tipo de solicitud">Crear Tipo de
+								Solicitud</a>
+
+							<a class="side-bar-link btn-primary multiline" href="{% url 'reactivos:listado_solicitudes'%}"
+								title="Redirecciona a la vista que muestra el listado de solicitudes">Listado de
+								Solicitudes</a>
+
+							{% endif %}
+
+						</div>
+					</div>
+				</div>
+
+				<div class="card">
+					<div class="card-header" id="headingTen">
+						<h5 class="mb-0">
+							<button class="btn btn-primary" data-toggle="collapse" data-target="#collapseTen"
+								aria-expanded="true" aria-controls="collapseTen"
+								title="Opciones referentes a creación de reactivos" id="button_reagent">
+								<img style="vertical-align: middle; margin-right: 5px;"
+									src="{% static 'inventarioreac/images/user_icon.png' %}" width="32" height="32"
+									alt="Reactivos">
+								Usuarios
+							</button>
+						</h5>
+					</div>
+					<div id="collapseTen" class="collapse" aria-labelledby="headingTen" data-parent="#accordion">
+						<div class="card-body " style="color: white;">
+
+							<a class="side-bar-link btn-primary multiline" href="{% url 'reactivos:password_change'%}"
+								title="Redirecciona al formulario de cambio de contraseña">Cambiar Contraseña</a>
+
+							<a class="side-bar-link btn-primary multiline" href="{% url 'reactivos:password_reset'%}"
+								title="Redirecciona al formulario de restablecimiento de contraseña">¿Olvido su
+								Contraseña?</a>
+
+							{% if request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
+
+							<a class="side-bar-link btn-primary multiline" href="{% url 'reactivos:crear_laboratorio'%}"
+								title="Redirecciona al formulario de creación de laboratorios">Crear Laboratorio</a>
+
+							<a class="side-bar-link btn-primary multiline" href="{% url 'reactivos:crear_roles'%}"
+								title="Redirecciona al formulario de creación de roles">Crear Roles</a>
+
+							{% endif %}
+							{% if request.user|has_group:"COORDINADOR" or request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
+
+							<a class="side-bar-link btn-primary multiline" href="{% url 'reactivos:crear_usuarios'%}"
+								title="Redirecciona al formulario de creación de usuarios">Crear Usuarios</a>
+
+							<a class="side-bar-link btn-primary multiline" href="{% url 'reactivos:listado_usuarios'%}"
+								title="Redirecciona a la vista listado de usuarios">Listado Usuarios</a>
+
+							{% endif %}
+
+							<a class="side-bar-link btn-primary multiline" href="{% url 'reactivos:logout'%}"
+								title="Cierra sesión de usuario">Cerrar <S></S>esión</a>
+
+						</div>
+					</div>
+				</div>
+				{% if request.user.is_superuser or request.user|has_group:"ADMINISTRADOR"%}
+
+				<div class="card">
+					<div class="card-header" id="headingEleven">
+						<h5 class="mb-0">
+							<button class="btn btn-primary" data-toggle="collapse" data-target="#collapseEleven"
+								aria-expanded="true" aria-controls="collapseEleven"
+								title="Opciones referentes a creación de reactivos" id="button_reagent">
+								<img style="vertical-align: middle; margin-right: 5px;"
+									src="{% static 'inventarioreac/images/admin_icon.png' %}" width="32" height="32"
+									alt="Reactivos">
+								Administrar
+							</button>
+						</h5>
+					</div>
+					<div id="collapseEleven" class="collapse" aria-labelledby="headingEleven" data-parent="#accordion">
+						<div class="card-body " style="color: white;">
+
+							{% if request.user.is_superuser %}
+
+							<a class="side-bar-link btn-primary multiline" href="{% url 'admin:index'%}"
+								title="Consola de superusuario">Consola de Superusuario</a>
+
+							{% endif %}
+
+							{% if request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
+
+
+							<a class="side-bar-link btn-primary multiline" href="{% url 'reactivos:configuraciones'%}"
+								title="Configuraciones generales del sistema">Configuraciones</a>
+
+							<a class="side-bar-link btn-primary multiline" href="{% url 'reactivos:listado_eventos'%}"
+								title="Listado de eventos del sistema">Listado de Eventos</a>
+								<a class="side-bar-link btn-primary multiline" href="{% url 'reactivos:enviar_correo'%}"
+								title="Enviar Mensajes de correo a usuarios del sistena">Mensajería</a>
+
+							{% endif %}
+
+						</div>
+					</div>
+				</div>
+				{% endif %}
+			
+		
+			{% endif %}
+		</div>
+		
+
+
+			<div class="content">
+				{% block content %}
+				{% endblock %}
+			</div>
+		
+		
+
 
 	</main>
 
 	<footer class="clear">
-		<nav  class="col-md-3 col-lg-3 col-sm-3 col-xs-4 col-xxs-6">
+		<nav class="col-md-3 col-lg-3 col-sm-3 col-xs-4 col-xxs-6">
 		</nav>
 		<nav class="col-md-3 col-lg-3 col-sm-3 col-xs-4 col-xxs-6 ">
 		</nav>
-		<div class="col-md-4 col-lg-4 col-sm-4 col-xs-4 col-xxs-12 footer-info">
+		<div class="col-md-4 col-lg-4 col-sm-4 col|-xs-4 col-xxs-12 footer-info">
 			<p class="col-sm-12 col-md-6 contacto">
 				<b>Contacto página web:</b>
-				<br /> Dirección  .....<br /> Edificio ...<br /> Bogotá D.C., Colombia<br />
-				(+57 1) 316 5000 Ext.
+				<br /> Carrera 27 # 64-60<br /> 01 8000 916956<br /> Manizales, Caldas - Colombia<br />
+				(57+606) 8879300
 			</p>
 			<p class="col-sm-12 col-md-6 derechos">
-				&copy; Copyright 2014<br /> Algunos derechos reservados.<br />
-				<a title="Comuníquese con el administrador de este sitio web" href="mailto:EMAIL@unal.edu.co"
-					target="_blank">EMAIL@unal.edu.co</a><br />
-				<a href="index.html#" target="_blank">Acerca de este sitio web</a><br /> Actualización:13/07/2023
+				&copy; Copyright 2023<br /> Algunos derechos reservados.<br />
+				<a title="Comuníquese con el administrador de este sitio web" href="mailto:UniClab_man@unal.edu.co"
+					target="_blank">UniClab_man@unal.edu.co</a><br />
+				<a href="{% url 'reactivos:home_dir_lab'%}" target="_blank">Acerca de este sitio web</a><br /> Actualización:14/11/2023
 			</p>
 		</div>
 
 		<div class="col-md-2 col-lg-2 col-sm-2 col-xs-12 logos">
 			<div class="col-xs-6 col-sm-12 col-md-6 no-padding">
 				<a class="col-xs-6 col-sm-12" href="http://www.orgulloun.unal.edu.co" target="_blank">
-					<img class="hidden-print" alt="Orgullo UN" src="{% static 'inventarioreac/images/log_orgullo.png' %}" width="78"
-						height="21" />
-					<img class="visible-print" alt="Orgullo UN" src="{% static 'inventarioreac/images/log_orgullo_black.png' %}"
-						width="94" height="37" />
+					<img class="hidden-print" alt="Orgullo UN"
+						src="{% static 'inventarioreac/images/log_orgullo.png' %}" width="78" height="21" />
+					<img class="visible-print" alt="Orgullo UN"
+						src="{% static 'inventarioreac/images/log_orgullo_black.png' %}" width="94" height="37" />
 				</a>
 
 				<a class="col-xs-6 col-sm-12 imgAgencia" href="http://www.agenciadenoticias.unal.edu.co/inicio.html"
 					target="_blank">
-					<img class="hidden-print" alt="Agencia de noticias" src="{% static 'inventarioreac/images/log_agenc.png' %}"
-						width="94" height="25" />
-					<img class="visible-print" alt="Agencia de noticias" src="{% static 'inventarioreac/images/log_agenc_black.png' %}"
-						width="94" height="37" />
+					<img class="hidden-print" alt="Agencia de noticias"
+						src="{% static 'inventarioreac/images/log_agenc.png' %}" width="94" height="25" />
+					<img class="visible-print" alt="Agencia de noticias"
+						src="{% static 'inventarioreac/images/log_agenc_black.png' %}" width="94" height="37" />
 				</a>
 			</div>
 			<div class="col-xs-6 col-sm-12 col-md-6 no-padding">
 				<a class="col-xs-6 col-sm-12" href="https://www.sivirtual.gov.co/memoficha-entidad/-/entidad/T0356"
 					target="_blank">
-					<img alt="Trámites en línea" src="{% static 'inventarioreac/images/log_gobiern.png' %}" width="67" height="51" />
+					<img alt="Trámites en línea" src="{% static 'inventarioreac/images/log_gobiern.png' %}" width="67"
+						height="51" />
 				</a>
 
 				<a class="col-xs-6 col-sm-12" href="http://www.contaduria.gov.co/" target="_blank">
-					<img alt="Contaduría general de la republica" src="{% static 'inventarioreac/images/log_contra.png' %}" width="67"
-						height="51" />
+					<img alt="Contaduría general de la republica"
+						src="{% static 'inventarioreac/images/log_contra.png' %}" width="67" height="51" />
 				</a>
 			</div>
 

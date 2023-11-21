@@ -20,6 +20,10 @@ select.form-control-sm {
     cursor: pointer;
 }
 
+.created_by_cell {
+    cursor: pointer;
+}
+
 /* Estilo para los encabezados con la clase .sortable-header */
 .sortable-header {
     cursor: pointer;
@@ -57,9 +61,12 @@ select.form-control-sm {
     width: 0;
     height: 0;
     vertical-align: middle;
-    border-left: 4px solid transparent; /* Ancho y color del borde izquierdo */
-    border-right: 4px solid transparent; /* Ancho y color del borde derecho */
-    border-bottom: 6px solid #000; /* Ancho y color del borde inferior (triángulo apuntando hacia arriba) */
+    border-left: 4px solid transparent;
+    /* Ancho y color del borde izquierdo */
+    border-right: 4px solid transparent;
+    /* Ancho y color del borde derecho */
+    border-bottom: 6px solid #000;
+    /* Ancho y color del borde inferior (triángulo apuntando hacia arriba) */
     margin-left: 5px;
 }
 
@@ -69,9 +76,12 @@ select.form-control-sm {
     width: 0;
     height: 0;
     vertical-align: middle;
-    border-left: 4px solid transparent; /* Ancho y color del borde izquierdo */
-    border-right: 4px solid transparent; /* Ancho y color del borde derecho */
-    border-top: 6px solid #000; /* Ancho y color del borde superior (triángulo apuntando hacia abajo) */
+    border-left: 4px solid transparent;
+    /* Ancho y color del borde izquierdo */
+    border-right: 4px solid transparent;
+    /* Ancho y color del borde derecho */
+    border-top: 6px solid #000;
+    /* Ancho y color del borde superior (triángulo apuntando hacia abajo) */
     margin-left: 5px;
 }
 
@@ -84,3 +94,23 @@ tr.table-row:hover {
     /* Fondo tenue al pasar el cursor por encima de la fila */
 }
 
+/* Agrega un estilo para resaltar las celdas de reactivo vencido */
+.reactivo-vencido {
+    background-color: #FFCCCC; /* Cambia el color de fondo */
+    color: #FF0000; /* Cambia el color del texto */
+    font-weight: bold; /* Hace que el texto sea más audaz */
+}
+
+
+/* Estilo personalizado para cambiar el ancho de la alerta */
+.custom-swal-class {
+    width: 550px; /* Cambia el ancho según tus necesidades */
+}
+
+
+/* Agrega un estilo para resaltar las celdas no tramitadas */
+.pendiente-tramite-cell {
+    background-color: #FFCCCC; /* Cambia el color de fondo */
+    color: #FF0000; /* Cambia el color del texto */
+    font-weight: bold; /* Hace que el texto sea más audaz */
+}

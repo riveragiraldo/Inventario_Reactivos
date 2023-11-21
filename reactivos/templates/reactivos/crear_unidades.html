@@ -13,170 +13,160 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe" crossorigin="anonymous"
         defer></script> -->
-    <!-- Incluir SweetAlert2 desde CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.min.css">
+
     <!-- Agrega el enlace al CDN de spin.js antes de tu script -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/spin.js/2.3.2/spin.min.js"></script>
 
     {% load static %}
 
-    <link rel="stylesheet" href="{% static 'stylesShowSpinner.css' %}">
+    <link rel="stylesheet" href="{% static 'inventarioreac/stylesShowSpinner.css' %}">
     <!-- Estilos para el letrero de la mitad del spinner -->
-    <script src="{% static 'sendInfo.js' %}" defer></script>
+    <script src="{% static 'inventarioreac/sendInfo.js' %}" defer></script>
     <!-- Llama Script al final genera alerta informativa con los datos que se va enviar al servidor y acepta-->
-    <script src="{% static 'clearFds.js' %}"></script>
+    <script src="{% static 'inventarioreac/clearFds.js' %}"></script>
     <!-- Llama Script que borra los campos del formulario cuando se ejecuta cualquier acción -->
-
-
+    <script src="{% static 'inventarioreac/cancelButtonFunction.js' %}" defer></script>
+    <!-- Llama Script  que coloca función al botón cancelar -->
 
     {% endblock %}
 </head>
 
 <body>
     {% block content %}
-
-
-
-    <div class="container mt-5">
-        <h1>Crear Unidades </h1>
-
-        <div class="row">
+    <div class="card">
+        <div class="card-header">
+            <h1>Crear Unidades</h1>
+        </div>
+        <br>
+        <div class="card-body">
             <!-- HTML para mostrar el spinner -->
             <p id="message"></p>
             <div id="spinner"></div>
 
-            <form method="post" class="row g-3" id="unit_form" name="form">
+            <form method="post" id="unit_form" name="form">
                 {% csrf_token %}
-
-                <div class="col-md-5">
-                    <label class="form-label" for="name" name="Nombre de la unidad: ">Nombre de la unidad:</label>
+                <div class="form-group">
+                    <label class="form-label" for="name" name="Nombre de la unidad: ">*Nombre de la unidad:</label>
                     <input type="text" class="form-control" placeholder="Nombre unidad" name="name" required id="name"
-                        pattern="^[a-zA-Z]{1,3}$" title="Ingrese solo letras (máximo 3 caracteres)">
-
+                        pattern="^[a-zA-Z]{1,3}$" title="Ingrese solo letras (máximo 3 caracteres)" autocomplete="off">
                 </div>
-                <div class="col-md-12">
-                </div>
+        </div>
+        <div class="card-footer">
+            <div class="form-group">
+                <button type="button" class="btn btn-primary" onclick="limpiarCampos('form')">Cancelar</button>
+                <input type="button" value="Crear Unidad" class="btn btn-primary" id="open_confirm_in">
+            </div>
+        </div>
+        </form>
+    </div>
+    
+    
 
-                <div class="col-md-12">
-                    <div class="col-md-2 mt-3">
-                        <input type="button" value="Crear Unidad" class="btn btn-primary" id="open_confirm_in">
-                    </div>
-                    <div class="col-md-2 mt-3">
-                        <input type="reset" value="Limpiar Campos" class="btn btn-primary">
-                    </div>
-
-                </div>
-            </form>
-
-            {% if messages %}
-            {% for message in messages %}
-            <!-- Este script no puede ser invocado como un archivo externo. Después de recibir una respuesta del servidor, se
+    <!-- Este script no puede ser invocado como un archivo externo. Después de recibir una respuesta del servidor, se
             verifica si la ventana actual es emergente. En caso afirmativo, se muestra una alerta de confirmación o de
             error,se obtienen los valores de los campos de la ventana principal, se recarga la página para actualizar la
             selección y se vuelven a escribir o seleccionar los valores previamente ingresados. Si se agregó un nuevo
             registro de UNIDAD en la base de datos o si este ya existe, se insertará en el campo de selección
             correspondiente. Luego, la ventana emergente se cerrará. Si la ventana no es emergente, se mostrará una alerta
             de éxito o error según corresponda. -->
-            <script>
+    {% if messages %}
+    {% for message in messages %}
+    <script>
 
-                //Verificar si es ventana emergente
-                if (window.opener) {
+        //Verificar si es ventana emergente
+        if (window.opener) {
 
-                    window.onload = function () {
+            window.onload = function () {
 
-                        mensaje = "{{ message|safe }}";
+                mensaje = "{{ message|safe }}";
+                console.log(mensaje)
 
-                        //Obtener id después del mensaje
-                        var unidad = mensaje.split(": ")[1];
+                //Obtener id después del mensaje
+                var unidad = mensaje.split(": ")[1];
 
-                        alert(mensaje)
-
-
-                        // Obtener los valores de los elementos necesarios de la ventana padre
-                        var color = window.opener.document.getElementById("color").value;
-                        var number = window.opener.document.getElementById("number").value;
-                        var subnumber = window.opener.document.getElementById("subnumber").value;
-                        var code = window.opener.document.getElementById("code").value;
-                        var cas = window.opener.document.getElementById("cas").value;
-                        var name_father = window.opener.document.getElementById("name").value;
-                        var estado = window.opener.document.getElementById("selectState").value;
-                        var respel = window.opener.document.getElementById("respel").value;
-                        var sga = window.opener.document.getElementById("sga").value;
-
-                        // Recargar la página padre
-                        window.opener.location.replace(window.opener.location.href);
-
-                        setTimeout(function () {
-                            // Acceder a la ventana padre y actualizar los valores
-
-                            window.opener.document.querySelector("#color").value = color;
-                            window.opener.document.querySelector("#number").value = number;
-                            window.opener.document.querySelector("#subnumber").value = subnumber;
-                            window.opener.document.querySelector("#code").value = code;
-                            window.opener.document.querySelector("#cas").value = cas;
-                            window.opener.document.querySelector("#name").value = name_father;
+                alert(mensaje)
 
 
-                            //Actualiza Select state
-                            var state_new = window.opener.document.querySelector("#selectState");
-                            state_new.value = estado;
-                            state_new.setAttribute("selected", true);
+                // Obtener los valores de los elementos necesarios de la ventana padre
 
-                            //Actualiza Select respel
-                            var respel_new = window.opener.document.querySelector("#respel");
-                            respel_new.value = respel;
-                            respel_new.setAttribute("selected", true);
+                var code = window.opener.document.getElementById("code").value;
+                var cas = window.opener.document.getElementById("cas").value;
+                var name_father = window.opener.document.getElementById("name").value;
+                var estado = window.opener.document.getElementById("selectState").value;
+                var almacenamiento_interno = window.opener.document.getElementById("almacenamiento_interno").value;
+                var clase_almacenamiento = window.opener.document.getElementById("clase_almacenamiento").value;
 
-                            //Actualiza Select sga
-                            var sga_new = window.opener.document.querySelector("#sga");
-                            sga_new.value = sga;
-                            sga_new.setAttribute("selected", true);
+                // Recargar la página padre
+                window.opener.location.replace(window.opener.location.href);
 
-                            //Actualiza Select selectunidades
-                            var unidad_new = window.opener.document.querySelector("#selectUnidades");
-                            unidad_new.value = unidad;
-                            unidad_new.setAttribute("selected", true);
+                setTimeout(function () {
+                    // Acceder a la ventana padre y actualizar los valores
 
-                            window.close();
 
-                        }, 2500);
-                    };
+                    window.opener.document.querySelector("#code").value = code;
+                    window.opener.document.querySelector("#cas").value = cas;
+                    window.opener.document.querySelector("#name").value = name_father;
+
+
+                    //Actualiza Select state
+                    var state_new = window.opener.document.querySelector("#selectState");
+                    state_new.value = estado;
+                    state_new.setAttribute("selected", true);
+
+                    //Actualiza Select almacenamiento_interno
+                    var almacenamiento_interno_new = window.opener.document.querySelector("#almacenamiento_interno");
+                    almacenamiento_interno_new.value = almacenamiento_interno;
+                    almacenamiento_interno_new.setAttribute("selected", true);
+
+                    //Actualiza Select clase_almacenamiento
+                    var clase_almacenamiento_new = window.opener.document.querySelector("#clase_almacenamiento");
+                    clase_almacenamiento_new.value = clase_almacenamiento;
+                    clase_almacenamiento_new.setAttribute("selected", true);
+
+                    //Actualiza Select selectunidades
+                    var unidad_new = window.opener.document.querySelector("#selectUnidades");
+                    unidad_new.value = unidad;
+                    unidad_new.setAttribute("selected", true);
+
+                    window.close();
+
+                }, 2500);
+            };
+        }
+
+        else {
+            window.onload = function () {
+
+                var messageText = '{{ message|safe }}';
+
+                var alertType = 'info';  // Tipo de alerta predeterminado para mensajes habituales
+
+                // Verificar el contenido del mensaje para asignar el tipo de alerta adecuado
+                if (messageText.includes('Se ha creado exitosamente')) {
+                    alertType = 'success';
+                } else if (messageText.includes('Por favor seleccione') || messageText.includes('Ya existe') || messageText.includes('Solo se permiten registros ')) {
+                    alertType = 'warning';
                 }
 
-                else {
-                    window.onload = function () {
-
-                        var messageText = '{{ message|safe }}';
-
-                        var alertType = 'info';  // Tipo de alerta predeterminado para mensajes habituales
-
-                        // Verificar el contenido del mensaje para asignar el tipo de alerta adecuado
-                        if (messageText.includes('Se ha creado exitosamente')) {
-                            alertType = 'success';
-                        } else if (messageText.includes('Por favor seleccione') || messageText.includes('Ya existe') || messageText.includes('Solo se permiten registros ')) {
-                            alertType = 'warning';
-                        }
-
-                        // Mostrar la notificación con SweetAlert2
-                        Swal.fire({
-                            icon: alertType,
-                            title: 'Mensaje del servidor',
-                            text: messageText,
-                            confirmButtonText: 'Aceptar'
-                        });
+                // Mostrar la notificación con SweetAlert2
+                Swal.fire({
+                    icon: alertType,
+                    title: 'Mensaje del servidor',
+                    text: messageText,
+                    confirmButtonText: 'Aceptar'
+                });
 
 
-                    };
-                }
-            </script>
-            {% endfor %}
-            {% endif %}
-
-        </div>
+            };
+        }
+    </script>
+    {% endfor %}
+    {% endif %}
 
 
-        {% endblock %}
+
+
+    {% endblock %}
 </body>
 
 </html>

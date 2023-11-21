@@ -15,8 +15,8 @@
         integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe" crossorigin="anonymous"
         defer></script> -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> -->
+    <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script> -->
     <script src="https://code.jquery.com/ui/1.13.0/jquery-ui.min.js"></script>
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.0/themes/smoothness/jquery-ui.css">
     <!-- Incluir SweetAlert2 desde CDN -->
@@ -27,30 +27,34 @@
 
     {% load static %}
 
-    <link rel="stylesheet" href="{% static 'stylesShowSpinner.css' %}">
+    <link rel="stylesheet" href="{% static 'inventarioreac/stylesShowSpinner.css' %}">
     <!-- Estilos para el letrero de la mitad del spinner -->
-    <script src="{% static 'autocompletein.js' %}"></script>
+    <script src="{% static 'inventarioreac/autocompletein.js' %}"></script>
     <!-- Llama Script Autocompleta campo nombre, responsable y ubicacion -->
-    <script src="{% static 'UpdateDate.js' %}"></script>
+    <script src="{% static 'inventarioreac/UpdateDate.js' %}"></script>
     <!-- Llama Script  coloca fecha y hora actual -->
-    <script src="{% static 'clearFds.js' %}"></script>
+    <script src="{% static 'inventarioreac/clearFds.js' %}"></script>
     <!-- Llama Script  borrar campos despues de una transacción -->
-    <script src="{% static 'UpdateFields.js' %}"></script>
+    <script src="{% static 'inventarioreac/UpdateFields.js' %}"></script>
     <!-- Llama Script  actualizar campos según el nombre -->
-    <script src="{% static 'hideMinStock.js' %}" defer></script>
+    <script src="{% static 'inventarioreac/hideMinStock.js' %}" defer></script>
     <!-- Llama Script  que oculta el campo stock mínimo -->
-    <script src="{% static 'callPopUp.js' %}" defer></script>
+    <script src="{% static 'inventarioreac/callPopUp.js' %}" defer></script>
     <!-- Llama Script al final abre ventanas emergentes -->
-    <script src="{% static 'sendInfo.js' %}" defer></script>
+    <script src="{% static 'inventarioreac/sendInfo.js' %}" defer></script>
     <!-- Llama Script al final crea alerta informativa y envía datos -->
-    <script src="{% static 'updateWlocation.js' %}"></script>
+    <script src="{% static 'inventarioreac/updateWlocation.js' %}"></script>
     <!-- Llama Script al final actualiza select ubicaciones en almacén según laboratorio -->
-    <script src="{% static 'validateMinStock.js' %}" defer></script>
+    <script src="{% static 'inventarioreac/validateMinStock.js' %}" defer></script>
     <!-- Llama Script  que valida que el stock mínimo sea inferior a la cantidad -->
-    <script src="{% static 'validateEdate.js' %}" defer></script>
+    <script src="{% static 'inventarioreac/validateEdate.js' %}" defer></script>
     <!-- Llama Script  que valida que el que la fecha de vencimiento sea futura -->
+    <script src="{% static 'inventarioreac/cancelButtonFunction.js' %}" defer></script>
+    <!-- Llama Script  que coloca función al botón cancelar -->
+    <script src="{% static 'inventarioreac/hideButtonsIn.js' %}" defer></script>
+    <!-- Llama Script al final oculta botones si la página se muestra como emergente -->
 
-    <link rel="stylesheet" href="{% static 'styles.css' %}">
+    <link rel="stylesheet" href="{% static 'inventarioreac/styles.css' %}">
 
     {% endblock %}
 
@@ -58,139 +62,142 @@
 
 <body>
     {% block content %}
-    <div class="col-md-6 mx-auto">
-
-        <div class="container mt-5">
+    <div class="card col-md-8">
+        <div class="card-header">
             <h1>Registrar entrada de reactivos</h1>
+            <br>
+                <label class="form-label">Fecha:&nbsp;</label><span id="currentDate"></span>
+        </div>
+        <br>
+        
+        <div class="card-body">
             <!-- HTML para mostrar el spinner -->
             <p id="message"></p>
             <div id="spinner"></div>
 
-            <form method="post" class="row g-3" id="in_form" name="form">
+            <form method="post" id="in_form" name="form" class="row g-3">
                 {% csrf_token %}
-                <div class="col-md-12">
-                    <label class="form-label">Fecha: </label>
-                    <span id="currentDate"></span>
-                </div>
-                <div class="col-md-12">
-                    <label class="form-label" for="lab" name="Laboratorio: ">Laboratorio:</label>
-
+                <div class="form-group col-md-12">
+                    <label class="form-label" for="lab" name="Laboratorio: ">*Laboratorio:</label>
+    
                     {% if request.user|has_group:"COORDINADOR" or request.user|has_group:"TECNICO" %}
-                    <div id="add_reagent_btn"></div>
+                    
                     <select name="lab" class="form-control" required="" id="lab">
                         {% for lab in laboratorios %}
-
                         {% if lab.id == laboratorio.id %}
                         <option value="{{ lab.name }}" selected="">{{ lab.name }}</option>
-
                         {% endif %}
-
                         {% endfor %}
                     </select>
                     {% endif %}
+
                     {% if request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
                     <select name="lab" class="form-control" required="" id="lab">
                         <option value="" selected="">Seleccione</option>
                         {% for lab in laboratorios %}
-
                         <option value="{{ lab.name }}">{{ lab.name }}</option>
-
                         {% endfor %}
                     </select>
                     {% endif %}
                 </div>
-
-                <div class="col-md-6">
+                
+                <div class="form-group col-md-6">
                     <label class="form-label" for="name" name="Nombre: ">*Nombre: "Cód. - Nom. - CAS"</label>
-                    <div class="input-group">
-                        <input type="text" class="form-control" name="name" id="name" placeholder="Nombre, CI o CAS"
-                            title="Se puede filtrar por nombre, CI o CAS" required />
-                        {% if request.user|has_group:"COORDINADOR" or request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
-                        <button type="button" id="add_reagent_btn" class="btn btn-secondary" title="Agregar Reactivo">+
-                        </button>
-                        {% endif %}
+                    
+                    {% if request.user|has_group:"COORDINADOR" or request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
+                    <div class="input-group" id="name-block">
+                        <input type="text" class="form-control" name="name" id="name" placeholder="Nombre, CI o CAS" title="Se puede filtrar por nombre, CI o CAS" required />
+                        <div class="input-group-btn">
+                            <button type="button" id="add_reagent_btn" class="btn btn-secondary" title="Agregar Reactivo">+</button>
+                        </div>
                     </div>
+                    {% else %}
+                    <div id="add_reagent_btn"></div>
+                    <input type="text" class="form-control" name="name" id="name" placeholder="Nombre, CI o CAS"
+                        title="Se puede filtrar por nombre, CI o CAS" required />
+                    {% endif %}
                 </div>
-
-                <div class="col-md-2">
-                    <label class="form-label" for="code" name="Código: ">*Código:</label>
+                
+                <div class="form-group col-md-2">
+                    <label class="form-label" for="code" name="Código: ">Código:</label>
                     <input type="text" name="code" class="form-control" value="" id="code" readonly
                         placeholder="Cód. Interno">
                 </div>
-
-                <div class="col-md-2">
-                    <label class="form-label" for="cas" name="CAS: ">*CAS:</label>
+                
+                <div class="form-group col-md-2">
+                    <label class="form-label" for="cas" name="CAS: ">CAS:</label>
                     <input type="text" name="cas" class="form-control" value="" id="cas" readonly
                         placeholder="Cód. CAS">
                 </div>
-                <div class="col-md-2">
-                    <label class="form-label" for="is_liquid" name="Estado: ">*Estado:</label>
+            
+                <div class="form-group col-md-2">
+                    <label class="form-label" for="is_liquid" name="Estado: ">Estado:</label>
                     <input type="text" name="is_liquid" class="form-control" value="" id="is_liquid" readonly
                         placeholder="Estado">
                 </div>
-
-                <div class="col-md-4">
-                    <label class="form-label" for="price" name="Valor: ">*Valor:</label>
+            
+                <div class="form-group col-md-5">
+                <label class="form-label" for="price" name="Valor: ">*Valor (Enteros positivos, sin puntos ni comas):</label>
                     <div class="input-group">
-                        <span class="input-group-text">$</span>
+                        <span class="input-group-addon">$</span>
                         <input type="number" class="form-control" placeholder="Valor en COP" name="price" required
                             id="price" min="0" max="1000000000" pattern="^(?:[1-9]\d{0,8}|1000000000)$"
                             title="Ingrese un valor entero positivo sin puntos ni comas (máximo $ 1000000000)">
-
                     </div>
                 </div>
 
-                <div class="col-md-4">
+                <div class="form-group col-md-4">
                     <label class="form-label" for="trademark" name="Marca: ">*Marca:</label>
-                    <div class="input-group">
+                    <div class="input-group" id="trademark-block">
                         <select name="trademark" id="trademark" class="form-control" required>
                             <option value="">Seleccione</option>
                             {% for marca in marcas %}
                             <option value="{{ marca.id }}">{{ marca.name }}</option>
                             {% endfor %}
                         </select>
-                        <button type="button" id="add_trademark_btn" class="btn btn-secondary" title="Agregar Marca">+
-                            </Address></button>
+                        <div class="input-group-btn">
+                            <button type="button" id="add_trademark_btn" class="btn btn-secondary"
+                                title="Agregar Marca">+</button>
+                        </div>
                     </div>
                 </div>
 
-                <div class="col-md-4">
+                <div class="form-group col-md-3">
                     <label class="form-label" for="edate" name="Vencimiento: ">*Vencimiento:</label>
                     <input type="date" class="form-control" name="edate" id="edate"
                         value="{{ date.tomorrow|date:'Y-m-d' }}" required
-                        title="Registre una fecha futura (hasta 31/12/2100)"
-                        >
+                        title="Registre una fecha futura (hasta 31/12/2100)" min="{{ tomorrow|date:'Y-m-d' }}">
 
                 </div>
 
-                <div class="col-md-3" id="referenceBlock">
+                <div class="form-group col-md-4" id="referenceBlock">
                     <label class="form-label" for="reference" name="Referencia: ">*Referencia:</label>
                     <input type="text" class="form-control" placeholder="Ref. reactivo" name="reference" id="reference"
                         required>
                 </div>
 
-                <div class="col-md-4" id="weightBlock">
+                <div class="form-group col-md-5" id="weightBlock">
                     <label class="form-label" for="weight" name="Cantidad Ingreso: ">*Cantidad:</label>
                     <input type="number" step="any" class="form-control" placeholder="Cant. reactivo" id="weight"
                         name="weight" required min="0" max="100000000" pattern="^(?:[1-9]\d{0,7}|100000000)$"
                         title="Ingrese un valor entero positivo sin puntos ni comas (máximo 100000000)">
                 </div>
-                
 
-                <div class="col-md-2" id="unitBlock">
-                    <label class="form-label" for="unit" name="Unidad: ">*Unidades:</label>
+
+                <div class="form-group col-md-3" id="unitBlock">
+                    <label class="form-label" for="unit" name="Unidad: ">Unidades:</label>
                     <input type="text" name="unit" class="form-control" value="" id="unit" readonly>
                 </div>
                 <!-- Agregar el checkbox para Control de Stock -->
-                <div class="col-md-12">
-                    
+                <div class="form-group col-md-12">
+
                     <input type="checkbox" id="controlMinStock" name="controlMinStock" checked>
                     <input type="hidden" name="minStockControl" id="minStockControl" value="" readonly required>
                     <label for="minStockControl" name="Control de Stock Mínimo:">Control de Stock Mínimo</label>
-                    
+
                 </div>
 
-                <div class="col-md-3" id="minStockBlock">
+                <div class="form-group col-md-6" id="minStockBlock">
                     <label class="form-label" for="minstock" name="Stock mínimo: ">*Min Stock:</label>
                     <input type="number" step="any" class="form-control" placeholder="Stock Mínimo" id="minstock"
                         name="minstock" min="0" max="100000" pattern="^(?:[1-9]\d{0,4}|100000)$"
@@ -198,39 +205,24 @@
 
                 </div>
 
-                <div class="col-md-6">
-                    <label class="form-label" for="order" name="Orden: ">Número de orden:</label>
-                    <input type="text" name="order" class="form-control" id="order" placeholder="Orden Número">
-                </div>
-
-                <div class="col-md-6">
-                    <label class="form-label" for="orderdate" name="Fecha de orden:">Fecha de orden:</label>
-                    <input type="date" class="form-control" name="orderdate" id="orderdate" title="Fecha de la orden">
-                </div>  
-
-
-                <div class="col-md-6">
-                    <label class="form-label" for="nproject" name="Proyecto No.: ">Número de proyecto:</label>
-                    <input type="text" name="nproject" class="form-control" id="nproject" placeholder="Proyecto Número">
-                </div>
-
-                <div class="col-md-6">
+                <div class="form-group col-md-6" id="locationBlock">
                     <label class="form-label" for="location"
                         name="Asignatura Ubicación: ">*Asignatura/Ubicación:</label>
-                    <div class="input-group">
+                    <div class="input-group" id="location-block">
                         <input type="text" name="location" class="form-control" id="location" required
                             placeholder="Asignatura/Ubicación Destino">
-                        <button type="button" id="add_location_btn" class="btn btn-secondary"
-                            title="Agregar Asignatura/Ubicación">+
-                            </Address></button>
+                        <div class="input-group-btn">
+                            <button type="button" id="add_location_btn" class="btn btn-secondary"
+                                title="Agregar Asignatura/Ubicación">+
+                                </Address></button>
+                        </div>
+                        <input type="hidden" name="facultad" class="form-control" id="facultad" placeholder="Facultad"
+                            readonly>
+
                     </div>
                 </div>
-
-                <input type="hidden" name="facultad" class="form-control" id="facultad" placeholder="Facultad" readonly>
-
-
-
-                <div class="col-md-6">
+                
+                <div class="form-group col-md-6">
                     <label class="form-label" for="destination" name="Destino: ">*Destino:</label>
                     <select name="destination" id="destination" class="form-control" required>
                         <option value="">Seleccione</option>
@@ -240,33 +232,54 @@
                     </select>
                 </div>
 
-                <div class="col-md-6">
+                <div class="form-group col-md-6">
                     <label class="form-label" for="manager" name="Responsable: ">*Responsable:</label>
-                    <div class="input-group">
+                    <div class="input-group" id="manager-block">
                         <input type="text" name="manager" class="form-control" id="manager" required
                             placeholder="Responsable del insumo">
-                        <button type="button" id="add_manager_btn" class="btn btn-secondary"
-                            title="Agregar Responsable">+
-                            </Address></button>
+                        <div class="input-group-btn">
+                            <button type="button" id="add_manager_btn" class="btn btn-secondary"
+                                title="Agregar Responsable">+</button>
+                        </div>
                     </div>
                 </div>
+                <input type="hidden" name="correo" class="form-control" id="correo" placeholder="Correo Responsable"
+                    readonly>
 
-                <div class="col-md-6">
+                <div class="form-group col-md-6">
                     <label class="form-label" for="wlocation" name="Ubicación física: ">*Ubicación en almacén:</label>
-                    <div class="input-group">
+
+                    <div class="input-group" id="wlocation-block">
                         <select name="wlocation" id="wlocation" class="form-control" required>
                             <option value="">Seleccione</option>
                             {% for wubicacion in wubicaciones %}
                             <option value="{{ wubicacion.id }}">{{ wubicacion.name }}</option>
                             {% endfor %}
                         </select>
-                        <button type="button" id="add_wlocation_btn" class="btn btn-secondary"
-                            title="Agregar ubicación en Almacén">+
-                            </Address></button>
+                        <div class="input-group-btn">
+                            <button type="button" id="add_wlocation_btn" class="btn btn-secondary"
+                                title="Agregar ubicación en Almacén">+</button>
+                        </div>
                     </div>
                 </div>
 
-                <div class="col-md-12">
+                <div class="form-group col-md-6">
+                    <label class="form-label" for="order" name="Orden: ">Número de orden:</label>
+                    <input type="text" name="order" class="form-control" id="order" placeholder="Orden Número">
+                </div>
+
+                <div class="form-group col-md-6">
+                    <label class="form-label" for="orderdate" name="Fecha de orden:">Fecha de orden:</label>
+                    <input type="date" class="form-control" name="orderdate" id="orderdate" title="Fecha de la orden"
+                        max="{{ yesterday|date:'Y-m-d' }}">
+                </div>
+
+                <div class="form-group col-md-6">
+                    <label class="form-label" for="nproject" name="Proyecto No.: ">Número de proyecto:</label>
+                    <input type="text" name="nproject" class="form-control" id="nproject" placeholder="Proyecto Número">
+                </div>
+
+                <div class="form-group col-md-12">
                     <label class="form-label" for="observations" name="Observaciones: ">Observaciones:</label>
                     <textarea name="observations" class="form-control" placeholder="Escriba sus observaciones" rows="2"
                         id="observations"></textarea>
@@ -274,50 +287,62 @@
 
                 <input type="hidden" name="wf" class="form-control" value="entrada" id="wf">
                 <!-- identificador para saber que tipo de ventana es -->
-
-                <div class="col-md-6">
-                    <input type="button" value="Registrar entrada Reactivo" class="btn btn-primary"
-                        id="open_confirm_in">
-                </div>
-
-                <div class="col-md-6">
-                    <button type="reset" class="btn btn-primary" id="limpiarCampos">Limpiar
-                        campos</button>
-                </div>
-
-            </form>
-            {% if messages %}
-            {% for message in messages %}
-            <!-- Este script no puede ser invocado como un archivo externo, mostrará una alerta de éxito o error según
-            corresponda. -->
-            <script>
-                window.onload = function () {
-                    var messageText = '{{ message }}';
-                    var alertType = 'info';  // Tipo de alerta predeterminado para mensajes habituales
-
-                    // Verificar el contenido del mensaje para asignar el tipo de alerta adecuado
-                    if (messageText.includes('el ingreso del insumo')) {
-                        alertType = 'success';
-                    } else if (messageText.includes('Por favor seleccione') || messageText.includes('no se encuentra en la base de datos') || messageText.includes('fecha válida') || messageText.includes('Solo se permiten')) {
-                        alertType = 'warning';
-                    }
-
-                    // Mostrar la notificación con SweetAlert2
-                    Swal.fire({
-                        icon: alertType,
-                        title: 'Mensaje del servidor',
-                        text: messageText,
-                        confirmButtonText: 'Aceptar'
-                    });
-                };
-            </script>
-            {% endfor %}
-            {% endif %}
-
         </div>
+        <br>
+        <div class="card-footer">
+            <div class="form-group">
+                <button type="button" class="btn btn-primary" onclick="limpiarCampos('in_form')">Cancelar</button>
+                <input type="button" value="Registrar entrada" class="btn btn-primary" id="open_confirm_in">
+            </div>
+            </form>
+        </div>
+    </div>
+    {% if messages %}
+    {% for message in messages %}
+    <!-- Este script no puede ser invocado como un archivo externo, mostrará una alerta de éxito o error según
+            corresponda. -->
+    <script>
+        window.onload = function () {
+            var messageText = '{{ message }}';
+            var alertType = 'info';  // Tipo de alerta predeterminado para mensajes habituales
+
+            // Verificar el contenido del mensaje para asignar el tipo de alerta adecuado
+            if (messageText.includes('el ingreso del insumo')) {
+                alertType = 'success';
+            } else if (messageText.includes('Por favor seleccione') || messageText.includes('no se encuentra en la base de datos') || messageText.includes('fecha válida') || messageText.includes('Solo se permiten')) {
+                alertType = 'warning';
+            }
+
+            // Mostrar la notificación con SweetAlert2
+            Swal.fire({
+                icon: alertType,
+                title: 'Mensaje del servidor',
+                text: messageText,
+                confirmButtonText: 'Aceptar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Verificar si la ventana actual es una ventana emergente
+                    if (window.opener) {
+                        // Actualizar la ventana padre
+                        window.opener.location.reload();
+
+                        // Cerrar la ventana actual después de un retraso
+                        setTimeout(() => {
+                            window.close();
+                        }, 200);
+                    }
+                }
+            });
+        };
+    </script>
+    {% endfor %}
+    {% endif %}
 
 
-        {% endblock %}
+
+
+
+    {% endblock %}
 </body>
 
 </html>

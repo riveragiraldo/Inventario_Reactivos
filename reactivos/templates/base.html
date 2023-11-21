@@ -6,22 +6,22 @@
 <head>
 <title>{% block title %}{% endblock %}</title>
 {% block head %}
-<link rel="stylesheet" href="{% block stylesheet %}{% static "admin/css/base.css" %}{% endblock %}">
+<link rel="stylesheet" href="{% block stylesheet %}{% static "inventarioreac/admin/css/base.css" %}{% endblock %}">
 {% block dark-mode-vars %}
-  <link rel="stylesheet" href="{% static "admin/css/dark_mode.css" %}">
-  <script src="{% static "admin/js/theme.js" %}" defer></script>
+  <link rel="stylesheet" href="{% static "inventarioreac/admin/css/dark_mode.css" %}">
+  <script src="{% static "inventarioreac/admin/js/theme.js" %}" defer></script>
 {% endblock %}
 {% if not is_popup and is_nav_sidebar_enabled %}
-  <link rel="stylesheet" href="{% static "admin/css/nav_sidebar.css" %}">
-  <script src="{% static 'admin/js/nav_sidebar.js' %}" defer></script>
+  <link rel="stylesheet" href="{% static "inventarioreac/admin/css/nav_sidebar.css" %}">
+  <script src="{% static 'inventarioreac/admin/js/nav_sidebar.js' %}" defer></script>
 {% endif %}
 {% block extrastyle %}{% endblock %}
-{% if LANGUAGE_BIDI %}<link rel="stylesheet" href="{% block stylesheet_rtl %}{% static "admin/css/rtl.css" %}{% endblock %}">{% endif %}
+{% if LANGUAGE_BIDI %}<link rel="stylesheet" href="{% block stylesheet_rtl %}{% static "inventarioreac/admin/css/rtl.css" %}{% endblock %}">{% endif %}
 {% block extrahead %}{% endblock %}
 {% block responsive %}
     <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0, maximum-scale=1.0">
-    <link rel="stylesheet" href="{% static "admin/css/responsive.css" %}">
-    {% if LANGUAGE_BIDI %}<link rel="stylesheet" href="{% static "admin/css/responsive_rtl.css" %}">{% endif %}
+    <link rel="stylesheet" href="{% static "inventarioreac/admin/css/responsive.css" %}">
+    {% if LANGUAGE_BIDI %}<link rel="stylesheet" href="{% static "inventarioreac/admin/css/responsive_rtl.css" %}">{% endif %}
 {% endblock %}
 {% block blockbots %}<meta name="robots" content="NONE,NOARCHIVE">{% endblock %}
 {% endblock %}
@@ -36,7 +36,7 @@
     {% if not is_popup %}
     <!-- Header -->
     {% block header %}
-    <div id="header">
+    <div id="header"style="background-color: #666666;">
         <div id="branding">
         {% block branding %}{% endblock %}
         </div>

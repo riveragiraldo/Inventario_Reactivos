@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Alerta Reactivo</title>
+
+</head>
+
+<body>
+
+    <p>Has recibido este correo porque se generó una alerta:</p>
+    
+    <p>Fecha : {{ fecha_actual }}
+        <br>Laboratorio: {{ laboratorio }}
+        <br>Tipo de alerta: {{ alerta }}
+        <br>Reactivo: {{ reactivo }}
+        <br>Marca: {{ marca }}
+        <br>Referencia: {{ referencia }}
+        <br>Cantidad: {{ cantidad }} {{ unidad }}
+        <br>Mensaje: {{ mensaje }}
+        <br>Usuario con el cual se genera la alerta: {{ usuario }}
+    </p>
+
+    <p>Este mensaje se genera automáticamente, con la finalidad de generar alertas informativas.</p>
+
+
+    <p>Cordialmente,
+        <br>Equipo de dirección de Laboratorios
+        <br>Universidad Nacional de Colombia - Sede Manizales
+        <br>{{ url }}
+    </p>
+    <p>
+        Agradecemos no responder este correo electrónico
+        <br>🌿 Por favor sea consciente con el medio ambiente y no imprima este mensaje 🌳
+
+    </p>
+
+</body>
+
+</html>
