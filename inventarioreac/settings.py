@@ -161,11 +161,11 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'  # Dirección del servidor SMTP
 EMAIL_PORT = 587  # Puerto para la conexión (generalmente 587 para TLS o 465 para SSL)
 EMAIL_USE_TLS = True  # Configura como True si se requiere TLS (usar EMAIL_USE_SSL en caso de SSL)
-EMAIL_HOST_USER = 'andresrgiraldo@gmail.com'  # Usuario para autenticación SMTP
-EMAIL_HOST_PASSWORD = 'vfruavgehdlymyaz'  # Contraseña para autenticación SMTP
+EMAIL_HOST_USER = 'uniclab_man@unal.edu.co'  # Usuario para autenticación SMTP
+EMAIL_HOST_PASSWORD = 'ayff mfdx yebl vnko'  # Contraseña para autenticación SMTP
 
 # Correo del remitente predeterminado
-DEFAULT_FROM_EMAIL = 'andresrgiraldo@gmail.com'
+DEFAULT_FROM_EMAIL = 'uniclab_man@unal.edu.co'
 
 LOGIN_REDIRECT_URL = "/UniCLab/"
 # LOGIN_URL = "accounts/login/?next=/"
