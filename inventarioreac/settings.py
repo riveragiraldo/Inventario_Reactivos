@@ -38,8 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'captcha',
     'reactivos',
+    'captcha',
     'import_export',
     "django_apscheduler", 
 ]
@@ -148,11 +148,11 @@ STATICFILES_DIRS = [
 
 AUTH_USER_MODEL = 'reactivos.User'
 
-RECAPTCHA_PUBLIC_KEY = '6LeGjm4nAAAAABXTrZCNgjlT3P57fyB5oQI0NdpB'
-RECAPTCHA_PRIVATE_KEY = '6LeGjm4nAAAAABdT4YwpvZ_xZ1cwQ07xFJDjSgrI'
+# RECAPTCHA_PUBLIC_KEY = '6LeGjm4nAAAAABXTrZCNgjlT3P57fyB5oQI0NdpB'
+# RECAPTCHA_PRIVATE_KEY = '6LeGjm4nAAAAABdT4YwpvZ_xZ1cwQ07xFJDjSgrI'
 
-# Opciones disponibles: 'image', 'audio', 'checkbox'
-RECAPTCHA_TYPE = 'image'  # Puedes elegir el tipo que prefieras
+# # Opciones disponibles: 'image', 'audio', 'checkbox'
+# RECAPTCHA_TYPE = 'image'  # Puedes elegir el tipo que prefieras
 
 # Configuración para utilizar el backend de correo electrónico SMTP
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -170,6 +170,13 @@ DEFAULT_FROM_EMAIL = 'andresrgiraldo@gmail.com'
 LOGIN_REDIRECT_URL = "/UniCLab/"
 # LOGIN_URL = "accounts/login/?next=/"
 LOGIN_URL = "/UniCLab/accounts/login/"
+
+
+CAPTCHA_CHALLENGE_FUNCT = 'captcha.helpers.math_challenge'
+CAPTCHA_TIMEOUT = 20
+CAPTCHA_LETTER_ROTATION=(-30,30)
+CAPTCHA_FONT_SIZE=35
+CAPTCHA_BACKGROUND_COLOR='transparent'
 
 
 
