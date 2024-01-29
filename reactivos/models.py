@@ -373,9 +373,9 @@ class Reactivos(models.Model):
     state = models.ForeignKey(Estados, on_delete=models.CASCADE,
                               related_name='state', verbose_name="Presentación")
     almacenamiento_interno = models.ForeignKey(AlmacenamientoInterno, on_delete=models.CASCADE,
-                              related_name='AlmacenamientoInterno', verbose_name="Almacenamiento Interno")
+                              related_name='AlmacenamientoInterno', verbose_name="Almacenamiento Interno", blank=True, null=True)
     clase_almacenamiento = models.ForeignKey(ClaseAlmacenamiento, on_delete=models.CASCADE,
-                              related_name='ClaseAlmacenamiento', verbose_name="Clase Almacenamiento")
+                              related_name='ClaseAlmacenamiento', verbose_name="Clase Almacenamiento", blank=True, null=True)
     is_active = models.BooleanField(default=True)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Usuario')
     date_create = models.DateTimeField(auto_now_add=True,verbose_name='Fecha registro',)
