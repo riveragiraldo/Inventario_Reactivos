@@ -109,17 +109,16 @@ class AlmacenamientoInternoadmin(ImportExportModelAdmin, admin.ModelAdmin):
     ordering=('id',)
     resource_class = AlmacenamientoInternoResources
 
-
 class ClaseAlmacenamientoResources(resources.ModelResource):
     class Meta:
         model = ClaseAlmacenamiento
 
-# Inclusión de el modelo CLASE DE ALAMCENAMIENTO en la consola de administración de Django
+# Inclusión de el modelo Clase Alamcenamietno en la consola de administración de Django
 @admin.register(ClaseAlmacenamiento)
-class ClaseAlmacenamientoadmin(ImportExportModelAdmin, admin.ModelAdmin):
+class ClaseAlmacenamientoAdmin(ImportExportModelAdmin, admin.ModelAdmin):
     list_display=('id','name','description','created_by', 'date_create','last_update','last_updated_by',)
     ordering=('id',)
-    resource_class = ClaseAlmacenamiento
+    resource_class = ClaseAlmacenamientoResources
 
 class LaboratoriosResources(resources.ModelResource):
     class Meta:

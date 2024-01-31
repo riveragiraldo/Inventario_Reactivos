@@ -295,10 +295,10 @@ class Facultades(models.Model):
 class AlmacenamientoInterno(models.Model):
     name = models.CharField(max_length=100, verbose_name="Nombre")
     description=models.TextField(max_length=1000, verbose_name="Descripción")
-    is_active = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=True, null=True, blank=True)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Usuario')
-    date_create = models.DateTimeField(auto_now_add=True,verbose_name='Fecha registro',)
-    last_update = models.DateTimeField(auto_now=True,verbose_name='Última Actualización')
+    date_create = models.DateTimeField(auto_now_add=True,verbose_name='Fecha registro', null=True, blank=True)
+    last_update = models.DateTimeField(auto_now=True,verbose_name='Última Actualización', null=True, blank=True)
     last_updated_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Actualizado por',related_name='updateby_respel',)
 
     def __str__(self):
@@ -312,18 +312,18 @@ class AlmacenamientoInterno(models.Model):
 class ClaseAlmacenamiento(models.Model):
     name = models.CharField(max_length=100, verbose_name="Nombre")
     description=models.TextField(max_length=1000, verbose_name="Descripción")
-    is_active = models.BooleanField(default=True)
-    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Usuario')
-    date_create = models.DateTimeField(auto_now_add=True,verbose_name='Fecha registro',)
-    last_update = models.DateTimeField(auto_now=True,verbose_name='Última Actualización')
-    last_updated_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Actualizado por',related_name='updateby_Clase_Alamcenamiento',)
+    is_active = models.BooleanField(default=True, null=True, blank=True)
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Usuario', related_name='created_by')
+    date_create = models.DateTimeField(auto_now_add=True,verbose_name='Fecha registro', null=True, blank=True)
+    last_update = models.DateTimeField(auto_now=True,verbose_name='Última Actualización', null=True, blank=True)
+    last_updated_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Actualizado por', related_name='updateby_storage_class')
 
     def __str__(self):
         return self.name
 
     class Meta:
-        verbose_name_plural = 'Clase de almacenamiento'
-        verbose_name = 'Clase de almacenamiento'
+        verbose_name_plural = 'Clases de almacenamiento'
+        verbose_name = 'Clase de Almacenamiento'
 
 # Modelo para tabla Ubicaciones en base de datos Reactivos
 class Ubicaciones(models.Model):
@@ -356,6 +356,7 @@ class Almacenamiento(models.Model):
     date_create = models.DateTimeField(auto_now_add=True,verbose_name='Fecha registro',)
     last_update = models.DateTimeField(auto_now=True,verbose_name='Última Actualización')
     last_updated_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Actualizado por',related_name='updateby_Storage',)
+    
     def __str__(self):
         return self.name
 
