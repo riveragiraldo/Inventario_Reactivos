@@ -193,7 +193,7 @@ class ConfiguracionSistema(models.Model):
 
 # Modelo para tabla Marcas en base de datos Reactivos
 class Marcas(models.Model):
-    name = models.CharField(max_length=30, verbose_name="Marca")
+    name = models.CharField(max_length=50, verbose_name="Marca")
     is_active = models.BooleanField(default=True)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Usuario')
     date_create = models.DateTimeField(auto_now_add=True, verbose_name='Fecha Registro')
