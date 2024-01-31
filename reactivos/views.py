@@ -543,8 +543,10 @@ def configuraciones(request):
                 return redirect('reactivos:configuraciones')
         else:
             form = ConfiguracionSistemaForm(instance=configuracion)
-
-    laboratorio = request.user.lab.name
+    if request.user.lab:
+        laboratorio = request.user.lab.name
+    else:
+        laboratorio = 'No Lab'
     usuario = request.user
     context = {
         'usuario': usuario,
