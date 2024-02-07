@@ -3,8 +3,7 @@
 const labSelect = document.getElementById('lab');
 const nameSelect = document.getElementById('name');
 const destinationSelect = document.getElementById('destination');
-const locationSelect = document.getElementById('location');
-const createdBySelect = document.getElementById('created_by');
+
 const startDateSelect = document.getElementById('start_date');
 const endDateSelect = document.getElementById('end_date');
 
@@ -13,8 +12,7 @@ function updateSelectOptionsByLab() {
     const selectedLab = labSelect.value;
     const selectedName = nameSelect.value;
     const selectedDestination = destinationSelect.value;
-    const selectedLocation = locationSelect.value;
-    const selectedCreatedBy = createdBySelect.value;
+    
     const selectedStartDate = startDateSelect.value;
     const selectedEndDate = endDateSelect.value;  
 
@@ -32,18 +30,7 @@ function updateSelectOptionsByLab() {
         destinationSelect.value = previousDestinationValue;
     }
 
-    // Restaurar la selección previa del select "Location" si existe
-    const previousLocationValue = locationSelect.dataset.previousValue;
-    if (previousLocationValue) {
-        locationSelect.value = previousLocationValue;
-    }
-
-    // Restaurar la selección previa del select "Location" si existe
-    const previousCreatedByValue = createdBySelect.dataset.previousValue;
-    if (previousCreatedByValue) {
-        createdBySelect.value = previousCreatedByValue;
-    }
-
+    
     // Restaurar la selección previa del select "StartDate" si existe
     const previousStartDateValue = startDateSelect.dataset.previousValue;
     if (previousStartDateValue) {
@@ -66,9 +53,8 @@ function updateSelectOptionsByLab() {
 
             // Limpiar las opciones de los selectores
             nameSelect.innerHTML = '';
-            locationSelect.innerHTML = '';
             destinationSelect.innerHTML = '';
-            createdBySelect.innerHTML = '';
+            
 
             // Agregar opción "Todos" al select "Name"
             const allNameOption = new Option('Todos', '');
@@ -77,14 +63,6 @@ function updateSelectOptionsByLab() {
             // Agregar opción "Todos" al select "Destination"
             const allDestinationOption = new Option('Todos', '');
             destinationSelect.add(allDestinationOption);
-
-            // Agregar opción "Todos" al select "Location"
-            const allLocationOption = new Option('Todos', '');
-            locationSelect.add(allLocationOption);
-
-            // Agregar opción "Todos" al select "Created_by"
-            const allCreatedByOption = new Option('Todos', '');
-            createdBySelect.add(allCreatedByOption);
 
             // Agregar las opciones de nombres al select "Name"
             response.names.forEach(function (item) {
@@ -98,21 +76,7 @@ function updateSelectOptionsByLab() {
                 destinationSelect.add(option);
             });
 
-            // Agregar las opciones de nombres al select "Location"
-            response.locations.forEach(function (item) {
-                const school = item.location__facultad__name
-                var facultadIniciales = school.split(' ').map(word => word[0]).join('').toUpperCase();
-                nameLocation = item.location__name + ' - ' + facultadIniciales
-                const option = new Option(nameLocation, item.location);
-                locationSelect.add(option);
-            });
-
-            // Agregar las opciones de nombres al select "Created_by"
-            response.created_bys.forEach(function (item) {
-                nombre = item.created_by__first_name + ' ' + item.created_by__last_name
-                const option = new Option(nombre, item.created_by);
-                createdBySelect.add(option);
-            });
+            
 
             // Restaurar la selección previa del select "Name" si existía y sigue siendo una opción válida
             if (selectedName && nameSelect.querySelector(`option[value="${selectedName}"]`)) {
@@ -126,17 +90,7 @@ function updateSelectOptionsByLab() {
                 
             }
 
-            // Restaurar la selección previa del select "Location" si existía y sigue siendo una opción válida
-            if (selectedLocation && locationSelect.querySelector(`option[value="${selectedLocation}"]`)) {
-                locationSelect.value = selectedLocation;
-                
-            }
-
-            // Restaurar la selección previa del select "CreatedBY" si existía y sigue siendo una opción válida
-            if (selectedCreatedBy && createdBySelect.querySelector(`option[value="${selectedCreatedBy}"]`)) {
-                createdBySelect.value = selectedCreatedBy;
-                
-            }
+            
             // Restaurar la selección previa del select "StartDate" si existía y sigue siendo una opción válida
             if (selectedStartDate && startDateSelect.querySelector(`option[value="${selectedStartDate}"]`)) {
                 startDateSelect.value = selectedStartDate;

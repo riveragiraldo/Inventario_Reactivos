@@ -1598,19 +1598,21 @@ def registrar_entrada(request):
             return HttpResponse("El reactivo "+nReactivo +" no se encuentra en la base de datos, favor crearlo primero.", status=400)
 
         facultad = request.POST.get('facultad')
-        facultad=get_object_or_404(Facultades, name=facultad)
-        
         location = request.POST.get('location')
-        nlocation = location
-        try:
-            nameLocation = Ubicaciones.objects.get(name=location, facultad=facultad)
-            location = nameLocation
-
-        except Ubicaciones.DoesNotExist:
-            messages.error(request, "La ubicación "+nlocation +
-                           " no se encuentra en la base de datos, favor crearlo primero.")
+        if facultad=='' and location =='':
             location = None
-            return HttpResponse("La ubicación "+nlocation +" no se encuentra en la base de datos, favor crearlo primero.", status=400)
+        else:
+            facultad=get_object_or_404(Facultades, name=facultad)
+            nlocation = location
+            try:
+                nameLocation = Ubicaciones.objects.get(name=location, facultad=facultad)
+                location = nameLocation
+
+            except Ubicaciones.DoesNotExist:
+                messages.error(request, "La ubicación "+nlocation +
+                               " no se encuentra en la base de datos, favor crearlo primero.")
+                location = None
+                return HttpResponse("La ubicación "+nlocation +" no se encuentra en la base de datos, favor crearlo primero.", status=400)
         
         correo = request.POST.get('correo')
         
@@ -2331,18 +2333,22 @@ def editar_entrada(request, pk):
             return HttpResponse("El reactivo "+nReactivo +" no se encuentra en la base de datos, favor crearlo primero.", status=400)
         
         #ubicación y asignatura
-        facultad = request.POST.get('facultad')
-        facultad=get_object_or_404(Facultades, name=facultad)
+        facultad = request.POST.get('facultad')        
         location = request.POST.get('location')
-        nlocation = location
-        try:
-            nameLocation = Ubicaciones.objects.get(name=location, facultad=facultad)
-            location = nameLocation
-
-        except Ubicaciones.DoesNotExist:
-            location = None
-            return HttpResponse("La ubicación "+nlocation +" no se encuentra en la base de datos, favor crearlo primero.", status=400)
-        
+        print(f'facultad {facultad}')
+        print(f'ubicación {location}')
+        if facultad and location:
+            facultad=get_object_or_404(Facultades, name=facultad)
+            nlocation = location
+            try:
+                nameLocation = Ubicaciones.objects.get(name=location, facultad=facultad)
+                location = nameLocation
+            except Ubicaciones.DoesNotExist:
+                location = None
+                return HttpResponse("La ubicación "+nlocation +" no se encuentra en la base de datos, favor crearlo primero.", status=400)
+        else:
+            location=None
+            print('Hola Mundo')
         # Responsable y correo
         correo = request.POST.get('correo')
         manager = request.POST.get('manager')
@@ -5226,6 +5232,12 @@ def export_to_excel_input(request):
     for item in queryset:
         if not item.date_order:
             item.date_order=''
+        if item.location:
+            subject=item.location.name
+            school=item.location.facultad.name
+        else:
+            subject=''
+            school=''
         sheet.cell(row=row, column=1).value = item.id
         sheet.cell(row=row, column=2).value = str((item.date_create).strftime('%d/%m/%Y %H:%M:%S'))
         sheet.cell(row=row, column=3).value = item.name.name
@@ -5242,8 +5254,8 @@ def export_to_excel_input(request):
         sheet.cell(row=row, column=14).value = item.price
         sheet.cell(row=row, column=15).value = item.destination.name
         sheet.cell(row=row, column=16).value = item.manager.name
-        sheet.cell(row=row, column=17).value = item.location.name
-        sheet.cell(row=row, column=18).value = item.location.facultad.name
+        sheet.cell(row=row, column=17).value = subject
+        sheet.cell(row=row, column=18).value = school
         sheet.cell(row=row, column=19).value = item.created_by.first_name+' '+item.created_by.last_name
         sheet.cell(row=row, column=20).value = item.last_updated_by.first_name+' '+item.last_updated_by.last_name
         sheet.cell(row=row, column=21).value = str((item.last_update).strftime('%d/%m/%Y %H:%M:%S'))

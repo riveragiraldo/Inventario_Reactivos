@@ -165,7 +165,7 @@ EMAIL_HOST_USER = 'uniclab_man@unal.edu.co'  # Usuario para autenticación SMTP
 EMAIL_HOST_PASSWORD = 'ayff mfdx yebl vnko'  # Contraseña para autenticación SMTP
 
 # Correo del remitente predeterminado
-DEFAULT_FROM_EMAIL = 'uniclab_man@unal.edu.co'
+DEFAULT_FROM_EMAIL = 'Notificaciones Dirección de Laboratorios <uniclab_man@unal.edu.co>'
 
 LOGIN_REDIRECT_URL = "/UniCLab/"
 # LOGIN_URL = "accounts/login/?next=/"

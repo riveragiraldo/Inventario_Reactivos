@@ -410,7 +410,7 @@ class Entradas(models.Model):
     observations = models.TextField(
         max_length=1000, verbose_name='Observaciones')
     location = models.ForeignKey(
-        Ubicaciones, on_delete=models.CASCADE, related_name='Ubicacion', verbose_name='Asignatura/Ubicación')
+        Ubicaciones, on_delete=models.CASCADE, related_name='Ubicacion', verbose_name='Asignatura/Ubicación', blank=True, null=True)
     price=models.DecimalField(max_digits=20, decimal_places=2, verbose_name="Valor")
     
     nproject=models.CharField(max_length=15, verbose_name='Número de proyecto')
