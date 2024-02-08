@@ -411,7 +411,7 @@ class Entradas(models.Model):
         max_length=1000, verbose_name='Observaciones')
     location = models.ForeignKey(
         Ubicaciones, on_delete=models.CASCADE, related_name='Ubicacion', verbose_name='Asignatura/Ubicación', blank=True, null=True)
-    price=models.DecimalField(max_digits=20, decimal_places=2, verbose_name="Valor")
+    price=models.DecimalField(max_digits=20, decimal_places=2, verbose_name="Valor", blank=True, null=True)
     
     nproject=models.CharField(max_length=15, verbose_name='Número de proyecto')
     destination=models.ForeignKey(Destinos, on_delete=models.CASCADE, verbose_name='Destino')
@@ -479,6 +479,7 @@ class Inventarios(models.Model):
     lab=models.ForeignKey(Laboratorios, on_delete=models.CASCADE, related_name='laboratorio', verbose_name='Laboratorio')
     wlocation=models.ForeignKey(Almacenamiento, on_delete=models.CASCADE, related_name='wloc', verbose_name='Ubicación en Almacén')
     edate=models.DateField(verbose_name="Fecha de vencimiento", null=True, blank=True)
+    visibility=models.BooleanField(default=True, verbose_name='Visibilidad')
     minStockControl = models.BooleanField(default=True, verbose_name='Control de Stock Mínimo')
     minstock = models.DecimalField(
         max_digits=8, decimal_places=2, blank=True, null=True, default=0, help_text="Ingrese el stock mínimo (puede ser nulo).", verbose_name="Stock mínimo")

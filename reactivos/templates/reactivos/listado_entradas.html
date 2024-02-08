@@ -177,9 +177,9 @@
                     <th class="sortable-header" data-column="5" title="Ordenar por cantidad">Cant.</th>
                     <th class="sortable-header" data-column="6" title="Ordenar por laboratorio">Lab.</th>
                     
-                    <th class="sortable-header" data-column="9" title="Ordenar por Valor">Valor</th>
-                    <th class="sortable-header" data-column="10" title="Ordenar por Destino">Destino</th>
-                    <th class="sortable-header" data-column="12" title="Ordenar por Asignatura/Ubicación">Asignatura</th>
+                    <th class="sortable-header" data-column="7" title="Ordenar por Valor">Valor</th>
+                    <th class="sortable-header" data-column="8" title="Ordenar por Destino">Destino</th>
+                    <th class="sortable-header" data-column="9" title="Ordenar por Asignatura/Ubicación">Asignatura</th>
                     <th class="sortable-header" title="Visualización de detalle (no ordena)">Más</th>
                     <th class="sortable-header" title="Acciones con el registro (no ordena)" style="width: 2cm;"> Acciones</th>
                 </tr>
@@ -195,7 +195,7 @@
                     <td title="Referencia ">{{ item.reference }}</td>
                     <td title="Cantidad  de {{ item.name }}">{{ item.weight|floatformat:0 }} {{ item.name.unit }}</td>
                     <td title="Laboratorio al que pertenece el reactivo {{ item.name }}">{{ item.lab }}</td>
-                    <td title="Valor Ingreso {{ item.name }}">{{ item.price }}</td>
+                    <td title="Valor Ingreso {{ item.name }}">{{ item.price|floatformat:0 }}</td>
                     <td title="Destino de ingreso {{ item.name }}">{{ item.destination }}</td>
                     <td title="Ubicación de ingreso {{ item.name }}">
                     {% if item.location %}

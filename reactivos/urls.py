@@ -41,6 +41,8 @@ urlpatterns = [
     path('reactivos/eliminar_entrada/<int:pk>/', eliminar_entrada, name='eliminar_entrada'),# Eliminar Enradas
     path('reactivos/eliminar_salida/<int:pk>/', eliminar_salida, name='eliminar_salida'),# Eliminar Salidas
     path('UniCLab/reactivos/inventario/', InventarioListView.as_view(), name='inventario'), # Ver Inventario
+    path('UniCLab/reactivos/ocultar_reactivo/<int:pk>/', OcultarReactivoView.as_view(), name='ocultar_reactivo'), # Ocultar Reactivo
+    path('UniCLab/reactivos/mostrar_reactivo/<int:pk>/', MostrarReactivoView.as_view(), name='mostrar_reactivo'), # Mostrar Reactivo
     path('UniCLab/reactivos/listado_entradas/', EntradasListView.as_view(), name='listado_entradas'), # Listado de Entradas
     path('UniCLab/reactivos/listado_salidas/', SalidasListView.as_view(), name='listado_salidas'), # Listado de salidas
 
