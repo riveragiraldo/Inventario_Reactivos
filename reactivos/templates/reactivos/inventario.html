@@ -59,6 +59,8 @@
     <!-- Llama Script que verifica la fecha de vencimiento de los reactivos -->
     <script src="{% static 'inventarioreac/listActionsControl.js' %}" defer></script>
     <!-- Llama Script que controla las acciones de la lista -->
+    <script src="{% static 'inventarioreac/js/clearFieldsFindEvent.js' %}" defer></script>
+    <!-- Llama Script que Limpia la búsqueda -->
     {% endblock %}
 </head>
 
@@ -71,7 +73,7 @@
             </div>
             <br>
             <div class="card-body">
-                <form method="get" onsubmit="guardarValoresSelect()" class="row g-3">
+                <form method="get" onsubmit="guardarValoresSelect()" class="row g-3" name="inventario" id="inventario">
 
                     <div class="form-group col-md-4">
                         <label for="lab">Laboratorio:</label>
@@ -87,7 +89,7 @@
 
                         {% if request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
                         <select name="lab" class="form-control" id="lab">
-                            <option value='0' selected="">Todos</option>
+                            <option value='0' selected="">TODOS</option>
                             {% for lab in laboratorios %}
                             <option value="{{ lab.id }}">{{ lab.name }}</option>
                             {% endfor %}
@@ -98,7 +100,7 @@
                     <div class="form-group col-md-4">
                         <label for="name">Nombre Reactivo:</label>
                         <select id="name" name="name" class="form-control">
-                            <option value="">Todos</option>
+                            <option value="">TODAS</option>
                             {% for item in unique_names %}
                             <option value="{{ item.id }}">{{ item.name }}</option>
                             {% endfor %}
@@ -118,6 +120,9 @@
 
             <div class="card-footer">
                 <button id="boton-buscar" type="submit" class="btn btn-primary">Buscar</button>
+                <button type="button" class="btn btn-success" onclick="limpiarCampos('inventario')">Limpiar
+                    búsqueda
+                </button>
             </div>
             </form>
         </div>
@@ -228,6 +233,25 @@
                 </tr>
                 {% endfor %}
             </tbody>
+            
+            {% if reactivo_filtrado %}
+                
+            
+                
+            <tfoot style="background-color: #419741e7; color: #f7fff6;">
+                <tr>
+                    <td colspan="3" style="border-top: 2px solid #676666; font-weight: bold;">TOTAL</td>
+                    <td {% if marca_filtrada %}colspan="1"{% else %}colspan="3"{% endif %} style="border-top: 2px solid #676666; font-weight: bold;">{{ reactivo_filtrado }}</td>
+            
+                    {% if marca_filtrada %}
+                    <td colspan="2" style="border-top: 2px solid #676666; font-weight: bold;">{{ marca_filtrada }}</td>
+                    {% endif %}
+            
+                    <td colspan="7" style="border-top: 2px solid #676666; font-weight: bold;">{{ cantidad_filtrada }} {{ unidad_filtrada }}</td>
+                </tr>
+            </tfoot>
+            
+            {% endif %}
         </table>
 
         <br>

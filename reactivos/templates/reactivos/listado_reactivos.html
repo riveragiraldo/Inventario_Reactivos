@@ -95,7 +95,7 @@
             <card-footer>
                 <div class="form-group">
                     <button id="boton-buscar" type="submit" class="btn btn-primary">Buscar</button>
-                    <button type="button" class="btn btn-primary" onclick="limpiarCampos('listadoReactivos')">Limpiar búsqueda</button>
+                    <button type="button" class="btn btn-success" onclick="limpiarCampos('listadoReactivos')">Limpiar búsqueda</button>
                 </div>
                 </form>
             </card-footer>
@@ -142,7 +142,7 @@
                     <th class="sortable-header" data-column="7" title="Ordenar por Unidades">Unidad</th>
                     
                     <th class="sortable-header" data-column="12" title="Ordenar por Estado">Activo</th>
-                    <th class="sortable-header" title="Visualización de detalle (no ordena)">Ver detalle</th>
+                    <th class="sortable-header" title="Visualización de detalle (no ordena)">Disponibilidad</th>
 
                     <th class="sortable-header" title="Acciones con el registro (no ordena)">
                         <p style="color: transparent;">***********</p>Acciones
@@ -154,10 +154,32 @@
                 {% for item in object_list %}
                 <tr class="table-row">
                     <td title="Consecutivo">{{ item.id }} </td>
-                    <td title="Nombre del reactivo {{ item.name }}">{{ item.name }}</td>
+                    <td title="Nombre del reactivo {{ item.name }}"><a class="detalle-reactivo" data-reactivo-id="{{ item.id }}"
+                        data-reactivo-name="{{ item.name }}" data-reactivo-color="{{ item.color }}"
+                        data-reactivo-number="{{ item.number }}" data-reactivo-subnumber="{{ item.subnumber }}"
+                        data-reactivo-code="{{ item.code }}" data-reactivo-cas="{{ item.cas }}"
+                        data-reactivo-almacenamiento_interno="{{ item.almacenamiento_interno }}" data-reactivo-clase_almacenamiento="{{ item.clase_almacenamiento }} {{ item.clase_almacenamiento.description }}"
+                        data-reactivo-state="{{item.state }}" data-reactivo-unit="{{ item.unit }}"
+                        data-reactivo-active="{% if item.is_active %}
+                        Activo
+                        {% else %}
+                        Inactivo
+                        {% endif %}" data-reactivo-date_create="{{ item.date_create }}"
+                        data-reactivo-create_by="{{ item.created_by.first_name }} {{ item.created_by.last_name }}"
+                        data-reactivo-lastupdate="{{ item.last_update }}"
+                        data-reactivo-update_by="{{ item.last_updated_by.first_name }} {{ item.last_updated_by.last_name }}"
+                        data-reactivo-labs_and_weight="{% for inventario in item.inventarios_set.all|dictsort:'lab.name' %}
+                        {% if inventario.is_active %}
+                        {% if inventario.visibility %}
+                        <li><strong>Laboratorio:</strong> {{ inventario.lab.name }}</li>
+                        <li><strong>Cantidad:</strong> {{ inventario.weight }} {{ item.unit }},<strong> Marca:</strong> {{ inventario.trademark }} </li>
+                        <br>
+                        {% endif %}
+                        {% endif %}
+                        {% endfor %}" title="Más información sobre el registro de salida de: {{ item.name }}">{{ item.name }}</a></td>
                     <td title="Código interno reactivo {{ item.name }}">{{ item.code }}</td>
                     <td title="CAS {{ item.name }}">{{ item.cas }}</td>
-                    <td title="Alamcenamiento Interno {{ item.name }}">{{ item.almacenamiento_interno }}</td>
+                    <td title="Almacenamiento Interno {{ item.name }}">{{ item.almacenamiento_interno }}</td>
                     <td title="Clase de almacenamiento {{ item.name }}">{{ item.clase_almacenamiento }}</td>
                     <td title="Estado del reactivo {{ item.name }}">{{ item.state }}</td>
                     <td title="Unidad de medida {{ item.name }}">{{ item.unit }}</td>
@@ -188,31 +210,10 @@
                     </td>
 
                     <!-- Modifica el evento click de la imagen para mostrar SweetAlert -->
-                    <td>
-                        <img src="{% static 'inventarioreac/Images/moreInfo.ico' %}" alt="" width="18" height="18"
-                            class="detalle-reactivo" data-reactivo-id="{{ item.id }}"
-                            data-reactivo-name="{{ item.name }}" data-reactivo-color="{{ item.color }}"
-                            data-reactivo-number="{{ item.number }}" data-reactivo-subnumber="{{ item.subnumber }}"
-                            data-reactivo-code="{{ item.code }}" data-reactivo-cas="{{ item.cas }}"
-                            data-reactivo-almacenamiento_interno="{{ item.almacenamiento_interno }}" data-reactivo-clase_almacenamiento="{{ item.clase_almacenamiento }} {{ item.clase_almacenamiento.description }}"
-                            data-reactivo-state="{{item.state }}" data-reactivo-unit="{{ item.unit }}"
-                            data-reactivo-active="{% if item.is_active %}
-                            Activo
-                            {% else %}
-                            Inactivo
-                            {% endif %}" data-reactivo-date_create="{{ item.date_create }}"
-                            data-reactivo-create_by="{{ item.created_by.first_name }} {{ item.created_by.last_name }}"
-                            data-reactivo-lastupdate="{{ item.last_update }}"
-                            data-reactivo-update_by="{{ item.last_updated_by.first_name }} {{ item.last_updated_by.last_name }}"
-                            data-reactivo-labs_and_weight="{% for inventario in item.inventarios_set.all|dictsort:'lab.name' %}
-                            {% if inventario.is_active %}
-                            {% if inventario.visibility %}
-                            <li><strong>Laboratorio:</strong> {{ inventario.lab.name }}</li>
-                            <li><strong>Cantidad:</strong> {{ inventario.weight }} {{ item.unit }},<strong> Marca:</strong> {{ inventario.trademark }} </li>
-                            <br>
-                            {% endif %}
-                            {% endif %}
-                            {% endfor %}" title="Más información sobre el registro de salida de: {{ item.name }}">
+                    <td style="text-align: center;">
+                        <a href="javascript:void(0);" onclick="showChemicalAvailability({{ item.id }}, '{{ item.name }}')">
+                        <img src="{% static 'inventarioreac/Images/moreInfo.ico' %}" alt="" width="18" height="18" title="Ver disponibilidad del reactivo {{ item.name }} en los laboratorios">
+                        </a>
                     </td>
                     
                     <td><!-- si es administrador permite crud, de lo contrario solo permite agregar -->

@@ -522,6 +522,49 @@ function confirmShowReagent(itemId, itemName) {
     });
 }
 
+// Solicitud para verificar disponibilidad de reactivo
+function showChemicalAvailability(itemId, itemName) {
+    // Realizar la solicitud AJAX directamente sin mostrar la primera alerta de confirmación
+    var deleteUrl = '/UniCLab/reactivos/revisar_disponibilidad/' + itemId + '/';
+
+    fetch(deleteUrl, {
+        method: 'POST', // O el método HTTP que estés utilizando
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'), // Asegúrate de incluir el token CSRF si estás utilizando Django
+        },
+    })
+    .then(response => {
+        // Verificar el estado de la respuesta y capturar el mensaje
+        if (response.ok) {
+            return response.text();
+        } else {
+            throw new Error('Error al realizar la solicitud');
+        }
+    })
+    .then(data => {
+        // Mostrar el mensaje de éxito
+        Swal.fire({
+            icon: 'info',
+            title: 'Mensaje del servidor',
+            html: data,
+        }).then(() => {
+            // Recargar la página o realizar otras acciones si es necesario
+            // location.reload(); // Recarga la página después de realizar la solicitud
+        });
+    })
+    .catch(error => {
+        // Manejar errores de la solicitud AJAX
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Ocurrió un error al realizar la solicitud',
+        });
+        // location.reload();
+    });
+}
+
+
+
 // Función para obtener el token CSRF de las cookies
 function getCookie(name) {
     var cookieValue = null;

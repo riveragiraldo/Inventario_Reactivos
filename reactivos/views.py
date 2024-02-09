@@ -108,7 +108,7 @@ from django.http import FileResponse
 from django.core.mail import EmailMessage
 from django.core.mail import EmailMultiAlternatives
 from django.utils.html import strip_tags
-
+from collections import defaultdict
 
 
 from apscheduler.schedulers.background import BlockingScheduler, BackgroundScheduler
@@ -3144,6 +3144,76 @@ class InventarioListView(LoginRequiredMixin,ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
+        # Entradas para colocar un contexto de acuerdo con el filtro
+        lab = self.request.GET.get('lab')
+        name = self.request.GET.get('name')
+        trademark = self.request.GET.get('trademark')
+        # si el valor de lab viene de sesión superusuario o ADMINISTRADOR lab=0 cambiar por lab=''
+        if lab=='0':
+             lab=''
+        
+        # Colocar contexto de acuerdo con el filtro seleccionado
+        if lab and name and trademark:
+            reactivo=get_object_or_404(Reactivos, id=name)
+            marca=get_object_or_404(Marcas, id=trademark)
+            lab=get_object_or_404(Laboratorios, id=lab)
+            # Busca en el inventario por Reactivo y Marca y obtén la cantidad total
+            inventario_entries = Inventarios.objects.filter(name=reactivo, trademark=marca,lab=lab, is_active=True)
+
+            # Calcula la cantidad total en inventario
+            total_weight = inventario_entries.aggregate(total_weight=models.Sum('weight'))['total_weight'] or 0
+
+            context['reactivo_filtrado']=reactivo.name
+            context['marca_filtrada']=marca.name
+            context['cantidad_filtrada']=total_weight
+            context['unidad_filtrada']=reactivo.unit.name
+
+        elif name and lab:
+            reactivo=get_object_or_404(Reactivos, id=name)
+            lab=get_object_or_404(Laboratorios, id=lab)
+            # Busca en el inventario por Reactivo y Marca y obtén la cantidad total
+            inventario_entries = Inventarios.objects.filter(name=reactivo, lab=lab, is_active=True)
+
+            # Calcula la cantidad total en inventario
+            total_weight = inventario_entries.aggregate(total_weight=models.Sum('weight'))['total_weight'] or 0
+
+            context['reactivo_filtrado']=reactivo.name
+            context['cantidad_filtrada']=total_weight
+            context['unidad_filtrada']=reactivo.unit.name
+        
+        elif name and trademark:
+            reactivo=get_object_or_404(Reactivos, id=name)
+            marca=get_object_or_404(Marcas, id=trademark)
+            # Busca en el inventario por Reactivo y Marca y obtén la cantidad total
+            inventario_entries = Inventarios.objects.filter(name=reactivo, trademark=marca, is_active=True)
+
+            # Calcula la cantidad total en inventario
+            total_weight = inventario_entries.aggregate(total_weight=models.Sum('weight'))['total_weight'] or 0
+
+            context['reactivo_filtrado']=reactivo.name
+            context['marca_filtrada']=marca.name
+            context['cantidad_filtrada']=total_weight
+            context['unidad_filtrada']=reactivo.unit.name
+        elif name:
+            reactivo=get_object_or_404(Reactivos, id=name)
+            
+            # Busca en el inventario por Reactivo y Marca y obtén la cantidad total
+            inventario_entries = Inventarios.objects.filter(name=reactivo, is_active=True)
+
+            # Calcula la cantidad total en inventario
+            total_weight = inventario_entries.aggregate(total_weight=models.Sum('weight'))['total_weight'] or 0
+
+            context['reactivo_filtrado']=reactivo.name
+            context['cantidad_filtrada']=total_weight
+            context['unidad_filtrada']=reactivo.unit.name
+            
+        elif trademark:
+            print(f'No contexto')
+        else:
+            print(f'No contexto')
+        
+
 
         unique_labs_ids = Inventarios.objects.values('lab').distinct()
         unique_labs = Laboratorios.objects.filter(id__in=unique_labs_ids)
@@ -7164,6 +7234,48 @@ class MostrarReactivoView(LoginRequiredMixin, View):
         mensaje = f'Se a activado la visibilidad del reactivo "{inventory.name}" de manera exitosa.'
         
         return HttpResponse(mensaje,200)
+
+class RevisarDisponibilidadView(LoginRequiredMixin, View):
+    template_name = 'reactivos/revisar_disponibilidad.html'  # Asegúrate de tener este template creado
+
+    @check_group_permission(groups_required=['COORDINADOR', 'ADMINISTRADOR'])
+    def get(self, request, pk):
+        usuario = get_object_or_404(User, pk=pk)
+        context = {
+            'usuario': usuario,
+        }
+        return render(request, self.template_name, context)
+    
+    @check_group_permission(groups_required=['COORDINADOR', 'ADMINISTRADOR', 'TECNICO'])
+    def post(self, request, pk):
+        # Inicializar el diccionario para realizar el seguimiento del total por laboratorio
+        total_por_laboratorio = defaultdict(Decimal)
+        # Incializar el mensaje
+        mensaje=''
+        # Obtener el nombre del reactivo
+        reactivo = get_object_or_404(Reactivos, pk=pk)
+        # Obtener el objeto de inventario
+        try:
+            inventories = Inventarios.objects.filter(name=pk, is_active=True, visibility=True)
+        except Inventarios.DoesNotExist:
+            mensaje = f'No hay existencia del reactivo en inventario.'
+            return HttpResponse(mensaje,200)
+
+        # Calcular el total por cada laboratorio
+        for inventory in inventories:
+            if inventory.lab:
+                total_por_laboratorio[inventory.lab.name] += inventory.weight
+
+        # Imprimir el total por cada laboratorio
+        for lab_name, total_quantity in total_por_laboratorio.items():
+            units = inventories.filter(lab__name=lab_name).first().name.unit
+            # Mensaje como html para que se pueda ver como sweet alert
+            mensaje+=f'<li><strong>Laboratorio:</strong> {lab_name}</li><li><strong>Cantidad:</strong> {total_quantity} {units}</li><br>'
+        
+        mensaje=f'<div class="card" style="text-align: left;"><div class="card-body"><h5><strong>Existencia en Laboratorios - {reactivo.name}</strong></h5><br><ul class="list-unstyled">{mensaje}<a href="/export2xlsxlab/">Ver información de Laboratorios</a></ul></div></div>'
+        
+
+        return HttpResponse(mensaje, 200)
 
 
 

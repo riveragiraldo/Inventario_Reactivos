@@ -43,13 +43,13 @@ function updateNameTrademarkAndReferenceByLab() {
             // Agregar opción "Todos" al select "Name"
             const allNameOption = document.createElement('option');
             allNameOption.value = '';
-            allNameOption.textContent = 'Todos';
+            allNameOption.textContent = 'TODOS';
             nameSelect.appendChild(allNameOption);
 
             // Agregar opción "Todas" al select "Trademark"
             const allTrademarkOption = document.createElement('option');
             allTrademarkOption.value = '';
-            allTrademarkOption.textContent = 'Todas';
+            allTrademarkOption.textContent = 'TODAS';
             trademarkSelect.appendChild(allTrademarkOption);
 
 
