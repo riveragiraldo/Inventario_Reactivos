@@ -11,6 +11,9 @@ app_name = 'reactivos'
 urlpatterns = [
     # Dir_Lab
     path('', HomeDirLab.as_view(), name='home_dir_lab'),#Página de incio del aplicativo
+    path('validateemailsol', PreSolDirLab.as_view(), name='pre_sol_dir_lab'),
+    path('solicitudes/', SolDirLab.as_view(), name='sol_dir_lab'),
+
     # UniCLab
     path('UniCLab/', Index.as_view(), name='index'),#Página de incio del aplicativo
     path('UniCLab/categorias/<str:category>', Enlaces.as_view(), name='enlaces'),# Página categorías, cuando se accede desde un móvil

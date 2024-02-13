@@ -160,6 +160,7 @@
 					data-newWindow="true"></div>
 			</div>
 			<div class="mainMenu" style="margin-bottom: 0%;">
+				<div class="btn-group"><a href="{% url 'reactivos:home_dir_lab' %}" class="btn btn-default dropdown-toggle">Inicio</a><span class="caret-right"></span></div>
 				<div class="btn-group">
 					<div class="btn btn-default dropdown-toggle" data-toggle="dropdown">Nosotros<span
 							class="caret"></span></div>
@@ -176,6 +177,16 @@
 						<li><a href="{% url 'reactivos:index'%}" title="Acceso a UniCLab">UniCLab</a></li>
 						<li><a href="https://d1xb30i372mnxf.cloudfront.net/"
 								title="Acceso a plataforma de laboratorios remotos">Laboratorios Remotos</a></li>
+					</ul>
+				</div>
+
+				<div class="btn-group">
+					<div class="btn btn-default dropdown-toggle" data-toggle="dropdown">Contacto<span
+							class="caret"></span></div>
+					<ul class="dropdown-menu">
+						<li><a href="#" title="Formulario de contacto dirección de Laboratorios">Contacto</a></li>
+						<li><a href="{% url 'reactivos:pre_sol_dir_lab'%}"
+								title="Solicitudes a los Laboratorios">Solicitudes</a></li>
 					</ul>
 				</div>
 

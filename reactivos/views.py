@@ -570,6 +570,29 @@ class HomeDirLab(View):  # Utiliza LoginRequiredMixin como clase base
         }
         return render(request, self.template_name, context)
 
+# Vista para la validación de solicitudes externas, 
+
+class PreSolDirLab(View):  # Utiliza LoginRequiredMixin como clase base
+    template_name = 'dir_lab/pre_solicitudes_externas.html'  # Nombre de la plantilla
+
+    def get(self, request,*args,**kwargs):
+        
+             
+        context = {
+            
+        }
+        return render(request, self.template_name, context)
+    
+class SolDirLab(View):
+    def get(self, request, *args, **kwargs):
+        # Ahora puedes hacer lo que necesites con el token
+
+        context = {
+            
+        }
+
+        return render(request, 'dir_lab/solicitudes_externas.html', context)
+
 # Vista para la creación del index, 
 
 class Index(LoginRequiredMixin, View):  # Utiliza LoginRequiredMixin como clase base
