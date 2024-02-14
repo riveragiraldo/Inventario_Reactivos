@@ -5,6 +5,7 @@ from django.contrib.auth.models import AbstractUser,User,Permission
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import Permission, Group
 from django.contrib.contenttypes.models import ContentType
+from django.core.validators import RegexValidator, EmailValidator
 
 
 
@@ -181,6 +182,7 @@ class ConfiguracionSistema(models.Model):
     programacion_activa=models.BooleanField(default=False, verbose_name="Activar / Desactivar programación")
     manual = models.FileField(upload_to='manual/', null=True, blank=True)
     logo_institucional=models.ImageField(upload_to='logo',null=True, blank=True)
+    url=models.CharField(max_length=500, verbose_name='Url', blank=True, null=True, default='https://manizales.unal.edu.co/')
     
     
 
@@ -499,3 +501,43 @@ class Inventarios(models.Model):
 
 
 
+
+
+
+
+# Modelo SolicitudesExternas
+class SolicitudesExternas(models.Model):
+    # Validador para nombres y apellidos (solo letras y espacios)
+    name_validator = RegexValidator(
+        regex='^[A-Za-z\s]+$',
+        message='El nombre y apellido debe incluir únicamente letras, máximo 50 caracteres.',
+    )
+
+    # Validador para números de móvil en el rango especificado
+    mobile_number_validator = RegexValidator(
+        regex='^[3-9]\d{9}$',
+        message='El número de móvil debe estar en el rango de 3000000000 a 3999999999.',
+    )
+
+    # Validador para correos con dominio @unal.edu.co
+    email_validator = EmailValidator(
+        message='El correo electrónico debe pertenecer al dominio @unal.edu.co.',
+        allowlist=['@unal.edu.co']
+    )
+
+    # Campos del modelo SolicitudesExternas
+    name = models.CharField(max_length=50, validators=[name_validator], verbose_name='Nombres y apellidos',)
+    subject = models.CharField(max_length=100, verbose_name='Asunto',)
+    message = models.TextField(max_length=1000, verbose_name='Mensaje',)
+    attach = models.FileField(upload_to='solicitud_attachments/', null=True, blank=True, verbose_name='Archivos adjunto',)
+    registration_date = models.DateTimeField(auto_now_add=True, editable=False)
+    lab = models.ForeignKey(Laboratorios, on_delete=models.CASCADE, verbose_name='Fecha y hora de solicitud',)
+    email = models.EmailField(validators=[email_validator], verbose_name='Correo Electrónico',)
+    mobile_number = models.CharField(max_length=10, validators=[mobile_number_validator], verbose_name='Teléfono Móvil',)
+    department = models.CharField(max_length=100, verbose_name='Departamento',)
+
+    class Meta:
+        verbose_name_plural = "Solicitudes Externas"
+
+    def __str__(self):
+        return f'Solicitud de {self.name} - {self.subject}'

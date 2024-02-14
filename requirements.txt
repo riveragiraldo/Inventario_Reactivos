@@ -9,3 +9,5 @@ django-simple-captcha
 django-import-export
 apscheduler
 django-apscheduler
+babel
+html2text

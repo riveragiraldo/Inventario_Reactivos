@@ -85,7 +85,7 @@ from django.views.generic.base import TemplateView
 from django.views.generic.edit import FormView
 from django.utils.dateparse import parse_date
 from datetime import datetime, timedelta, date
-from .forms import  FormularioUsuario, SolicitudForm,ConfiguracionSistemaForm, CustomPasswordResetForm
+from .forms import  FormularioUsuario, SolicitudForm,ConfiguracionSistemaForm, CustomPasswordResetForm, SolicitudesExternasForm
 from django.core.mail import send_mail
 from django.utils.translation import gettext as _
 from django.contrib.auth.tokens import default_token_generator
@@ -113,6 +113,11 @@ from collections import defaultdict
 
 from apscheduler.schedulers.background import BlockingScheduler, BackgroundScheduler
 from time import sleep
+from captcha.fields import CaptchaField, CaptchaTextInput
+from captcha.models import CaptchaStore
+from django.utils.html import format_html
+from babel.dates import format_datetime, format_time
+import threading
 
 
 # # Enviar correo electrónico administrativo
@@ -518,7 +523,12 @@ def configuraciones(request):
         if request.method == 'POST':
             form = ConfiguracionSistemaForm(request.POST, request.FILES)
             if form.is_valid():
-                form.save()
+                instance = form.save(commit=False)
+                # Completa el campo 'url' con el protocolo y el dominio principal
+                protocol = 'https' if request.is_secure() else 'http'
+                domain = request.get_host()
+                instance.url = f'{protocol}://{domain}'
+                instance.save()
                 # Crea un evento de modificar configuraciones
                 tipo_evento = 'MODIFICAR CONFIGURACIONES'
                 usuario_evento = request.user
@@ -534,7 +544,12 @@ def configuraciones(request):
         if request.method == 'POST':
             form = ConfiguracionSistemaForm(request.POST, request.FILES, instance=configuracion)
             if form.is_valid():
-                form.save()
+                instance = form.save(commit=False)
+                # Completa el campo 'url' con el protocolo y el dominio principal
+                protocol = 'https' if request.is_secure() else 'http'
+                domain = request.get_host()
+                instance.url = f'{protocol}://{domain}'
+                instance.save()
                 # Crea un evento de modificar configuraciones
                 tipo_evento = 'MODIFICAR CONFIGURACIONES'
                 usuario_evento = request.user
@@ -584,14 +599,120 @@ class PreSolDirLab(View):  # Utiliza LoginRequiredMixin como clase base
         return render(request, self.template_name, context)
     
 class SolDirLab(View):
+    template_name = 'dir_lab/solicitudes_externas.html'
+
+    def get_recipient_list(self, lab):
+        # Obtener correos de usuarios con rol 'COORDINADOR' o 'ADMINISTRADOR' en el laboratorio especificado
+        recipient_list = User.objects.filter(
+            Q(rol__name='COORDINADOR') | Q(rol__name='ADMINISTRADOR'),
+            lab=lab
+        ).values_list('email', flat=True)
+        return list(recipient_list)
+    
+    def enviar_correo_asincrono(self, recipient_list, subject, message, attach_path):
+        try:
+            enviar_correo(recipient_list, subject, message, attach_path)
+        except Exception as e:
+            print(f'Error al enviar correo: {e}')
+
     def get(self, request, *args, **kwargs):
-        # Ahora puedes hacer lo que necesites con el token
+        form = SolicitudesExternasForm()
+        return render(request, self.template_name, {'form': form})
 
-        context = {
-            
+    def post(self, request, *args, **kwargs):
+        form = SolicitudesExternasForm(request.POST, request.FILES)
+        
+        try:
+            if form.is_valid():
+                # Guardar la solicitud si el formulario es válido
+                solicitud = form.save()
+                print(f'Adjunto: {solicitud.attach}')
+                # Obtener la lista de destinatarios
+                recipient_list = self.get_recipient_list(solicitud.lab)
+                # Agregar el correo de la solicitud a la lista de destinatarios
+                recipient_list.append(solicitud.email)
+                
+                subject=f'Registro de solicitud externa {solicitud.subject} en {solicitud.lab.name}'
+                header=f'<p>El presente mensaje es para informarte que desde la web principal de Dirección de Laboratorios se ha registrado una solicitud externa dirigida al laboratorio {solicitud.lab.name}, los datos de la solcitud son los siguientes:</p>'
+                body=f'<p><b>Laboratorio: </b>{solicitud.lab.name}<br><b>Remitente: </b>{solicitud.name}<br><b>Correo electrónico: </b>{solicitud.email}<br><b>Teléfono de contacto: </b>{solicitud.mobile_number}<br><b>Área: </b>{solicitud.department}<br><b>Asunto: </b>{solicitud.subject}<br><b>Mensaje: </b>{solicitud.message}</p>'
+                if solicitud.attach:
+                    footer=f'<p>Adjunto encontrarás la información cargada desde el formulario de solicitudes.</p>'
+                else:
+                    footer=f''
+                message=header+body+footer
+
+                if solicitud.attach:
+                    attach_path=solicitud.attach.path
+                else:
+                    attach_path=None
+                # Crear un hilo y ejecutar enviar_correo en segundo plano
+                correo_thread = threading.Thread(
+                    target=self.enviar_correo_asincrono,
+                    args=(recipient_list, subject, message, attach_path),
+                )
+                correo_thread.start()
+                # enviar_correo(recipient_list, subject, message,attach_path)
+                mensaje=f'La solicitud se ha registrado de manera correcta, se ha enviado un correo electrónico a {solicitud.email} con los datos de la solicitud.'
+                
+                # Devuelve una respuesta JSON de éxito
+                return JsonResponse({'success': True, 'message': mensaje})
+            else:
+                # Devuelve una respuesta JSON con los errores de validación
+                return JsonResponse({'success': False, 'errors': form.errors})
+        except Exception as e:
+            # Imprimir el error en la consola o logs
+            print(e)
+            mensaje=f'Error: {e}'
+            # Devolver una respuesta de error o redirigir a una página de error
+            return HttpResponseBadRequest(f'Error interno del servidor:{mensaje}')
+
+
+
+# Enviar Correo
+def enviar_correo(recipient_list, subject, message,attach_path):
+    attach = None  # Asigna un valor predeterminado
+    # Lógica para construir el mensaje de correo
+    if attach_path:
+        attach = open(attach_path, 'rb')
+    message = format_html(message)
+    # Obtener el dominio
+    configuracion = ConfiguracionSistema.objects.first()
+    url = configuracion.url
+    # Configura la localización a español
+    locale.setlocale(locale.LC_TIME, 'es_ES.UTF-8')
+    
+    # Obtén la fecha y hora actual en el formato "dd de mes de aaaa, hh:mm AM/PM"
+    fecha_actual = format_datetime(localtime(), 'dd MMMM yyyy, hh:mm a', locale='es_ES')
+    
+    # Contexto del template del diseño del correo 
+    context = {
+        'url': url,
+        'fecha_actual': fecha_actual,
+        'message':message,
         }
+    
+    # Template
+    html_message = render_to_string('dir_lab/enviar_correo.html', context)
+    plain_message = strip_tags(html_message)
+    from_email = "noreply@unal.edu.co"  # Agrega el correo electrónico desde el cual se enviará el mensaje
+    recipient_list = recipient_list
+    subject = f'{subject} - {url}'
 
-        return render(request, 'dir_lab/solicitudes_externas.html', context)
+    try:
+        email = EmailMultiAlternatives(subject, plain_message, from_email, recipient_list)
+        email.attach_alternative(html_message, 'text/html')  # Agrega el contenido HTML
+        if attach:
+            email.attach_file(attach_path)
+        email.send()
+        print('Se ha enviado el correo con mensaje HTML y adjunto')
+    except Exception as e:
+        print(f'Error al enviar el correo: {e}')
+    finally:
+        if attach:
+            attach.close()
+
+    mensaje=f'Se ha enviado el mensaje de manera correcta'
+    print(mensaje)
 
 # Vista para la creación del index, 
 
@@ -606,6 +727,16 @@ class Index(LoginRequiredMixin, View):  # Utiliza LoginRequiredMixin como clase 
             'laboratorio': laboratorio,
         }
         return render(request, self.template_name, context)
+    
+# Recargar Captcha
+def recargar_captcha(request):
+    if request.method == 'POST':
+        # Generar una nueva clave de captcha
+        captcha_key = CaptchaStore.generate_key()
+
+        return JsonResponse({'captcha_key': captcha_key})
+
+    return JsonResponse({'error': 'Método de solicitud no permitido.'})
 
 # Vista para la visualización de enlaces, 
 

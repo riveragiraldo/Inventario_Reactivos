@@ -85,7 +85,7 @@ urlpatterns = [
     path('api/referencesbylabandname/', ReferencesByLabAndNameAPI.as_view(), name='select-updatetrademarksandreferencesbyname'),# Actualiza referencias , por nombre y laboratorio
     path('api/referencesbytrademark/', ReferencesByTrademarkAPI.as_view(), name='select-updatereferences'),# Actualiza referencias , por marca
     path('api/wlocations/', WlocationsAPI.as_view(), name='select-wlocations'), # Actualiza Ubicaciones en almacén según laboratorio  
-    
+    path('UniClab/captcha_refresh/', recargar_captcha, name='recargar_captcha'), # Actualizar Captcha
     # Exportar
     path('exportar-excel/', views.export_to_excel, name='export_to_excel'), # Exporta a Excel en Inventarios
     path('export2xlsxinput/', views.export_to_excel_input, name='export_to_excel_input'),# Exporta a Excel en Listado de Entradas

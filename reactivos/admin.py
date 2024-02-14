@@ -52,7 +52,7 @@ class Solicitudadmin(admin.ModelAdmin):
 # Inclusión de el modelo Configuración del sistema en la consola de administración de Django
 @admin.register(ConfiguracionSistema)
 class Configuraciónadmin(admin.ModelAdmin):
-    list_display=('id','tiempo_solicitudes','tiempo_eventos','correo_administrador')
+    list_display=('id','tiempo_solicitudes','tiempo_eventos','correo_administrador','url')
     ordering=('id',)
 
 
@@ -242,6 +242,13 @@ class UserAdmin(BaseUserAdmin):
 
 # Registra el modelo de usuario personalizado y la clase UserAdmin en el admin
 admin.site.register(User,UserAdmin)
+
+# Inclusión de el modelo INVENTARIOS en la consola de administración de Django
+@admin.register(SolicitudesExternas)
+class SolicitudesExternasadmin(admin.ModelAdmin):
+    list_display=('subject','name','email','mobile_number','department','message','lab','attach','registration_date',)
+    list_per_page=10
+    ordering=('id',)
 
 
 

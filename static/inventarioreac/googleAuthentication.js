@@ -3,8 +3,8 @@ function iniciarAutenticacion() {
     window.location.href = 'https://accounts.google.com/o/oauth2/auth?' +
         'client_id=395543985223-19rni6f5f9ufhr9lpddr3qhh2u9gm7ov.apps.googleusercontent.com' +
         '&redirect_uri=http://127.0.0.1:8000/solicitudes/' +
-        '&response_type=token' +
-        '&scope=email';  // Puedes ajustar los alcances según tus necesidades
+        '&response_type=token' + 
+        '&scope=email profile' ;  // Puedes ajustar los alcances según tus necesidades
 }
 
 
@@ -27,9 +27,6 @@ const encodedMessage = urlParams.get('error');
 
 // Decodificar el mensaje
 const decodedMessage = decodeMessage(encodedMessage);
-
-// Imprimir el mensaje decodificado en consola
-console.log('Mensaje Decodificado:', decodedMessage);
 
 
 // Obtener el div donde se mostrará el mensaje

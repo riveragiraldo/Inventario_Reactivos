@@ -1,11 +1,13 @@
 from typing import Any
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm
-
+from django.core.validators import RegexValidator
+from django.core.exceptions import ValidationError
 from django.contrib.auth.forms import PasswordResetForm
-from reactivos.models import User, Rol, Laboratorios,Solicitudes, ConfiguracionSistema
+from reactivos.models import User, Rol, Laboratorios,Solicitudes, ConfiguracionSistema, SolicitudesExternas
 import re
 from captcha.fields import CaptchaField, CaptchaTextInput
+
 
 class CustomAuthenticationForm(AuthenticationForm):
     def __init__(self, *args, **kwargs):
@@ -358,3 +360,89 @@ class ConfiguracionSistemaForm(forms.ModelForm):
 #         required=False,
 #         widget=forms.ClearableFileInput(attrs={'class': 'form.control','title':'Adjunte archivos de máximo 5 MB',})
 #     )
+        
+#Personalización del Captcha
+class CustomCaptchaField(CaptchaField):
+    def __init__(self, *args, **kwargs):
+        super(CustomCaptchaField, self).__init__(*args, **kwargs)
+        self.label = '*Captcha (Soluciona la operación):'
+# Solicitudes externas
+class SolicitudesExternasForm(forms.ModelForm):
+    # Captcha
+    captcha = CustomCaptchaField()
+    # Obtener los nombres de los laboratorios para usar en el campo 'lab'
+    lab_choices = [(lab.id, lab.name) for lab in Laboratorios.objects.all()]
+
+    # Validador para números de móvil en el rango especificado
+    mobile_number_validator = RegexValidator(
+        regex='^[3-9]\d{9}$',
+        message='El número de móvil debe estar en el rango de 3000000000 a 3999999999.',
+    )
+
+    # Definir el formulario
+    class Meta:
+        model = SolicitudesExternas
+        fields = ['name', 'subject', 'message', 'attach', 'lab', 'email', 'mobile_number', 'department']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control', 'title': 'Nombres y apellidos que incluyan solo letras con máximo de 50 caracteres', 'autocomplete': 'off'}),
+            'subject': forms.TextInput(attrs={'class': 'form-control', 'title': 'El asunto de la solicitud debe tener un máximo de 100 caracteres', 'autocomplete': 'off'}),
+            'message': forms.Textarea(attrs={'class': 'form-control', 'title': 'El texto que describe la solicitud debe tener un máximo de 1000 caracteres', 'autocomplete': 'off'}),
+            'attach': forms.FileInput(attrs={'title': 'Adjuntar archivo (Opcional)', 'autocomplete': 'off'}),
+            'lab': forms.Select(attrs={'class': 'form-control', 'title': 'Seleccione un laboratorio, este campo es obligatorio', 'autocomplete': 'off'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control', 'title': 'Ingrese un correo electrónico válido de la Universidad Nacional de Colombia (XXX@unal.edu.co)', 'readonly': 'readonly', 'autocomplete': 'off'}),
+            'mobile_number': forms.TextInput(attrs={'class': 'form-control', 'title': 'Ingrese un número de móvil válido en el rango de 3000000000 a 3999999999', 'autocomplete': 'off'}),
+            'department': forms.TextInput(attrs={'class': 'form-control', 'title': 'Ingrese el departamento correspondiente (máximo 100 caracteres)', 'autocomplete': 'off'}),
+        }
+        labels = {
+            'name': '*Nombres y Apellidos',
+            'subject': '*Asunto',
+            'message': '*Mensaje',
+            'attach': 'Archivos Adjuntos',
+            'lab': '*Laboratorio al que va dirigido la solicitud',
+            'email': '*Correo Electrónico',
+            'mobile_number': '*Número de Móvil',
+            'department': '*Área a la que pertenece',
+        }
+        help_texts = {
+            'name': 'Ingrese su nombre y apellidos (Máximo 50 caracteres, sin números ni caracteres especiales).',
+            'subject': 'Ingrese el asunto de la solicitud a tramitar. (Máximo 100 caracteres)',
+            'message': 'Ingrese el texto que describe la solicitud. (Máximo 1000 caracteres)',
+            'attach': 'Adjunte un archivo si es necesario (máximo 5 Mb).',
+            'lab': 'Seleccione el laboratorio relacionado con la solicitud.',
+            'email': 'Ingrese un correo electrónico válido de la Universidad Nacional de Colombia (XXX@unal.edu.co)',
+            'mobile_number': 'Ingrese un número de móvil válido en el rango de 3000000000 a 3999999999',
+            'department': 'Ingrese el área a la que pertenece (máximo 100 caracteres)',
+        }
+
+    def clean(self):
+        cleaned_data = super().clean()
+        if 'email' in cleaned_data:
+            cleaned_data['email'] = estandarizar_nombre(cleaned_data['email'])
+        if 'name' in cleaned_data:
+            cleaned_data['name'] = estandarizar_nombre(cleaned_data['name'])
+        if 'subject' in cleaned_data:
+            cleaned_data['subject'] = estandarizar_nombre(cleaned_data['subject'])
+        if 'message' in cleaned_data:
+            cleaned_data['message'] = estandarizar_nombre(cleaned_data['message'])
+        if 'department' in cleaned_data:
+            cleaned_data['department'] = estandarizar_nombre(cleaned_data['department'])
+
+    def clean_email(self):
+        email = self.cleaned_data['email']
+        if not email.endswith('@unal.edu.co'):
+            raise forms.ValidationError('El correo electrónico debe tener el dominio @unal.edu.co.')
+        return email
+
+    def clean_mobile_number(self):
+        mobile_number = self.cleaned_data['mobile_number']
+        if not (3000000000 <= int(mobile_number) <= 3999999999):
+            raise forms.ValidationError('El número de móvil debe estar entre 3000000000 y 3999999999.')
+        return mobile_number
+    
+    def clean_attach(self):
+        attach = self.cleaned_data.get('attach', False)
+        if attach:
+            # Limite de tamaño: 5 MB
+            if attach.size > 5 * 1024 * 1024:
+                raise ValidationError('El tamaño del archivo adjunto debe ser como máximo de 5 MB.')
+        return attach

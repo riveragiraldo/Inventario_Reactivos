@@ -41,7 +41,8 @@ INSTALLED_APPS = [
     'reactivos',
     'captcha',
     'import_export',
-    "django_apscheduler", 
+    "django_apscheduler",
+    'crispy_forms', 
 ]
 
 MIDDLEWARE = [
@@ -177,6 +178,8 @@ CAPTCHA_TIMEOUT = 20
 CAPTCHA_LETTER_ROTATION=(-30,30)
 CAPTCHA_FONT_SIZE=35
 CAPTCHA_BACKGROUND_COLOR='transparent'
+
+CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 
 
