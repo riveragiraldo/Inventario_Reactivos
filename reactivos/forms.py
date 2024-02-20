@@ -370,6 +370,9 @@ class CustomCaptchaField(CaptchaField):
 class SolicitudesExternasForm(forms.ModelForm):
     # Captcha
     captcha = CustomCaptchaField()
+
+    # Campo adicional para el token de acceso
+    access_token = forms.CharField(widget=forms.HiddenInput(attrs={'id': 'access_token'}), required=False)
     # Obtener los nombres de los laboratorios para usar en el campo 'lab'
     lab_choices = [(lab.id, lab.name) for lab in Laboratorios.objects.all()]
 
@@ -379,10 +382,12 @@ class SolicitudesExternasForm(forms.ModelForm):
         message='El número de móvil debe estar en el rango de 3000000000 a 3999999999.',
     )
 
+    
+
     # Definir el formulario
     class Meta:
         model = SolicitudesExternas
-        fields = ['name', 'subject', 'message', 'attach', 'lab', 'email', 'mobile_number', 'department']
+        fields = ['name', 'subject', 'message', 'attach', 'lab', 'email', 'mobile_number', 'department', 'accept_politics']
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control', 'title': 'Nombres y apellidos que incluyan solo letras con máximo de 50 caracteres', 'autocomplete': 'off'}),
             'subject': forms.TextInput(attrs={'class': 'form-control', 'title': 'El asunto de la solicitud debe tener un máximo de 100 caracteres', 'autocomplete': 'off'}),
@@ -390,8 +395,9 @@ class SolicitudesExternasForm(forms.ModelForm):
             'attach': forms.FileInput(attrs={'title': 'Adjuntar archivo (Opcional)', 'autocomplete': 'off'}),
             'lab': forms.Select(attrs={'class': 'form-control', 'title': 'Seleccione un laboratorio, este campo es obligatorio', 'autocomplete': 'off'}),
             'email': forms.EmailInput(attrs={'class': 'form-control', 'title': 'Ingrese un correo electrónico válido de la Universidad Nacional de Colombia (XXX@unal.edu.co)', 'readonly': 'readonly', 'autocomplete': 'off'}),
-            'mobile_number': forms.TextInput(attrs={'class': 'form-control', 'title': 'Ingrese un número de móvil válido en el rango de 3000000000 a 3999999999', 'autocomplete': 'off'}),
+            'mobile_number': forms.NumberInput(attrs={'class': 'form-control', 'title': 'Ingrese un número de móvil válido en el rango de 3000000000 a 3999999999', 'autocomplete': 'off'}),
             'department': forms.TextInput(attrs={'class': 'form-control', 'title': 'Ingrese el departamento correspondiente (máximo 100 caracteres)', 'autocomplete': 'off'}),
+            'accept_politics': forms.CheckboxInput (attrs={'title': 'Debe aceptar la política de tratamiento de datos personales', 'unchecked': 'unchecked', 'required':'required'}),
         }
         labels = {
             'name': '*Nombres y Apellidos',

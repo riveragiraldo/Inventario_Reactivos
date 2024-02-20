@@ -63,3 +63,12 @@ if (currentUrl.endsWith('/administrar/listado_eventos/')) {
     // Redirigir a la nueva URL
     window.location.href = newUrl;
 }
+
+// Verificar si la URL no tiene parámetros de búsqueda para inventario
+if (currentUrl.endsWith('/solicitudes/solicitudes_externas/')) {
+    // Modificar la URL agregando los parámetros de búsqueda deseados
+    const newUrl = currentUrl + '?lab='+labDefault+'&start_date=&end_date=&keyword=';
+
+    // Redirigir a la nueva URL
+    window.location.href = newUrl;
+}

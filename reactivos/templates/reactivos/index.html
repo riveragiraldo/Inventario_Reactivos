@@ -1,5 +1,7 @@
 {% extends "webtemplate.html" %}
 {% load has_group %}
+{% load static %}
+
 <!doctype html>
 <html lang="es">
 
@@ -15,35 +17,30 @@
         defer></script> -->
 
     <!-- Estilo para relleno de los enlaces, no se incluye en archivo de estilos, ya que este index de momento es solo funcional, no es definitivo -->
-    
+
     {% endblock %}
 </head>
 
 <body>
     {% block content %}
-
-    <div class="container">
+    <div class="container inicio-container col-md-12">
         <div class="row">
-            <div class="col-md-12">
+            <div class="contenido">
+                <h1>Inicio UniCLab</h1>
+                <br>
+                <p>
+                <h4><i>Bienvenido a UniCLab, usted se encuentra en el aplicativo de gestión de inventario de reactivos
+                        químicos
+                        de la Universidad Nacional de Colombia, Sede Manizales.</i></h4>
+                </p>
 
+                <!-- Agrega la imagen como marca de agua -->
+                <img src="{% static 'inventarioreac/Images/logo_uniclab.png' %}" alt="Marca de Agua" class="marca-agua">
             </div>
         </div>
-    </div>
 
-
-    <div class="col-md-12 mx-auto">
-        <h1 class="mt-10">Aplicación Reactivos</h1>
 
     </div>
-
-
-
-    <div class="col-md-6 mx-auto">
-        <p>Espacio para contenido de la página de inicio</p>
-        
-    </div>
-
-   
 
     {% endblock %}
 

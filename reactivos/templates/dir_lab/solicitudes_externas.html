@@ -36,6 +36,9 @@
     <!-- Encriptación -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/crypto-js.js"></script>
     <script src="{% static 'inventarioreac/validateInfoToken.js' %}" defer></script>
+
+    <link rel="stylesheet" href="{% static 'inventarioreac/stylesCheckBox.css' %}">
+    <!-- Estilos para organizar la políca de tratamiento de datos -->
     <!-- Llama Script  que valida después de la autenticación de google -->
     <script src="{% static 'inventarioreac/js/refreshCaptcha.js' %}" defer></script>
     <!-- Llama Script  que Refresca el captcha -->
@@ -67,8 +70,8 @@
                 <form method="post" enctype="multipart/form-data" class="needs-validation" style="margin-top: 20px;"
                     id="solicitudes_externas_form">
                     {% csrf_token %}
-
                     <div class="form-group col-lg-12 col-md-12">
+                        {{ form.access_token }}
                         <div style="margin-bottom: 5px;">
                             {{ form.lab.label_tag }}
                         </div>
@@ -145,6 +148,17 @@
                         <div style="color: red; margin-top: 5px; font-weight: bold; margin-left: -10px;">
                             {{ form.attach.errors }}
                         </div>
+                    </div>
+                    <div class="form-group col-lg-12 col-md-12">
+                        <div class="politicaTratamiento">
+
+                            {{ form.accept_politics }}
+                            <label for="acceptDataProcessing" class="politica-label"
+                              name="Acepta política de tratamiento de datos personales: ">
+                              <p class="politica">* De acuerdo con la <a href="https://unal.edu.co/proteccion-de-datos-personales" target="_blank">ley 1581 de 2012 de protección de datos personales</a>, he leído, entendido y acepto, los términos descritos en la política de tratamiento de datos personales de la Universidad Nacional de Colombia.<br>
+                              </p>
+                            </label>
+                          </div>
                     </div>
                     <div class="form-group col-lg-12 col-md-12">
                         <div style="margin-bottom: 5px;">

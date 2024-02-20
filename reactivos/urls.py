@@ -61,7 +61,11 @@ urlpatterns = [
     path('UniCLab/solicitudes/responder_solicitud/<str:solicitud_code>/', responder_solicitud, name='responder_solicitud'),# Responder solicitud    
     path('UniCLab/administrar/listado_eventos/', EventosListView.as_view(), name='listado_eventos'), # LIstado de eventos
     # path('UniCLab/administrar/enviar_correo/', enviar_correo, name='enviar_correo'), # ENviar Correo Admin
-    
+    path('UniCLab/solicitudes/solicitudes_externas/', SolicitudesExternasListView.as_view(), name='listado_solicitudes_externas'),# Listado de solicitudes esternas
+    path('UniCLab/solicitudes/eliminar_solicitud_externa/<str:solicitud_code>/', eliminar_solicitud_externa, name='eliminar_solicitud_externa'),# Eliminar solicitud externa
+    path('UniCLab/solicitudes/solicitud_leida/<str:solicitud_code>/', solicitud_leida, name='solicitud_leida'),# Marcar solicitud como leída
+    path('UniCLab/solicitudes/solicitud_no_leida/<str:solicitud_code>/', solicitud_no_leida, name='solicitud_no_leida'),# Marcar solicitud como no leída
+
     # Usuarios
     path('UniCLab/laboratorios/crear/', crear_laboratorio, name='crear_laboratorio'),# Crear Laboratorio
     path('UniCLab/usuarios/editar/<int:pk>/', editar_usuario, name='editar_usuario'), #Editar Usuarios
@@ -94,6 +98,7 @@ urlpatterns = [
     path('export2xlsxlab/', views.export_to_excel_lab, name='export_to_excel_lab'),# Exporta a Excel en Listado de Laboratorios
     path('export2xlsxuser/', views.export_to_excel_user, name='export_to_excel_user'),# Exporta a Excel en Listado de Usuarios
     path('export2xlsxsolicitud/', views.export_to_excel_solicitud, name='export_to_excel_solicitud'),# Exporta a Excel en Listado de Solicitud
+    path('export2xlsxsolicitudexterna/', views.export_to_excel_solicitud_externa, name='export_to_excel_solicitud_externa'),# Exporta a Excel en Listado de Solicitud
     path('export2xlsxevent/', views.export_to_excel_event, name='export_to_excel_event'),# Exporta a Excel en Listado de Eventos
     path('export_to_pdf/', views.export_to_pdf, name='export_to_pdf'),# Exporta a Pdf en Listado de Inventario
     
@@ -105,6 +110,7 @@ urlpatterns = [
     path('guardar-per-page-reactivo/<int:per_page>/', GuardarPerPageViewReactivo.as_view(), name='GuardarPerPageReactivo'),# Maneja paginación en listado de reactivos
     path('guardar-per-page-user/<int:per_page>/', GuardarPerPageViewUser.as_view(), name='GuardarPerPageUser'),# Maneja paginación en listado de usuarios
     path('guardar-per-page-solicitud/<int:per_page>/', GuardarPerPageViewSolicitud.as_view(), name='GuardarPerPageSolicitud'),# Maneja paginación en listado de solicitudes
+    path('guardar-per-page-solicitud-externa/<int:per_page>/', GuardarPerPageViewSolicitudExterna.as_view(), name='GuardarPerPageSolExterna'),# Maneja paginación en listado de solicitudes externas
     path("obtener_stock/", obtener_stock, name="obtener_stock"),# Obtiene el stock de un reactivo en registro de salidas
     path('check_auth_status/', check_auth_status, name='check_auth_status'),# Cerificar estado de autenticación
 

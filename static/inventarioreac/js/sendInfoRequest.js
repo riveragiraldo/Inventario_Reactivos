@@ -42,21 +42,59 @@ $(document).ready(function () {
 
                             // Puedes realizar acciones adicionales aquí según la respuesta del servidor
                         } else {
+                            // Imprimir la respuesta en la consola
+                            console.log('Respuesta:', response.errors);
                             // Formatear mensajes de error para mostrarlos en la alerta
-                            let formattedErrors = '';
-                            for (const field in response.errors) {
-                                if (response.errors.hasOwnProperty(field)) {
-                                    formattedErrors += `${response.errors[field][0]}\n`;
-                                }
-                            }
+                            respuesta = response.errors
 
-                            // Mostrar alerta de errores de validación
-                            Swal.fire({
-                                icon: 'warning',
-                                title: 'Mensaje del servidor',
-                                text: 'Error de validación:\n' + formattedErrors,
-                                confirmButtonText: 'Aceptar'
-                            });
+                            let formattedErrors = '';
+
+
+
+                            if (respuesta === 'La sesión no es válida o ha caducado, debe autenticarse nuevamente para realizar la solicitud') {
+                                // Mostrar alerta de errores de validación
+                                Swal.fire({
+                                    icon: 'warning',
+                                    title: 'Mensaje del servidor',
+                                    text: respuesta,
+                                    confirmButtonText: 'Aceptar'
+                                }).then((result) => {
+                                    // Redirigir a la página anterior al hacer clic en "Aceptar"
+
+                                    const secretKey = 'HelloWorld2011*2024#';
+
+                                    // Función para codificar mensajes
+                                    const encodeMessage = (message) => {
+                                        const ciphertext = CryptoJS.AES.encrypt(message, secretKey).toString();
+                                        return encodeURIComponent(ciphertext);
+                                    };
+
+
+
+                                    // Mensaje de ejemplo
+                                    const errorMessage = respuesta;
+
+                                    // Codificar el mensaje
+                                    const encodedMessage = encodeMessage(errorMessage);
+                                    pag_anterior += `?error=${encodedMessage}`
+
+                                    window.location.href = pag_anterior;
+
+                                });
+                            } else {
+                                for (const field in response.errors) {
+                                    if (response.errors.hasOwnProperty(field)) {
+                                        formattedErrors += `${response.errors[field][0]}\n`;
+                                    }
+                                }
+                                // Mostrar alerta de errores de validación
+                                Swal.fire({
+                                    icon: 'warning',
+                                    title: 'Mensaje del servidor',
+                                    text: 'Error de validación:\n' + formattedErrors,
+                                    confirmButtonText: 'Aceptar'
+                                });
+                            }
                         }
                     },
                     error: function (error) {

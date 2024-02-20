@@ -118,6 +118,8 @@ from captcha.models import CaptchaStore
 from django.utils.html import format_html
 from babel.dates import format_datetime, format_time
 import threading
+import os  # Importa el módulo os para trabajar con rutas de archivo
+
 
 
 # # Enviar correo electrónico administrativo
@@ -597,7 +599,9 @@ class PreSolDirLab(View):  # Utiliza LoginRequiredMixin como clase base
             
         }
         return render(request, self.template_name, context)
-    
+
+import requests
+# solicitudes externas  
 class SolDirLab(View):
     template_name = 'dir_lab/solicitudes_externas.html'
 
@@ -618,44 +622,77 @@ class SolDirLab(View):
     def get(self, request, *args, **kwargs):
         form = SolicitudesExternasForm()
         return render(request, self.template_name, {'form': form})
+    
+    
+            
 
     def post(self, request, *args, **kwargs):
         form = SolicitudesExternasForm(request.POST, request.FILES)
         
         try:
             if form.is_valid():
-                # Guardar la solicitud si el formulario es válido
-                solicitud = form.save()
-                print(f'Adjunto: {solicitud.attach}')
-                # Obtener la lista de destinatarios
-                recipient_list = self.get_recipient_list(solicitud.lab)
-                # Agregar el correo de la solicitud a la lista de destinatarios
-                recipient_list.append(solicitud.email)
+                # Obtener el token
+                token = request.POST.get('access_token', '')
                 
-                subject=f'Registro de solicitud externa {solicitud.subject} en {solicitud.lab.name}'
-                header=f'<p>El presente mensaje es para informarte que desde la web principal de Dirección de Laboratorios se ha registrado una solicitud externa dirigida al laboratorio {solicitud.lab.name}, los datos de la solcitud son los siguientes:</p>'
-                body=f'<p><b>Laboratorio: </b>{solicitud.lab.name}<br><b>Remitente: </b>{solicitud.name}<br><b>Correo electrónico: </b>{solicitud.email}<br><b>Teléfono de contacto: </b>{solicitud.mobile_number}<br><b>Área: </b>{solicitud.department}<br><b>Asunto: </b>{solicitud.subject}<br><b>Mensaje: </b>{solicitud.message}</p>'
-                if solicitud.attach:
-                    footer=f'<p>Adjunto encontrarás la información cargada desde el formulario de solicitudes.</p>'
-                else:
-                    footer=f''
-                message=header+body+footer
+                # URL de verificación del token de Google
+                google_token_url = 'https://www.googleapis.com/oauth2/v2/userinfo'
 
-                if solicitud.attach:
-                    attach_path=solicitud.attach.path
+                # Parámetros de la solicitud
+                params = {'access_token': token}
+
+                # Realizar la solicitud a la API de Google
+                response = requests.get(google_token_url, params=params)
+
+                # Verificar el estado de la respuesta
+                if response.status_code == 200:
+                    # La solicitud fue exitosa, verificar los datos en la respuesta
+                    data = response.json()
+                    if 'error_description' in data:
+                        # El token no es válido, ha expirado u otro error
+                        print(f'Token inválido: {data["error_description"]}')
+                        return JsonResponse({'success': False, 'errors': 'La sesión no es válida o ha caducado, debe autenticarse nuevamente para realizar la solicitud'})
+
+                    else:
+                        # El token es válido, puedes acceder a los datos en 'data'
+                        print('Token válido')
+                        # Guardar la solicitud si el formulario es válido
+                        solicitud = form.save()
+                        # Obtener la lista de destinatarios
+                        recipient_list = self.get_recipient_list(solicitud.lab)
+                        # Agregar el correo de la solicitud a la lista de destinatarios
+                        recipient_list.append(solicitud.email)
+
+                        subject=f'Registro de solicitud externa {solicitud.subject} en {solicitud.lab.name}'
+                        header=f'<p>El presente mensaje es para informarte que desde la web principal de Dirección de Laboratorios se ha registrado una solicitud externa dirigida al laboratorio {solicitud.lab.name}, los datos de la solcitud son los siguientes:</p>'
+                        body=f'<p><b>Laboratorio: </b>{solicitud.lab.name}<br><b>Remitente: </b>{solicitud.name}<br><b>Correo electrónico: </b>{solicitud.email}<br><b>Teléfono de contacto: </b>{solicitud.mobile_number}<br><b>Área: </b>{solicitud.department}<br><b>Asunto: </b>{solicitud.subject}<br><b>Mensaje: </b>{solicitud.message}</p>'
+                        if solicitud.attach:
+                            footer=f'<p>Adjunto encontrarás la información cargada desde el formulario de solicitudes.</p>'
+                        else:
+                            footer=f''
+                        message=header+body+footer
+
+                        if solicitud.attach:
+                            attach_path=solicitud.attach.path
+                        else:
+                            attach_path=None
+                        # Crear un hilo y ejecutar enviar_correo en segundo plano
+                        correo_thread = threading.Thread(
+                            target=self.enviar_correo_asincrono,
+                            args=(recipient_list, subject, message, attach_path),
+                        )
+                        correo_thread.start()
+                        # enviar_correo(recipient_list, subject, message,attach_path)
+                        mensaje=f'La solicitud se ha registrado de manera correcta, se ha enviado un correo electrónico a {solicitud.email} con los datos de la solicitud.'
+
+                        # Devuelve una respuesta JSON de éxito
+                        return JsonResponse({'success': True, 'message': mensaje})
+
                 else:
-                    attach_path=None
-                # Crear un hilo y ejecutar enviar_correo en segundo plano
-                correo_thread = threading.Thread(
-                    target=self.enviar_correo_asincrono,
-                    args=(recipient_list, subject, message, attach_path),
-                )
-                correo_thread.start()
-                # enviar_correo(recipient_list, subject, message,attach_path)
-                mensaje=f'La solicitud se ha registrado de manera correcta, se ha enviado un correo electrónico a {solicitud.email} con los datos de la solicitud.'
+                    # La solicitud no fue exitosa, manejar el error
+                    print(f'Error al verificar el token: {response.status_code}')
+                    return JsonResponse({'success': False, 'errors': 'La sesión no es válida o ha caducado, debe autenticarse nuevamente para realizar la solicitud'})
+
                 
-                # Devuelve una respuesta JSON de éxito
-                return JsonResponse({'success': True, 'message': mensaje})
             else:
                 # Devuelve una respuesta JSON con los errores de validación
                 return JsonResponse({'success': False, 'errors': form.errors})
@@ -666,6 +703,389 @@ class SolDirLab(View):
             # Devolver una respuesta de error o redirigir a una página de error
             return HttpResponseBadRequest(f'Error interno del servidor:{mensaje}')
 
+class SolicitudesExternasListView(LoginRequiredMixin,ListView):
+    model = SolicitudesExternas
+    template_name = "solicitudes/listado_solicitudes_externas.html"
+    paginate_by = 10
+    
+    
+    @check_group_permission(groups_required=['ADMINISTRADOR','COORDINADOR'])
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        # Obtener el número de registros por página de la sesión del usuario
+        per_page = request.session.get('per_page')
+        if per_page:
+            self.paginate_by = int(per_page)
+        else:
+            self.paginate_by = 10  # Valor predeterminado si no hay variable de sesión
+
+        # Obtener los parámetros de filtrado
+        
+        # Obtener las fechas de inicio y fin de la solicitud GET
+        start_date = self.request.GET.get('start_date')
+        end_date = self.request.GET.get('end_date')
+        lab = self.request.GET.get('lab')
+        keyword = self.request.GET.get('keyword')  
+        
+        
+
+        # Guardar los valores de filtrado en la sesión
+        
+        request.session['filtered_start_date'] = start_date
+        request.session['filtered_end_date'] = end_date
+        request.session['filtered_lab'] = lab
+        request.session['filtered_keyword'] = keyword
+        
+
+        return super().get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # Obtener la fecha de hoy
+        today = date.today()
+        # Calcular la fecha hace un mes hacia atrás
+        one_month_ago = today - timedelta(days=30)
+
+        # Agregar la fecha al contexto
+        context['one_month_ago'] = one_month_ago
+
+        # Agregar la fecha de hoy al contexto
+        context['today'] = today
+        laboratorio = self.request.user.lab
+        
+    
+        context['usuarios'] = User.objects.all()
+        context['laboratorio'] = laboratorio
+        context['laboratorios'] = Laboratorios.objects.all()
+        
+        # Obtener la lista de inventarios
+        entradas = context['object_list']
+        # Recorrer los entradas y cambiar el formato de la fecha        
+               
+        context['object_list'] = entradas
+        return context
+    
+    def get_queryset(self):
+        queryset = super().get_queryset()
+
+        lab = self.request.GET.get('lab')
+        keyword = self.request.GET.get('keyword')
+        
+        
+
+        # si el valor de lab viene de sesión superusuario o ADMINISTRADOR lab=0 cambiar por lab=''
+        if lab=='0':
+             lab=''
+
+        # Obtener las fechas de inicio y fin de la solicitud GET
+        start_date = self.request.GET.get('start_date')
+        end_date = self.request.GET.get('end_date')
+        
+        # Validar y convertir las fechas
+        try:
+            if start_date:
+                start_date = make_aware(datetime.strptime(start_date, '%Y-%m-%d'))
+            if end_date:
+                end_date = make_aware(datetime.strptime(end_date, '%Y-%m-%d').replace(hour=23, minute=59, second=59))
+        except ValueError:
+            # Manejar errores de formato de fecha aquí si es necesario
+            pass
+
+        
+        # Realiza la filtración de acuerdo a las fechas
+        if start_date:
+            queryset = queryset.filter(registration_date__gte=start_date)
+        if end_date:
+            queryset = queryset.filter(registration_date__lte=end_date)
+        elif start_date and end_date:
+            queryset = queryset.filter(registration_date__gte=start_date,date_create__lte=end_date)
+        
+        # Filtrar por  campos que contengan la palabra clave en su nombre
+        if keyword:
+            queryset = queryset.filter(Q(name__icontains=keyword) | Q(subject__icontains=keyword) | Q(message__icontains=keyword) | Q(attach__icontains=keyword))
+        
+        if lab:
+            queryset = queryset.filter(lab=lab)
+
+        queryset = queryset.order_by('id')
+        return queryset
+
+@login_required
+def export_to_excel_solicitud_externa(request):
+    # Obtener los valores filtrados almacenados en la sesión del usuario    
+    start_date = request.session.get('filtered_start_date')
+    end_date = request.session.get('filtered_end_date')
+    lab = request.session.get('filtered_lab')
+    keyword = request.session.get('filtered_keyword')
+    # si el valor de lab viene de sesión superusuario o ADMINISTRADOR lab=0 cambiar por lab=''
+    if lab=='0':
+         lab=''
+    
+    
+    # Validar y convertir las fechas
+    try:
+        if start_date:
+            start_date = make_aware(datetime.strptime(start_date, '%Y-%m-%d'))
+        if end_date:
+            end_date = make_aware(datetime.strptime(end_date, '%Y-%m-%d').replace(hour=23, minute=59, second=59))
+    except ValueError:
+            # Manejar errores de formato de fecha aquí si es necesario
+        pass
+
+    queryset = SolicitudesExternas.objects.all()
+    #Filtra según los valores previos de filtro en los selectores
+        
+    # Realiza la filtración de acuerdo a las fechas
+    if start_date:
+        queryset = queryset.filter(registration_date__gte=start_date)
+    if end_date:
+        queryset = queryset.filter(registration_date__lte=end_date)
+    elif start_date and end_date:
+        queryset = queryset.filter(registration_date__gte=start_date,date_create__lte=end_date)
+    
+    # Filtrar por  campos que contengan la palabra clave en su nombre
+    if keyword:
+        queryset = queryset.filter(Q(name__icontains=keyword) | Q(subject__icontains=keyword) | Q(message__icontains=keyword) | Q(attach__icontains=keyword))
+    
+    if lab:
+        queryset = queryset.filter(lab=lab)
+    
+    queryset = queryset.order_by('id')
+        
+    workbook = openpyxl.Workbook()
+    sheet = workbook.active
+
+    # Ruta al archivo de imagen del logotipo
+
+    logo_path = finders.find('inventarioreac/Images/escudoUnal_black.png')
+
+    # Cargar la imagen y procesarla con pillow
+    pil_image = PILImage.open(logo_path)
+
+    # Crear un objeto Image de openpyxl a partir de la imagen procesada
+    image = ExcelImage(pil_image)
+
+    # Anclar la imagen a la celda A1
+    sheet.add_image(image, 'A1')
+
+    # Obtener la fecha actual
+    fecha_creacion = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+
+    # Unificar las celdas A1, B1, C1 y D1
+    sheet.merge_cells('C1:F1')
+
+    sheet['C1'] = 'Listado de solicitudes externas'
+    sheet['C2'] = 'Fecha de Creación: '+fecha_creacion
+    sheet['A4'] = 'Id'
+    sheet['B4'] = 'Fecha de solicitud'
+    sheet['C4'] = 'Asunto'
+    sheet['D4'] = 'Mensaje'
+    sheet['E4'] = 'Archivos Adjuntos'
+    sheet['F4'] = 'Laboratorio a la que va dirigida la solicitud'
+    sheet['G4'] = 'Remitente'
+    sheet['H4'] = 'Correo electrónico'
+    sheet['I4'] = 'Teléfono'
+    sheet['J4'] = 'Área'
+
+    # Establecer la altura de la fila 1 y 2 a 30 y fila 3 a 25
+    sheet.row_dimensions[1].height = 30
+    sheet.row_dimensions[2].height = 30
+    sheet.row_dimensions[3].height = 25
+
+    # Establecer estilo de celda para A1
+
+    cell_A1 = sheet['C1']
+    cell_A1.font = Font(bold=True, size=16)
+
+    # Configurar los estilos de borde
+    
+    thin_border = Border(left=Side(style='thin'), right=Side(
+    style='thin'), top=Side(style='thin'), bottom=Side(style='thin'))
+
+    # Establecer el estilo de las celdas A2:D3
+    bold_font = Font(bold=True)
+
+    # Establecer el ancho de la columna A a 5
+    sheet.column_dimensions['A'].width = 5
+
+    # Establecer el ancho de la columna B a 26
+    sheet.column_dimensions['B'].width = 26
+
+    # Establecer el ancho de la columna C a 34
+    sheet.column_dimensions['C'].width = 34
+
+    # Establecer el ancho de la columna D a 40
+    sheet.column_dimensions['D'].width = 40
+
+    # Establecer el ancho de la columna E a 30
+    sheet.column_dimensions['E'].width = 30
+
+    # Establecer el ancho de la columna F a 27
+    sheet.column_dimensions['F'].width = 27
+
+    # Establecer el ancho de la columna G a 21
+    sheet.column_dimensions['G'].width = 21
+
+    # Establecer el ancho de la columna H a 30
+    sheet.column_dimensions['H'].width = 30
+
+    # Establecer el ancho de la columna I a 11
+    sheet.column_dimensions['I'].width = 11
+
+    # Establecer el ancho de la columna J a 20
+    sheet.column_dimensions['J'].width = 20
+
+
+    # Define una alineación que tenga la vertical en la parte superior y la horizontal a la izquierda
+    # Crear un objeto de alineación
+    alignment = Alignment(wrap_text=True, vertical="top", horizontal="left")
+
+    
+    
+    row = 4
+    # Aplicar el estilo de borde a las celdas de la fila actual
+    for col in range(1, 11):
+        sheet.cell(row=row, column=col).border = thin_border
+        sheet.cell(row=row, column=col).font = bold_font
+
+    row = 5
+    for item in queryset:
+        if item.attach:
+            protocol = 'https' if request.is_secure() else 'http'
+            domain = request.get_host()
+            url = f'{protocol}://{domain}{item.attach.url}'
+
+            # Obtener solo el nombre del archivo de la ruta completa
+            nombre_archivo = os.path.basename(item.attach.name)
+
+            # Establecer un estilo para la celda con el nombre del archivo
+            estilo_celda = sheet.cell(row=row, column=5)
+            estilo_celda.value = nombre_archivo
+            estilo_celda.font = Font(color="0000FF", underline="single")  # Azul y subrayado
+
+            # Crear un objeto Hyperlink con la URL
+            hyperlink = Hyperlink(target=url, ref=f'A{row}')
+
+            # Aplicar el hipervínculo a la celda
+            estilo_celda.hyperlink = hyperlink
+        else:
+            sheet.cell(row=row, column=5).value = ""
+
+        sheet.cell(row=row, column=1).value = (item.id)
+        sheet.cell(row=row, column=2).value = str((item.registration_date).strftime('%d/%m/%Y %H:%M:%S'))
+        sheet.cell(row=row, column=3).value = str(item.subject)
+        sheet.cell(row=row, column=4).value = item.message
+        # sheet.cell(row=row, column=5).value = download
+        sheet.cell(row=row, column=6).value = item.lab.name
+        sheet.cell(row=row, column=7).value = item.name
+        sheet.cell(row=row, column=8).value = item.email
+        sheet.cell(row=row, column=9).value = str(item.mobile_number)
+        sheet.cell(row=row, column=10).value =item.department
+
+               
+        # Aplicar el estilo de borde a las celdas de la fila actual
+        for col in range(1, 11):
+            sheet.cell(row=row, column=col).border = thin_border
+            sheet.cell(row=row, column=col).alignment = alignment
+
+        row += 1
+
+    # Obtén el rango de las columnas de la tabla
+    start_column = 1
+    end_column = 10
+    start_row = 4
+    end_row = row - 1
+
+    # Convertir los números de las columnas en letras de columna
+    start_column_letter = get_column_letter(start_column)
+    end_column_letter = get_column_letter(end_column)
+
+    # Rango de la tabla con el formato "A4:I{n}", donde n es el número de filas en la tabla
+    table_range = f"{start_column_letter}{start_row}:{end_column_letter}{end_row}"
+
+    # Agregar filtros solo a las columnas de la tabla
+    sheet.auto_filter.ref = table_range
+
+    # Establecer fondo blanco desde la celda A1 hasta el final de la tabla
+
+    fill = PatternFill(fill_type="solid", fgColor=WHITE)
+    start_cell = sheet['A1']
+    end_column_letter = get_column_letter(end_column+1)
+    end_row = row+1
+    end_cell = sheet[end_column_letter + str(end_row)]
+    table_range = start_cell.coordinate + ':' + end_cell.coordinate
+
+    for row in sheet[table_range]:
+        for cell in row:
+            cell.fill = fill
+
+    response = HttpResponse(
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename=Listado_solicitudes_externas.xlsx'
+
+    workbook.save(response)
+    # crear evento descarga de archivos
+    tipo_evento = 'DESCARGA DE ARCHIVOS'
+    usuario_evento = request.user
+    crear_evento(tipo_evento, usuario_evento)
+
+    return response
+
+# Vista que maneja el elimina la solicitud externa
+@login_required
+def eliminar_solicitud_externa(request, solicitud_code):
+    try:
+        solicitud_id = int(base64.urlsafe_b64decode(solicitud_code).decode())
+        
+    except (ValueError, SolicitudesExternas.DoesNotExist):
+        return HttpResponse('Solicitud no existe', 400)
+
+    solicitud = get_object_or_404(SolicitudesExternas, pk=solicitud_id)
+    solicitud.delete()
+    # crear evento 
+    tipo_evento = 'ELIMINAR SOLICITUD EXTERNA'
+    usuario_evento = request.user
+    crear_evento(tipo_evento, usuario_evento)
+    return HttpResponse('Solicitud eliminada correctamente', 200)
+
+# Vista que cambia la solicitud a leída
+@login_required
+def solicitud_leida(request, solicitud_code):
+    try:
+        solicitud_id = int(base64.urlsafe_b64decode(solicitud_code).decode())
+        
+    except (ValueError, SolicitudesExternas.DoesNotExist):
+        return HttpResponse('Solicitud no existe', 400)
+
+    solicitud = get_object_or_404(SolicitudesExternas, pk=solicitud_id)
+    solicitud.is_view=True
+    solicitud.save()
+    # Evento
+    tipo_evento = 'MARCAR SOLICITUD EXTERNA COMO LEIDA'
+    usuario_evento = request.user
+    crear_evento(tipo_evento, usuario_evento)
+    return HttpResponse('Solicitud marcada como leída correctamente', 200)
+
+# Vista que cambia la solicitud a leída
+@login_required
+def solicitud_no_leida(request, solicitud_code):
+    try:
+        solicitud_id = int(base64.urlsafe_b64decode(solicitud_code).decode())
+        
+    except (ValueError, SolicitudesExternas.DoesNotExist):
+        return HttpResponse('Solicitud no existe', 400)
+
+    solicitud = get_object_or_404(SolicitudesExternas, pk=solicitud_id)
+    solicitud.is_view=False
+    solicitud.save()
+    # Evento
+    tipo_evento = 'MARCAR SOLICITUD EXTERNA COMO  NO LEIDA'
+    usuario_evento = request.user
+    crear_evento(tipo_evento, usuario_evento)
+    return HttpResponse('Solicitud marcada como no leída correctamente', 200)
 
 
 # Enviar Correo
@@ -4698,6 +5118,36 @@ class GuardarPerPageViewSolicitud(LoginRequiredMixin,View):
             params['start_date'] = filtered_start_date
         if filtered_end_date:
             params['end_date'] = filtered_end_date
+        
+        
+        if params:
+            url += '?' + urlencode(params)
+
+        return redirect(url)
+    
+# Paginación de solicitudes externas
+class GuardarPerPageViewSolicitudExterna(LoginRequiredMixin,View):
+    def get(self, request, *args, **kwargs):
+        per_page = kwargs.get('per_page')
+        request.session['per_page'] = per_page
+
+        # Redirigir a la página de inventario con los parámetros de filtrado actuales
+        filtered_start_date = request.session.get('filtered_start_date')
+        filtered_end_date = request.session.get('filtered_end_date')
+        filtered_lab = request.session.get('filtered_lab')
+        filtered_keyword = request.session.get('filtered_keyword')
+        
+        url = reverse('reactivos:listado_solicitudes_externas')
+        params = {}
+        
+        if filtered_start_date:
+            params['start_date'] = filtered_start_date
+        if filtered_end_date:
+            params['end_date'] = filtered_end_date
+        if filtered_lab:
+            params['lab'] = filtered_lab
+        if filtered_keyword:
+            params['keyword'] = filtered_keyword
         
         
         if params:

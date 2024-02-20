@@ -535,6 +535,8 @@ class SolicitudesExternas(models.Model):
     email = models.EmailField(validators=[email_validator], verbose_name='Correo Electrónico',)
     mobile_number = models.CharField(max_length=10, validators=[mobile_number_validator], verbose_name='Teléfono Móvil',)
     department = models.CharField(max_length=100, verbose_name='Departamento',)
+    accept_politics = models.BooleanField(verbose_name='PTDP', blank=False, null=False)
+    is_view= models.BooleanField(verbose_name='Visto', default=False,)
 
     class Meta:
         verbose_name_plural = "Solicitudes Externas"

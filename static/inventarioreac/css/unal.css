@@ -1543,3 +1543,114 @@ footer .logos a img {
 	opacity: 8%;
   }
   
+
+  .custom-table {
+    background-color: rgba(255, 255, 255, 0.258);
+    border-radius: 5px;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+.custom-table th,
+.custom-table td {
+    
+    padding: 8px;  /* Ajusta según tus necesidades de espaciado en las celdas */
+    text-align: left;  /* O ajusta según tus necesidades de alineación */
+	cursor: pointer;
+}
+
+/* Estilos para filas leídas */
+.leido {
+	background-color: #f0f0f0; /* Puedes ajustar el color de fondo según tus preferencias */
+	color: #666; /* Puedes ajustar el color del texto según tus preferencias */
+	cursor: pointer;
+	/* Otros estilos específicos para filas leídas */
+}
+
+/* Estilos para filas no leídas */
+.no-leido {
+	background-color: #fff; /* Puedes ajustar el color de fondo según tus preferencias */
+	color: #000; /* Puedes ajustar el color del texto según tus preferencias */
+	font-weight: bold; /* Puedes ajustar otros estilos según tus preferencias */
+	/* Otros estilos específicos para filas no leídas */
+	
+}
+/* Estilos para ancho de filas en listado de solicitudes externas */
+.table-row .lab-column {
+	max-width: 90px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.table-row .subject-column {
+	max-width: 160px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.table-row .sender-column {
+	max-width: 120px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	
+}
+
+.table-row .date-column {
+	max-width: 40px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	
+}
+
+.table-row .id-column {
+	max-width: 5px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	
+}
+
+/* incio uniclab */
+.inicio-container {
+	background-color: #ffffff;
+	/* Fondo blanco */
+	border: 1px solid #dddddd;
+	/* Borde gris claro */
+	border-radius: 10px;
+	/* Esquinas redondeadas */
+	position: relative;
+	/* Para posicionar la marca de agua */
+	height: 100%;
+}
+
+.contenido {
+	margin: 0 auto;
+	/* Centra el contenido */
+	padding: 20px;
+	/* Espaciado interno */
+	text-align: left;
+	/* Alinea el texto a la izquierda */
+	position: relative;
+	/* Añade posición relativa para alinear la marca de agua */
+	z-index: 1;
+	/* Eleva el contenido sobre la marca de agua */
+}
+
+.marca-agua {
+	position: absolute;
+	/* top: calc(100% + 10px); */
+	/* 10px de espacio entre la imagen y el fondo blanco */
+	left: 50%;
+	transform: translateX(-50%);
+	width: 180px;
+	/* Ancho de la imagen */
+	height: 180px;
+	/* Alto de la imagen */
+	opacity: 0.1;
+	z-index: 0;
+	/* Coloca la marca de agua detrás del contenido */
+}
