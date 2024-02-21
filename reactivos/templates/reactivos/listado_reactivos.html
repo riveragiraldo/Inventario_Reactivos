@@ -60,7 +60,7 @@
     <script src="{% static 'inventarioreac/sortByControl.js' %}"></script>
     <!-- Llama Script que envía datos de ordenamiento de registros -->
     <script src="{% static 'inventarioreac/openDetailReagent.js' %}" defer></script>
-    <script src="{% static 'inventarioreac/openDetailUser.js' %}" defer></script>
+    
     <!-- Llama Script que resalta los controles de paginación -->
     <script src="{% static 'inventarioreac/updateUrl.js' %}"></script>
     <!-- Llama Script que actualiza URL -->
@@ -78,9 +78,9 @@
 <body>
     {% block content %}
     <!-- formulario -->
-    <div class="col-md-4">
-    <div class="card">
-        <div class="card-head">
+    
+    <div class="card col-md-6 col-lg-6" style="margin-left: -15px;">
+        <div class="card-header">
             <h1>Listado de Reactivos</h1>
         </div>
         <br>
@@ -88,23 +88,24 @@
             <form method="get" onsubmit="guardarValoresSelect()" name="listadoReactivos">
                 <div class="form-group">
                     <label for="name">Nombre de Reactivo:</label>
+                    
                     <input type="text" id="name" name="name" class="form-control" title="Introduzca el nombre del reactivo, código o CAS">
                 </div>
             </div>
-            <br>
-            <card-footer>
-                <div class="form-group">
-                    <button id="boton-buscar" type="submit" class="btn btn-primary">Buscar</button>
-                    <button type="button" class="btn btn-success" onclick="limpiarCampos('listadoReactivos')">Limpiar búsqueda</button>
-                </div>
-                </form>
-            </card-footer>
+            
+            <div class="card-footer text-md-left">
+                <!-- Utiliza la clase text-md-left para alinear a la izquierda en pantallas medianas y grandes -->
+                <button id="boton-buscar" type="submit" class="btn btn-primary">Buscar</button>
+                <button type="button" class="btn btn-success visible-xs-inline" onclick="limpiarCampos('listadoReactivos')">Limpiar búsqueda</button>
+            </form>
         </div>
     </div>
     
+    
+    
     <br>
 
-    <div class="col-md-12">
+    <div class="col-md-12 col-lg-12" style="margin-bottom: 10px; margin-top: 10px; margin-left: -15px;">
         <!-- Control de paginación -->
         <div class="d-flex justify-content-between">
             <div>Ver&nbsp;
@@ -122,39 +123,30 @@
     
     <br>
     <!-- Tabla -->
-    <div class="col-md-11">
-        <table class="table table-striped table-condensed table-bordered" id="tabla-inventario">
+    <div class="table-responsive">
+        <table class="table custom-table" id="tabla-inventario" >
 
-            <thead style="background-color: rgb(171, 169, 169);position: sticky;
-            top: 0;
-            z-index: 10;">
+            <thead style="background-color: rgb(205, 203, 203); position: sticky; top: 0; z-index: 10; border-bottom: 1px solid black; border-top: 1px solid black;">
                 <tr>
-                    <th class="sortable-header" data-column="0" data-column-name="id" title="Ordenar por Consecutivo">Id
-                        reactivo</th>
-                    <th class="sortable-header" data-column="1" title="Ordenar por nombre">Nombre</th>
-                    <th class="sortable-header" data-column="2" title="Ordenar por código">Código</th>
-                    <th class="sortable-header" data-column="3" title="Ordenar por CAS">
-                        <p style="color: transparent;">************</p>CAS
-                    </th>
-                    <th class="sortable-header" data-column="4" title="Ordenar por Almacenamiento Interno">Alm. Interno</th>
-                    <th class="sortable-header" data-column="5" title="Ordenar por codificación Clase de Alamcenamiento">Clase Alm.</th>                    </th>
-                    <th class="sortable-header" data-column="6" title="Ordenar por Estado">Estado</th>
-                    <th class="sortable-header" data-column="7" title="Ordenar por Unidades">Unidad</th>
                     
-                    <th class="sortable-header" data-column="12" title="Ordenar por Estado">Activo</th>
-                    <th class="sortable-header" title="Visualización de detalle (no ordena)">Disponibilidad</th>
-
-                    <th class="sortable-header" title="Acciones con el registro (no ordena)">
-                        <p style="color: transparent;">***********</p>Acciones
-                    </th>
+                    <th class="sortable-header" data-column="0" title="Ordenar por nombre" style="border-bottom: 1px solid black; border-top: 1px solid black;text-align: left; vertical-align: middle;">Nombre Reactivo</th>
+                    <th class="sortable-header hidden-xs" data-column="1" title="Ordenar por código" style="border-bottom: 1px solid black; border-top: 1px solid black;text-align: left; vertical-align: middle;">Código</th>
+                    <th class="sortable-header hidden-xs" data-column="2" title="Ordenar por CAS" style="border-bottom: 1px solid black; border-top: 1px solid black;text-align: left; vertical-align: middle;">CAS</th>
+                    <th class="sortable-header hidden-xs" data-column="3" title="Ordenar por Almacenamiento Interno" style="border-bottom: 1px solid black; border-top: 1px solid black;text-align: left; vertical-align: middle;">Alm. Interno</th>
+                    <th class="sortable-header hidden-xs" data-column="4" title="Ordenar por codificación Clase de Almacenamiento" style="border-bottom: 1px solid black; border-top: 1px solid black; text-align: left; vertical-align: middle;">Clase Alm.</th>                    </th>
+                    <th class="sortable-header hidden-xs" data-column="5" title="Ordenar por Estado" style="border-bottom: 1px solid black; border-top: 1px solid black;text-align: left; vertical-align: middle;">Estado</th>
+                    <th class="sortable-header hidden-xs" data-column="6" title="Ordenar por Unidades" style="border-bottom: 1px solid black; border-top: 1px solid black;text-align: left; vertical-align: middle;">Unidad</th>
+                    <th class="sortable-header" title="Activo en base de datos" style="border-bottom: 1px solid black; border-top: 1px solid black;text-align: left; vertical-align: middle; cursor: default;">Activo</th>
+                    <th class="sortable-header" title="Disponibilidad en laboratorios del reactivo" style="border-bottom: 1px solid black; border-top: 1px solid black;text-align: left; vertical-align: middle; cursor: default;">Disp.</th>
+                    <th class="sortable-header" title="Acciones con el registro (no ordena)" style="border-bottom: 1px solid black; border-top: 1px solid black;text-align: left; vertical-align: middle; cursor: default;">Acciones</th>
                 </tr>
             </thead>
 
-            <tbody>
+            <tbody style="border-bottom: 1px solid black; border-top: 1px solid black;">
                 {% for item in object_list %}
                 <tr class="table-row">
-                    <td title="Consecutivo">{{ item.id }} </td>
-                    <td title="Nombre del reactivo {{ item.name }}"><a class="detalle-reactivo" data-reactivo-id="{{ item.id }}"
+                    
+                    <td title="Nombre del reactivo {{ item.name }}" class="name-reagent" style="border-bottom: 1px solid black; border-top: 1px solid black;"><a class="detalle-reactivo" data-reactivo-id="{{ item.id }}"
                         data-reactivo-name="{{ item.name }}" data-reactivo-color="{{ item.color }}"
                         data-reactivo-number="{{ item.number }}" data-reactivo-subnumber="{{ item.subnumber }}"
                         data-reactivo-code="{{ item.code }}" data-reactivo-cas="{{ item.cas }}"
@@ -176,14 +168,14 @@
                         <br>
                         {% endif %}
                         {% endif %}
-                        {% endfor %}" title="Más información sobre el registro de salida de: {{ item.name }}">{{ item.name }}</a></td>
-                    <td title="Código interno reactivo {{ item.name }}">{{ item.code }}</td>
-                    <td title="CAS {{ item.name }}">{{ item.cas }}</td>
-                    <td title="Almacenamiento Interno {{ item.name }}">{{ item.almacenamiento_interno }}</td>
-                    <td title="Clase de almacenamiento {{ item.name }}">{{ item.clase_almacenamiento }}</td>
-                    <td title="Estado del reactivo {{ item.name }}">{{ item.state }}</td>
-                    <td title="Unidad de medida {{ item.name }}">{{ item.unit }}</td>
-                    <td title="Estado de registro de {{ item.name }}">
+                        {% endfor %}" title="Más información Reactivo: {{ item.name }}">{{ item.name }}</a></td>
+                    <td title="Código interno reactivo {{ item.name }}" class="codes-reagent hidden-xs" style="border-bottom: 1px solid black; border-top: 1px solid black; cursor: default;">{{ item.code }}</td>
+                    <td title="CAS {{ item.name }} {{ item.cas }}" class="codes-reagent hidden-xs" style="border-bottom: 1px solid black; border-top: 1px solid black; cursor: default;">{{ item.cas }}</td>
+                    <td title="Almacenamiento Interno {{ item.name }} {{ item.almacenamiento_interno }}" class="internal-storage hidden-xs" style="border-bottom: 1px solid black; border-top: 1px solid black; cursor: default;">{{ item.almacenamiento_interno }}</td>
+                    <td title="Clase de almacenamiento {{ item.name }} {{ item.almacenamiento_interno }}" class="codes-reagent hidden-xs" style="text-align: center; border-bottom: 1px solid black; border-top: 1px solid black; cursor: default;">{{ item.clase_almacenamiento }}</td>
+                    <td title="Estado del reactivo {{ item.name }}" style="border-bottom: 1px solid black; border-top: 1px solid black;" class="hidden-xs">{{ item.state }}</td>
+                    <td title="Unidad de medida {{ item.name }}" style="text-align: center; border-bottom: 1px solid black; border-top: 1px solid black;" class="hidden-xs">{{ item.unit }}</td>
+                    <td title="Estado en base de datos de reactivo {{ item.name }}" style="text-align: center; border-bottom: 1px solid black; border-top: 1px solid black;">
 
                         <!-- si es adminstrador permite activar o inactivar si no lo es solo muestra la imagen -->
                         {% if request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
@@ -210,13 +202,13 @@
                     </td>
 
                     <!-- Modifica el evento click de la imagen para mostrar SweetAlert -->
-                    <td style="text-align: center;">
+                    <td style="text-align: center; border-bottom: 1px solid black; border-top: 1px solid black;">
                         <a href="javascript:void(0);" onclick="showChemicalAvailability({{ item.id }}, '{{ item.name }}')">
                         <img src="{% static 'inventarioreac/Images/moreInfo.ico' %}" alt="" width="18" height="18" title="Ver disponibilidad del reactivo {{ item.name }} en los laboratorios">
                         </a>
                     </td>
                     
-                    <td><!-- si es administrador permite crud, de lo contrario solo permite agregar -->
+                    <td style="text-align: center; border-bottom: 1px solid black; border-top: 1px solid black;" class="action-list"><!-- si es administrador permite crud, de lo contrario solo permite agregar -->
 
                         <!-- Agregar -->
                         <a href="javascript:void(0);" onclick="openPopupAdd('{% url 'reactivos:crear_reactivo' %}')">
@@ -267,14 +259,14 @@
         </table>
     </div>
 
-    <div class="col-md-12">
+    <div class="col-md-12" style="margin-left: -15px;">
         {% if no_results_message %}
         <div class="alert alert-warning">
             {{ no_results_message }}
         </div>
         {% endif %}
     </div>  
-        <div class="col-md-12">
+        <div class="col-md-12" style="margin-left: -15px; margin-bottom: 10px;">
         <div class="d-flex justify-content-between">
             <!-- Controles de navegación de página -->
             <div class="pagination">
@@ -298,8 +290,8 @@
         </div>
     </div>
 
-        <br>
-        <div class="col-md-12">
+       
+        <div class="col-md-12" style="margin-left: -15px;">
         <!-- Opciones de exportación -->
         <a href="{% url 'reactivos:export_to_excel_react' %}" class="btn btn-primary">Exportar a Excel</a>
     </div>    

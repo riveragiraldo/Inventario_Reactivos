@@ -68,6 +68,7 @@ $(document).ready(function () {
         select: function (event, ui) {
             // Muestra el nombre y correo electrónico en la lista desplegable
             $("#location").val(ui.item.name);
+            $("#facultad").val(ui.item.facultad);
             return false;
         },
         create: function () {
@@ -103,6 +104,7 @@ $(document).ready(function () {
             select: function (event, ui) {
                 // Muestra el nombre y correo electrónico en la lista desplegable
                 $("#manager").val(ui.item.name);
+                $("#correo").val(ui.item.mail);
                 return false;
             },
             create: function () {

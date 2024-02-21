@@ -34,9 +34,9 @@
 
 <body>
     {% block content %}
-    <div class="card">
+    <div class="card col-md-12 col-lg-12 col-xs-12">
         <div class="card-header">
-            <h1>Crear Facultades</h1>
+            <h1>Creación de Facultades</h1>
         </div>
         <br>
         <div class="card-body">
@@ -53,11 +53,11 @@
                         pattern="^[A-Za-z0-9áéíóúÁÉÍÓÚ\s]{1,50}$" title="Palabras o número de máximo 50 caracteres">
                 </div>
         </div>
-        <div class="card-footer">
-            <div class="form-group">
-                <button type="button" class="btn btn-primary" onclick="limpiarCampos('form')">Cancelar</button>
+        <div class="card-footer text-center">
+            
+                <button type="button" class="btn btn-success" onclick="limpiarCampos('form')">Cancelar</button>
                 <input type="button" value="Crear Facultad" class="btn btn-primary" id="open_confirm_in">
-            </div>
+            
 
         </div>
         </form>

@@ -35,9 +35,9 @@
 <body>
   {% block content %}
 
-  <div class="card">
+  <div class="card col-md-12 col-lg-12 col-xs-12">
     <div class="card-header">
-      <h1>Crear Marca</h1>
+      <h1>Creacion de marcas</h1>
     </div>
     <br>
     <div class="card-body">
@@ -51,22 +51,18 @@
         <div class="form-group">
           <label class="form-label" for="name" name="Nombre Marca: ">*Nombre de la Marca:</label>
           <input type="text" class="form-control" placeholder="Marca" name="name" required id="name"
-            pattern="^[A-Za-z0-9áéíóúÁÉÍÓÚ\s]{1,50}$" title="El nombre de la marca debe ser de máximo 50 caracteres">
+            pattern="^[A-Za-z0-9áéíóúÁÉÍÓÚ\s]{1,50}" title="El nombre de la marca debe ser de máximo 50 caracteres">
         </div>
     </div>
-    <div class="card-footer">
-      <br>
-      <div class="form-group">
+    <div class="card-footer text-center">
 
-        <button type="button" class="btn btn-primary" onclick="limpiarCampos('form')">Cancelar</button>
-        <input type="button" value="Crear Marca" class="btn btn-primary" id="open_confirm_in">
+      <button type="button" class="btn btn-success" onclick="limpiarCampos('form')">Cancelar</button>
+      <input type="button" value="Crear Marca" class="btn btn-primary" id="open_confirm_in">
 
-      </div>
+      </form>
     </div>
-
-
-    </form>
   </div>
+
 
   {% if messages %}
   {% for message in messages %}
@@ -205,7 +201,7 @@
   </script>
   {% endfor %}
   {% endif %}
-  </div>
+
   {% endblock %}
 </body>
 

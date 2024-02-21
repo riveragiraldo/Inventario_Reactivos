@@ -38,28 +38,26 @@ Creación
     <div class="card">
         <div class="card-header">
             <strong class="card-title">
-                <h1>Crear de estados</h1>
+                <h1>Creación de estados</h1>
             </strong>
         </div>
-        <br>
         <div class="card-body">
             <!-- HTML para mostrar el spinner -->
             <p id="message"></p>
             <div id="spinner"></div>
-
-            <form method="post"  id="marca_form" name="form">
+    
+            <form method="post" id="marca_form" name="form">
                 {% csrf_token %}
-
+    
                 <div class="form-group">
-                    <label for="name" name="Nombre del estado: ">*Nombre del estado:</label>
+                    <label for="name" name="Nombre:">*Nombre del estado:</label>
                     <input type="text" class="form-control" placeholder="Nombre" name="name" required id="name"
                         pattern="^[a-zA-ZáéíóúÁÉÍÓÚ]{1,10}$"
                         title="Ingrese valores alfabéticos de máximo 10 caracteres" autocomplete="off">
                 </div>
         </div>
-        <br>
-        <div class="card-footer">
-            <button type="button" class="btn btn-primary" onclick="limpiarCampos('form')">Cancelar</button>
+        <div class="card-footer text-center"> <!-- Alinea el contenido al centro -->
+            <button type="button" class="btn btn-success" onclick="limpiarCampos('form')">Cancelar</button>
             <input type="button" value="Crear estado" class="btn btn-primary" id="open_confirm_in">
         </div>
         </form>

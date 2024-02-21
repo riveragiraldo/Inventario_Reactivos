@@ -23,26 +23,23 @@
 
 <body>
     {% block content %}
-    <div class="container inicio-container col-md-12">
+    <div class="col-lg-10 container inicio-container">
         <div class="row">
-            <div class="contenido">
+            <div class="col-xs-12 contenido">
                 <h1>Inicio UniCLab</h1>
                 <br>
                 <p>
-                <h4><i>Bienvenido a UniCLab, usted se encuentra en el aplicativo de gestión de inventario de reactivos
-                        químicos
-                        de la Universidad Nacional de Colombia, Sede Manizales.</i></h4>
+                    <h4><i>Bienvenido a UniCLab, usted se encuentra en el aplicativo de gestión de inventario de reactivos
+                            químicos
+                            de la Universidad Nacional de Colombia, Sede Manizales.</i></h4>
                 </p>
 
                 <!-- Agrega la imagen como marca de agua -->
                 <img src="{% static 'inventarioreac/Images/logo_uniclab.png' %}" alt="Marca de Agua" class="marca-agua">
             </div>
         </div>
-
-
     </div>
-
-    {% endblock %}
+{% endblock %}
 
 </body>
 

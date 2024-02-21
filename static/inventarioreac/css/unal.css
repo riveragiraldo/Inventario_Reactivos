@@ -1615,42 +1615,120 @@ footer .logos a img {
 }
 
 /* incio uniclab */
+/* incio uniclab */
 .inicio-container {
-	background-color: #ffffff;
-	/* Fondo blanco */
-	border: 1px solid #dddddd;
-	/* Borde gris claro */
-	border-radius: 10px;
-	/* Esquinas redondeadas */
-	position: relative;
-	/* Para posicionar la marca de agua */
+    background-color: #ffffff;
+    /* Fondo blanco */
+    border: 1px solid #dddddd;
+    /* Borde gris claro */
+    border-radius: 10px;
+    /* Esquinas redondeadas */
+    position: relative;
+    /* Para posicionar la marca de agua */
 	height: 100%;
 }
 
 .contenido {
-	margin: 0 auto;
-	/* Centra el contenido */
-	padding: 20px;
-	/* Espaciado interno */
-	text-align: left;
-	/* Alinea el texto a la izquierda */
-	position: relative;
-	/* Añade posición relativa para alinear la marca de agua */
-	z-index: 1;
-	/* Eleva el contenido sobre la marca de agua */
+    margin: 0 auto;
+    /* Centra el contenido */
+    padding: 20px;
+    /* Espaciado interno */
+    text-align: left;
+    /* Alinea el texto a la izquierda */
+    position: relative;
+    /* Añade posición relativa para alinear la marca de agua */
+    z-index: 1;
+    /* Eleva el contenido sobre la marca de agua */
 }
 
 .marca-agua {
-	position: absolute;
-	/* top: calc(100% + 10px); */
-	/* 10px de espacio entre la imagen y el fondo blanco */
-	left: 50%;
-	transform: translateX(-50%);
-	width: 180px;
-	/* Ancho de la imagen */
-	height: 180px;
-	/* Alto de la imagen */
-	opacity: 0.1;
-	z-index: 0;
-	/* Coloca la marca de agua detrás del contenido */
+    position: absolute;
+    top: 120%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 300px;
+    /* Ancho de la imagen */
+    height: 300px;
+    /* Alto de la imagen */
+    opacity: 0.1;
+    z-index: 0;
+    /* Coloca la marca de agua detrás del contenido */
 }
+
+@media (max-width: 767px) {
+    /* Estilos específicos para pantallas más pequeñas (menos de 768px de ancho) */
+    .marca-agua {
+        width: 120px;
+        /* Ajusta el tamaño de la imagen para pantallas más pequeñas */
+        height: 120px;
+		top: 60%;
+		opacity: 0.1;
+    }
+}
+
+
+
+
+/* --------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------- */
+
+
+/* clase para columkna nombre de reactivo */
+.table-row .name-reagent {
+	max-width: 160px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	
+}
+/* clase para columna nombre de reactivo */
+.table-row .codes-reagent {
+	max-width: 80px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	
+}
+
+/* clase para columna almacenamiento interno de reactivo */
+.table-row .internal-storage {
+	max-width: 100px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	
+}
+
+/* clase para columna almacenamiento interno de reactivo */
+.table-row .action-list {
+	max-width: 80px;
+	min-width: 80px;
+	
+}
+
+/* estilo para desbordamiento de texto en barra lateral */
+.lateral_button {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	
+}
+
+/* centrar botones en listado de reactivos para movil */
+@media (max-width: 767px) {
+	/* Ajusta los estilos para pantallas más pequeñas (menos de 768px de ancho) */
+	.text-md-left {
+		text-align: center !important;
+		/* Sobrescribe la alineación a la izquierda y centra en pantallas pequeñas */
+	}
+}
+
+
+/* clase para columna marcaso */
+.table-row .trademark-reagent {
+	max-width: 100px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+

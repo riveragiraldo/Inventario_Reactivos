@@ -78,6 +78,7 @@ urlpatterns = [
     # Funcionales
     path('get-value/', get_value, name='get_value'), # Actualiza campos
     path('autocomplete/', autocomplete, name='autocomplete'),# Autompletar en entradas
+    path('autocomplete_react/', AutocompleteReactivosAPI.as_view(), name='autocompletereactivos'),# Autompletar en iventario
     path('autocomplete_out/', AutocompleteOutAPI.as_view(), name='autocomplete_out'), # Autocompletar en salidas
     path('autocomplete_user/', AutocompleteUserAPI.as_view(), name='autocomplete_user'), # Autocompletar en Usuarios
     path('autocomplete_manager/', autocomplete_manager, name='autocomplete_manager'), # Autocompletar responsables

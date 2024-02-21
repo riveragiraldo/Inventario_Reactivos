@@ -6,7 +6,7 @@ function openPopupWindowAlmacenamientoInterno() {
     var h = 400; // altura de la ventana emergente
     var left = (screen.width / 2) - (w / 2);
     var top = (screen.height / 2) - (h / 2);
-    window.open("/UniCLab/almacenamiento/crear_interno", "popup", "width=" + w + ",height=" + h + ",left=" + left + ",top=" + top);
+    window.open("/UniCLab/almacenamiento/crear_interno/", "popup", "width=" + w + ",height=" + h + ",left=" + left + ",top=" + top);
 }
 
 //Llama PopUp Clasificación Clase Alamcenamiento
@@ -15,7 +15,7 @@ function openPopupWindowClaseAlmacenamiento() {
     var h = 400; // altura de la ventana emergente
     var left = (screen.width / 2) - (w / 2);
     var top = (screen.height / 2) - (h / 2);
-    window.open("/UniCLab/almacenamiento/crear_clase", "popup", "width=" + w + ",height=" + h + ",left=" + left + ",top=" + top);
+    window.open("/UniCLab/almacenamiento/crear_clase/", "popup", "width=" + w + ",height=" + h + ",left=" + left + ",top=" + top);
 }
 
 
@@ -26,7 +26,7 @@ function openPopupWindowUnit() {
     var h = 400; // altura de la ventana emergente
     var left = (screen.width / 2) - (w / 2);
     var top = (screen.height / 2) - (h / 2);
-    window.open("/UniCLab/unidades/crear", "popup", "width=" + w + ",height=" + h + ",left=" + left + ",top=" + top);
+    window.open("/UniCLab/unidades/crear/", "popup", "width=" + w + ",height=" + h + ",left=" + left + ",top=" + top);
 }
 
 //Llama PopUp Crear Reactivo
@@ -35,7 +35,7 @@ function openPopupWindowReagent() {
     var h = 800; // altura de la ventana emergente
     var left = (screen.width / 2) - (w / 2);
     var top = (screen.height / 2) - (h / 2);
-    window.open("/UniCLab/reactivos/crear", "popup", "width=" + w + ",height=" + h + ",left=" + left + ",top=" + top);
+    window.open("/UniCLab/reactivos/crear/", "popup", "width=" + w + ",height=" + h + ",left=" + left + ",top=" + top);
 }
 
 //Llama PopUp Crear Marca
@@ -44,7 +44,7 @@ function openPopupWindowTrademark() {
     var h = 400; // altura de la ventana emergente
     var left = (screen.width / 2) - (w / 2);
     var top = (screen.height / 2) - (h / 2);
-    window.open("/UniCLab/marcas/crear", "popup", "width=" + w + ",height=" + h + ",left=" + left + ",top=" + top);
+    window.open("/UniCLab/marcas/crear/", "popup", "width=" + w + ",height=" + h + ",left=" + left + ",top=" + top);
 }
 
 //Llama PopUp Crear Asignatura
@@ -53,7 +53,7 @@ function openPopupWindowLocation() {
     var h = 400; // altura de la ventana emergente
     var left = (screen.width / 2) - (w / 2);
     var top = (screen.height / 2) - (h / 2);
-    window.open("/UniCLab/ubicaciones/crear", "popup", "width=" + w + ",height=" + h + ",left=" + left + ",top=" + top);
+    window.open("/UniCLab/ubicaciones/crear/", "popup", "width=" + w + ",height=" + h + ",left=" + left + ",top=" + top);
 }
 
 //Llama PopUp Crear Responsables
@@ -62,7 +62,7 @@ function openPopupWindowManager() {
     var h = 450; // altura de la ventana emergente
     var left = (screen.width / 2) - (w / 2);
     var top = (screen.height / 2) - (h / 2);
-    window.open("/UniCLab/responsables/crear", "popup", "width=" + w + ",height=" + h + ",left=" + left + ",top=" + top);
+    window.open("/UniCLab/responsables/crear/", "popup", "width=" + w + ",height=" + h + ",left=" + left + ",top=" + top);
 }
 
 //Llama PopUp Crear Ubicaciones en almacén
@@ -71,7 +71,7 @@ function openPopupWindowWlocation() {
     var h = 500; // altura de la ventana emergente
     var left = (screen.width / 2) - (w / 2);
     var top = (screen.height / 2) - (h / 2);
-    window.open("/UniCLab/ubicaciones_almacen/crear", "popup", "width=" + w + ",height=" + h + ",left=" + left + ",top=" + top);
+    window.open("/UniCLab/ubicaciones_almacen/crear/", "popup", "width=" + w + ",height=" + h + ",left=" + left + ",top=" + top);
 }
 
 
@@ -81,7 +81,7 @@ function openPopupWindowRol() {
     var h = 500; // altura de la ventana emergente
     var left = (screen.width / 2) - (w / 2);
     var top = (screen.height / 2) - (h / 2);
-    window.open("/UniCLab/roles/crear/", "popup", "width=" + w + ",height=" + h + ",left=" + left + ",top=" + top);
+    window.open("/UniCLab/roles/crear//", "popup", "width=" + w + ",height=" + h + ",left=" + left + ",top=" + top);
 }
 
 //Llama PopUp Crear Roles
@@ -90,7 +90,7 @@ function openPopupWindowLab() {
     var h = 500; // altura de la ventana emergente
     var left = (screen.width / 2) - (w / 2);
     var top = (screen.height / 2) - (h / 2);
-    window.open("/UniCLab/laboratorios/crear/", "popup", "width=" + w + ",height=" + h + ",left=" + left + ",top=" + top);
+    window.open("/UniCLab/laboratorios/crear//", "popup", "width=" + w + ",height=" + h + ",left=" + left + ",top=" + top);
 }
 
 //Lee que formulario es de acuerdo con entrada oculta "wf"

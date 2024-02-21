@@ -180,7 +180,8 @@ function confirmActiveUser(itemId, itemName) {
 function confirmDeleteReact(itemId, itemName) {
     // Muestra una Sweet Alert de confirmación
     Swal.fire({
-        title: '¿Está seguro que desea eliminar el registro número: '+itemId+' "' + itemName + '"?',
+        title: 'Inactivar Reactivo',
+        text: '¿Está seguro que desea eliminar el registro número: '+itemId+' "' + itemName + '"?',
         icon: 'warning',
         showCancelButton: true,
         confirmButtonText: 'Sí',
@@ -237,7 +238,8 @@ function confirmDeleteReact(itemId, itemName) {
 function confirmActiveReact(itemId, itemName) {
     // Muestra una Sweet Alert de confirmación
     Swal.fire({
-        title: '¿Confirma activar el registro número:'+itemId+' "' + itemName + '"?',
+        title: 'Activar Reactivo',
+        text: '¿Confirma activar el registro número:'+itemId+' "' + itemName + '"?',
         icon: 'warning',
         showCancelButton: true,
         confirmButtonText: 'Sí',

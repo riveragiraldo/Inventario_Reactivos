@@ -41,7 +41,7 @@
 <body>
     {% block content %}
 
-    <div class="card">
+    <div class="card col-md-8 col-lg-8">
         <div class="card-header">
             <h1>Crear reactivo</h1>
         </div>
@@ -143,11 +143,11 @@
                 <input type="hidden" name="wf" class="form-control" value="crear" id="wf">
         </div>
         <br>
-        <div class="card-footer">
-            <div class="form-group">
-                <button type="button" class="btn btn-primary" onclick="limpiarCampos('form')">Cancelar</button>
+        <div class="card-footer text-center">
+            
+                <button type="button" class="btn btn-success" onclick="limpiarCampos('form')">Cancelar</button>
                 <input type="button" value="Crear Reactivo" class="btn btn-primary" id="open_confirm_in">
-            </div>
+            
         </div>
         </form>
     </div>

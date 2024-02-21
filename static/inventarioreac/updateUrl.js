@@ -4,7 +4,7 @@ const currentUrl = window.location.href;
 // Verificar si la URL no tiene parámetros de búsqueda para inventario
 if (currentUrl.endsWith('/reactivos/inventario/')) {
     // Modificar la URL agregando los parámetros de búsqueda deseados
-    const newUrl = currentUrl + '?lab='+labDefault+'&name=&trademark=';
+    const newUrl = currentUrl + '?lab='+labDefault+'&name=&id_r=';
 
     // Redirigir a la nueva URL
     window.location.href = newUrl;

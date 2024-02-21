@@ -2089,8 +2089,16 @@ def crear_reactivo(request):
         coordinators=User.objects.filter(lab=current_lab, rol=rol, is_active=True)
         recipient_list = [request.user.email]
         recipient_list.extend(coordinator.email for coordinator in coordinators)
-        subject = f"Registro exitoso de creación de reactivo {reactivo.name} - {protocol}://{domain}"
-        send_mail(subject, plain_message, from_email, recipient_list, fail_silently=False, html_message=message)           
+        subject = f"Creación exitosa de reactivo {reactivo.name} - {protocol}://{domain}"
+        # send_mail(subject, plain_message, from_email, recipient_list, fail_silently=False, html_message=message)           
+        
+        # envío de correo electrónico en segundo plano
+        # Archivo adjunto nulo
+        attach_path=None
+        # Crear un hilo y ejecutar enviar_correo en segundo plano
+        correo_thread = threading.Thread(
+        target=enviar_correo, args=(recipient_list, subject, message, attach_path),)
+        correo_thread.start()
 
         # Crea un evento de crear reactivo
         tipo_evento = 'CREAR REACTIVO'
@@ -2485,13 +2493,26 @@ def registrar_entrada(request):
             message = render_to_string('reactivos/registro_exitoso_entrada.html', context)
             plain_message = strip_tags(message)
             from_email = "Notificación Dirección de Laboratorios"  # Agrega el correo electrónico desde el cual se enviará el mensaje
-            current_lab=request.user.lab
+            current_lab=lab
             rol=get_object_or_404(Rol,name='COORDINADOR')
             coordinators=User.objects.filter(lab=current_lab, rol=rol, is_active=True)
             recipient_list = [request.user.email]
             recipient_list.extend(coordinator.email for coordinator in coordinators)
+            
             subject = f"Registro exitoso de entrada de inventario de {entrada.name} en {entrada.lab.name} - {protocol}://{domain}"
-            send_mail(subject, plain_message, from_email, recipient_list, fail_silently=False, html_message=message)           
+            # send_mail(subject, plain_message, from_email, recipient_list, fail_silently=False, html_message=message)           
+            
+            attach_path=None
+
+            # Crear un hilo y ejecutar enviar_correo en segundo plano
+            correo_thread = threading.Thread(
+                target=enviar_correo,
+                args=(recipient_list, subject, message, attach_path),
+            )
+            correo_thread.start()
+
+            # enviar_correo(recipient_list, subject, message, attach_path)
+            
             # Crea un evento de registrar entrada
             tipo_evento = 'REGISTRAR ENTRADA'
             usuario_evento = request.user
@@ -2566,6 +2587,7 @@ def registrar_salida(request):
             return HttpResponse("El reactivo "+nReactivo +" no se encuentra en la base de datos, favor crearlo primero.", status=400)
 
         facultad = request.POST.get('facultad')
+        print(facultad)
         facultad=get_object_or_404(Facultades, name=facultad)
         
         location = request.POST.get('location')
@@ -2671,8 +2693,13 @@ def registrar_salida(request):
                         cantidad=f'{inventario_existente.weight}'
                         unidad=f'{inventario_existente.name.unit}'
                         mensaje=f'La cantidad de reactivo {reactivo}, con marca {marca} y referencia {referencia}; ha llegado a cero en inventario ({cantidad} {unidad}).'
-                        enviar_correo_alerta(request, alerta, reactivo, marca, referencia, cantidad, unidad, mensaje, inventario_existente)
-                        
+                        # enviar_correo_alerta(request, alerta, reactivo, marca, referencia, cantidad, unidad, mensaje, inventario_existente)
+                        # envío de correo electrónico en segundo plano        
+                        # Crear un hilo y ejecutar enviar_correo en segundo plano
+                        correo_thread = threading.Thread(
+                        target=enviar_correo_alerta, args=(request, alerta, reactivo, marca, referencia,cantidad,unidad,mensaje, inventario_existente),)
+                        correo_thread.start()
+
                     if (inventario_existente.weight<=inventario_existente.minstock) and inventario_existente.minStockControl==True and inventario_existente.weight>0:
                         # preparar alerta para mensaje al usuario    
                         warning=", pero el inventario actual es menor o igual que el stock mínimo para este reactivo. Favor informar al coordinador de laboratorio."
@@ -2684,7 +2711,14 @@ def registrar_salida(request):
                         cantidad=f'{inventario_existente.weight}'
                         unidad=f'{inventario_existente.name.unit}'
                         mensaje=f'El reactivo {reactivo}, con marca {marca} y referencia {referencia}; ha llegado a cantidades críticas ({cantidad} {unidad}), por debajo del stock mínimo ({inventario_existente.minstock} {unidad}).'
-                        enviar_correo_alerta(request, alerta, reactivo, marca, referencia,cantidad,unidad,mensaje, inventario_existente)
+                        # enviar_correo_alerta(request, alerta, reactivo, marca, referencia,cantidad,unidad,mensaje, inventario_existente)
+                        
+                        # envío de correo electrónico en segundo plano
+        
+                        # Crear un hilo y ejecutar enviar_correo en segundo plano
+                        correo_thread = threading.Thread(
+                        target=enviar_correo_alerta, args=(request, alerta, reactivo, marca, referencia,cantidad,unidad,mensaje, inventario_existente),)
+                        correo_thread.start()
 
                 else:
                     inventario_existente.weight=int(inventario_existente.weight)
@@ -2708,7 +2742,7 @@ def registrar_salida(request):
         if name:
 
             inventario=nuevo_inventario.id
-            inventario=get_object_or_404(Inventarios,id=inventario)
+            inventario=nuevo_inventario
             reference = request.POST.get('reference')
             weight = request.POST.get('weight')
             observations = request.POST.get('observations')
@@ -2756,12 +2790,20 @@ def registrar_salida(request):
             plain_message = strip_tags(message)
             from_email = "noreply@unal.edu.co"  # Agrega el correo electrónico desde el cual se enviará el mensaje
             current_lab=request.user.lab
-            rol=get_object_or_404(Rol,name='COORDINADOR')
+            rol=get_object_or_404(Rol, name='COORDINADOR')
             coordinators=User.objects.filter(lab=current_lab, rol=rol, is_active=True)
             recipient_list = [request.user.email]
             recipient_list.extend(coordinator.email for coordinator in coordinators)
             subject = f"Registro exitoso de salida de inventario de {salida.name} en {salida.lab.name} - {protocol}://{domain}"
-            send_mail(subject, plain_message, from_email, recipient_list, fail_silently=False, html_message=message)           
+            # send_mail(subject, plain_message, from_email, recipient_list, fail_silently=False, html_message=message)           
+            # envío de correo electrónico en segundo plano
+            # Archivo adjunto nulo
+            attach_path=None
+            # Crear un hilo y ejecutar enviar_correo en segundo plano
+            correo_thread = threading.Thread(
+            target=enviar_correo, args=(recipient_list, subject, message, attach_path),)
+            correo_thread.start()
+
 
             # Crea un evento de registrar salida
             tipo_evento = 'REGISTRAR SALIDA'
@@ -3702,7 +3744,7 @@ class InventarioListView(LoginRequiredMixin,ListView):
         # Obtener los parámetros de filtrado
         lab = request.GET.get('lab')
         name = request.GET.get('name')
-        trademark = request.GET.get('trademark')
+        id_r = request.GET.get('id_r')
         
         # si el valor de lab viene de sesión superusuario o ADMINISTRADOR lab=0 cambiar por lab=''
         if lab=='0':
@@ -3711,7 +3753,7 @@ class InventarioListView(LoginRequiredMixin,ListView):
         # Guardar los valores de filtrado en la sesión
         request.session['filtered_lab'] = lab
         request.session['filtered_name'] = name
-        request.session['filtered_trademark'] = trademark
+        request.session['filtered_id_r'] = id_r
         
 
         return super().get(request, *args, **kwargs)
@@ -3721,29 +3763,13 @@ class InventarioListView(LoginRequiredMixin,ListView):
 
         # Entradas para colocar un contexto de acuerdo con el filtro
         lab = self.request.GET.get('lab')
-        name = self.request.GET.get('name')
-        trademark = self.request.GET.get('trademark')
+        name = self.request.GET.get('id_r')
         # si el valor de lab viene de sesión superusuario o ADMINISTRADOR lab=0 cambiar por lab=''
         if lab=='0':
              lab=''
         
         # Colocar contexto de acuerdo con el filtro seleccionado
-        if lab and name and trademark:
-            reactivo=get_object_or_404(Reactivos, id=name)
-            marca=get_object_or_404(Marcas, id=trademark)
-            lab=get_object_or_404(Laboratorios, id=lab)
-            # Busca en el inventario por Reactivo y Marca y obtén la cantidad total
-            inventario_entries = Inventarios.objects.filter(name=reactivo, trademark=marca,lab=lab, is_active=True)
-
-            # Calcula la cantidad total en inventario
-            total_weight = inventario_entries.aggregate(total_weight=models.Sum('weight'))['total_weight'] or 0
-
-            context['reactivo_filtrado']=reactivo.name
-            context['marca_filtrada']=marca.name
-            context['cantidad_filtrada']=total_weight
-            context['unidad_filtrada']=reactivo.unit.name
-
-        elif name and lab:
+        if name and lab:
             reactivo=get_object_or_404(Reactivos, id=name)
             lab=get_object_or_404(Laboratorios, id=lab)
             # Busca en el inventario por Reactivo y Marca y obtén la cantidad total
@@ -3756,19 +3782,7 @@ class InventarioListView(LoginRequiredMixin,ListView):
             context['cantidad_filtrada']=total_weight
             context['unidad_filtrada']=reactivo.unit.name
         
-        elif name and trademark:
-            reactivo=get_object_or_404(Reactivos, id=name)
-            marca=get_object_or_404(Marcas, id=trademark)
-            # Busca en el inventario por Reactivo y Marca y obtén la cantidad total
-            inventario_entries = Inventarios.objects.filter(name=reactivo, trademark=marca, is_active=True)
-
-            # Calcula la cantidad total en inventario
-            total_weight = inventario_entries.aggregate(total_weight=models.Sum('weight'))['total_weight'] or 0
-
-            context['reactivo_filtrado']=reactivo.name
-            context['marca_filtrada']=marca.name
-            context['cantidad_filtrada']=total_weight
-            context['unidad_filtrada']=reactivo.unit.name
+        
         elif name:
             reactivo=get_object_or_404(Reactivos, id=name)
             
@@ -3782,11 +3796,11 @@ class InventarioListView(LoginRequiredMixin,ListView):
             context['cantidad_filtrada']=total_weight
             context['unidad_filtrada']=reactivo.unit.name
             
-        elif trademark:
-            print(f'No contexto')
-        else:
-            print(f'No contexto')
         
+        else:
+            context['reactivo_filtrado']=''
+            context['cantidad_filtrada']=''
+            context['unidad_filtrada']=''
 
 
         unique_labs_ids = Inventarios.objects.values('lab').distinct()
@@ -3834,28 +3848,23 @@ class InventarioListView(LoginRequiredMixin,ListView):
     def get_queryset(self):
         queryset = super().get_queryset()
         lab = self.request.GET.get('lab')
-        name = self.request.GET.get('name')
-        trademark = self.request.GET.get('trademark')
-
+        id_reactivo = self.request.GET.get('id_r')
         # si el valor de lab viene de sesión superusuario o ADMINISTRADOR lab=0 cambiar por lab=''
         if lab=='0':
              lab=''
              
         # Definir Queryset para filtrado de visulización
-        if lab and name and trademark:
-            queryset = queryset.filter(lab=lab, name=name, trademark=trademark, is_active=True)
-        elif lab and name:
-            queryset = queryset.filter(lab=lab, name=name, is_active=True)
-        elif lab and trademark:
-            queryset = queryset.filter(lab=lab, trademark=trademark, is_active=True)
-        elif name and trademark:
-            queryset = queryset.filter(name=name, trademark=trademark, is_active=True)
+             
+        if lab and id_reactivo:
+            queryset = queryset.filter(name=id_reactivo, lab=lab, is_active=True)
         elif lab:
             queryset = queryset.filter(lab=lab, is_active=True)
-        elif name:
-            queryset = queryset.filter(name=name, is_active=True)
-        elif trademark:
-            queryset = queryset.filter(trademark=trademark, is_active=True)
+
+
+        elif id_reactivo:
+            queryset = queryset.filter(name=id_reactivo, is_active=True)
+
+        
         
         else:
             queryset = queryset.filter(is_active=True)
@@ -4971,7 +4980,7 @@ class GuardarPerPageView(LoginRequiredMixin,View):
         # Redirigir a la página de inventario con los parámetros de filtrado actuales
         filtered_lab = request.session.get('filtered_lab')
         filtered_name = request.session.get('filtered_name')
-        filtered_trademark = request.session.get('filtered_trademark')
+        filtered_id_r = request.session.get('filtered_id_r')
         
         url = reverse('reactivos:inventario')
         params = {}
@@ -4979,8 +4988,8 @@ class GuardarPerPageView(LoginRequiredMixin,View):
             params['lab'] = filtered_lab
         if filtered_name:
             params['name'] = filtered_name
-        if filtered_trademark:
-            params['trademark'] = filtered_trademark
+        if filtered_id_r:
+            params['id_r'] = filtered_id_r
         
         
         if params:
@@ -5482,26 +5491,23 @@ class WlocationsAPI(LoginRequiredMixin,View):
 def export_to_excel(request):
     # Obtener los valores filtrados almacenados en la sesión del usuario
     lab = request.session.get('filtered_lab')
-    name = request.session.get('filtered_name')
-    trademark = request.session.get('filtered_trademark')
+    id_reactivo = request.session.get('filtered_id_r')
     
     queryset = Inventarios.objects.all()
     #Filtra según los valores previos de filtro en los selectores
 
-    if lab and name and trademark:
-        queryset = queryset.filter(lab=lab, name=name, trademark=trademark, is_active=True)
-    elif lab and name:
-        queryset = queryset.filter(lab=lab, name=name, is_active=True)
-    elif lab and trademark:
-        queryset = queryset.filter(lab=lab, trademark=trademark, is_active=True)
-    elif name and trademark:
-        queryset = queryset.filter(name=name, trademark=trademark, is_active=True)
+    # si el valor de lab viene de sesión superusuario o ADMINISTRADOR lab=0 cambiar por lab=''
+    if lab=='0':
+         lab=''
+         
+    # Definir Queryset para filtrado de visulización
+         
+    if lab and id_reactivo:
+        queryset = queryset.filter(name=id_reactivo, lab=lab, is_active=True)
     elif lab:
         queryset = queryset.filter(lab=lab, is_active=True)
-    elif name:
-        queryset = queryset.filter(name=name, is_active=True)
-    elif trademark:
-        queryset = queryset.filter(trademark=trademark, is_active=True)
+    elif id_reactivo:
+        queryset = queryset.filter(name=id_reactivo, is_active=True)          
     else:
         queryset = queryset.filter(is_active=True)
 
@@ -5665,7 +5671,7 @@ def export_to_excel(request):
 
     response = HttpResponse(
         content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-    response['Content-Disposition'] = 'attachment; filename=inventario_insumos.xlsx'
+    response['Content-Disposition'] = 'attachment; filename=Inventario_Ractivos.xlsx'
 
     workbook.save(response)
     # crear evento descarga de archivos
@@ -7646,6 +7652,34 @@ def autocomplete(request):
 
     return JsonResponse(results, safe=False)
 
+
+# Autocompleta reactivos en el inventario
+class AutocompleteReactivosAPI(LoginRequiredMixin,View):
+    def get(self, request):
+        term = request.GET.get('term', '')
+        lab = request.GET.get('lab', '')
+        if lab=='0':
+            inventarios = Inventarios.objects.filter(
+            Q(name__name__icontains=term) | Q(name__code__icontains=term) | Q(name__cas__icontains=term), is_active=True
+        ).order_by('name').distinct('name')[:10]
+        else:
+            inventarios = Inventarios.objects.filter(
+            Q(name__name__icontains=term) | Q(name__code__icontains=term) | Q(name__cas__icontains=term),
+            lab=lab, is_active=True
+        ).order_by('name').distinct('name')[:10]
+        results = []
+        for inventario in inventarios:
+            result = {
+                'id': inventario.name.id,
+                'name': inventario.name.name,
+                'code': inventario.name.code,
+                'cas': inventario.name.cas,
+                
+            }
+            results.append(result)
+
+        return JsonResponse(results, safe=False)
+    
 
 # Devuelve los valores de la tabla Inventarios según lo escrito en el campo name del formulario registrar_salida.html en forma de una 
 # lista de autocompletado
