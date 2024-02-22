@@ -9,6 +9,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}Visualización de inventarios{% endblock %}</title>
     {% block head %}
+    <!-- jquery para autocomplete -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
     
     <script src="https://code.jquery.com/ui/1.13.0/jquery-ui.min.js"></script>
@@ -160,6 +161,7 @@
                     data-reactivo-cas="{{ item.name.cas }}" data-reactivo-trademark="{{ item.trademark }}"
                     data-reactivo-reference="{{ item.reference }}"
                     data-reactivo-quantity="{{ item.weight|floatformat:1 }}"
+                    data-reactivo-minstock="{{ item.minstock|floatformat:0 }}"
                     data-reactivo-unit="{{ item.name.unit }}" data-reactivo-wlocation="{{ item.wlocation }}"
                     data-reactivo-lab="{{ item.lab }}" data-reactivo-edate="{{ item.edate }}"
                     data-reactivo-almacenamiento_interno="{{ item.name.almacenamiento_interno }}"

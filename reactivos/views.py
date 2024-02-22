@@ -119,6 +119,7 @@ from django.utils.html import format_html
 from babel.dates import format_datetime, format_time
 import threading
 import os  # Importa el módulo os para trabajar con rutas de archivo
+from openpyxl.styles import NamedStyle
 
 
 
@@ -3907,9 +3908,8 @@ class EntradasListView(LoginRequiredMixin,ListView):
         # Obtener los parámetros de filtrado
         lab = request.GET.get('lab')
         name = request.GET.get('name')
-        location = request.GET.get('location')
-        destination = request.GET.get('destination')
-        created_by = request.GET.get('created_by')
+        id_reagent = request.GET.get('id_r')
+        
         # Obtener las fechas de inicio y fin de la solicitud GET
         start_date = self.request.GET.get('start_date')
         end_date = self.request.GET.get('end_date')  
@@ -3921,9 +3921,7 @@ class EntradasListView(LoginRequiredMixin,ListView):
         # Guardar los valores de filtrado en la sesión
         request.session['filtered_lab'] = lab
         request.session['filtered_name'] = name
-        request.session['filtered_location'] = location
-        request.session['filtered_destination'] = destination
-        request.session['filtered_created_by'] = created_by
+        request.session['filtered_id_reagent'] = id_reagent
         request.session['filtered_start_date'] = start_date
         request.session['filtered_end_date'] = end_date
         
@@ -3994,10 +3992,9 @@ class EntradasListView(LoginRequiredMixin,ListView):
     def get_queryset(self):
         queryset = super().get_queryset()
         lab = self.request.GET.get('lab')
-        name = self.request.GET.get('name')
-        location = self.request.GET.get('location')
-        destination= self.request.GET.get('destination')
-        created_by= self.request.GET.get('created_by')
+        id_reagent = self.request.GET.get('id_r')
+        
+        
         # Obtener las fechas de inicio y fin de la solicitud GET
         start_date = self.request.GET.get('start_date')
         end_date = self.request.GET.get('end_date')
@@ -4031,68 +4028,12 @@ class EntradasListView(LoginRequiredMixin,ListView):
 
              
         
-        if lab and name and destination and location and created_by:
-            queryset = queryset.filter(lab=lab, name=name, destination=destination, location=location, created_by=created_by, is_active=True)
-        elif lab and name and destination and location:
-            queryset = queryset.filter(lab=lab, name=name, destination=destination, location=location, is_active=True)
-        elif lab and name and destination and created_by:
-            queryset = queryset.filter(lab=lab, name=name, destination=destination, created_by=created_by, is_active=True)
-        elif lab and name and location and created_by:
-            queryset = queryset.filter(lab=lab, name=name, location=location, created_by=created_by, is_active=True)
-        elif lab and destination and location and created_by:
-            queryset = queryset.filter(lab=lab, destination=destination, location=location, created_by=created_by, is_active=True)
-        elif name and destination and location and created_by:
-            queryset = queryset.filter(name=name, destination=destination, location=location, created_by=created_by, is_active=True)
-        elif lab and name and destination:
-            queryset = queryset.filter(lab=lab, name=name, destination=destination, is_active=True)
-        elif lab and name and location:
-            queryset = queryset.filter(lab=lab, name=name, location=location, is_active=True)
-        elif lab and name and created_by:
-            queryset = queryset.filter(lab=lab, name=name, created_by=created_by, is_active=True)
-        elif lab and destination and location:
-            queryset = queryset.filter(lab=lab, destination=destination, location=location, is_active=True)
-        elif lab and destination and created_by:
-            queryset = queryset.filter(lab=lab, destination=destination, created_by=created_by, is_active=True)
-        elif lab and location and created_by:
-            queryset = queryset.filter(lab=lab, location=location, created_by=created_by, is_active=True)
-        elif name and destination and location:
-            queryset = queryset.filter(name=name, destination=destination, location=location, is_active=True)
-        elif name and destination and created_by:
-            queryset = queryset.filter(name=name, destination=destination, created_by=created_by, is_active=True)
-        elif name and location and created_by:
-            queryset = queryset.filter(name=name, location=location, created_by=created_by, is_active=True)
-        elif destination and location and created_by:
-            queryset = queryset.filter(destination=destination, location=location, created_by=created_by, is_active=True)
-        elif location and created_by:
-            queryset = queryset.filter(location=location, created_by=created_by, is_active=True)
-        elif destination and created_by:
-            queryset = queryset.filter(destination=destination, created_by=created_by, is_active=True)
-        elif destination and location:
-            queryset = queryset.filter(destination=destination, location=location, is_active=True)
-        elif name and created_by:
-            queryset = queryset.filter(name=name, created_by=created_by, is_active=True)
-        elif name and location:
-            queryset = queryset.filter(name=name, location=location, is_active=True)
-        elif name and destination:
-            queryset = queryset.filter(name=name, destination=destination, is_active=True)
-        elif lab and created_by:
-            queryset = queryset.filter(lab=lab, created_by=created_by, is_active=True)
-        elif lab and location:
-            queryset = queryset.filter(lab=lab, location=location, is_active=True)
-        elif lab and destination:
-            queryset = queryset.filter(lab=lab, destination=destination, is_active=True)
-        elif lab and name:
-            queryset = queryset.filter(lab=lab, name=name, is_active=True)
+        if lab and id_reagent:
+            queryset = queryset.filter(name=id_reagent, lab=lab, is_active=True)
         elif lab:
             queryset = queryset.filter(lab=lab, is_active=True)
-        elif name:
-            queryset = queryset.filter(name=name, is_active=True)
-        elif destination:
-            queryset = queryset.filter(destination=destination, is_active=True)
-        elif location:
-            queryset = queryset.filter(location=location, is_active=True)
-        elif created_by:
-            queryset = queryset.filter(created_by=created_by, is_active=True)
+        elif id_reagent:
+            queryset = queryset.filter(name=id_reagent, is_active=True)
         else:
             queryset = queryset.filter(is_active=True)
 
@@ -4122,9 +4063,8 @@ class SalidasListView(LoginRequiredMixin,ListView):
         # Obtener los parámetros de filtrado
         lab = request.GET.get('lab')
         name = request.GET.get('name')
-        location = request.GET.get('location')
-        destination = request.GET.get('destination')
-        created_by = request.GET.get('created_by')
+        id_reagent = request.GET.get('id_r')
+        
         # Obtener las fechas de inicio y fin de la solicitud GET
         start_date = self.request.GET.get('start_date')
         end_date = self.request.GET.get('end_date')  
@@ -4136,9 +4076,7 @@ class SalidasListView(LoginRequiredMixin,ListView):
         # Guardar los valores de filtrado en la sesión
         request.session['filtered_lab'] = lab
         request.session['filtered_name'] = name
-        request.session['filtered_location'] = location
-        request.session['filtered_destination'] = destination
-        request.session['filtered_created_by'] = created_by
+        request.session['filtered_id_reagent'] = id_reagent
         request.session['filtered_start_date'] = start_date
         request.session['filtered_end_date'] = end_date
         
@@ -4198,10 +4136,9 @@ class SalidasListView(LoginRequiredMixin,ListView):
     def get_queryset(self):
         queryset = super().get_queryset()
         lab = self.request.GET.get('lab')
-        name = self.request.GET.get('name')
-        location = self.request.GET.get('location')
-        destination= self.request.GET.get('destination')
-        created_by= self.request.GET.get('created_by')
+        id_reagent = self.request.GET.get('id_r')
+        
+        
         # Obtener las fechas de inicio y fin de la solicitud GET
         start_date = self.request.GET.get('start_date')
         end_date = self.request.GET.get('end_date')
@@ -4235,68 +4172,12 @@ class SalidasListView(LoginRequiredMixin,ListView):
 
              
         
-        if lab and name and destination and location and created_by:
-            queryset = queryset.filter(lab=lab, name=name, destination=destination, location=location, created_by=created_by, is_active=True)
-        elif lab and name and destination and location:
-            queryset = queryset.filter(lab=lab, name=name, destination=destination, location=location, is_active=True)
-        elif lab and name and destination and created_by:
-            queryset = queryset.filter(lab=lab, name=name, destination=destination, created_by=created_by, is_active=True)
-        elif lab and name and location and created_by:
-            queryset = queryset.filter(lab=lab, name=name, location=location, created_by=created_by, is_active=True)
-        elif lab and destination and location and created_by:
-            queryset = queryset.filter(lab=lab, destination=destination, location=location, created_by=created_by, is_active=True)
-        elif name and destination and location and created_by:
-            queryset = queryset.filter(name=name, destination=destination, location=location, created_by=created_by, is_active=True)
-        elif lab and name and destination:
-            queryset = queryset.filter(lab=lab, name=name, destination=destination, is_active=True)
-        elif lab and name and location:
-            queryset = queryset.filter(lab=lab, name=name, location=location, is_active=True)
-        elif lab and name and created_by:
-            queryset = queryset.filter(lab=lab, name=name, created_by=created_by, is_active=True)
-        elif lab and destination and location:
-            queryset = queryset.filter(lab=lab, destination=destination, location=location, is_active=True)
-        elif lab and destination and created_by:
-            queryset = queryset.filter(lab=lab, destination=destination, created_by=created_by, is_active=True)
-        elif lab and location and created_by:
-            queryset = queryset.filter(lab=lab, location=location, created_by=created_by, is_active=True)
-        elif name and destination and location:
-            queryset = queryset.filter(name=name, destination=destination, location=location, is_active=True)
-        elif name and destination and created_by:
-            queryset = queryset.filter(name=name, destination=destination, created_by=created_by, is_active=True)
-        elif name and location and created_by:
-            queryset = queryset.filter(name=name, location=location, created_by=created_by, is_active=True)
-        elif destination and location and created_by:
-            queryset = queryset.filter(destination=destination, location=location, created_by=created_by, is_active=True)
-        elif location and created_by:
-            queryset = queryset.filter(location=location, created_by=created_by, is_active=True)
-        elif destination and created_by:
-            queryset = queryset.filter(destination=destination, created_by=created_by, is_active=True)
-        elif destination and location:
-            queryset = queryset.filter(destination=destination, location=location, is_active=True)
-        elif name and created_by:
-            queryset = queryset.filter(name=name, created_by=created_by, is_active=True)
-        elif name and location:
-            queryset = queryset.filter(name=name, location=location, is_active=True)
-        elif name and destination:
-            queryset = queryset.filter(name=name, destination=destination, is_active=True)
-        elif lab and created_by:
-            queryset = queryset.filter(lab=lab, created_by=created_by, is_active=True)
-        elif lab and location:
-            queryset = queryset.filter(lab=lab, location=location, is_active=True)
-        elif lab and destination:
-            queryset = queryset.filter(lab=lab, destination=destination, is_active=True)
-        elif lab and name:
-            queryset = queryset.filter(lab=lab, name=name, is_active=True)
+        if lab and id_reagent:
+            queryset = queryset.filter(name=id_reagent, lab=lab, is_active=True)
         elif lab:
             queryset = queryset.filter(lab=lab, is_active=True)
-        elif name:
-            queryset = queryset.filter(name=name, is_active=True)
-        elif destination:
-            queryset = queryset.filter(destination=destination, is_active=True)
-        elif location:
-            queryset = queryset.filter(location=location, is_active=True)
-        elif created_by:
-            queryset = queryset.filter(created_by=created_by, is_active=True)
+        elif id_reagent:
+            queryset = queryset.filter(name=id_reagent, is_active=True)
         else:
             queryset = queryset.filter(is_active=True)
 
@@ -5006,9 +4887,7 @@ class GuardarPerPageViewIn(LoginRequiredMixin,View):
         # Redirigir a la página de inventario con los parámetros de filtrado actuales
         filtered_lab = request.session.get('filtered_lab')
         filtered_name = request.session.get('filtered_name')
-        filtered_location = request.session.get('filtered_location')
-        filtered_destination = request.session.get('filtered_destination')
-        filtered_created_by = request.session.get('filtered_created_by')
+        filtered_id_reagent = request.session.get('filtered_id_reagent')
         filtered_start_date = request.session.get('filtered_start_date')
         filtered_end_date = request.session.get('filtered_end_date')
         
@@ -5019,12 +4898,9 @@ class GuardarPerPageViewIn(LoginRequiredMixin,View):
         if filtered_name:
             params['name'] = filtered_name
 
-        if filtered_location:
-            params['location'] = filtered_location
-        if filtered_destination:
-            params['destination'] = filtered_destination
-        if filtered_created_by:
-            params['created_by'] = filtered_created_by
+        if filtered_id_reagent:
+            params['id_r'] = filtered_id_reagent
+        
         if filtered_start_date:
             params['start_date'] = filtered_start_date
         if filtered_end_date:
@@ -5077,9 +4953,7 @@ class GuardarPerPageViewOut(LoginRequiredMixin,View):
         # Redirigir a la página de inventario con los parámetros de filtrado actuales
         filtered_lab = request.session.get('filtered_lab')
         filtered_name = request.session.get('filtered_name')
-        filtered_location = request.session.get('filtered_location')
-        filtered_destination = request.session.get('filtered_destination')
-        filtered_created_by = request.session.get('filtered_created_by')
+        filtered_id_reagent = request.session.get('filtered_id_reagent')
         filtered_start_date = request.session.get('filtered_start_date')
         filtered_end_date = request.session.get('filtered_end_date')
         
@@ -5090,12 +4964,9 @@ class GuardarPerPageViewOut(LoginRequiredMixin,View):
         if filtered_name:
             params['name'] = filtered_name
 
-        if filtered_location:
-            params['location'] = filtered_location
-        if filtered_destination:
-            params['destination'] = filtered_destination
-        if filtered_created_by:
-            params['created_by'] = filtered_created_by
+        if filtered_id_reagent:
+            params['id_r'] = filtered_id_reagent
+        
         if filtered_start_date:
             params['start_date'] = filtered_start_date
         if filtered_end_date:
@@ -5542,16 +5413,17 @@ def export_to_excel(request):
     sheet['C4'] = 'CAS'
     sheet['D4'] = 'Reactivo'
     sheet['E4'] = 'Marca'
-    sheet['F4'] = 'Cantidad'
-    sheet['G4'] = 'Referencia'
-    sheet['H4'] = 'Unidad'
-    sheet['I4'] = 'Ubicación'
-    sheet['J4'] = 'Laboratorio'
-    sheet['K4'] = 'Vencimiento'
-    sheet['L4'] = 'Registrado por'
-    sheet['M4'] = 'Fecha y hora de Registro'
-    sheet['N4'] = 'Actualizado por'
-    sheet['O4'] = 'Fecha y hora de última Actualización'
+    sheet['F4'] = 'Referencia'
+    sheet['G4'] = 'Cantidad'
+    sheet['H4'] = 'Unidades'
+    sheet['I4'] = 'Inventario mínimo'
+    sheet['J4'] = 'Ubicación'
+    sheet['K4'] = 'Laboratorio'
+    sheet['L4'] = 'Vencimiento'
+    sheet['M4'] = 'Registrado por'
+    sheet['N4'] = 'Fecha y hora de Registro'
+    sheet['O4'] = 'Actualizado por'
+    sheet['P4'] = 'Fecha y hora de última Actualización'
 
     # Establecer la altura de la fila 1 y 2 a 30
     sheet.row_dimensions[1].height = 35
@@ -5569,50 +5441,52 @@ def export_to_excel(request):
     # Establecer el estilo de las celdas A2:D3
     bold_font = Font(bold=True)
 
-    # Establecer el ancho de la columna A a 16
-    sheet.column_dimensions['A'].width = 9
+    # Establecer el ancho de la columna A a 7
+    sheet.column_dimensions['A'].width = 7
 
-    # Establecer el ancho de la columna B a 10
+    # Establecer el ancho de la columna B a 9
     sheet.column_dimensions['B'].width = 9
 
-    # Establecer el ancho de la columna B a6
-    sheet.column_dimensions['C'].width = 19
+    # Establecer el ancho de la columna C a 13
+    sheet.column_dimensions['C'].width = 13
 
-    # Establecer el ancho de la columna C a1
-    sheet.column_dimensions['D'].width = 40
+    # Establecer el ancho de la columna D a 28
+    sheet.column_dimensions['D'].width = 28
 
-    # Establecer el ancho de la columna D a0
-    sheet.column_dimensions['E'].width = 14
+    # Establecer el ancho de la columna E a 13
+    sheet.column_dimensions['E'].width = 13
 
-    # Establecer el ancho de la columna E a0
+    # Establecer el ancho de la columna F a 10
     sheet.column_dimensions['F'].width = 10
 
-    # Establecer el ancho de la columna F a0
-    sheet.column_dimensions['G'].width = 12
+    # Establecer el ancho de la columna G a 8
+    sheet.column_dimensions['G'].width = 8
 
-    # Establecer el ancho de la columna G a2
-    sheet.column_dimensions['H'].width = 9
+    # Establecer el ancho de la columna H a 5
+    sheet.column_dimensions['H'].width = 5
 
-    # Establecer el ancho de la columna H a4
-    sheet.column_dimensions['I'].width = 34
+    # Establecer el ancho de la columna I a 10
+    sheet.column_dimensions['I'].width = 10
 
-    # Establecer el ancho de la columna I a3
-    sheet.column_dimensions['J'].width = 51
-    # Establecer el ancho de la columna J a9
+    # Establecer el ancho de la columna J a 17
+    sheet.column_dimensions['J'].width = 17
+    # Establecer el ancho de la columna K a 13
     sheet.column_dimensions['K'].width = 13
-    # Establecer el ancho de la columna K a9
+    
+    # Establecer el ancho de la columna L a 13
+    sheet.column_dimensions['L'].width = 13
+    # Establecer el ancho de la columna M a 23
     sheet.column_dimensions['M'].width = 23
-    # Establecer el ancho de la columna M a1
-    sheet.column_dimensions['L'].width = 29
-    # Establecer el ancho de la columna L a1
-    sheet.column_dimensions['N'].width = 29
-    # Establecer el ancho de la columna N a1
-    sheet.column_dimensions['M'].width = 23
-    sheet.column_dimensions['O'].width = 34
+    # Establecer el ancho de la columna N a 19
+    sheet.column_dimensions['N'].width = 19
+    # Establecer el ancho de la columna O a 23
+    sheet.column_dimensions['O'].width = 23
+    # Establecer el ancho de la columna P a 19
+    sheet.column_dimensions['P'].width = 19
 
     row = 4
     # Aplicar el estilo de borde a las celdas de la fila actual
-    for col in range(1, 16):
+    for col in range(1, 17):
         sheet.cell(row=row, column=col).border = thin_border
         sheet.cell(row=row, column=col).font = bold_font
 
@@ -5626,23 +5500,24 @@ def export_to_excel(request):
         sheet.cell(row=row, column=6).value = item.reference
         sheet.cell(row=row, column=7).value = item.weight
         sheet.cell(row=row, column=8).value = item.name.unit.name
-        sheet.cell(row=row, column=9).value = item.wlocation.name
-        sheet.cell(row=row, column=10).value = item.lab.name
-        sheet.cell(row=row, column=11).value = item.edate
-        sheet.cell(row=row, column=12).value = item.created_by.first_name+' '+item.created_by.last_name
-        sheet.cell(row=row, column=13).value = str((item.date_create).strftime('%d/%m/%Y %H:%M:%S'))
-        sheet.cell(row=row, column=14).value = item.last_updated_by.first_name+' '+item.last_updated_by.last_name
-        sheet.cell(row=row, column=15).value = str((item.last_update).strftime('%d/%m/%Y %H:%M:%S'))
+        sheet.cell(row=row, column=9).value = f'{int(item.minstock)} {item.name.unit.name}'
+        sheet.cell(row=row, column=10).value = item.wlocation.name
+        sheet.cell(row=row, column=11).value = item.lab.name
+        sheet.cell(row=row, column=12).value = item.edate
+        sheet.cell(row=row, column=13).value = item.created_by.first_name+' '+item.created_by.last_name
+        sheet.cell(row=row, column=14).value = str((item.date_create).strftime('%d/%m/%Y %H:%M:%S'))
+        sheet.cell(row=row, column=15).value = item.last_updated_by.first_name+' '+item.last_updated_by.last_name
+        sheet.cell(row=row, column=16).value = str((item.last_update).strftime('%d/%m/%Y %H:%M:%S'))
 
         # Aplicar el estilo de borde a las celdas de la fila actual
-        for col in range(1, 16):
+        for col in range(1, 17):
             sheet.cell(row=row, column=col).border = thin_border
 
         row += 1
 
     # Obtén el rango de las columnas de la tabla
     start_column = 1
-    end_column = 15
+    end_column = 16
     start_row = 4
     end_row = row - 1
 
@@ -5689,10 +5564,8 @@ def export_to_excel(request):
 def export_to_excel_input(request):
     # Obtener los valores filtrados almacenados en la sesión del usuario
     lab = request.session.get('filtered_lab')
-    name = request.session.get('filtered_name')
-    location = request.session.get('filtered_location')
-    destination = request.session.get('filtered_destination')
-    created_by = request.session.get('filtered_created_by')
+    id_reagent = request.session.get('filtered_id_reagent')
+    
     start_date = request.session.get('filtered_start_date')
     end_date = request.session.get('filtered_end_date')
     
@@ -5719,68 +5592,12 @@ def export_to_excel_input(request):
     elif start_date and end_date:
         queryset = queryset.filter(date_create__gte=start_date,date_create__lte=end_date)
     
-    if lab and name and destination and location and created_by:
-            queryset = queryset.filter(lab=lab, name=name, destination=destination, location=location, created_by=created_by, is_active=True)
-    elif lab and name and destination and location:
-        queryset = queryset.filter(lab=lab, name=name, destination=destination, location=location, is_active=True)
-    elif lab and name and destination and created_by:
-        queryset = queryset.filter(lab=lab, name=name, destination=destination, created_by=created_by, is_active=True)
-    elif lab and name and location and created_by:
-        queryset = queryset.filter(lab=lab, name=name, location=location, created_by=created_by, is_active=True)
-    elif lab and destination and location and created_by:
-        queryset = queryset.filter(lab=lab, destination=destination, location=location, created_by=created_by, is_active=True)
-    elif name and destination and location and created_by:
-        queryset = queryset.filter(name=name, destination=destination, location=location, created_by=created_by, is_active=True)
-    elif lab and name and destination:
-        queryset = queryset.filter(lab=lab, name=name, destination=destination, is_active=True)
-    elif lab and name and location:
-        queryset = queryset.filter(lab=lab, name=name, location=location, is_active=True)
-    elif lab and name and created_by:
-        queryset = queryset.filter(lab=lab, name=name, created_by=created_by, is_active=True)
-    elif lab and destination and location:
-        queryset = queryset.filter(lab=lab, destination=destination, location=location, is_active=True)
-    elif lab and destination and created_by:
-        queryset = queryset.filter(lab=lab, destination=destination, created_by=created_by, is_active=True)
-    elif lab and location and created_by:
-        queryset = queryset.filter(lab=lab, location=location, created_by=created_by, is_active=True)
-    elif name and destination and location:
-        queryset = queryset.filter(name=name, destination=destination, location=location, is_active=True)
-    elif name and destination and created_by:
-        queryset = queryset.filter(name=name, destination=destination, created_by=created_by, is_active=True)
-    elif name and location and created_by:
-        queryset = queryset.filter(name=name, location=location, created_by=created_by, is_active=True)
-    elif destination and location and created_by:
-        queryset = queryset.filter(destination=destination, location=location, created_by=created_by, is_active=True)
-    elif location and created_by:
-        queryset = queryset.filter(location=location, created_by=created_by, is_active=True)
-    elif destination and created_by:
-        queryset = queryset.filter(destination=destination, created_by=created_by, is_active=True)
-    elif destination and location:
-        queryset = queryset.filter(destination=destination, location=location, is_active=True)
-    elif name and created_by:
-        queryset = queryset.filter(name=name, created_by=created_by, is_active=True)
-    elif name and location:
-        queryset = queryset.filter(name=name, location=location, is_active=True)
-    elif name and destination:
-        queryset = queryset.filter(name=name, destination=destination, is_active=True)
-    elif lab and created_by:
-        queryset = queryset.filter(lab=lab, created_by=created_by, is_active=True)
-    elif lab and location:
-        queryset = queryset.filter(lab=lab, location=location, is_active=True)
-    elif lab and destination:
-        queryset = queryset.filter(lab=lab, destination=destination, is_active=True)
-    elif lab and name:
-        queryset = queryset.filter(lab=lab, name=name, is_active=True)
+    if lab and id_reagent:
+        queryset = queryset.filter(name=id_reagent, lab=lab, is_active=True)
     elif lab:
         queryset = queryset.filter(lab=lab, is_active=True)
-    elif name:
-        queryset = queryset.filter(name=name, is_active=True)
-    elif destination:
-        queryset = queryset.filter(destination=destination, is_active=True)
-    elif location:
-        queryset = queryset.filter(location=location, is_active=True)
-    elif created_by:
-        queryset = queryset.filter(created_by=created_by, is_active=True)
+    elif id_reagent:
+        queryset = queryset.filter(name=id_reagent, is_active=True)
     else:
         queryset = queryset.filter(is_active=True)
     queryset = queryset.order_by('id')
@@ -5918,7 +5735,8 @@ def export_to_excel_input(request):
     # Establecer el ancho de la columna V a 60
     sheet.column_dimensions['V'].width = 60
 
-      
+    # Crear un estilo con formato de moneda
+    currency_style = NamedStyle(name='currency', number_format='_("$"* #,##0.00_);_("$"* \(#,##0.00\);_("$"* "-"??_);_(@_)')
     
 
     row = 4
@@ -5950,6 +5768,8 @@ def export_to_excel_input(request):
         sheet.cell(row=row, column=11).value = item.order
         sheet.cell(row=row, column=12).value = str(item.date_order)
         sheet.cell(row=row, column=13).value = item.nproject
+        # Aplicar el estilo a la celda
+        sheet.cell(row=row, column=14).style = currency_style
         sheet.cell(row=row, column=14).value = item.price
         sheet.cell(row=row, column=15).value = item.destination.name
         sheet.cell(row=row, column=16).value = item.manager.name
@@ -6176,10 +5996,8 @@ def export_to_excel_event(request):
 def export_to_excel_output(request):
     # Obtener los valores filtrados almacenados en la sesión del usuario
     lab = request.session.get('filtered_lab')
-    name = request.session.get('filtered_name')
-    location = request.session.get('filtered_location')
-    destination = request.session.get('filtered_destination')
-    created_by = request.session.get('filtered_created_by')
+    id_reagent = request.session.get('filtered_id_reagent')
+    
     start_date = request.session.get('filtered_start_date')
     end_date = request.session.get('filtered_end_date')
     
@@ -6206,71 +6024,16 @@ def export_to_excel_output(request):
     elif start_date and end_date:
         queryset = queryset.filter(date_create__gte=start_date,date_create__lte=end_date)
     
-    if lab and name and destination and location and created_by:
-            queryset = queryset.filter(lab=lab, name=name, destination=destination, location=location, created_by=created_by, is_active=True)
-    elif lab and name and destination and location:
-        queryset = queryset.filter(lab=lab, name=name, destination=destination, location=location, is_active=True)
-    elif lab and name and destination and created_by:
-        queryset = queryset.filter(lab=lab, name=name, destination=destination, created_by=created_by, is_active=True)
-    elif lab and name and location and created_by:
-        queryset = queryset.filter(lab=lab, name=name, location=location, created_by=created_by, is_active=True)
-    elif lab and destination and location and created_by:
-        queryset = queryset.filter(lab=lab, destination=destination, location=location, created_by=created_by, is_active=True)
-    elif name and destination and location and created_by:
-        queryset = queryset.filter(name=name, destination=destination, location=location, created_by=created_by, is_active=True)
-    elif lab and name and destination:
-        queryset = queryset.filter(lab=lab, name=name, destination=destination, is_active=True)
-    elif lab and name and location:
-        queryset = queryset.filter(lab=lab, name=name, location=location, is_active=True)
-    elif lab and name and created_by:
-        queryset = queryset.filter(lab=lab, name=name, created_by=created_by, is_active=True)
-    elif lab and destination and location:
-        queryset = queryset.filter(lab=lab, destination=destination, location=location, is_active=True)
-    elif lab and destination and created_by:
-        queryset = queryset.filter(lab=lab, destination=destination, created_by=created_by, is_active=True)
-    elif lab and location and created_by:
-        queryset = queryset.filter(lab=lab, location=location, created_by=created_by, is_active=True)
-    elif name and destination and location:
-        queryset = queryset.filter(name=name, destination=destination, location=location, is_active=True)
-    elif name and destination and created_by:
-        queryset = queryset.filter(name=name, destination=destination, created_by=created_by, is_active=True)
-    elif name and location and created_by:
-        queryset = queryset.filter(name=name, location=location, created_by=created_by, is_active=True)
-    elif destination and location and created_by:
-        queryset = queryset.filter(destination=destination, location=location, created_by=created_by, is_active=True)
-    elif location and created_by:
-        queryset = queryset.filter(location=location, created_by=created_by, is_active=True)
-    elif destination and created_by:
-        queryset = queryset.filter(destination=destination, created_by=created_by, is_active=True)
-    elif destination and location:
-        queryset = queryset.filter(destination=destination, location=location, is_active=True)
-    elif name and created_by:
-        queryset = queryset.filter(name=name, created_by=created_by, is_active=True)
-    elif name and location:
-        queryset = queryset.filter(name=name, location=location, is_active=True)
-    elif name and destination:
-        queryset = queryset.filter(name=name, destination=destination, is_active=True)
-    elif lab and created_by:
-        queryset = queryset.filter(lab=lab, created_by=created_by, is_active=True)
-    elif lab and location:
-        queryset = queryset.filter(lab=lab, location=location, is_active=True)
-    elif lab and destination:
-        queryset = queryset.filter(lab=lab, destination=destination, is_active=True)
-    elif lab and name:
-        queryset = queryset.filter(lab=lab, name=name, is_active=True)
+    if lab and id_reagent:
+        queryset = queryset.filter(name=id_reagent, lab=lab, is_active=True)
     elif lab:
         queryset = queryset.filter(lab=lab, is_active=True)
-    elif name:
-        queryset = queryset.filter(name=name, is_active=True)
-    elif destination:
-        queryset = queryset.filter(destination=destination, is_active=True)
-    elif location:
-        queryset = queryset.filter(location=location, is_active=True)
-    elif created_by:
-        queryset = queryset.filter(created_by=created_by, is_active=True)
+    elif id_reagent:
+        queryset = queryset.filter(name=id_reagent, is_active=True)
     else:
         queryset = queryset.filter(is_active=True)
     queryset = queryset.order_by('id')
+    
         
 
     workbook = openpyxl.Workbook()
@@ -7674,6 +7437,60 @@ class AutocompleteReactivosAPI(LoginRequiredMixin,View):
                 'name': inventario.name.name,
                 'code': inventario.name.code,
                 'cas': inventario.name.cas,
+                
+            }
+            results.append(result)
+
+        return JsonResponse(results, safe=False)
+
+# Autocompleta reactivos en listado de entradas
+class AutocompleteReactivosInAPI(LoginRequiredMixin,View):
+    def get(self, request):
+        term = request.GET.get('term', '')
+        lab = request.GET.get('lab', '')
+        if lab=='0':
+            entradas = Entradas.objects.filter(
+            Q(name__name__icontains=term) | Q(name__code__icontains=term) | Q(name__cas__icontains=term), is_active=True
+        ).order_by('name').distinct('name')[:10]
+        else:
+            entradas = Entradas.objects.filter(
+            Q(name__name__icontains=term) | Q(name__code__icontains=term) | Q(name__cas__icontains=term),
+            lab=lab, is_active=True
+        ).order_by('name').distinct('name')[:10]
+        results = []
+        for entrada in entradas:
+            result = {
+                'id': entrada.name.id,
+                'name': entrada.name.name,
+                'code': entrada.name.code,
+                'cas': entrada.name.cas,
+                
+            }
+            results.append(result)
+
+        return JsonResponse(results, safe=False)
+
+# Autocompleta reactivos en listado de salidas
+class AutocompleteReactivosOutAPI(LoginRequiredMixin,View):
+    def get(self, request):
+        term = request.GET.get('term', '')
+        lab = request.GET.get('lab', '')
+        if lab=='0':
+            entradas = Salidas.objects.filter(
+            Q(name__name__icontains=term) | Q(name__code__icontains=term) | Q(name__cas__icontains=term), is_active=True
+        ).order_by('name').distinct('name')[:10]
+        else:
+            entradas = Salidas.objects.filter(
+            Q(name__name__icontains=term) | Q(name__code__icontains=term) | Q(name__cas__icontains=term),
+            lab=lab, is_active=True
+        ).order_by('name').distinct('name')[:10]
+        results = []
+        for entrada in entradas:
+            result = {
+                'id': entrada.name.id,
+                'name': entrada.name.name,
+                'code': entrada.name.code,
+                'cas': entrada.name.cas,
                 
             }
             results.append(result)

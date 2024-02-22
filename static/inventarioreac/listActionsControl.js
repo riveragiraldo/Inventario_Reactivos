@@ -295,7 +295,8 @@ function confirmActiveReact(itemId, itemName) {
 function confirmDeleteIn(itemId, itemName) {
     // Muestra una Sweet Alert de confirmación
     Swal.fire({
-        title: '¿Está seguro que desea eliminar el registro número:'+itemId+' "' + itemName + '"?',
+        title: 'Eliminar Registro de entrada',
+        text: '¿Está seguro que desea eliminar el registro número:'+itemId+' "' + itemName + '"?',
         icon: 'warning',
         showCancelButton: true,
         confirmButtonText: 'Sí',
@@ -354,7 +355,8 @@ function confirmDeleteIn(itemId, itemName) {
 function confirmDeleteOut(itemId, itemName) {
     // Muestra una Sweet Alert de confirmación
     Swal.fire({
-        title: '¿Está seguro que desea eliminar el registro número:'+itemId+' "' + itemName + '"?',
+        title: 'Eliminar registro de salida',
+        text: '¿Está seguro que desea eliminar el registro número:'+itemId+' "' + itemName + '"?',
         icon: 'warning',
         showCancelButton: true,
         confirmButtonText: 'Sí',

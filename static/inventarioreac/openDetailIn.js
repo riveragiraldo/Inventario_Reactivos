@@ -78,7 +78,7 @@ function mostrarSweetAlert(entrada) {
                         <li><strong>Marca:</strong> ${entrada.trademark}</li>
                         <li><strong>Referencia:</strong> ${entrada.reference}</li>
                         <li><strong>Cantidad registrada:</strong> ${entrada.weight} ${entrada.unit}</li>
-                        <li><strong>Orden de entrada:</strong> ${entrada.order} de ${entrada.date_order}</li>
+                        <li><strong>Orden de entrada:</strong> ${entrada.order}</li>
                         <li><strong>Número de proyecto:</strong> ${entrada.nproject}</li>
                         <li><strong>Laboratorio:</strong> ${entrada.lab}</li>
                         <li><strong>Valor de ingreso:</strong> ${entrada.price}</li>
