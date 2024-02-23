@@ -2,7 +2,7 @@
 window.onload = function () {
     wf = document.getElementById('wf').value
     console.log(wf)
-    console.log(ubicacion_almacen)
+    
     
     
     if (wf == 'entrada'){
@@ -54,23 +54,31 @@ window.onload = function () {
             destination_new.value = destino;
             destination_new.setAttribute("selected", true);
 
-        }, 200);
+        }, 100);
 
         setTimeout(function () {
 
             // Actualiza Select trademark
             var trademark_new = document.querySelector("#trademark");
             trademark_new.value = marca;
-            trademark_new.setAttribute("selected", true);
+            // trademark_new.setAttribute("selected", true);
             updateReferenceSelect()
-        }, 400);
+        }, 700);
         setTimeout(function () {
             // Actualiza Select reference
             var reference_new = document.querySelector("#reference");
             reference_new.value = referencia;
-            reference_new.setAttribute("selected", true);
-            }, 700);
+            // reference_new.setAttribute("selected", true);
+            }, 1200);
     }
+
+
+
+
+
+
+
+
     else if (wf == 'crear'){
         
         

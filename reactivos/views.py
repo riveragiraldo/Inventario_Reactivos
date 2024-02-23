@@ -1322,6 +1322,7 @@ class RegistrarSolicitud(LoginRequiredMixin, CreateView):
 
             mensaje = f'La solicitud se ha registrado correctamente, se a enviado un correo al administrador del sistema el radicado de su solicitud es: {solicitud.id:04}'
             messages.success(request, mensaje)  # Agregar mensaje de éxito
+            
             # Enviar correo al usuario que registra la solicitud
             id = solicitud.id
             solicitud_code = base64.urlsafe_b64encode(str(id).encode()).decode()
@@ -1329,15 +1330,20 @@ class RegistrarSolicitud(LoginRequiredMixin, CreateView):
             shipping_email=solicitud.created_by.email
             email_type=f'Registro de solicitud'
             initial_message= f'El presente mensaje de correo electrónico es porque recientemente se ha registrado una solicitud en el aplicativo de inventario y gestión de reactivos, con la siguiente información:'
-            enviar_correo_solicitud(request, suffix, id, initial_message,shipping_email, email_type )
-
-             # Enviar correo al administrador del aplicativo
+            # enviar_correo_solicitud(request, suffix, id, initial_message,shipping_email, email_type )
+            # envío de correo electrónico en segundo plano
+        
+            # Crear un hilo y ejecutar enviar_correo en segundo plano
+            correo_thread = threading.Thread(
+            target=enviar_correo_solicitud, args=(request, suffix, id, initial_message,shipping_email, email_type),)
+            correo_thread.start()
+            # Enviar correo al administrador del aplicativo
             # Obtener el correo del administrador desde la base de datos
             configuracion = ConfiguracionSistema.objects.first()
             if configuracion:
                 admin_email = configuracion.correo_administrador
             else:
-                admin_email = 'mriveragi@unal.edu.co'
+                admin_email = 'uniclab_man@unal.edu.co'
 
             id = solicitud.id
             protocol = 'https' if request.is_secure() else 'http'
@@ -1348,7 +1354,11 @@ class RegistrarSolicitud(LoginRequiredMixin, CreateView):
             shipping_email=admin_email
             email_type=f'Registro de solicitud'
             initial_message= f'Recientemente se ha registrado una solicitud en el aplicativo de inventario y gestión de reactivos, con la siguiente información:'
-            enviar_correo_solicitud(request, suffix, id, initial_message,shipping_email,email_type )
+            # enviar_correo_solicitud(request, suffix, id, initial_message,shipping_email,email_type )
+            # Crear un hilo y ejecutar enviar_correo en segundo plano
+            correo_thread = threading.Thread(
+            target=enviar_correo_solicitud, args=(request, suffix, id, initial_message,shipping_email, email_type),)
+            correo_thread.start()
         else:
             mensaje = f'La solicitud no se ha podido enviar, por favor consulte el administrador del sistema, error:.'
             error = form.errors
@@ -1409,7 +1419,13 @@ def responder_solicitud(request, solicitud_code):
         shipping_email=solicitud.created_by.email
         initial_message= f'Cordial saludo se ha dado respuesta a una solicitud realizada por usted en el aplicativo de inventario y gestión de reactivos, con la siguiente información:'
         email_type=f'Respuesta a solicitud'
-        enviar_correo_solicitud(request, suffix, id, initial_message,shipping_email, email_type )
+        # enviar_correo_solicitud(request, suffix, id, initial_message,shipping_email, email_type )
+        # envío de correo electrónico en segundo plano
+        
+        # Crear un hilo y ejecutar enviar_correo en segundo plano
+        correo_thread = threading.Thread(
+        target=enviar_correo_solicitud, args=(request, suffix, id, initial_message,shipping_email, email_type),)
+        correo_thread.start()
 
         # Realiza la depuración automática de registros
         # Registros antiguos: fecha_tramite es más antigua que los días configurados en configuración del sistema.
@@ -4500,9 +4516,14 @@ class CrearUsuario(LoginRequiredMixin, CreateView):
         plain_message = strip_tags(message)
         from_email = None  # Agrega el correo electrónico desde el cual se enviará el mensaje
         recipient_list = [user.email]
+        # envío de correo electrónico en segundo plano
+        # Archivo adjunto nulo
+        attach_path=None
+        # Crear un hilo y ejecutar enviar_correo en segundo plano
+        correo_thread = threading.Thread(
+        target=enviar_correo, args=(recipient_list, subject, message, attach_path),)
+        correo_thread.start()
 
-        send_mail(subject, plain_message, from_email, recipient_list, fail_silently=False, html_message=message)           
-    
     def form_valid(self, form):
 
         def has_required_password_conditions(password):
@@ -4577,7 +4598,37 @@ class CrearUsuario(LoginRequiredMixin, CreateView):
         
      
         # Enviar correo electrónico de confirmación
-        self.send_confirmation_email(user)
+        protocol = 'https' if self.request.is_secure() else 'http'
+        domain = self.request.get_host()
+        # Codificar el correo electrónico en base64 y agregarlo en la URL
+        encoded_email = base64.urlsafe_b64encode(user.email.encode()).decode()
+        reset_link = reverse('reactivos:password_reset') + '?' + urlencode({'email': encoded_email})
+        reset_url = f"{protocol}://{domain}{reset_link}"
+        home_url = f"{protocol}://{domain}"
+
+        subject = _('Bienvenido a la Gestión de Insumos Químicos')
+        if user.acceptDataProcessing:
+            aceptapolitica='Acepta'
+        else:
+            aceptapolitica='No acepta'
+
+        context = {
+            'user': user,
+            'reset_url': reset_url,
+            'aceptapolitica':aceptapolitica,
+            'home_url':home_url,
+        }
+        message = render_to_string('registration/registro_exitoso_email.html', context)
+        plain_message = strip_tags(message)
+        from_email = None  # Agrega el correo electrónico desde el cual se enviará el mensaje
+        recipient_list = [user.email]
+        # envío de correo electrónico en segundo plano
+        # Archivo adjunto nulo
+        attach_path=None
+        # Crear un hilo y ejecutar enviar_correo en segundo plano
+        correo_thread = threading.Thread(
+        target=enviar_correo, args=(recipient_list, subject, message, attach_path),)
+        correo_thread.start()
 
         # Agregar mensaje de éxito
         # Crea un evento de crear usuario
@@ -5546,7 +5597,7 @@ def export_to_excel(request):
 
     response = HttpResponse(
         content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-    response['Content-Disposition'] = 'attachment; filename=Inventario_Ractivos.xlsx'
+    response['Content-Disposition'] = 'attachment; filename=Inventario_Reactivos.xlsx'
 
     workbook.save(response)
     # crear evento descarga de archivos
@@ -7535,12 +7586,12 @@ class AutocompleteUserAPI(LoginRequiredMixin,View):
         if lab=='0':       
             usuarios = User.objects.filter(
                 Q(first_name__icontains=term) | Q(last_name__icontains=term) | Q(id_number__icontains=term) | Q(phone_number__icontains=term) | Q(email__icontains=term) | Q(username__icontains=term)
-            ).order_by('first_name').distinct('first_name')[:10]
+            ).order_by('first_name')[:10]
         else:
             usuarios = User.objects.filter(
                 Q(first_name__icontains=term) | Q(last_name__icontains=term) | Q(id_number__icontains=term) | Q(phone_number__icontains=term) | Q(email__icontains=term) | Q(username__icontains=term),
                 lab=lab
-            ).order_by('first_name').distinct('first_name')[:10]
+            ).order_by('first_name')[:10]
 
         results = []
         for usuario in usuarios:

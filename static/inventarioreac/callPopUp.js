@@ -81,7 +81,7 @@ function openPopupWindowRol() {
     var h = 500; // altura de la ventana emergente
     var left = (screen.width / 2) - (w / 2);
     var top = (screen.height / 2) - (h / 2);
-    window.open("/UniCLab/roles/crear//", "popup", "width=" + w + ",height=" + h + ",left=" + left + ",top=" + top);
+    window.open("/UniCLab/roles/crear/", "popup", "width=" + w + ",height=" + h + ",left=" + left + ",top=" + top);
 }
 
 //Llama PopUp Crear Roles
@@ -90,7 +90,7 @@ function openPopupWindowLab() {
     var h = 500; // altura de la ventana emergente
     var left = (screen.width / 2) - (w / 2);
     var top = (screen.height / 2) - (h / 2);
-    window.open("/UniCLab/laboratorios/crear//", "popup", "width=" + w + ",height=" + h + ",left=" + left + ",top=" + top);
+    window.open("/UniCLab/laboratorios/crear/", "popup", "width=" + w + ",height=" + h + ",left=" + left + ",top=" + top);
 }
 
 //Lee que formulario es de acuerdo con entrada oculta "wf"

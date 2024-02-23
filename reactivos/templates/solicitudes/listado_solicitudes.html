@@ -1,6 +1,8 @@
 {% extends "webtemplate.html" %}
 {% load has_group %}
 {% load custom_filters %}
+<!-- importa cambia nombre al archivo adjunto sin la ruta -->
+{% load custom_filters_2 %}
 
 <!doctype html>
 <html lang="es">
@@ -63,23 +65,25 @@
     <!-- Llama Script que actualiza URL -->
     <script src="{% static 'inventarioreac/listActionsControl.js' %}" defer></script>
     <!-- Llama Script que controla las acciones de la lista -->
+    <script src="{% static 'inventarioreac/js/clearFieldsFindEvent.js' %}" defer></script>
+    <!-- Llama Script que Limpia la búsqueda -->
 
     {% endblock %}
 </head>
 
 <body>
     {% block content %}
-    <div class="row">
-        <div class="card col-md-6">
+    <div class="row col-md-12">
+        <div class="card">
             <div class="card-header">
                 <div class="form-group">
                     <h1>Listado de solicitudes</h1>
                 </div>
             </div>
             <div class="card-body">
-                <form method="get" onsubmit="guardarValoresSelect()" class="row g-3">
+                <form method="get" onsubmit="guardarValoresSelect()" class="row g-3" id="solicitudes" name="solicitudes">
 
-                    <div class="form-group col-md-6">
+                    <div class="form-group col-md-3">
                         <label for="start_date">Fecha Inicial:</label>
                         <input type="date" id="start_date" name="start_date" class="form-control"
                             max="{{ today|date:'Y-m-d' }}">
@@ -87,7 +91,7 @@
                             debe ser igual o anterior a "{{ today|date:'Y-m-d' }}".</span>
                     </div>
 
-                    <div class="form-group col-md-6">
+                    <div class="form-group col-md-3">
                         <label for="end_date">Fecha Final:</label>
                         <input type="date" id="end_date" name="end_date" class="form-control"
                             value="{{ today|date:'Y-m-d' }}" max="{{ today|date:'Y-m-d' }}">
@@ -96,9 +100,11 @@
                     </div>
             </div>
 
-            <div class="card-footer">
+            <div class="card-footer text-md-left">
                 <div class="form-group">
                     <button id="boton-buscar" type="submit" class="btn btn-primary">Buscar</button>
+                    <button type="button" class="btn btn-success visible-xs-inline" onclick="limpiarCampos('solicitudes')">Limpiar búsqueda</button>
+                    
                 </div>
             </div>
 
@@ -107,7 +113,7 @@
         </div>
 
 
-        <div class="col-md-12">
+        <div class="col-md-12 mx-auto" style="margin-bottom: 10px;">
             <!-- Control de paginación -->
             <div class="d-flex justify-content-between">
                 <div>Ver&nbsp;
@@ -125,114 +131,65 @@
 
 
         <div class="table-responsive">
-            <table class="table table-striped table-condensed table-bordered" id="tabla-inventario">
+            <table class="table custom-table" id="tabla-inventario">
 
-                <thead style="background-color: rgb(171, 169, 169);position: sticky; top: 0; z-index: 10;">
+                <thead style="background-color: rgb(205, 203, 203); position: sticky; top: 0; z-index: 10; border-bottom: 1px solid black; border-top: 1px solid black;">
                     <tr>
-                        <th class="sortable-header" data-column="0" data-column-name="id"
-                            title="Ordenar por Consecutivo">Id</th>
-                        <th class="sortable-header" data-column="1" data-column-name="date" title="Ordenar por fecha">Fecha Reg.</th>
-                        <th class="sortable-header" data-column="2" title="Ordenar por Tipo de solicitud">Tipo de sol.</th>
-                        <th class="sortable-header" data-column="3" title="Ordenar Asunto">Asunto</th>
-                        <th class="sortable-header" data-column="4" title="Mensaje">Mensaje</th>
-                        <th class="sortable-header" title="Mensaje">Anexos</th>
-                        <th class="sortable-header" data-column="5" title="Ordenar por Usuario">Usuario</th>
-                        <th class="sortable-header" data-column="6" title="Correo">Correo</th>
-                        <th class="sortable-header" data-column="7" title="Teléfono">Tel.</th>
-                        <th class="sortable-header" data-column="8" title="Tramitado">Estado sol.</th>
-                        <th class="sortable-header" data-column="9" title="Ordenar por Fecha de Trámite"
-                            data-column-name="date">Fecha de Resp.</th>
-                        <th class="sortable-header" data-column="10" title="Observaciones del trámite">Obs. Trámite</th>
-                        <th class="sortable-header" data-column="11" title="Ordenar Usuario que tramita">Usuario Resp.</th>
-
-                        <th class="sortable-header" title="Visualización de detalle (no ordena)">Más</th>
-                        <th class="sortable-header" title="Acciones con el registro (no ordena)">Acciones<p
-                                style="color: transparent;">***********</p>
-                        </th>
+                        <th class="sortable-header hidden-xs" data-column="0" data-column-name="id" title="Ordenar por Consecutivo" style="border-bottom: 1px solid black; border-top: 1px solid black;text-align: left; vertical-align: middle;">Id</th>
+                        <th class="sortable-header" data-column="1" data-column-name="date" title="Ordenar por fecha" style="border-bottom: 1px solid black; border-top: 1px solid black;text-align: left; vertical-align: middle;">Fecha</th>
+                        <th class="sortable-header" data-column="2" title="Ordenar por Asunto" style="border-bottom: 1px solid black; border-top: 1px solid black;text-align: left; vertical-align: middle;">Asunto</th>
+                        <th class="sortable-header" title="Archivos adjuntos" style="border-bottom: 1px solid black; border-top: 1px solid black;text-align: left; vertical-align: middle;">Anexos</th>
+                        <th class="sortable-header hidden-xs" data-column="3" title="Ordenar por Remitente" style="border-bottom: 1px solid black; border-top: 1px solid black;text-align: left; vertical-align: middle;">Remitente</th>
+                        <th class="sortable-header hidden-xs" data-column="4" title="Ordenar por Laboratorio" style="border-bottom: 1px solid black; border-top: 1px solid black;text-align: left; vertical-align: middle;">Laboratorio</th>
+                        <th class="sortable-header" data-column="5" title="Estado de la solicitud" style="border-bottom: 1px solid black; border-top: 1px solid black;text-align: left; vertical-align: middle; max-width: 85px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Estado</th>
+                        <th class="sortable-header hidden-xs" title="Detalle de la solcitus" style="border-bottom: 1px solid black; border-top: 1px solid black;text-align: left; vertical-align: middle; cursor: default;">Detalle</th>
+                        <th class="sortable-header" title="Acciones con para la solicitud" style="border-bottom: 1px solid black; border-top: 1px solid black;text-align: left; vertical-align: middle; cursor: default;">Acciones</th>
                     </tr>
                 </thead>
 
                 <tbody>
                     {% for item in object_list %}
                     <tr class="table-row">
-                        <td title="Número de registro de la entrada">{{ item.id|stringformat:"04d" }} </td>
-                        <td title="Fecha de salida">{{ item.date_create|date:"d/m/Y" }}</td>
-                        <td title="Tipo de solicitud">{{ item.tipo_solicitud }}</td>
-                        <td title="Asunto">
-                            {% if item.name %}
-                            {{ item.name }}
-                            {% endif %}</td>
-                        <td title="Mensaje">{{ item.mensaje }}</td>
-                        <td title="Archivos adjuntos">
-                            {% if item.archivos_adjuntos %}
-                            <a href="{{ item.archivos_adjuntos.url }}" target="_blank"><img
-                                    src="{% static 'inventarioreac/Images/attachment.png' %}" alt="" width="18"
-                                    height="18"></a>
-                            {% endif %}
-                        </td>
-                        <td title="Usuario que realiza la solicitud" class="created_by_cell"
-                            date_user_create="{{ item.created_by.first_name }} {{ item.created_by.last_name }}"
-                            data-reactivo-name="{{ item.name }}"
-                            data-reactivo-date="{{ item.date_create|date:'d/m/Y' }}"
-                            date_user_id="{{ item.created_by.id_number }}"
-                            date_user_username="{{ item.created_by.username }}"
-                            date_user_mail="{{ item.created_by.email }}"
-                            date_user_phone="{{ item.created_by.phone_number }}"
-                            date_user_lab="{{ item.created_by.lab }}" date_user_rol="{{ item.created_by.rol }}"
-                            date_user_datejoined="{{ item.created_by.date_joined }}"
-                            date_user_lastlogin="{{ item.created_by.last_login }}" date_user_type="realiza"
-                            date_user_vist="la solicitud">{{ item.created_by.first_name }} {{ item.created_by.last_name }}
-                        </td>
-                        <td title="Correo de usuario que realiza la solicitud">{{ item.created_by.email }}</td>
-                        <td title="Teléfono de usuario que realiza la solicitud">{{ item.created_by.phone_number }}</td>
-                        <td title="Estado del trámite"
-                            class="{% if not item.tramitado %}pendiente-tramite-cell{% endif %}">
-                            {% if item.tramitado %}
-                            Tramitado
-                            {% else %}
-                            Pendiente Trámite
-                            {% endif %}
-                        </td>
-                        <td title="Fecha de trámite">
-                            {% if item.fecha_tramite %}
-                            {{ item.fecha_tramite }}
-                            {% else %}
-                            -
-                            {% endif %}
-                        </td>
-                        <td title="Observaciones de la la solicitud">
+                        <td class="hidden-xs" title="Id de solciitud: {{ item.id }}" style="vertical-align: middle; border-bottom: 1px solid black; border-top: 1px solid black; cursor: default;">{{ item.id }}</td>
+                        <td class="date-reagent" title="Fecha de solciitud: {{ item.date_create|date:"d/m/Y H:i:s" }}" style="vertical-align: middle; border-bottom: 1px solid black; border-top: 1px solid black; cursor: default;">{{ item.date_create|date:"d/m/Y" }}</td>
+                        <td class="subject-request detalle-reactivo" title="Asunto solicitud: {% if item.tipo_solicitud.name == 'OTRA' %}{{ item.name }}{% else %}{{ item.tipo_solicitud }}{% endif %}" style="vertical-align: middle; border-bottom: 1px solid black; border-top: 1px solid black;"
+                                data-solicitud-date="{{ item.date_create|date:'d/m/Y' }}"
+                                data-solicitud-id="{{ item.id|stringformat:'04d' }}" {% if item.name %}
+                                data-solicitud-tipo="{{ item.name }}" {% else %}
+                                data-solicitud-tipo="{{ item.tipo_solicitud }}" {% endif %}
+                                data-solicitud-mensaje="{{ item.mensaje }}"
+                                data-solicitud-usuario_solicitud="{{ item.created_by.first_name }} {{ item.created_by.last_name }}"
+                                data-solicitud-laboratorio="{{ item.created_by.lab }}"
+                                data-solicitud-telefono="{{ item.created_by.phone_number }}"
+                                data-solicitud-email="{{ item.created_by.email }}"
+                                data-solicitud-tramitado="{% if  item.tramitado %}Tramitado{% else %}Pendiente Trámite{% endif %}"
+                                data-solicitud-respuesta="
                             {% if item.observaciones %}
                             {{ item.observaciones }}
-                            {% else %}
-                            -
+                            {% endif %}" data-solicitud-date_create="{{ item.date_create }}"
+                                data-solicitud-usuario-tramita="{% if item.usuario_tramita %}
+                            {{ item.usuario_tramita.first_name }} {{ item.usuario_tramita.last_name }}{% endif %}"
+                                data-solicitud-fecha-tramite="{{ item.fecha_tramite|date:'d/m/Y' }}"
+                                data-solicitud-create_by="{{ item.created_by.first_name }} {{ item.created_by.last_name }}"
+                                data-solicitud-lastupdate="{{ item.last_update }}"
+                                data-solicitud-update_by="{{ item.last_updated_by.first_name }} {{ item.last_updated_by.last_name }}"
+                                data-solicitud-id_inventario="{{ item.inventario.id }}"><a>{% if item.tipo_solicitud.name == 'OTRA' %}{{ item.name }}{% else %}{{ item.tipo_solicitud }}{% endif %}</a></td>
+                        <td class="action-list-sol" {% if item.archivos_adjuntos %}title="Descargar {{ item.archivos_adjuntos.url|filename }}"{% endif %} style="vertical-align: middle; border-bottom: 1px solid black; border-top: 1px solid black; cursor: default; text-align: center;">
+                            {% if item.archivos_adjuntos %}
+                            <a href="{{ item.archivos_adjuntos.url }}"  download="{{ item.archivos_adjuntos.url|filename }}" target="_blank" download="{{ item.archivos_adjuntos.url|filename }}"><img src="{% static 'inventarioreac/Images/attachment.png' %}" alt="" width="18" height="18"></a>
                             {% endif %}
                         </td>
-                        <td title="Más información de usuario que realiza el trámite {{ item.usuario_tramita.first_name }} {{ item.usuario_tramita.last_name }}"
-                            class="created_by_cell"
-                            date_user_create="{{ item.created_by.first_name }} {{ item.created_by.last_name }}"
-                            data-reactivo-name="{{ item.name }}"
-                            data-reactivo-date="{{ item.date_create|date:'d/m/Y' }}"
-                            date_user_id="{{ item.created_by.id_number }}"
-                            date_user_username="{{ item.created_by.username }}"
-                            date_user_mail="{{ item.created_by.email }}"
-                            date_user_phone="{{ item.created_by.phone_number }}"
-                            date_user_lab="{{ item.created_by.lab }}" date_user_rol="{{ item.created_by.rol }}"
-                            date_user_datejoined="{{ item.created_by.date_joined }}"
-                            date_user_lastlogin="{{ item.created_by.last_login }}" date_user_type="realiza"
-                            date_user_vist="el trámite">
-
-                            {% if item.usuario_tramita %}
-                            {{ item.usuario_tramita.first_name }} {{ item.usuario_tramita.last_name }}
+                        <td class="subject-reagent hidden-xs" title="Remitente la solcitud: {{ item.created_by.first_name }} {{ item.created_by.last_name }}" style="vertical-align: middle; border-bottom: 1px solid black; border-top: 1px solid black; cursor: default;">{{ item.created_by.first_name }} {{ item.created_by.last_name }}</td>
+                        <td class="subject-reagent hidden-xs" title="Laboratorio donde se genera la solcitud: {{ item.created_by.lab }}" style="vertical-align: middle; border-bottom: 1px solid black; border-top: 1px solid black; cursor: default;">{{ item.created_by.lab }}</td>
+                        <td class="{% if not item.tramitado %}pendiente-tramite-cell{% endif %}" title="Estado de la solciitud: {% if item.tramitado %}Tramitada{% else %}Pendiente{% endif %}"  style="vertical-align: middle; border-bottom: 1px solid black; border-top: 1px solid black; cursor: default; max-width: 85px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                            {% if item.tramitado %}
+                            Tramitada
                             {% else %}
-                            -
+                            Pendiente
                             {% endif %}
-
                         </td>
-
-
-
                         <!-- Modifica el evento click de la imagen para mostrar SweetAlert -->
-                        <td>
+                        <td class="action-list-sol hidden-xs" title="Detalle de la solicitud" style="vertical-align: middle; border-bottom: 1px solid black; border-top: 1px solid black; cursor: default; text-align: center;">
                             <img src="{% static 'inventarioreac/Images/moreInfo.ico' %}" alt="" width="18" height="18"
                                 class="detalle-reactivo" data-solicitud-date="{{ item.date_create|date:'d/m/Y' }}"
                                 data-solicitud-id="{{ item.id|stringformat:'04d' }}" {% if item.name %}
@@ -258,8 +215,7 @@
                                 title="Más información sobre la solicitud">
                         </td>
 
-                        <td>
-
+                        <td class="action-list-sol" title="Acciones para la solicitud" style="vertical-align: middle; border-bottom: 1px solid black; border-top: 1px solid black; cursor: default; text-align: center;">
                             <!-- Responder  Solicitud -->
 
                             {% if item.tramitado %}
@@ -279,7 +235,7 @@
                 </tbody>
             </table>
 
-            <br>
+            
             <div class="d-flex justify-content-between">
                 <!-- Controles de navegación de página -->
                 <div class="pagination">
@@ -301,11 +257,11 @@
                     Mostrando {{ page_obj.start_index }} - {{ page_obj.end_index }} de {{ paginator.count }} registros
                 </div>
             </div>
-
-            <br>
-            <!-- Opciones de exportación -->
+            
+            <div class="card-footer text-md-left" style="margin-top: 10px;"><!-- Opciones de exportación -->
             <a href="{% url 'reactivos:export_to_excel_solicitud' %}" class="btn btn-primary">Exportar a Excel</a>
-        </div>
+        </div> 
+    </div>
 
 
         <!-- Este script no puede ser llamado de manera independiente ya que tiene muchas variables provenientes del servidor -->

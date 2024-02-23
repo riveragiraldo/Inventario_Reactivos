@@ -141,7 +141,7 @@
         </div>
 
 
-        <div class="col-md-12" style="margin-bottom: 10px;">
+        <div class="col-md-12 mx-auto" style="margin-bottom: 10px;">
             <!-- Control de paginación -->
             <div class="d-flex justify-content-between">
                 <div>Ver&nbsp;
@@ -158,12 +158,12 @@
         </div>
 
 
-        <div class="table-responsive">
+        <div class="table-responsive col-md-12 mx-auto">
             <table class="table custom-table" id="tabla-inventario">
 
                 <thead style="background-color: rgb(205, 203, 203);position: sticky; top: 0; z-index: 10;">
                     <tr>
-                        <th class="sortable-header" data-column="0" data-column-name="id"
+                        <th class="sortable-header hidden-xs" data-column="0" data-column-name="id"
                             title="Ordenar por Consecutivo"
                             style="border-bottom: 1px solid black; border-top: 1px solid black;text-align: left; vertical-align: middle;">
                             Id</th>
@@ -176,7 +176,7 @@
                         <th class="sortable-header" data-column="3" data-column-name="date" title="Ordenar Asunto"
                             style="border-bottom: 1px solid black; border-top: 1px solid black;text-align: left; vertical-align: middle;">
                             Fecha</th>
-                        <th class="sortable-header" data-column="4" title="Ordenar por Tipo de solicitud"
+                        <th class="sortable-header hidden-xs" data-column="4" title="Ordenar por Tipo de solicitud"
                             style="border-bottom: 1px solid black; border-top: 1px solid black;text-align: left; vertical-align: middle;">
                             Laboratorio</th>
                         <th class="sortable-header" title="Acciones con el registro (no ordena)"
@@ -188,7 +188,7 @@
                 <tbody>
                     {% for item in object_list %}
                     <tr class="table-row {% if item.is_view %}leido{% else %}no-leido{% endif %}">
-                        <td title="Id de la solicitud" class="solicitud-externa id-column"
+                        <td title="Id de la solicitud" class="hidden-xs solicitud-externa id-column"
                         data-sol-id="{{ item.id }}"
                         data-solicitud-date="{{ item.registration_date|date:"d/m/Y h:m:s" }}"
                         data-solicitud-tipo="{{ item.subject }}"
@@ -234,7 +234,7 @@
                             <br>
                             <div style="margin-top: 5px; border: 1px solid #ccc; padding: 5px; display: inline-block; border-radius: 15px; width: 120px; overflow: hidden; vertical-align: middle; margin-right: 10px;"
                                 title="Descargar Archivos adjuntos">
-                                <a href="{{ item.attach.url }}" target="_blank"
+                                <a href="{{ item.attach.url }}" target="_blank" download="{{ item.attach.url|filename }}"
                                     style="display: flex; align-items: center; justify-content: center; height: 100%;">
 
                                     {% if item.attach.name|lower|slice:'-4:' == '.pdf' %}
@@ -296,7 +296,7 @@
                         data-solicitud-email="{{ item.email }}"
                         data-solicitud-encoded-id='{{ item.id|base64_encode }}'>{{ item.registration_date|date:"d/m/Y" }}</td>
 
-                        <td class="lab-column solicitud-externa" title="Remitente de la solicitud"
+                        <td class="lab-column solicitud-externa hidden-xs" title="Remitente de la solicitud"
                         data-sol-id="{{ item.id }}"
                         data-solicitud-date="{{ item.registration_date|date:"d/m/Y h:m:s" }}"
                         data-solicitud-tipo="{{ item.subject }}"
@@ -360,7 +360,9 @@
 
             <br>
             <!-- Opciones de exportación -->
+            <div class="card-footer text-md-left">
             <a href="{% url 'reactivos:export_to_excel_solicitud_externa' %}" class="btn btn-primary">Exportar a Excel</a>
+        </div>
         </div>
 
 

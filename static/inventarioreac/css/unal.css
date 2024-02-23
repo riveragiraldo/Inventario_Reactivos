@@ -1584,14 +1584,14 @@ footer .logos a img {
 }
 
 .table-row .subject-column {
-	max-width: 160px;
+	max-width: 130px;
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
 }
 
 .table-row .sender-column {
-	max-width: 120px;
+	max-width: 100px;
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
@@ -1741,3 +1741,37 @@ footer .logos a img {
 	white-space: nowrap;
 }
 
+/* clase para columna fechac de solicitud */
+.table-row .date-reagent {
+	max-width: 70px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	
+}
+
+/* clase para columna asunto de la solcitud*/
+.table-row .subject-reagent {
+	max-width: 170px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	
+}
+
+
+/* clase para columna asunto de la solcitud*/
+.table-row .subject-request {
+	max-width: 100px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	
+}
+
+/* clase para columna almacenamiento interno de reactivo */
+.table-row .action-list-sol {
+	max-width: 40px;
+	min-width: 40px;
+	
+}
