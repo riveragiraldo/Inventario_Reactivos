@@ -309,7 +309,7 @@
                         data-solicitud-telefono="{{ item.mobile_number }}"
                         data-solicitud-email="{{ item.email }}"
                         data-solicitud-encoded-id='{{ item.id|base64_encode }}'>{{ item.lab }}</td>
-                        <td>
+                        <td >
                             
                             <a href="javascript:void(0);" onclick="eliminarSolicitud('{{ item.id|base64_encode }}','{{ item.subject }}')">
                                 <img src="{% static 'inventarioreac/Images/delete_register.png' %}" alt="" width="18"

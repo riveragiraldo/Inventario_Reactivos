@@ -1775,3 +1775,10 @@ footer .logos a img {
 	min-width: 40px;
 	
 }
+
+.table-row .user-column {
+	max-width: 200px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}

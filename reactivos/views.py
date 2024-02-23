@@ -4222,9 +4222,8 @@ class UsuariosListView(LoginRequiredMixin,ListView):
 
         # Obtener los parámetros de filtrado
         lab = request.GET.get('lab')
-        rol = request.GET.get('rol')
+        
         id_user = request.GET.get('id_user')
-        is_active = request.GET.get('is_active')
         
         
         # si el valor de lab viene de sesión superusuario o ADMINISTRADOR lab=0 cambiar por lab=''
@@ -4233,9 +4232,8 @@ class UsuariosListView(LoginRequiredMixin,ListView):
 
         # Guardar los valores de filtrado en la sesión
         request.session['filtered_lab'] = lab
-        request.session['filtered_rol'] = rol
-        request.session['filtered_id'] = id_user
-        request.session['filtered_is_active'] = is_active      
+        
+        request.session['filtered_id'] = id_user      
         
 
         return super().get(request, *args, **kwargs)
@@ -4265,42 +4263,17 @@ class UsuariosListView(LoginRequiredMixin,ListView):
     def get_queryset(self):
         queryset = super().get_queryset()
         lab = self.request.GET.get('lab')
-        rol = self.request.GET.get('rol')
+        
         user_id = self.request.GET.get('id_user')
-        is_active = self.request.GET.get('is_active')
         
         # si el valor de lab viene de sesión superusuario o ADMINISTRADOR lab=0 cambiar por lab=''
         if lab=='0':
              lab=None
-        if lab and rol and user_id and is_active:
-            queryset = queryset.filter(lab=lab, rol=rol, id=user_id, is_active=is_active)
-        elif lab and rol and user_id:
-            queryset = queryset.filter(lab=lab, rol=rol, id=user_id)
-        elif lab and rol and is_active:
-            queryset = queryset.filter(lab=lab, rol=rol, is_active=is_active)
-        elif lab and is_active and user_id:
-            queryset = queryset.filter(lab=lab, is_active=is_active, id=user_id)
-        elif is_active and rol and user_id:
-            queryset = queryset.filter(is_active=is_active, rol=rol, id=user_id)
-        elif lab and is_active:
-            queryset = queryset.filter(lab=lab, is_active=is_active)
-        elif lab and rol:
-            queryset = queryset.filter(lab=lab, rol=rol)
-        elif lab and user_id:
-            queryset = queryset.filter(lab=lab, id=user_id)
-        elif user_id and rol:
-            queryset = queryset.filter(id=user_id, rol=rol)
-        elif user_id and is_active:
-            queryset = queryset.filter(id=user_id, is_active=is_active)
-        elif is_active and rol:
-            queryset = queryset.filter(is_active=is_active, rol=rol)
-        elif is_active:
-            queryset = queryset.filter(is_active=is_active)
-        elif lab:
+
+                
+        if lab:
             queryset = queryset.filter(lab=lab)
-        elif rol:
-            queryset = queryset.filter(rol=rol)
-        elif user_id:
+        if user_id:
             queryset = queryset.filter(id=user_id)
                     
         queryset = queryset.order_by('id')
@@ -4662,6 +4635,7 @@ class EditarUsuario(UpdateView):
         # Verificar si el id_number ya existe en la base de datos
         id_number = form.cleaned_data['id_number']
         user = self.get_object()
+        
 
         if User.objects.filter(id_number=id_number).exclude(pk=user.pk).exists():
             messages.error(self.request, f"No es posible editar el usuario {user.username} ya que su número de identificación {id_number} ya existe en la base de datos.")
@@ -4690,7 +4664,7 @@ class EditarUsuario(UpdateView):
 
         # Aplicar los cambios al usuario y guardarlo
         user = form.save()
-
+        print(f'{user.first_name}')
         # Agregar mensaje de éxito
         messages.success(self.request, f"Se ha editado exitosamente el usuario {user.first_name} {user.last_name}.")
 
@@ -4730,7 +4704,9 @@ def editar_usuario(request, pk):
         email = request.POST.get('email')
         username = request.POST.get('username')
         first_name = request.POST.get('first_name')
+        first_name=estandarizar_nombre(first_name)
         last_name = request.POST.get('last_name')
+        last_name=estandarizar_nombre(last_name)
         rol = request.POST.get('rol')
         lab = request.POST.get('lab')
 
@@ -5115,20 +5091,16 @@ class GuardarPerPageViewUser(LoginRequiredMixin,View):
 
         # Redirigir a la página de inventario con los parámetros de filtrado actuales
         filtered_lab = request.session.get('filtered_lab')
-        filtered_rol = request.session.get('filtered_rol')
+        
         filtered_id = request.session.get('filtered_id')
-        filtered_is_active = request.session.get('filtered_is_active')
         
         url = reverse('reactivos:listado_usuarios')
         params = {}
         if filtered_lab:
             params['lab'] = filtered_lab
-        if filtered_rol:
-            params['rol'] = filtered_rol
+        
         if filtered_id:
             params['id_user'] = filtered_id
-        if filtered_is_active:
-            params['is_active'] = filtered_is_active
 
         if params:
             url += '?' + urlencode(params)
@@ -6534,43 +6506,18 @@ def export_to_excel_user(request):
     # Obtener los valores filtrados almacenados en la sesión del usuario
     
     lab = request.session.get('filtered_lab')
-    rol = request.session.get('filtered_rol')
     user_id = request.session.get('filtered_id')
-    is_active = request.session.get('filtered_is_active')
     
     queryset = User.objects.all()
-    #Filtra según los valores previos de filtro en los selectores
-    # 
-    if lab and rol and user_id and is_active:
-        queryset = queryset.filter(lab=lab, rol=rol, id=user_id, is_active=is_active)
-    elif lab and rol and user_id:
-        queryset = queryset.filter(lab=lab, rol=rol, id=user_id)
-    elif lab and rol and is_active:
-        queryset = queryset.filter(lab=lab, rol=rol, is_active=is_active)
-    elif lab and is_active and user_id:
-        queryset = queryset.filter(lab=lab, is_active=is_active, id=user_id)
-    elif is_active and rol and user_id:
-        queryset = queryset.filter(is_active=is_active, rol=rol, id=user_id)
-    elif lab and is_active:
-        queryset = queryset.filter(lab=lab, is_active=is_active)
-    elif lab and rol:
-        queryset = queryset.filter(lab=lab, rol=rol)
-    elif lab and user_id:
-        queryset = queryset.filter(lab=lab, id=user_id)
-    elif user_id and rol:
-        queryset = queryset.filter(id=user_id, rol=rol)
-    elif user_id and is_active:
-        queryset = queryset.filter(id=user_id, is_active=is_active)
-    elif is_active and rol:
-        queryset = queryset.filter(is_active=is_active, rol=rol)
-    elif is_active:
-        queryset = queryset.filter(is_active=is_active)
-    elif lab:
-        queryset = queryset.filter(lab=lab)
-    elif rol:
-        queryset = queryset.filter(rol=rol)
-    elif user_id:
-        queryset = queryset.filter(id=user_id)
+    # Filtra según los valores previos de filtro en los selectores
+    
+    if lab=='0':
+             lab=None
+
+    if lab:
+            queryset = queryset.filter(lab=lab)
+    if user_id:
+            queryset = queryset.filter(id=user_id)
                 
     queryset = queryset.order_by('id')
         
@@ -6700,6 +6647,11 @@ def export_to_excel_user(request):
             item.last_login=item.last_login.strftime('%d/%m/%Y %H:%M:%S')
         else:
             item.last_login='No access'
+        
+        if item.user_create:
+            creator=f'{item.user_create.first_name} {item.user_create.last_name}'
+        else:
+            creator=''
               
 
         sheet.cell(row=row, column=1).value = item.id
@@ -6714,7 +6666,7 @@ def export_to_excel_user(request):
         sheet.cell(row=row, column=10).value = item.acceptDataProcessing
         sheet.cell(row=row, column=11).value = item.is_active
         sheet.cell(row=row, column=12).value = item.date_joined.strftime('%d/%m/%Y %H:%M:%S')
-        sheet.cell(row=row, column=13).value = item.user_create.first_name+' '+item.user_create.last_name
+        sheet.cell(row=row, column=13).value = creator
         sheet.cell(row=row, column=14).value = str((item.last_update).strftime('%d/%m/%Y %H:%M:%S'))
         sheet.cell(row=row, column=15).value = item.last_updated_by.first_name+' '+item.last_updated_by.last_name
         

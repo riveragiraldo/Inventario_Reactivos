@@ -4,7 +4,7 @@ function limpiarCampos(formularioName) {
     // Si es una ventana padre, realiza la acción de limpiar campos
     const formulario = document.forms[formularioName];
     const lab=document.getElementById('lab')
-    const rol=document.getElementById('rol')
+    
 
     
     
@@ -16,7 +16,7 @@ function limpiarCampos(formularioName) {
             campo.value = ''; // Establecer el valor del campo como cadena vacía
         });
         lab.value=labDefault
-        rol.value=''
+        
         // Después de limpiar los campos, realiza la función de submit en el formulario
         formulario.submit();
     }
@@ -25,20 +25,20 @@ function limpiarCampos(formularioName) {
 
 // Limpia el campo id
 
-$(document).ready(function () {
-    // Función para ejecutar el evento blur en #name y verificar si está vacío
-    function checkNameField() {
-        var currentValue = $('#name').val();
-        if (currentValue === "") {
-            $('#id_user').val(""); // Si #name está vacío, también establece #id_user como vacío
-        }
-    }
+// $(document).ready(function () {
+//     // Función para ejecutar el evento blur en #name y verificar si está vacío
+//     function checkNameField() {
+//         var currentValue = $('#name').val();
+//         if (currentValue === "") {
+//             $('#id_user').val(""); // Si #name está vacío, también establece #id_user como vacío
+//         }
+//     }
 
-    // Evento blur en #name
-    $('#name').on('blur', function () {
-        checkNameField();
-    });
+//     // Evento blur en #name
+//     $('#name').on('blur', function () {
+//         checkNameField();
+//     });
 
-    // Llamar a la función al cargar la página para verificar el estado inicial de #name
-    checkNameField();
-});
+//     // Llamar a la función al cargar la página para verificar el estado inicial de #name
+//     checkNameField();
+// });

@@ -66,7 +66,8 @@ function openEditFormUser(itemId) {
 function confirmDeleteUser(itemId, itemName) {
     // Muestra una Sweet Alert de confirmación
     Swal.fire({
-        title: '¿Está seguro que desea eliminar el registro número:'+itemId+' "' + itemName + '"?',
+        title: '¿Descativar Usuario',
+        text: '¿Está seguro que desea eliminar el registro número:'+itemId+' "' + itemName + '"?',
         icon: 'warning',
         showCancelButton: true,
         confirmButtonText: 'Sí',
@@ -123,7 +124,8 @@ function confirmDeleteUser(itemId, itemName) {
 function confirmActiveUser(itemId, itemName) {
     // Muestra una Sweet Alert de confirmación
     Swal.fire({
-        title: '¿Está seguro que desea activar el registro número: '+itemId+' "' + itemName + '"?',
+        title: 'Activar Usuario',
+        text: '¿Está seguro que desea activar el registro número: '+itemId+' "' + itemName + '"?',
         icon: 'warning',
         showCancelButton: true,
         confirmButtonText: 'Sí',
