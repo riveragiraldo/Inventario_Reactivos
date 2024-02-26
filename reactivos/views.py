@@ -343,6 +343,11 @@ def programar_tareas():
         start_date=start_date+five_minutes
         print(start_date)
         scheduler.add_job(check_edate, 'interval', days=configuracion.intervalo_tiempo, start_date=start_date,)
+        one_minutes=timedelta(minutes=1)
+        print(start_date)
+        start_date=start_date+one_minutes
+        print(start_date)
+        scheduler.add_job(depurar_eventos_antiguos, 'interval', days=1, start_date=start_date,)
         print(scheduler.state)
         if  configuracion.programacion_activa:
             if scheduler.state==0:
@@ -359,6 +364,7 @@ def programar_tareas():
 
 # Vista para depuración de eventos
 def depurar_eventos_antiguos():
+    # Depurar eventos antiguos
     # Obtén la configuración del sistema
     configuracion = ConfiguracionSistema.objects.first()  # Suponiendo que solo hay una configuración en la base de datos.
 
@@ -368,6 +374,51 @@ def depurar_eventos_antiguos():
 
         # Elimina eventos antiguos
         Eventos.objects.filter(fecha_evento__lt=fecha_limite).delete()
+        print('Se han depurado los eventos')
+
+    # Depurar solicitudes Internas
+    # Obtener la configuración del sistema, suponiendo que existe un único registro.
+    configuracion_sistema = ConfiguracionSistema.objects.first()
+    # Comprobar si se obtuvo la configuración.
+    if configuracion_sistema:
+        # Usar el campo tiempo_solicitudes de la configuración como max_antiguedad.
+        max_antiguedad = timedelta(days=configuracion_sistema.tiempo_solicitudes)
+    else:
+        # Si no se pudo obtener la configuración, usar un valor predeterminado (30 días, por ejemplo).
+        max_antiguedad = timedelta(days=30)
+    fecha_limite = timezone.now() - max_antiguedad
+    # Obtén las solicitudes antiguas que cumplen con el criterio de antigüedad
+    solicitudes_antiguas = Solicitudes.objects.filter(tramitado=True, fecha_tramite__lt=fecha_limite)
+    # Eliminar los archivos adjuntos asociados a las solicitudes antiguas
+    for solicitud in solicitudes_antiguas:
+        if solicitud.archivos_adjuntos:
+            # Asegúrate de que el archivo realmente se elimine del disco.
+            solicitud.archivos_adjuntos.delete()
+    # Eliminar las solicitudes antiguas
+    solicitudes_antiguas.delete()
+    print('Se han depurado las solicitudes internas')
+
+    # Depurar solicitudes Externas
+    # Obtener la configuración del sistema, suponiendo que existe un único registro.
+    configuracion_sistema = ConfiguracionSistema.objects.first()
+    # Comprobar si se obtuvo la configuración.
+    if configuracion_sistema:
+        # Usar el campo tiempo_solicitudes de la configuración como max_antiguedad.
+        max_antiguedad = timedelta(days=configuracion_sistema.tiempo_solicitudes)
+    else:
+        # Si no se pudo obtener la configuración, usar un valor predeterminado (30 días, por ejemplo).
+        max_antiguedad = timedelta(days=30)
+    fecha_limite = timezone.now() - max_antiguedad
+    # Obtén las solicitudes antiguas que cumplen con el criterio de antigüedad
+    solicitudes_antiguas = SolicitudesExternas.objects.filter(is_view=True, registration_date__lt=fecha_limite)
+    # Eliminar los archivos adjuntos asociados a las solicitudes antiguas
+    for solicitud in solicitudes_antiguas:
+        if solicitud.attach:
+            # Asegúrate de que el archivo realmente se elimine del disco.
+            solicitud.attach.delete()
+    # Eliminar las solicitudes antiguas
+    solicitudes_antiguas.delete()
+    print('Se han depurado las solicitudes externas')
 
 from django.shortcuts import get_object_or_404
 

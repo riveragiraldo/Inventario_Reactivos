@@ -63,8 +63,8 @@
 
                     <h1 class="text-center">Solicitudes Externas</h1>
                     <br>
-                    <h4 class="text-left">Bienvenido</h4>
-                    <p>Complete el formulario a continuación para realizar su solicitud.</p>
+                    <h4 class="text-left">¡Bienvenido!</h4>
+                    <p style="text-align: justify;">Complete el formulario a continuación para realizar su solicitud:</p>
                 </div>
 
                 <form method="post" enctype="multipart/form-data" class="needs-validation" style="margin-top: 20px;"
@@ -162,7 +162,7 @@
                     </div>
                     <div class="form-group col-lg-12 col-md-12">
                         <div style="margin-bottom: 5px;">
-                            {{ form.captcha.label_tag }}
+                            <label for="id_captcha_1">* Captcha <span style="color: red;">(Soluciona la operación)</span>:</label>
                         </div>
                         <div id="captcha-container" class="input-group">
                             {{ form.captcha }}
@@ -173,9 +173,10 @@
                             {{ form.captcha.errors }}
                         </div>
                     </div>
-                    <div class="form-group col-lg-12 col-md-12">
-
+                    <div class="form-group col-lg-12 col-md-12 text-center">
+                        <a href="{% url 'reactivos:pre_sol_dir_lab' %}" class="btn btn-success">Cancelar</a>
                         <button type="submit" class="btn btn-primary">Enviar Solicitud</button>
+                        
                     </div>
                 </form>
             </div>

@@ -1739,11 +1739,20 @@ footer .logos a img {
 	
 }
 
-/* centrar botones en listado de reactivos para movil */
+/* centrar para movil */
 @media (max-width: 767px) {
 	/* Ajusta los estilos para pantallas más pequeñas (menos de 768px de ancho) */
 	.text-md-left {
 		text-align: center !important;
+		/* Sobrescribe la alineación a la izquierda y centra en pantallas pequeñas */
+	}
+}
+
+/* justificar para movil */
+@media (max-width: 767px) {
+	/* Ajusta los estilos para pantallas más pequeñas (menos de 768px de ancho) */
+	.text-xs-justify {
+		text-align: justify !important;
 		/* Sobrescribe la alineación a la izquierda y centra en pantallas pequeñas */
 	}
 }
@@ -1806,4 +1815,15 @@ footer .logos a img {
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
+}
+
+/* Coloca la input del captcha al 100% */
+#captcha-container {
+	width: 100%;
+}
+
+/* JUstifica el texto de la politica de tratamiento */
+
+.politica {
+	text-align: justify;
 }

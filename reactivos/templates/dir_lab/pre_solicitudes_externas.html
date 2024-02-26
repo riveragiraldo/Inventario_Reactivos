@@ -3,6 +3,13 @@
 
 <head><!-- Permite invocar archivos estáticos -->
   {% block head %}
+  <!-- página de redirección de google -->
+  <script>
+    // URL relativa para la redirección
+    var redirectRelativeUrl = "{% url 'reactivos:sol_dir_lab' %}";
+    // URL relativa actual
+    var actualRelativeUrl = "{% url 'reactivos:pre_sol_dir_lab' %}";
+  </script>
   <!-- Encriptación -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/crypto-js.js"></script>
   <!-- Incluir SweetAlert2 desde CDN -->
@@ -19,15 +26,18 @@
 <body>
 
   {% block content %}
+  <div class="text-md-left">
   <h1>Autentícate primero</h1>
+</div>
+<div class="text-xs-justify">
   <p>
   <div id="mensaje" style="color: crimson;"></div>
   </p>
   <br>
   <p>El siguiente formulario está destinado solo al personal de la Universidad Nacional de Colombia, para continuar haz
     clic en el 'Iniciar Sesión con Google' para autenticarte con una cuenta autorizada: (micorreo@unal.edu.co)</p><br>
-
-
+  </div>
+<div class="text-md-left">
   <button class="gsi-material-button" onclick="iniciarAutenticacion()">
     <div class="gsi-material-button-state"></div>
     <div class="gsi-material-button-content-wrapper">
@@ -54,7 +64,7 @@
     </div>
   </button>
 
-
+</div>
 
   {% endblock %}
 
