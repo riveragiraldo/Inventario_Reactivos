@@ -108,7 +108,7 @@
             <a href="{% url 'reactivos:listado_solicitudes'%}" class="btn btn-primary multiline" style="width: 100%;" title="Redirecciona a la vista que muestra el listado de solicitudes">Listado de Solicitudes</a>
         </li>
         {% endif %}
-        {% if request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser or request.user|has_group:"COORDINADOR" %}
+        {% if request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser or request.user|has_group:"COORDINADOR" or request.user|has_group:"TECNICO" %}
 							
         <li>
         <a class="side-bar-link btn-primary multiline" href="{% url 'reactivos:listado_solicitudes_externas'%}"

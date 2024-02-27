@@ -375,7 +375,7 @@
 								Solicitudes</a>
 
 							{% endif %}
-							{% if request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser or request.user|has_group:"COORDINADOR" %}
+							{% if request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser or request.user|has_group:"COORDINADOR" or request.user|has_group:"TECNICO" %}
 							<a class="side-bar-link btn-primary multiline" href="{% url 'reactivos:listado_solicitudes_externas'%}"
 								title="Redirecciona a la vista que muestra el listado de solicitudes externas">Listado de
 								Solicitudes Externas</a>

@@ -407,7 +407,7 @@ class SolicitudesExternasForm(forms.ModelForm):
             'lab': '*Laboratorio al que va dirigido la solicitud',
             'email': '*Correo Electrónico',
             'mobile_number': '*Número de Móvil',
-            'department': '*Área a la que pertenece',
+            'department': '*Dependencia',
         }
         help_texts = {
             'name': 'Ingrese su nombre y apellidos (Máximo 50 caracteres, sin números ni caracteres especiales).',

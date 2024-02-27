@@ -660,7 +660,6 @@ class SolDirLab(View):
     def get_recipient_list(self, lab):
         # Obtener correos de usuarios con rol 'COORDINADOR' o 'ADMINISTRADOR' en el laboratorio especificado
         recipient_list = User.objects.filter(
-            Q(rol__name='COORDINADOR') | Q(rol__name='ADMINISTRADOR'),
             lab=lab
         ).values_list('email', flat=True)
         return list(recipient_list)
@@ -761,7 +760,7 @@ class SolicitudesExternasListView(LoginRequiredMixin,ListView):
     paginate_by = 10
     
     
-    @check_group_permission(groups_required=['ADMINISTRADOR','COORDINADOR'])
+    @check_group_permission(groups_required=['ADMINISTRADOR','COORDINADOR','TECNICO'])
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
 
