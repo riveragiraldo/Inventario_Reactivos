@@ -23,7 +23,7 @@ function updateTrademarkSelect() {
     const selectedName = nameSelect.value;
 
     const xhr = new XMLHttpRequest();
-    xhr.open('GET', `/api/trademarksbylabandname?lab=${selectedLab}&name=${selectedName}`);
+    xhr.open('GET', `/api/trademarksbylabandname/?lab=${selectedLab}&name=${selectedName}`);
     xhr.onload = function () {
         if (xhr.status === 200) {
             const response = JSON.parse(xhr.responseText);
@@ -58,7 +58,7 @@ function updateReferenceSelect() {
     const selectedName = nameSelect.value;
 
     const xhr = new XMLHttpRequest();
-    xhr.open('GET', `/api/referencesbylabandname?lab=${selectedLab}&name=${selectedName}`);
+    xhr.open('GET', `/api/referencesbylabandname/?lab=${selectedLab}&name=${selectedName}`);
     xhr.onload = function () {
         if (xhr.status === 200) {
             const response = JSON.parse(xhr.responseText);
@@ -107,7 +107,7 @@ function updateReferenceByTrademark() {
 
     // Realizar una solicitud AJAX para obtener las marcas y referencias correspondientes al nombre seleccionado
     const xhr = new XMLHttpRequest();
-    xhr.open('GET', `/api/referencesbytrademark?name=${selectedName}&lab=${selectedLab}&trademark=${selectedTrademark}`);
+    xhr.open('GET', `/api/referencesbytrademark/?name=${selectedName}&lab=${selectedLab}&trademark=${selectedTrademark}`);
     xhr.onload = function () {
         if (xhr.status === 200) {
             const response = JSON.parse(xhr.responseText);

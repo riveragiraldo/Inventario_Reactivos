@@ -61,20 +61,20 @@
 
                 {% csrf_token %}
                 <div class="form-group">
-                    <label for="{{ form.tipo_solicitud.id_for_label }}" name="Tipo de solicitud:">Tipo de
+                    <label for="{{ form.tipo_solicitud.id_for_label }}" name="Tipo de solicitud:">*Tipo de
                         solicitud:</label>
                     {{ form.tipo_solicitud }}
                 </div>
                 <div id="asunto-container">
                     <div class="form-group">
 
-                        <label for="{{ form.name.id_for_label }}" name="Otro tipo de solicitud:">¿Cuál?:</label>
+                        <label for="{{ form.name.id_for_label }}" name="Otro tipo de solicitud:">*¿Cuál?:</label>
                         {{ form.name }}
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label for="{{ form.mensaje.id_for_label }}" name="Mensaje:">Mensaje:</label>
+                    <label for="{{ form.mensaje.id_for_label }}" name="Mensaje:">*Mensaje:</label>
                     {{ form.mensaje }}
                     <span id="contador" style="display: none">0/1000 caracteres</span>
                 </div>
@@ -87,11 +87,11 @@
                 </div>
         </div>
 
-        <div class="card-footer">
-            <div class="form-group">
-                <button type="button" class="btn btn-primary" onclick="limpiarCampos('form')">Cancelar</button>
+        <div class="card-footer text-center">
+            
+                <button type="button" class="btn btn-success" onclick="limpiarCampos('form')">Cancelar</button>
                 <input type="button" value="Registrar solicitud" class="btn btn-primary" id="open_confirm_in">
-            </div>
+            
             </form>
 
 

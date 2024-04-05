@@ -1,0 +1,194 @@
+{% extends "dirlab.html" %}
+{% load static %}
+
+<head><!-- Permite invocar archivos estáticos -->
+    {% block head %}
+    <!-- Estilo bóton refrescar captcha -->
+    <style>
+        .reload-button {
+            background: url('{% static "inventarioreac/Images/refresh_captcha.png" %}') no-repeat center center;
+            background-size: 35px;
+            /* Ajusta según sea necesario */
+            border: 1px solid #707070;
+            /* Borde negro de 1px */
+            border-radius: 5px;
+            /* Radio de borde de 5px */
+            cursor: pointer;
+            width: 45px;
+            height: 45px;
+            margin-left: 10px;
+            opacity: 0.7;
+            /* Ajusta la opacidad según sea necesario */
+            box-shadow: 3px 3px 5px 0px rgba(0, 0, 0, 0.5);
+            /* Sombra derecha y abajo desvanecida */
+
+        }
+    </style>
+    <!-- Jquery -->
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+    <!-- Incluir SweetAlert2 desde CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.min.css">
+
+    <!-- Página de redirección -->
+    <script>pag_anterior = "{% url 'reactivos:pre_sol_dir_lab' %}"</script>
+    <!-- Encriptación -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/crypto-js.js"></script>
+    <script src="{% static 'inventarioreac/validateInfoToken.js' %}" defer></script>
+
+    <link rel="stylesheet" href="{% static 'inventarioreac/stylesCheckBox.css' %}">
+    <!-- Estilos para organizar la políca de tratamiento de datos -->
+    <!-- Llama Script  que valida después de la autenticación de google -->
+    <script src="{% static 'inventarioreac/js/refreshCaptcha.js' %}" defer></script>
+    <!-- Llama Script  que Refresca el captcha -->
+    <script src="{% static 'inventarioreac/js/reorderCaptcha.js' %}" defer></script>
+    <!-- Llama Script  que Refresca el captcha -->
+    <script src="{% static 'inventarioreac/js/sendInfoRequest.js' %}" defer></script>
+    <!-- Llama Script  que Refresca el captcha -->
+    {% endblock %}
+
+
+    <title>{% block title %}Solicitudes Externas{% endblock %}</title>
+</head>
+
+<body>
+
+    {% block content %}
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-6 col-md-6" style="margin-left: 3%;">
+                <div class="form-group col-lg-12 col-md-12">
+                    <div id="loading-message" style="display: none;">Por favor espere...</div>
+
+                    <h1 class="text-center">Solicitudes Externas</h1>
+                    <br>
+                    <h4 class="text-left">¡Bienvenido!</h4>
+                    <p style="text-align: justify;">Complete el formulario a continuación para realizar su solicitud:</p>
+                </div>
+
+                <form method="post" enctype="multipart/form-data" class="needs-validation" style="margin-top: 20px;"
+                    id="solicitudes_externas_form">
+                    {% csrf_token %}
+                    <div class="form-group col-lg-12 col-md-12">
+                        {{ form.access_token }}
+                        <div style="margin-bottom: 5px;">
+                            {{ form.lab.label_tag }}
+                        </div>
+                        {{ form.lab }}
+                        <div style="color: red; margin-top: 5px; font-weight: bold; margin-left: -10px;">
+                            {{ form.lab.errors }}
+                        </div>
+                    </div>
+
+                    <div class="form-group col-lg-12 col-md-12">
+                        <div style="margin-bottom: 5px;">
+                            {{ form.name.label_tag }}
+                        </div>
+                        {{ form.name }}
+                        <div style="color: red; margin-top: 5px; font-weight: bold; margin-left: -10px;">
+                            {{ form.name.errors }}
+                        </div>
+                    </div>
+                    <div class="form-group col-lg-6 col-md-6">
+                        <div style="margin-bottom: 5px;">
+                            {{ form.email.label_tag }}
+                        </div>
+                        {{ form.email }}
+                        <div style="color: red; margin-top: 5px; font-weight: bold; margin-left: -10px;">
+                            {{ form.email.errors }}
+                        </div>
+                    </div>
+                    <div class="form-group col-lg-6 col-md-6">
+                        <div style="margin-bottom: 5px;">
+                            {{ form.mobile_number.label_tag }}
+
+                        </div>
+                        {{ form.mobile_number }}
+                        <div style="color: red; margin-top: 5px; font-weight: bold; margin-left: -10px;">
+                            {{ form.mobile_number.errors }}
+                        </div>
+                    </div>
+                    <div class="form-group col-lg-12 col-md-12">
+                        <div style="margin-bottom: 5px;">
+                            {{ form.department.label_tag }}
+                        </div>
+                        {{ form.department }}
+                        <div style="color: red; margin-top: 5px; font-weight: bold; margin-left: -10px;">
+                            {{ form.department.errors }}
+                        </div>
+                    </div>
+
+                    <div class="form-group col-lg-12 col-md-12">
+                        <div style="margin-bottom: 5px;">
+                            {{ form.subject.label_tag }}
+                        </div>
+                        {{ form.subject }}
+                        <div style="color: red; margin-top: 5px; font-weight: bold; margin-left: -10px;">
+                            {{ form.subject.errors }}
+                        </div>
+                    </div>
+
+
+                    <div class="form-group col-lg-12 col-md-12">
+                        <div style="margin-bottom: 5px;">
+                            {{ form.message.label_tag }}
+                        </div>
+                        {{ form.message }}
+                        <div style="color: red; margin-top: 5px; font-weight: bold; margin-left: -10px;">
+                            {{ form.message.errors }}
+                        </div>
+                    </div>
+
+                    <div class="form-group col-lg-12 col-md-12">
+                        <div style="margin-bottom: 5px;">
+                            {{ form.attach.label_tag }}
+                        </div>
+                        {{ form.attach }}
+                        <div style="color: red; margin-top: 5px; font-weight: bold; margin-left: -10px;">
+                            {{ form.attach.errors }}
+                        </div>
+                    </div>
+                    <div class="form-group col-lg-12 col-md-12">
+                        <div class="politicaTratamiento">
+
+                            {{ form.accept_politics }}
+                            <label for="acceptDataProcessing" class="politica-label"
+                              name="Acepta política de tratamiento de datos personales: ">
+                              <p class="politica">* De acuerdo con la <a href="https://unal.edu.co/proteccion-de-datos-personales" target="_blank">ley 1581 de 2012 de protección de datos personales</a>, he leído, entendido y acepto, los términos descritos en la política de tratamiento de datos personales de la Universidad Nacional de Colombia.<br>
+                              </p>
+                            </label>
+                          </div>
+                    </div>
+                    <div class="form-group col-lg-12 col-md-12">
+                        <div style="margin-bottom: 5px;">
+                            <label for="id_captcha_1">* Captcha <span style="color: red;">(Soluciona la operación)</span>:</label>
+                        </div>
+                        <div id="captcha-container" class="input-group">
+                            {{ form.captcha }}
+                            <button type="button" id="recargar-captcha" class="reload-button"
+                                title="Actualizar Recaptcha" style="margin-bottom: 5px;"></button>
+                        </div>
+                        <div style="color: red; margin-top: 5px; font-weight: bold; margin-left: -10px;">
+                            {{ form.captcha.errors }}
+                        </div>
+                    </div>
+                    <div class="form-group col-lg-12 col-md-12 text-center">
+                        <a href="{% url 'reactivos:pre_sol_dir_lab' %}" class="btn btn-success">Cancelar</a>
+                        <button type="submit" class="btn btn-primary">Enviar Solicitud</button>
+                        
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+    {% endblock %}
+
+
+
+
+</body>
+
+</html>

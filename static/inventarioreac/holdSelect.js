@@ -4,11 +4,11 @@ function configurarSelectoresDesdeURL() {
 
     const labValue = urlParams.get('lab');
     const nameValue = urlParams.get('name');
-    const trademarkValue = urlParams.get('trademark');
+    const reagentValue = urlParams.get('id_r');
 
     const labSelect = document.getElementById('lab');
     const nameSelect = document.getElementById('name');
-    const trademarkSelect = document.getElementById('trademark');
+    const reagentSelect = document.getElementById('id_r');
 
     // Verificar si hay valores en la URL, si no, asignar valores por defecto
     if (labValue !== null) {
@@ -23,12 +23,12 @@ function configurarSelectoresDesdeURL() {
         nameSelect.value = ''; // Valor por defecto del selector "name"
     }
 
-    if (trademarkValue !== null) {
-        trademarkSelect.value = trademarkValue;
+    if (reagentValue !== null) {
+        reagentSelect.value = reagentValue;
     } else {
-        trademarkSelect.value = ''; // Valor por defecto del selector "trademark"
+        reagentSelect.value = ''; // Valor por defecto del selector "id_r"
     }
-    updateNameTrademarkAndReferenceByLab();
+    
 }
 
 // Esperar 200 ms después de la carga para configurar los selectores desde la URL

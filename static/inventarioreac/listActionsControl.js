@@ -15,7 +15,7 @@ function openPopupAdd(url) {
 
 function openEditFormReact(itemId) {
     // Construye la URL del formulario de edición con el ID del elemento
-    var editUrl = '/reactivos/editar_reactivo/' + itemId + '/';
+    var editUrl = '/UniCLab/reactivos/editar_reactivo/' + itemId + '/';
 
     // Abre una nueva ventana emergente con el formulario de edición
     window.open(editUrl, '_blank', 'width=600,height=800');
@@ -26,7 +26,7 @@ function openEditFormReact(itemId) {
 
 function openEditFormIn(itemId) {
     // Construye la URL del formulario de edición con el ID del elemento
-    var editUrl = '/reactivos/editar_entrada/' + itemId + '/';
+    var editUrl = '/UniCLab/reactivos/editar_entrada/' + itemId + '/';
 
     // Abre una nueva ventana emergente con el formulario de edición
     window.open(editUrl, '_blank', 'width=600,height=800');
@@ -36,7 +36,7 @@ function openEditFormIn(itemId) {
 
 function openEditFormOut(itemId) {
     // Construye la URL del formulario de edición con el ID del elemento
-    var editUrl = '/reactivos/editar_salida/' + itemId + '/';
+    var editUrl = '/UniCLab/reactivos/editar_salida/' + itemId + '/';
 
     // Abre una nueva ventana emergente con el formulario de edición
     window.open(editUrl, '_blank', 'width=600,height=800');
@@ -46,7 +46,7 @@ function openEditFormOut(itemId) {
 
 function openRespondRequest(itemId) {
     // Construye la URL del formulario de edición con el ID del elemento
-    var editUrl = '/solicitudes/responder_solicitud/' + itemId + '/';
+    var editUrl = '/UniCLab/solicitudes/responder_solicitud/' + itemId + '/';
 
     // Abre una nueva ventana emergente con el formulario de edición
     window.open(editUrl, '_blank', 'width=600,height=800');
@@ -56,7 +56,7 @@ function openRespondRequest(itemId) {
 
 function openEditFormUser(itemId) {
     // Construye la URL del formulario de edición con el ID del elemento
-    var editUrl = '/usuarios/editar/' + itemId + '/';
+    var editUrl = '/UniCLab/usuarios/editar/' + itemId + '/';
 
     // Abre una nueva ventana emergente con el formulario de edición
     window.open(editUrl, '_blank', 'width=600,height=800');
@@ -66,7 +66,8 @@ function openEditFormUser(itemId) {
 function confirmDeleteUser(itemId, itemName) {
     // Muestra una Sweet Alert de confirmación
     Swal.fire({
-        title: '¿Está seguro que desea eliminar el registro número:'+itemId+' "' + itemName + '"?',
+        title: '¿Descativar Usuario',
+        text: '¿Está seguro que desea eliminar el registro número:'+itemId+' "' + itemName + '"?',
         icon: 'warning',
         showCancelButton: true,
         confirmButtonText: 'Sí',
@@ -123,7 +124,8 @@ function confirmDeleteUser(itemId, itemName) {
 function confirmActiveUser(itemId, itemName) {
     // Muestra una Sweet Alert de confirmación
     Swal.fire({
-        title: '¿Está seguro que desea activar el registro número: '+itemId+' "' + itemName + '"?',
+        title: 'Activar Usuario',
+        text: '¿Está seguro que desea activar el registro número: '+itemId+' "' + itemName + '"?',
         icon: 'warning',
         showCancelButton: true,
         confirmButtonText: 'Sí',
@@ -180,7 +182,8 @@ function confirmActiveUser(itemId, itemName) {
 function confirmDeleteReact(itemId, itemName) {
     // Muestra una Sweet Alert de confirmación
     Swal.fire({
-        title: '¿Está seguro que desea eliminar el registro número: '+itemId+' "' + itemName + '"?',
+        title: 'Inactivar Reactivo',
+        text: '¿Está seguro que desea eliminar el registro número: '+itemId+' "' + itemName + '"?',
         icon: 'warning',
         showCancelButton: true,
         confirmButtonText: 'Sí',
@@ -237,7 +240,8 @@ function confirmDeleteReact(itemId, itemName) {
 function confirmActiveReact(itemId, itemName) {
     // Muestra una Sweet Alert de confirmación
     Swal.fire({
-        title: '¿Confirma activar el registro número:'+itemId+' "' + itemName + '"?',
+        title: 'Activar Reactivo',
+        text: '¿Confirma activar el registro número:'+itemId+' "' + itemName + '"?',
         icon: 'warning',
         showCancelButton: true,
         confirmButtonText: 'Sí',
@@ -293,7 +297,8 @@ function confirmActiveReact(itemId, itemName) {
 function confirmDeleteIn(itemId, itemName) {
     // Muestra una Sweet Alert de confirmación
     Swal.fire({
-        title: '¿Está seguro que desea eliminar el registro número:'+itemId+' "' + itemName + '"?',
+        title: 'Eliminar Registro de entrada',
+        text: '¿Está seguro que desea eliminar el registro número:'+itemId+' "' + itemName + '"?',
         icon: 'warning',
         showCancelButton: true,
         confirmButtonText: 'Sí',
@@ -352,7 +357,8 @@ function confirmDeleteIn(itemId, itemName) {
 function confirmDeleteOut(itemId, itemName) {
     // Muestra una Sweet Alert de confirmación
     Swal.fire({
-        title: '¿Está seguro que desea eliminar el registro número:'+itemId+' "' + itemName + '"?',
+        title: 'Eliminar registro de salida',
+        text: '¿Está seguro que desea eliminar el registro número:'+itemId+' "' + itemName + '"?',
         icon: 'warning',
         showCancelButton: true,
         confirmButtonText: 'Sí',
@@ -404,6 +410,295 @@ function confirmDeleteOut(itemId, itemName) {
         }
     });
 }
+
+// Solicitud para desactivar visibilidad del reactivo
+function confirmHideReagent(itemId, itemName) {
+    // Muestra una Sweet Alert de confirmación
+    Swal.fire({
+        title: 'Ocultar Reactivo',
+        text: '¿Está seguro que desea ocultar el reactivo "' + itemName + '"?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sí',
+        cancelButtonText: 'No',
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Si el usuario hace clic en "Sí", realiza una solicitud AJAX para eliminar la entrada
+            var deleteUrl = '/UniCLab/reactivos/ocultar_reactivo/' + itemId + '/';
+            
+            fetch(deleteUrl, {
+                method: 'POST', // O el método HTTP que estés utilizando
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'), // Asegúrate de incluir el token CSRF si estás utilizando Django
+                },
+            })
+            .then(response => {
+                // Verificar el estado de la respuesta y capturar el mensaje
+                if (response.ok) {
+                    return response.text();
+                } else {
+                    throw new Error('Error al eliminar el registro');
+                }
+            })
+            .then(data => {
+                icono = 'warning'
+
+                // Mostrar el mensaje de éxito
+                Swal.fire({
+                    icon: icono,
+                    title: 'Mensaje del servidor',
+                    text: data,
+                }).then(() => {
+                    // Recargar la página o realizar otras acciones si es necesario
+                    location.reload(); // Recarga la página después de eliminar
+                });
+            })
+            .catch(error => {
+                // Manejar errores de la solicitud AJAX
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Ocurrió un error al eliminar el registro',
+                });
+                location.reload();
+            });
+        } else {
+            // Si el usuario hace clic en "No", cierra la Sweet Alert
+            Swal.close();
+        }
+    });
+}
+
+
+// Solicitud para activar visibilidad del reactivo
+function confirmShowReagent(itemId, itemName) {
+    // Muestra una Sweet Alert de confirmación
+    Swal.fire({
+        title: 'Mostrar Reactivo',
+        text: '¿Está seguro que desea mostrar el reactivo "' + itemName + '"?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sí',
+        cancelButtonText: 'No',
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Si el usuario hace clic en "Sí", realiza una solicitud AJAX para eliminar la entrada
+            var deleteUrl = '/UniCLab/reactivos/mostrar_reactivo/' + itemId + '/';
+            
+            fetch(deleteUrl, {
+                method: 'POST', // O el método HTTP que estés utilizando
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'), // Asegúrate de incluir el token CSRF si estás utilizando Django
+                },
+            })
+            .then(response => {
+                // Verificar el estado de la respuesta y capturar el mensaje
+                if (response.ok) {
+                    return response.text();
+                } else {
+                    throw new Error('Error al eliminar el registro');
+                }
+            })
+            .then(data => {
+                icono = 'warning'
+
+                // Mostrar el mensaje de éxito
+                Swal.fire({
+                    icon: icono,
+                    title: 'Mensaje del servidor',
+                    text: data,
+                }).then(() => {
+                    // Recargar la página o realizar otras acciones si es necesario
+                    location.reload(); // Recarga la página después de eliminar
+                });
+            })
+            .catch(error => {
+                // Manejar errores de la solicitud AJAX
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Ocurrió un error al eliminar el registro',
+                });
+                location.reload();
+            });
+        } else {
+            // Si el usuario hace clic en "No", cierra la Sweet Alert
+            Swal.close();
+        }
+    });
+}
+
+// Solicitud para verificar disponibilidad de reactivo
+function showChemicalAvailability(itemId, itemName) {
+    // Realizar la solicitud AJAX directamente sin mostrar la primera alerta de confirmación
+    var deleteUrl = '/UniCLab/reactivos/revisar_disponibilidad/' + itemId + '/';
+
+    fetch(deleteUrl, {
+        method: 'POST', // O el método HTTP que estés utilizando
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'), // Asegúrate de incluir el token CSRF si estás utilizando Django
+        },
+    })
+    .then(response => {
+        // Verificar el estado de la respuesta y capturar el mensaje
+        if (response.ok) {
+            return response.text();
+        } else {
+            throw new Error('Error al realizar la solicitud');
+        }
+    })
+    .then(data => {
+        // Mostrar el mensaje de éxito
+        Swal.fire({
+            icon: 'info',
+            title: 'Mensaje del servidor',
+            html: data,
+        }).then(() => {
+            // Recargar la página o realizar otras acciones si es necesario
+            // location.reload(); // Recarga la página después de realizar la solicitud
+        });
+    })
+    .catch(error => {
+        // Manejar errores de la solicitud AJAX
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Ocurrió un error al realizar la solicitud',
+        });
+        // location.reload();
+    });
+}
+
+// Solicitud para eliminar solicitud externa
+function eliminarSolicitud(itemId, itemName) {
+    // Muestra una Sweet Alert de confirmación
+    Swal.fire({
+        title: 'Eliminar Solicitud',
+        text: '¿Está seguro que desea eliminar la solicitud "' + itemName + '"?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sí',
+        cancelButtonText: 'No',
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Si el usuario hace clic en "Sí", realiza una solicitud AJAX para eliminar la entrada
+            var deleteUrl = '/UniCLab/solicitudes/eliminar_solicitud_externa/' + itemId + '/';
+            
+            fetch(deleteUrl, {
+                method: 'POST', // O el método HTTP que estés utilizando
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'), // Asegúrate de incluir el token CSRF si estás utilizando Django
+                },
+            })
+            .then(response => {
+                // Verificar el estado de la respuesta y capturar el mensaje
+                if (response.ok) {
+                    return response.text();
+                } else {
+                    throw new Error('Error al eliminar el registro');
+                }
+            })
+            .then(data => {
+                icono = 'warning'
+
+                // Mostrar el mensaje de éxito
+                Swal.fire({
+                    icon: icono,
+                    title: 'Mensaje del servidor',
+                    text: data,
+                }).then(() => {
+                    // Recargar la página o realizar otras acciones si es necesario
+                    location.reload(); // Recarga la página después de eliminar
+                });
+            })
+            .catch(error => {
+                // Manejar errores de la solicitud AJAX
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Ocurrió un error al eliminar el registro',
+                });
+                location.reload();
+            });
+        } else {
+            // Si el usuario hace clic en "No", cierra la Sweet Alert
+            Swal.close();
+        }
+    });
+}
+
+
+// Solicitud para marcar solicitud como leída
+function solicitudLeida(itemId, itemName) {
+    // Elimina las Sweet Alerts de confirmación
+
+    // Si el usuario hace clic en "Sí", realiza una solicitud AJAX para eliminar la entrada
+    var deleteUrl = '/UniCLab/solicitudes/solicitud_leida/' + itemId + '/';
+    
+    fetch(deleteUrl, {
+        method: 'POST', // O el método HTTP que estés utilizando
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'), // Asegúrate de incluir el token CSRF si estás utilizando Django
+        },
+    })
+    .then(response => {
+        // Verificar el estado de la respuesta y capturar el mensaje
+        if (response.ok) {
+            return response.text();
+        } else {
+            throw new Error('Error al eliminar el registro');
+        }
+    })
+    .then(data => {
+        // Cambia la confirmación del éxito por un console.log
+        console.log('Mensaje del servidor:', data);
+
+        // Recargar la página o realizar otras acciones si es necesario
+        location.reload(); // Recarga la página después de eliminar
+    })
+    .catch(error => {
+        // Manejar errores de la solicitud AJAX
+        console.error('Error:', error);
+        location.reload();
+    });
+}
+
+// Solicitud para marcar solicitud como leída
+function solicitudNoLeida(itemId, itemName) {
+    // Elimina las Sweet Alerts de confirmación
+
+    // Si el usuario hace clic en "Sí", realiza una solicitud AJAX para eliminar la entrada
+    var deleteUrl = '/UniCLab/solicitudes/solicitud_no_leida/' + itemId + '/';
+    
+    fetch(deleteUrl, {
+        method: 'POST', // O el método HTTP que estés utilizando
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'), // Asegúrate de incluir el token CSRF si estás utilizando Django
+        },
+    })
+    .then(response => {
+        // Verificar el estado de la respuesta y capturar el mensaje
+        if (response.ok) {
+            return response.text();
+        } else {
+            throw new Error('Error al eliminar el registro');
+        }
+    })
+    .then(data => {
+        // Cambia la confirmación del éxito por un console.log
+        console.log('Mensaje del servidor:', data);
+
+        // Recargar la página o realizar otras acciones si es necesario
+        location.reload(); // Recarga la página después de eliminar
+    })
+    .catch(error => {
+        // Manejar errores de la solicitud AJAX
+        console.error('Error:', error);
+        location.reload();
+    });
+}
+
+
 
 // Función para obtener el token CSRF de las cookies
 function getCookie(name) {

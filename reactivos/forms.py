@@ -1,10 +1,12 @@
 from typing import Any
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm
-from captcha.fields import ReCaptchaField
+from django.core.validators import RegexValidator
+from django.core.exceptions import ValidationError
 from django.contrib.auth.forms import PasswordResetForm
-from reactivos.models import User, Rol, Laboratorios,Solicitudes, ConfiguracionSistema
+from reactivos.models import User, Rol, Laboratorios,Solicitudes, ConfiguracionSistema, SolicitudesExternas
 import re
+from captcha.fields import CaptchaField, CaptchaTextInput
 
 
 class CustomAuthenticationForm(AuthenticationForm):
@@ -13,15 +15,10 @@ class CustomAuthenticationForm(AuthenticationForm):
         # Modifica el widget del campo username para que sea visible en el admin
         self.fields['username'].widget = forms.EmailInput(attrs={'autocomplete': 'email', 'class':'form-control'})
 
-class ReCaptchaForm(forms.Form):
-    # Campo de reCAPTCHA
-    captcha = ReCaptchaField()
-
+# Actualiza para añadir recaptcha al formulario de restablecimiento de la contraseña
 class CustomPasswordResetForm(PasswordResetForm):
-    # Realiza aquí las modificaciones que desees en el formulario
-    # Agrega el campo de reCAPTCHA
-    captcha = ReCaptchaField()
-    pass
+    captcha = CaptchaField(widget=CaptchaTextInput(attrs={'class':'form-control', 'id':'recaptcha'}),
+                           label='Captcha (Solucione la operación):',)
 
 
 #--------------------------------------Formulario Crear Usuario--------------------------------------
@@ -46,7 +43,9 @@ class FormularioUsuario(forms.ModelForm):
             'id': 'password1',
             'required': 'required',
             'title':'La contraseña debe tener mínimo 8 caracteres,  al menos una mayúscula, un número, y un caracter especial',
-            'pattern': '^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$'
+            'pattern': '^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$',
+            'autocomplete':'off',
+
         }
     ))
 
@@ -57,7 +56,8 @@ class FormularioUsuario(forms.ModelForm):
             'id': 'password2',
             'required': 'required',
             'title':'La contraseñas debe tener mínimo 8 caracteres,  al menos una mayúscula, un número, y un caracter especial',
-            'pattern': '^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$'
+            'pattern': '^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$',
+            'autocomplete':'new-password',
         }
     ))
     rol = forms.ModelChoiceField(queryset=Rol.objects.all(), label='Rol', required=True,
@@ -233,7 +233,7 @@ class ConfiguracionSistemaForm(forms.ModelForm):
                                         'title':'Introduzca el número de días que durará los eventos en el sistema',
                                         'placeholder':'Número de días de los eventos en el sistema',}),
         required=True,
-        label="Introduzca el tiempo para depuración de solicitudes",
+        label="*Introduzca el tiempo para depuración de solicitudes",
     )
 
     tiempo_eventos = forms.IntegerField(
@@ -241,7 +241,7 @@ class ConfiguracionSistemaForm(forms.ModelForm):
                                         'title':'Introduzca el número de días que durará las solicitudes tramitadas',
                                         'placeholder':'Número de días de solicitudes tramitadas',}),
         required=True,
-        label="Introduzca el tiempo para depuración de eventos",
+        label="*Introduzca el tiempo para depuración de eventos",
         
     )
 
@@ -250,14 +250,14 @@ class ConfiguracionSistemaForm(forms.ModelForm):
                                        'title':'Introduzca el correo para recepción de solicitudes',
                                        'placeholder':'Correo para recepción de solicitudes',}),
         required=True,
-        label="Introduzca el correo de administrador para solicitudes",
+        label="*Introduzca el correo de administrador para solicitudes",
     )
     tiempo_vencimiento_reactivos=forms.IntegerField(
         widget=forms.NumberInput(attrs={'class': 'form-control',
                                         'title':'Introduzca el número de días previos al vencimiento de reactivos',
                                         'placeholder':'Número de días antes del vencimiento de reactivos',}),
         required=True,
-        label="Introduzca el tiempo previo de vencimeinto de reactivos para alertas",
+        label="*Introduzca el tiempo previo de vencimeinto de reactivos para alertas",
         
     )
     intervalo_tiempo=forms.IntegerField(
@@ -265,7 +265,7 @@ class ConfiguracionSistemaForm(forms.ModelForm):
                                         'title':'Introduzca el número de días para revisión de vencimiento de reactivos',
                                         'placeholder':'Intervalo de días para revisión de vencimientos',}),
         required=True,
-        label="Periodicidad para la  revisión de fecha de vencimientos (días)",
+        label="*Periodicidad para la  revisión de fecha de vencimientos (días)",
         
     )
     fecha_incio= forms.DateTimeField(
@@ -273,7 +273,7 @@ class ConfiguracionSistemaForm(forms.ModelForm):
                                         'title':'Introduzca la fecha de inicio para revisión de los vencimientos',
                                         'placeholder':'Fecha de incio',}),
                                         required=True,
-                                        label="Fecha de inicio",
+                                        label="*Fecha de inicio",
     )
     
     programacion_activa=forms.BooleanField(
@@ -281,7 +281,7 @@ class ConfiguracionSistemaForm(forms.ModelForm):
                                         'title':'Activar / Desactivar Programación',
                                         }),
                                         required=False,
-                                        label="Activar o desactivar programación de revisión de fechas de vencimientos",
+                                        label="*Activar o desactivar programación de revisión de fechas de vencimientos",
                                         
     )
     manual=forms.FileField(
@@ -310,4 +310,145 @@ class ConfiguracionSistemaForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
         cleaned_data['correo_administrador'] = estandarizar_nombre(cleaned_data['correo_administrador'])
+
+# # Fomrulario de envío de correo
+# class CorreoForm(forms.Form):
+#     DESTINO_CHOICES = [
+#         ('TODOS', 'TODOS'),
+#     ] + [(rol.id, rol.name) for rol in Rol.objects.all()] + [('USUARIO_ESPECIFICO', 'USUARIO ESPECÍFICO')]
+
+#     LAB_CHOICES = [
+#         ('TODOS', 'TODOS'),
+#     ] + [(lab.id, lab.name) for lab in Laboratorios.objects.all()]
+
+#     destino = forms.ChoiceField(
+#         choices=DESTINO_CHOICES,
+#         label='Destino',
+#         widget=forms.Select(attrs={'class': 'form-control', 'required':'required','title':'Seleccione un destino',})
+#     )
+#     laboratorio = forms.ChoiceField(
+#         choices=LAB_CHOICES,
+#         label='Laboratorio',
+#         required=False,
+#         widget=forms.Select(attrs={'class': 'form-control', 'title':'Seleccione un laboratorio',})
+#     )
+#     usuario = forms.EmailField(
+#         label='Usuario',
+#         required=False,
+#         widget=forms.EmailInput(attrs={'class': 'form-control','title':'El correo electrónico debe cumplir con los formatos válidos de un correo electrónico','pattern':'^[a-zA-Z0-9.-_]+@[a-zA-Z]+\.[a-zA-Z]{2,}(?:\.[a-zA-Z]+)?$',})
+#     )
+#     asunto = forms.CharField(
+#     max_length=100,  # Limitar a 100 caracteres
+#     label='*Asunto',
+#     widget=forms.TextInput(
+#         attrs={
+#             'class': 'form-control',
+#             'required': 'required',
+#             'placeholder': 'Escribe el asunto del mensaje',
+#             'title': 'Escribe el asunto con un máximo de 100 caracteres',
+#             'pattern': '.{1,100}',
+#             }
+#             )
+#             )
+
+#     mensaje = forms.CharField(
+#         widget=forms.Textarea(attrs={'class': 'form-control','required':'required','rows':'3','maxlength': '1000','title':'Escribe el mensaje con un máximo de 1000 caracteres', 'placeholder':'Escribe aquí el mensaje, (máx 1000 caracteres)'}),
+#         label='*Mensaje'
+#     )
+#     adjunto = forms.FileField(
+#         label='Adjuntar Archivo',
+#         required=False,
+#         widget=forms.ClearableFileInput(attrs={'class': 'form.control','title':'Adjunte archivos de máximo 5 MB',})
+#     )
         
+#Personalización del Captcha
+class CustomCaptchaField(CaptchaField):
+    def __init__(self, *args, **kwargs):
+        super(CustomCaptchaField, self).__init__(*args, **kwargs)
+        self.label = '*Captcha (Soluciona la operación):'
+# Solicitudes externas
+class SolicitudesExternasForm(forms.ModelForm):
+    # Captcha
+    captcha = CustomCaptchaField()
+
+    # Campo adicional para el token de acceso
+    access_token = forms.CharField(widget=forms.HiddenInput(attrs={'id': 'access_token'}), required=False)
+    # Obtener los nombres de los laboratorios para usar en el campo 'lab'
+    lab_choices = [(lab.id, lab.name) for lab in Laboratorios.objects.all()]
+
+    # Validador para números de móvil en el rango especificado
+    mobile_number_validator = RegexValidator(
+        regex='^[3-9]\d{9}$',
+        message='El número de móvil debe estar en el rango de 3000000000 a 3999999999.',
+    )
+
+    
+
+    # Definir el formulario
+    class Meta:
+        model = SolicitudesExternas
+        fields = ['name', 'subject', 'message', 'attach', 'lab', 'email', 'mobile_number', 'department', 'accept_politics']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control', 'title': 'Nombres y apellidos que incluyan solo letras con máximo de 50 caracteres', 'autocomplete': 'off'}),
+            'subject': forms.TextInput(attrs={'class': 'form-control', 'title': 'El asunto de la solicitud debe tener un máximo de 100 caracteres', 'autocomplete': 'off'}),
+            'message': forms.Textarea(attrs={'class': 'form-control', 'title': 'El texto que describe la solicitud debe tener un máximo de 1000 caracteres', 'autocomplete': 'off'}),
+            'attach': forms.FileInput(attrs={'title': 'Adjuntar archivo (Opcional)', 'autocomplete': 'off'}),
+            'lab': forms.Select(attrs={'class': 'form-control', 'title': 'Seleccione un laboratorio, este campo es obligatorio', 'autocomplete': 'off'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control', 'title': 'Ingrese un correo electrónico válido de la Universidad Nacional de Colombia (XXX@unal.edu.co)', 'readonly': 'readonly', 'autocomplete': 'off'}),
+            'mobile_number': forms.NumberInput(attrs={'class': 'form-control', 'title': 'Ingrese un número de móvil válido en el rango de 3000000000 a 3999999999', 'autocomplete': 'off'}),
+            'department': forms.TextInput(attrs={'class': 'form-control', 'title': 'Ingrese el departamento correspondiente (máximo 100 caracteres)', 'autocomplete': 'off'}),
+            'accept_politics': forms.CheckboxInput (attrs={'title': 'Debe aceptar la política de tratamiento de datos personales', 'unchecked': 'unchecked', 'required':'required'}),
+        }
+        labels = {
+            'name': '*Nombres y Apellidos',
+            'subject': '*Asunto',
+            'message': '*Mensaje',
+            'attach': 'Archivos Adjuntos',
+            'lab': '*Laboratorio al que va dirigido la solicitud',
+            'email': '*Correo Electrónico',
+            'mobile_number': '*Número de Móvil',
+            'department': '*Dependencia',
+        }
+        help_texts = {
+            'name': 'Ingrese su nombre y apellidos (Máximo 50 caracteres, sin números ni caracteres especiales).',
+            'subject': 'Ingrese el asunto de la solicitud a tramitar. (Máximo 100 caracteres)',
+            'message': 'Ingrese el texto que describe la solicitud. (Máximo 1000 caracteres)',
+            'attach': 'Adjunte un archivo si es necesario (máximo 5 Mb).',
+            'lab': 'Seleccione el laboratorio relacionado con la solicitud.',
+            'email': 'Ingrese un correo electrónico válido de la Universidad Nacional de Colombia (XXX@unal.edu.co)',
+            'mobile_number': 'Ingrese un número de móvil válido en el rango de 3000000000 a 3999999999',
+            'department': 'Ingrese el área a la que pertenece (máximo 100 caracteres)',
+        }
+
+    def clean(self):
+        cleaned_data = super().clean()
+        if 'email' in cleaned_data:
+            cleaned_data['email'] = estandarizar_nombre(cleaned_data['email'])
+        if 'name' in cleaned_data:
+            cleaned_data['name'] = estandarizar_nombre(cleaned_data['name'])
+        if 'subject' in cleaned_data:
+            cleaned_data['subject'] = estandarizar_nombre(cleaned_data['subject'])
+        if 'message' in cleaned_data:
+            cleaned_data['message'] = estandarizar_nombre(cleaned_data['message'])
+        if 'department' in cleaned_data:
+            cleaned_data['department'] = estandarizar_nombre(cleaned_data['department'])
+
+    def clean_email(self):
+        email = self.cleaned_data['email']
+        if not email.endswith('@unal.edu.co'):
+            raise forms.ValidationError('El correo electrónico debe tener el dominio @unal.edu.co.')
+        return email
+
+    def clean_mobile_number(self):
+        mobile_number = self.cleaned_data['mobile_number']
+        if not (3000000000 <= int(mobile_number) <= 3999999999):
+            raise forms.ValidationError('El número de móvil debe estar entre 3000000000 y 3999999999.')
+        return mobile_number
+    
+    def clean_attach(self):
+        attach = self.cleaned_data.get('attach', False)
+        if attach:
+            # Limite de tamaño: 5 MB
+            if attach.size > 5 * 1024 * 1024:
+                raise ValidationError('El tamaño del archivo adjunto debe ser como máximo de 5 MB.')
+        return attach

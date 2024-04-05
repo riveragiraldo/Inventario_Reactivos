@@ -68,7 +68,7 @@
                 {% csrf_token %}
 
                 <div class="form-group">
-                    <label for="id_number" name="Identificación:">Identificación:</label>
+                    <label for="id_number" name="Identificación:">*Identificación:</label>
                     <input type="number" name="id_number" id="id_number" class="form-control"
                         pattern="^(?:[1-9]\d{6,10}|9999999999)$" placeholder="Número de identificación"
                         title="Ingrese un número de cédula entre 1000000 y 9999999999 (sin puntos ni comas)"
@@ -77,7 +77,7 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="phone_number" name="Teléfono:">Teléfono:</label>
+                    <label for="phone_number" name="Teléfono:">*Teléfono:</label>
                     <input type="number" name="phone_number" id="phone_number" class="form-control"
                         pattern="[0-9]{10,13}" placeholder="Número Telefónico"
                         title="Ingrese su número telefónico (solo números enteros positivos de 10 a 13 dígitos)"
@@ -86,7 +86,7 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="email" name="Correo Electrónico:">Correo Electrónico:</label>
+                    <label for="email" name="Correo Electrónico:">*Correo Electrónico:</label>
 
 
                     <input type="email" name="email" id="email" class="form-control"
@@ -97,7 +97,7 @@
 
                 </div>
                 <div class="form-group">
-                    <label for="username" name="Nombre de usuario:">Nombre de usuario:</label>
+                    <label for="username" name="Nombre de usuario:">*Nombre de usuario:</label>
                     <input type="text" name="username" id="username" class="form-control"
                         pattern="^(?:[a-zA-Zá-úÁ-Ú]+\s){0,1}[a-zA-Zá-úÁ-Ú]+$"
                         placeholder="{{ form.username.field.widget.attrs.placeholder }}"
@@ -106,14 +106,14 @@
 
                 </div>
                 <div class="form-group">
-                    <label for="first_name" name="Nombres:">Nombres:</label>
+                    <label for="first_name" name="Nombres:">*Nombres:</label>
                     <input type="text" class="form-control" id="first_name" name="first_name"
                         placeholder="Escriba los nombres" required pattern="^(?:[a-zA-Zá-úÁ-Ú]+\s){0,1}[a-zA-Zá-úÁ-Ú]+$"
                         title="Ingrese máximos dos palabras sin números ni caracteres especiales"
                         value="{% if usuario.first_name %}{{ usuario.first_name }}{% endif %}">
                 </div>
                 <div class="form-group">
-                    <label for="last_name" name="Apellidos:">Apellidos:</label>
+                    <label for="last_name" name="Apellidos:">*Apellidos:</label>
                     <input type="text" class="form-control" placeholder="Escriba sus apellidos" id="last_name"
                         name="last_name" required pattern="^(?:[a-zA-Zá-úÁ-Ú]+\s){0,1}[a-zA-Zá-úÁ-Ú]+$"
                         title="Ingrese máximos dos palabras sin números ni caracteres especiales"
@@ -122,7 +122,7 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="{{ form.rol.id_for_label }}" name="Rol:">Rol:</label>
+                    <label for="{{ form.rol.id_for_label }}" name="Rol:">*Rol:</label>
 
                     {% if request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
                     <div class="input-group" id="rol-block">
@@ -158,7 +158,7 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="{{ form.lab.id_for_label }}" name="Laboratorio:">Laboratorio:</label>
+                    <label for="{{ form.lab.id_for_label }}" name="Laboratorio:">*Laboratorio:</label>
 
                     {% if request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
                     <div class="input-group" id="lab-block">
@@ -204,7 +204,7 @@
                         <label for="acceptDataProcessing" class="politica-label"
                             name="Acepta política de tratamiento de datos personales: ">
                             <p class="politica">
-                                DE ACUERDO CON LA
+                                *DE ACUERDO CON LA
                                 <a href="https://unal.edu.co/tratamiento-de-datos-personales" target="_blank">
                                     LEY 1581 DE 2012 DE PROTECCIÓN DE DATOS PERSONALES</a>, HE LEÍDO, ENTENDIDO Y
                                 ACEPTO, LOS TÉRMINOS
@@ -220,13 +220,13 @@
 
 
                 <br>
-                <div class="card-footer">
+                <div class="card-footer text-center">
                     <input type="hidden" name="wf" class="form-control" value="usuarios" id="wf">
                     <!-- identificador para saber que tipo de ventana es -->
 
-                    <button type="button" class="btn btn-primary" onclick="limpiarCampos('form')">Cancelar</button>
+                    <button type="button" class="btn btn-success" onclick="limpiarCampos('form')">Cancelar</button>
 
-                    <input type="button" value="Editar Usuario" class="btn btn-primary" id="open_confirm_in">
+                    <input type="button" value="Guardar Cambios" class="btn btn-primary" id="open_confirm_in">
 
                 </div>
             </form>

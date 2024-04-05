@@ -1,5 +1,6 @@
 {% extends "webtemplate.html" %}
 {% load has_group %}
+{% load custom_filters_2 %}
 <!doctype html>
 <html lang="es">
 
@@ -75,7 +76,14 @@
           <label for="mensaje" name="Mensaje:">Mensaje:</label>
           <textarea name="mensaje" id="mensaje" cols="2" rows="5" class="form-control"
             readonly>{% if solicitud.mensaje %}{{ solicitud.mensaje }}{% endif %}</textarea>
-
+          
+            {% if solicitud.archivos_adjuntos %}
+            Archivos Adjuntos: 
+            <a href="{{ solicitud.archivos_adjuntos.url }}" download="{{ solicitud.archivos_adjuntos.url|filename }}">
+                {{ solicitud.archivos_adjuntos.url|filename }}
+            </a>
+        {% endif %}
+            
         </div>
         <div class="form-group">
           <label for="usuario" name="Usuario que realiza la solicitud:">Usuario que realiza la solicitud:</label>
@@ -115,16 +123,15 @@
     </div>
 
     <br>
-    <div class="card-footer">
+    <div class="card-footer text-center">
       
       {% if solicitud.tramitado %}
       <a href="#" class="btn btn-primary close-button" id="close-link">Aceptar</a>
 
       <div id="open_confirm_in"></div>
       {% else %}
-      <button type="button" class="btn btn-primary" onclick="limpiarCamposSol('form')">Cancelar</button>
       <div id="close-link"></div>
-
+      <button type="button" class="btn btn-success" onclick="limpiarCamposSol('form')">Cancelar</button>
       <input type="button" value="Responder Solicitud" class="btn btn-primary" id="open_confirm_in">
       {% endif %}
         

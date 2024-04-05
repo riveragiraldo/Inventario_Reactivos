@@ -1,0 +1,399 @@
+{% extends "webtemplate.html" %}
+{% load has_group %}
+<!-- importa codificacion base 64 -->
+{% load custom_filters %}
+<!-- importa cambia nombre al archivo adjunto sin la ruta -->
+{% load custom_filters_2 %}
+
+<!doctype html>
+<html lang="es">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Listado de solicitudes externas{% endblock %}</title>
+    {% block head %}
+    <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe" crossorigin="anonymous"
+        defer>
+        </script> -->
+
+    <!-- Incluir SweetAlert2 desde CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.min.css">
+
+    {% load static %}
+
+    {% if request.user|has_group:"COORDINADOR" or request.user|has_group:"TECNICO" %}
+    {% for lab in laboratorios %}
+    {% if lab.id == laboratorio.id %}
+
+    <script>
+        labDefault = '{{ lab.id }}'
+    </script>
+    {% endif %}
+    {% endfor %}
+    {% endif %}
+
+    {% if request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
+
+    <script>
+        labDefault = "0"
+    </script>
+    {% endif %}
+    <script>
+        today = "{{ today|date:'Y-m-d' }}"
+        // oneMonthAgo="{{ one_month_ago|date:'Y-m-d' }}"
+    </script>
+    <link rel="stylesheet" href="{% static 'inventarioreac/inventoryStyles.css' %}">
+    <script src="{% static 'inventarioreac/paginationInventoryControl.js' %}"></script>
+    <!-- Llama Script que controla la paginación -->
+    <script src="{% static 'inventarioreac/holdSelectSolicitudExterna.js' %}" defer></script>
+    <!-- Llama Script que controla los select según el inventario -->
+    <script src="{% static 'inventarioreac/highlightPaginationControl.js' %}" defer></script>
+    <!-- Llama Script que resalta los controles de paginación -->
+    <script>var inventarioUrl = "{% url 'reactivos:inventario' %}";</script>
+    <script src="{% static 'inventarioreac/sortByControl.js' %}"></script>
+    <!-- Llama Script que envía datos de ordenamiento de registros -->
+    <script src="{% static 'inventarioreac/openDetailSolicitudExterna.js' %}" defer></script>
+    
+    <!-- Llama Script que resalta los controles de paginación -->
+    <script src="{% static 'inventarioreac/updateUrl.js' %}"></script>
+    <!-- Llama Script que actualiza URL -->
+    <script src="{% static 'inventarioreac/validateLapse.js' %}"></script>
+    <!-- Llama Script que actualiza URL -->
+    <script src="{% static 'inventarioreac/listActionsControl.js' %}" defer></script>
+    <!-- Llama Script que controla las acciones de la lista -->
+    <script src="{% static 'inventarioreac/js/clearFieldsFindEvent.js' %}" defer></script>
+    <!-- Llama Script que Limpia la búsqueda -->
+
+    {% endblock %}
+</head>
+
+<body>
+    {% block content %}
+    <div class="row">
+        <div class="card col-md-12">
+            <div class="card-header">
+                <div class="form-group">
+                    <h1>Listado de solicitudes externas</h1>
+                </div>
+            </div>
+            <div class="card-body">
+                <form method="get" onsubmit="guardarValoresSelect()" class="row g-3" name="solicitudes_externas">
+                    <div class="form-group col-md-4">
+                        <label for="lab">Laboratorio:</label>
+                        {% if request.user|has_group:"COORDINADOR" or request.user|has_group:"TECNICO" %}
+                        <select name="lab" class="form-control" id="lab">
+                            {% for lab in laboratorios %}
+                            {% if lab.id == laboratorio.id %}
+                            <option value="{{ lab.id }}" selected="">{{ lab.name }}</option>
+                            {% endif %}
+                            {% endfor %}
+                        </select>
+                        {% endif %}
+
+                        {% if request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
+                        <select name="lab" class="form-control" id="lab">
+                            <option value='0' selected="">TODOS</option>
+                            {% for lab in laboratorios %}
+                            <option value="{{ lab.id }}">{{ lab.name }}</option>
+                            {% endfor %}
+                        </select>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group col-md-2">
+                        <label for="start_date">Fecha Inicial:</label>
+                        <input type="date" id="start_date" name="start_date" class="form-control"
+                            max="{{ today|date:'Y-m-d' }}">
+                        <span class="validation-message" id="start-date-validation" style="color: red;">La fecha incial
+                            debe ser igual o anterior a "{{ today|date:'Y-m-d' }}".</span>
+                    </div>
+
+                    <div class="form-group col-md-2">
+                        <label for="end_date">Fecha Final:</label>
+                        <input type="date" id="end_date" name="end_date" class="form-control"
+                            value="{{ today|date:'Y-m-d' }}" max="{{ today|date:'Y-m-d' }}">
+                        <span class="validation-message" id="end-date-validation" style="color: red;">La fecha incial
+                            debe ser igual o anterior a "{{ today|date:'Y-m-d' }}"</span>
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label for="keyword">Palabra Clave:</label>
+                        <input type="text" id="keyword" name="keyword" class="form-control">
+                    </div>
+            </div>
+
+            <div class="card-footer">
+                <div class="form-group">
+                    <button id="boton-buscar" type="submit" class="btn btn-primary">Buscar</button>
+                    <button type="button" class="btn btn-success" onclick="limpiarCampos('solicitudes_externas')">Limpiar
+                        búsqueda
+                    </button>
+                </div>
+            </div>
+
+            </form>
+
+        </div>
+
+
+        <div class="col-md-12 mx-auto" style="margin-bottom: 10px;">
+            <!-- Control de paginación -->
+            <div class="d-flex justify-content-between">
+                <div>Ver&nbsp;
+                    <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                        <a href="{% url 'reactivos:GuardarPerPageSolExterna' per_page=10 %}"
+                            class="btn btn-secondary btn-sm" id="per-page-10">10</a>
+                        <a href="{% url 'reactivos:GuardarPerPageSolExterna' per_page=20 %}"
+                            class="btn btn-secondary btn-sm" id="per-page-20">20</a>
+                        <a href="{% url 'reactivos:GuardarPerPageSolExterna' per_page=50 %}"
+                            class="btn btn-secondary btn-sm" id="per-page-50">50</a>
+                    </div>&nbsp;Registros por página
+                </div>
+            </div>
+        </div>
+
+
+        <div class="table-responsive col-md-12 mx-auto">
+            <table class="table custom-table" id="tabla-inventario">
+
+                <thead style="background-color: rgb(205, 203, 203);position: sticky; top: 0; z-index: 10;">
+                    <tr>
+                        <th class="sortable-header hidden-xs" data-column="0" data-column-name="id"
+                            title="Ordenar por Consecutivo"
+                            style="border-bottom: 1px solid black; border-top: 1px solid black;text-align: left; vertical-align: middle;">
+                            Id</th>
+                        <th class="sortable-header" data-column="1" title="Ordenar por fecha"
+                            style="border-bottom: 1px solid black; border-top: 1px solid black;text-align: left; vertical-align: middle;">
+                            Remitente</th>
+                        <th class="sortable-header" data-column="2" title="Ordenar por Tipo de solicitud"
+                            style="border-bottom: 1px solid black; border-top: 1px solid black;text-align: left; vertical-align: middle;">
+                            Asunto</th>
+                        <th class="sortable-header" data-column="3" data-column-name="date" title="Ordenar Asunto"
+                            style="border-bottom: 1px solid black; border-top: 1px solid black;text-align: left; vertical-align: middle;">
+                            Fecha</th>
+                        <th class="sortable-header hidden-xs" data-column="4" title="Ordenar por Tipo de solicitud"
+                            style="border-bottom: 1px solid black; border-top: 1px solid black;text-align: left; vertical-align: middle;">
+                            Laboratorio</th>
+                        <th class="sortable-header" title="Acciones con el registro (no ordena)"
+                            style="border-bottom: 1px solid black; border-top: 1px solid black;text-align: left; vertical-align: middle;">
+                            Acciones</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for item in object_list %}
+                    <tr class="table-row {% if item.is_view %}leido{% else %}no-leido{% endif %}">
+                        <td title="Id de la solicitud" class="hidden-xs solicitud-externa id-column"
+                        data-sol-id="{{ item.id }}"
+                        data-solicitud-date="{{ item.registration_date|date:"d/m/Y h:m:s" }}"
+                        data-solicitud-tipo="{{ item.subject }}"
+                        data-solicitud-mensaje="{{ item.message }}"
+                        data-solicitud-adjuntos={% if item.attach %}"{{ item.attach.url|filename }}"{% else %}''{% endif %}
+                        data-solicitud-adjuntos-url={% if item.attach %}{{ item.attach.url }}{% else %}''{% endif %}
+                        data-solicitud-lab="{{ item.lab }}"
+                        data-solicitud-nombre="{{ item.name }}"
+                        data-solicitud-area="{{ item.department }}"
+                        data-solicitud-telefono="{{ item.mobile_number }}"
+                        data-solicitud-email="{{ item.email }}"
+                        data-solicitud-encoded-id='{{ item.id|base64_encode }}'>{{ item.id }} </td>
+
+                        <td class="sender-column solicitud-externa" title="Remitente de la solicitud"
+                        data-sol-id="{{ item.id }}"
+                        data-solicitud-date="{{ item.registration_date|date:"d/m/Y h:m:s" }}"
+                        data-solicitud-tipo="{{ item.subject }}"
+                        data-solicitud-mensaje="{{ item.message }}"
+                        data-solicitud-adjuntos={% if item.attach %}"{{ item.attach.url|filename }}"{% else %}''{% endif %}
+                        data-solicitud-adjuntos-url={% if item.attach %}{{ item.attach.url }}{% else %}''{% endif %}
+                        data-solicitud-lab="{{ item.lab }}"
+                        data-solicitud-nombre="{{ item.name }}"
+                        data-solicitud-area="{{ item.department }}"
+                        data-solicitud-telefono="{{ item.mobile_number }}"
+                        data-solicitud-email="{{ item.email }}"
+                        data-solicitud-encoded-id='{{ item.id|base64_encode }}'>{{ item.name }}</td>
+
+                        <td class="subject-column solicitud-externa" title="Asunto de la solicitud"
+                        data-sol-id="{{ item.id }}"
+                        data-solicitud-date="{{ item.registration_date|date:"d/m/Y h:m:s" }}"
+                        data-solicitud-tipo="{{ item.subject }}"
+                        data-solicitud-mensaje="{{ item.message }}"
+                        data-solicitud-adjuntos={% if item.attach %}"{{ item.attach.url|filename }}"{% else %}''{% endif %}
+                        data-solicitud-adjuntos-url={% if item.attach %}{{ item.attach.url }}{% else %}''{% endif %}
+                        data-solicitud-lab="{{ item.lab }}"
+                        data-solicitud-nombre="{{ item.name }}"
+                        data-solicitud-area="{{ item.department }}"
+                        data-solicitud-telefono="{{ item.mobile_number }}"
+                        data-solicitud-email="{{ item.email }}"
+                        data-solicitud-encoded-id='{{ item.id|base64_encode }}'>
+                            {{ item.subject }}
+                            {% if item.attach %}
+                            <br>
+                            <div style="margin-top: 5px; border: 1px solid #ccc; padding: 5px; display: inline-block; border-radius: 15px; width: 120px; overflow: hidden; vertical-align: middle; margin-right: 10px;"
+                                title="Descargar Archivos adjuntos">
+                                <a href="{{ item.attach.url }}" target="_blank" download="{{ item.attach.url|filename }}"
+                                    style="display: flex; align-items: center; justify-content: center; height: 100%;">
+
+                                    {% if item.attach.name|lower|slice:'-4:' == '.pdf' %}
+                                    <img src="{% static 'inventarioreac/Images/pdf_icon.png' %}" alt="" width="18"
+                                        height="18" title="Descargar archivos adjuntos"
+                                        style="vertical-align: middle; margin-right: 5px;">
+                                    {% elif item.attach.name|lower|slice:'-4:' == '.doc' or item.attach.name|lower|slice:'-5:' == '.docx' %}
+                                    <img src="{% static 'inventarioreac/Images/doc_icon.png' %}" alt="" width="18"
+                                        height="18" title="Descargar archivos adjuntos"
+                                        style="vertical-align: middle; margin-right: 5px;">
+                                    {% elif item.attach.name|lower|slice:'-4:' == '.xls' or item.attach.name|lower|slice:'-5:' == '.xlsx' %}
+                                    <img src="{% static 'inventarioreac/Images/excel_icon.png' %}" alt="" width="18"
+                                        height="18" title="Descargar archivos adjuntos"
+                                        style="vertical-align: middle; margin-right: 5px;">
+                                    {% elif item.attach.name|lower|slice:'-4:' == '.txt' %}
+                                    <img src="{% static 'inventarioreac/Images/text_icon.png' %}" alt="" width="18"
+                                        height="18" title="Descargar archivos adjuntos"
+                                        style="vertical-align: middle; margin-right: 5px;">
+                                    {% elif item.attach.name|lower|slice:'-4:' == '.zip' %}
+                                    <img src="{% static 'inventarioreac/Images/zip_icon.png' %}" alt="" width="18"
+                                        height="18" title="Descargar archivos adjuntos"
+                                        style="vertical-align: middle; margin-right: 5px;">
+
+                                    {% elif item.attach.name|lower|slice:'-4:' == '.rar' %}
+                                    <img src="{% static 'inventarioreac/Images/rar_icon.png' %}" alt="" width="18"
+                                        height="18" title="Descargar archivos adjuntos"
+                                        style="vertical-align: middle; margin-right: 5px;">
+                                    {% elif item.attach.name|lower|slice:'-4:' == '.png' or item.attach.name|lower|slice:'-4:' == '.jpg' %}
+                                    <img src="{% static 'inventarioreac/Images/image_icon.png' %}" alt="" width="18"
+                                        height="18" title="Descargar archivos adjuntos"
+                                        style="vertical-align: middle; margin-right: 5px;">
+                                    {% else %}
+                                    <img src="{% static 'inventarioreac/Images/attachment.png' %}" alt="" width="18"
+                                        height="18" title="Descargar archivos adjuntos"
+                                        style="vertical-align: middle; margin-right: 5px;">
+
+
+                                    {% endif %}
+                                    <span
+                                        style="vertical-align: middle; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ item.attach.url|filename }}</span>
+                                </a>
+
+                            </div>
+
+                            {% endif %}
+                        </td>
+                        
+                        <td title="Fecha de la solicitud" class="solicitud-externa date-column"
+                        data-sol-id="{{ item.id }}"
+                        data-solicitud-date="{{ item.registration_date|date:"d/m/Y h:m:s" }}"
+                        data-solicitud-tipo="{{ item.subject }}"
+                        data-solicitud-mensaje="{{ item.message }}"
+                        data-solicitud-adjuntos={% if item.attach %}"{{ item.attach.url|filename }}"{% else %}''{% endif %}
+                        data-solicitud-adjuntos-url={% if item.attach %}{{ item.attach.url }}{% else %}''{% endif %}
+                        data-solicitud-lab="{{ item.lab }}"
+                        data-solicitud-nombre="{{ item.name }}"
+                        data-solicitud-area="{{ item.department }}"
+                        data-solicitud-telefono="{{ item.mobile_number }}"
+                        data-solicitud-email="{{ item.email }}"
+                        data-solicitud-encoded-id='{{ item.id|base64_encode }}'>{{ item.registration_date|date:"d/m/Y" }}</td>
+
+                        <td class="lab-column solicitud-externa hidden-xs" title="Remitente de la solicitud"
+                        data-sol-id="{{ item.id }}"
+                        data-solicitud-date="{{ item.registration_date|date:"d/m/Y h:m:s" }}"
+                        data-solicitud-tipo="{{ item.subject }}"
+                        data-solicitud-mensaje="{{ item.message }}"
+                        data-solicitud-adjuntos={% if item.attach %}"{{ item.attach.url|filename }}"{% else %}''{% endif %}
+                        data-solicitud-adjuntos-url={% if item.attach %}{{ item.attach.url }}{% else %}''{% endif %}
+                        data-solicitud-lab="{{ item.lab }}"
+                        data-solicitud-nombre="{{ item.name }}"
+                        data-solicitud-area="{{ item.department }}"
+                        data-solicitud-telefono="{{ item.mobile_number }}"
+                        data-solicitud-email="{{ item.email }}"
+                        data-solicitud-encoded-id='{{ item.id|base64_encode }}'>{{ item.lab }}</td>
+                        <td >
+                            
+                            <a href="javascript:void(0);" onclick="eliminarSolicitud('{{ item.id|base64_encode }}','{{ item.subject }}')">
+                                <img src="{% static 'inventarioreac/Images/delete_register.png' %}" alt="" width="18"
+                                    height="18" title="Eliminar solicitud número {{ item.id }}">
+                            </a>
+                            
+                            {% if item.is_view %}
+                            <a href="javascript:void(0);" onclick="solicitudNoLeida('{{ item.id|base64_encode }}','{{ item.subject }}')">
+                                <img src="{% static 'inventarioreac/Images/unread_icon.jpg' %}" alt="" width="18"
+                                    height="18" title="Marcar como no leida solicitud número {{ item.id }}">
+                            </a>
+                            {% else %}
+                            <a href="javascript:void(0);" onclick="solicitudLeida('{{ item.id|base64_encode }}','{{ item.subject }}')">
+                                <img src="{% static 'inventarioreac/Images/read_icon.jpg' %}" alt="" width="18"
+                                    height="18" title="Marcar como leída solicitud número {{ item.id }}">
+                            </a>
+                            {% endif %}
+                                
+                            
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <br>
+            <div class="d-flex justify-content-between">
+                <!-- Controles de navegación de página -->
+                <div class="pagination">
+                    <span class="step-links">
+                        {% if page_obj.has_previous %}
+                        <a href="" id="first-page-link">Primera</a>
+                        <a href="" id="previous-page-link">Anterior</a>
+                        {% endif %}
+                        <span class="current-page">Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages}}.</span>
+
+                        {% if page_obj.has_next %}
+                        <a href="" id="next-page-link">Siguiente</a>
+                        <a href="" id="last-page-link">Última</a>
+                        {% endif %}
+                    </span>
+                </div>
+                <!-- Información de paginación -->
+                <div class="pagination-info">
+                    Mostrando {{ page_obj.start_index }} - {{ page_obj.end_index }} de {{ paginator.count }} registros
+                </div>
+            </div>
+
+            <br>
+            <!-- Opciones de exportación -->
+            <div class="card-footer text-md-left">
+            <a href="{% url 'reactivos:export_to_excel_solicitud_externa' %}" class="btn btn-primary">Exportar a Excel</a>
+        </div>
+        </div>
+
+
+        <!-- Este script no puede ser llamado de manera independiente ya que tiene muchas variables provenientes del servidor -->
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const baseUrl = window.location.href;
+                const currentPage = '{{ page_obj.number }}';
+                const nextPage = parseInt(currentPage) + 1
+                const previousPage = parseInt(currentPage) - 1
+                const totalPages = '{{ page_obj.paginator.num_pages }}';
+
+
+                '{% if page_obj.has_previous %}'
+                const firstPageLink = document.getElementById('first-page-link');
+                const previousPageLink = document.getElementById('previous-page-link');
+                firstPageLink.href = baseUrl + '&page=1';
+                previousPageLink.href = baseUrl + '&page=' + previousPage;
+                '{% endif %}'
+
+                '{% if page_obj.has_next %}'
+                const nextPageLink = document.getElementById('next-page-link');
+                const lastPageLink = document.getElementById('last-page-link');
+                nextPageLink.href = baseUrl + '&page=' + nextPage;
+                lastPageLink.href = baseUrl + '&page=' + totalPages;
+
+                '{% endif %}'
+            });
+        </script>
+
+        {% endblock %}
+</body>
+
+</html>

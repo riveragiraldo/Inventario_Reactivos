@@ -1,3 +1,4 @@
+{% load custom_filters_2 %}
 <!DOCTYPE html>
 <html>
 
@@ -32,8 +33,7 @@
                 </li>
 
                 {% if solicitud.archivos_adjuntos %}
-                <li><strong>Archivos Adjuntos: </strong> <a href="{{ url_ppal }}{{ solicitud.archivos_adjuntos.url }}">Clic para
-                        descargar</a>
+                <li><strong>Archivos Adjuntos: </strong> <a href="{{ url_ppal }}{{ solicitud.archivos_adjuntos.url }}" target="_blank" download="{{ url_ppal }}{{ solicitud.archivos_adjuntos.url|filename }}">{{ solicitud.archivos_adjuntos.url|filename }}</a>
                 </li>
                 {% endif %}
 
@@ -65,9 +65,7 @@
                 <li><strong>Correo electrónico: </strong>{{solicitud.created_by.email}}</li>
             </ul>
         </div>
-        <p>Para más información visita la url:</p>
-
-        <p>{{ url }}
+        
 
 
         <p>Cordialmente,

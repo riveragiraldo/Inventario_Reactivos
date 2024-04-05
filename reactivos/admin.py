@@ -25,11 +25,17 @@ class Rolesmin(admin.ModelAdmin):
     list_display=('id','name','date_created', 'user_create','last_update','last_updated_by',)
     ordering=('id',)
 
+class UnidadesResources(resources.ModelResource):
+    class Meta:
+        model = Unidades
+
+
 # Inclusión de el modelo UNIDADES en la consola de administración de Django
 @admin.register(Unidades)
-class Unidadesadmin(admin.ModelAdmin):
+class Unidadesadmin(ImportExportModelAdmin, admin.ModelAdmin):
     list_display=('id','name','created_by', 'date_create','last_update','last_updated_by',)
     ordering=('id',)
+    resource_class = UnidadesResources
 
 # Inclusión de el modelo TIPOSOLICITUD en la consola de administración de Django
 @admin.register(TipoSolicitud)
@@ -46,14 +52,20 @@ class Solicitudadmin(admin.ModelAdmin):
 # Inclusión de el modelo Configuración del sistema en la consola de administración de Django
 @admin.register(ConfiguracionSistema)
 class Configuraciónadmin(admin.ModelAdmin):
-    list_display=('id','tiempo_solicitudes','tiempo_eventos','correo_administrador')
+    list_display=('id','tiempo_solicitudes','tiempo_eventos','correo_administrador','url')
     ordering=('id',)
+
+
+class MarcasResources(resources.ModelResource):
+    class Meta:
+        model = Marcas
 
 # Inclusión de el modelo MARCAS en la consola de administración de Django  
 @admin.register(Marcas)
-class Marcasadmin(admin.ModelAdmin):
+class Marcasadmin(ImportExportModelAdmin,admin.ModelAdmin):
     list_display=('id','name','created_by', 'date_create','last_update','last_updated_by',)
     ordering=('id',)
+    resource_class = MarcasResources
 
 # Inclusión de el modelo DESTINOS en la consola de administración de Django    
 @admin.register(Destinos)
@@ -61,11 +73,18 @@ class Destinoadmin(admin.ModelAdmin):
     list_display=('id','name','created_by', 'date_create','last_update','last_updated_by',)
     ordering=('id',)
 
+
+class EstadosResources(resources.ModelResource):
+    class Meta:
+        model = Estados
+
+
 # Inclusión de el modelo ESTADOS en la consola de administración de Django
 @admin.register(Estados)
-class Estadoadmin(admin.ModelAdmin):
+class Estadoadmin(ImportExportModelAdmin, admin.ModelAdmin):
     list_display=('id','name','created_by', 'date_create','last_update','last_updated_by',)
     ordering=('id',)
+    resource_class = EstadosResources
 
 # Inclusión de el modelo UBICACIONES en la consola de administración de Django
 @admin.register(Ubicaciones)
@@ -79,23 +98,38 @@ class Facultadadmin(admin.ModelAdmin):
     list_display=('id','name','created_by', 'date_create','last_update','last_updated_by')
     ordering=('id',)
 
+class AlmacenamientoInternoResources(resources.ModelResource):
+    class Meta:
+        model = AlmacenamientoInterno
+
 # Inclusión de el modelo ALMACENAMIENTO INTERNO en la consola de administración de Django
 @admin.register(AlmacenamientoInterno)
-class AlmacenamientoInternoadmin(admin.ModelAdmin):
+class AlmacenamientoInternoadmin(ImportExportModelAdmin, admin.ModelAdmin):
     list_display=('id','name','description','created_by', 'date_create','last_update','last_updated_by',)
     ordering=('id',)
+    resource_class = AlmacenamientoInternoResources
 
-# Inclusión de el modelo CLASE DE ALAMCENAMIENTO en la consola de administración de Django
+class ClaseAlmacenamientoResources(resources.ModelResource):
+    class Meta:
+        model = ClaseAlmacenamiento
+
+# Inclusión de el modelo Clase Alamcenamietno en la consola de administración de Django
 @admin.register(ClaseAlmacenamiento)
-class ClaseAlmacenamientoadmin(admin.ModelAdmin):
+class ClaseAlmacenamientoAdmin(ImportExportModelAdmin, admin.ModelAdmin):
     list_display=('id','name','description','created_by', 'date_create','last_update','last_updated_by',)
     ordering=('id',)
+    resource_class = ClaseAlmacenamientoResources
+
+class LaboratoriosResources(resources.ModelResource):
+    class Meta:
+        model = Laboratorios    
 
 # Inclusión de el modelo LABORATORIOS en la consola de administración de Django
 @admin.register(Laboratorios)
-class Laboratorioadmin(admin.ModelAdmin):
+class Laboratorioadmin(ImportExportModelAdmin, admin.ModelAdmin):
     list_display=('id','name','created_by', 'date_create','last_update','last_updated_by',)
     ordering=('id',)
+    resource_class = LaboratoriosResources
 
 # Inclusión de el modelo RESPONSABLES en la consola de administración de Django
 @admin.register(Responsables)
@@ -103,11 +137,18 @@ class Responsableadmin(admin.ModelAdmin):
     list_display=('id','name','mail','phone','is_active','cc','acceptDataProcessing','created_by', 'date_create','last_update','last_updated_by',)
     ordering=('id',)
 
+
+class AlmacenamientoResources(resources.ModelResource):
+    class Meta:
+        model = Almacenamiento
+
+
 # Inclusión de el modelo ALMACENAMIENTO en la consola de administración de Django
 @admin.register(Almacenamiento)
-class Almacenamientoadmin(admin.ModelAdmin):
+class Almacenamientoadmin(ImportExportModelAdmin, admin.ModelAdmin):
     list_display=('id','lab','name','description','created_by', 'date_create','last_update','last_updated_by',)
     ordering=('id',)
+    resource_class = AlmacenamientoResources
 
 class ReactivosResources(resources.ModelResource):
     class Meta:
@@ -201,6 +242,13 @@ class UserAdmin(BaseUserAdmin):
 
 # Registra el modelo de usuario personalizado y la clase UserAdmin en el admin
 admin.site.register(User,UserAdmin)
+
+# Inclusión de el modelo INVENTARIOS en la consola de administración de Django
+@admin.register(SolicitudesExternas)
+class SolicitudesExternasadmin(admin.ModelAdmin):
+    list_display=('subject','name','email','mobile_number','department','message','lab','attach','registration_date','accept_politics',)
+    list_per_page=10
+    ordering=('id',)
 
 
 

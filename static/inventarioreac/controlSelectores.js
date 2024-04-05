@@ -1,17 +1,25 @@
-// Espera 500 milisegundos después de que la página haya cargado completamente
+
 window.onload = function () {
     wf = document.getElementById('wf').value
     console.log(wf)
     
+    
+    
     if (wf == 'entrada'){
-        
         setTimeout(function () {
             // Actualiza Select lab
             var lab_new = document.querySelector("#lab");
             lab_new.value = laboratorio;
             lab_new.setAttribute("selected", true);
-
             updateWlocationOptions()
+            setTimeout(function () {
+                console.log(ubicacion_almacen)
+    
+                // Actualiza Select wlocation
+                var ubicacion_almacen_new = document.querySelector("#wlocation");
+                ubicacion_almacen_new.value = ubicacion_almacen;
+                // ubicacion_almacen_new.setAttribute("selected", true);
+            }, 500);
 
             // Actualiza Select trademark
             var trademark_new = document.querySelector("#trademark");
@@ -23,16 +31,13 @@ window.onload = function () {
             var destination_new = document.querySelector("#destination");
             destination_new.value = destino;
             destination_new.setAttribute("selected", true);
+            
+            
 
         }, 100);
+        
 
-        setTimeout(function () {
-
-            // Actualiza Select wlocation
-            var ubicacion_almacen_new = document.querySelector("#wlocation");
-            ubicacion_almacen_new.value = ubicacion_almacen;
-            ubicacion_almacen_new.setAttribute("selected", true);
-        }, 500);
+        
     }else if (wf == 'salida'){
         
         
@@ -49,23 +54,31 @@ window.onload = function () {
             destination_new.value = destino;
             destination_new.setAttribute("selected", true);
 
-        }, 200);
+        }, 100);
 
         setTimeout(function () {
 
             // Actualiza Select trademark
             var trademark_new = document.querySelector("#trademark");
             trademark_new.value = marca;
-            trademark_new.setAttribute("selected", true);
+            // trademark_new.setAttribute("selected", true);
             updateReferenceSelect()
-        }, 400);
+        }, 700);
         setTimeout(function () {
             // Actualiza Select reference
             var reference_new = document.querySelector("#reference");
             reference_new.value = referencia;
-            reference_new.setAttribute("selected", true);
-            }, 700);
+            // reference_new.setAttribute("selected", true);
+            }, 1200);
     }
+
+
+
+
+
+
+
+
     else if (wf == 'crear'){
         
         

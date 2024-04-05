@@ -1341,69 +1341,75 @@ footer .logos a img {
 	padding: 0.6em 1.2em;
 	/* Padding del botón ajustado para un tamaño aproximado a 5 cm */
 }
+
 .sidebar-content {
 	display: flex;
 }
 
 .side-left-bar {
-	width: 15%; /* Ancho de la barra lateral derecha */
-    top: 20px; /* Ajustar según sea necesario */
+	width: 15%;
+	/* Ancho de la barra lateral derecha */
+	top: 20px;
+	/* Ajustar según sea necesario */
 	margin-right: 2%;
 	margin-left: -1%;
 }
 
 .contentTemplate {
-	width: 85%; /* Ancho del contenido principal (ajustar según sea necesario) */
+	width: 85%;
+	/* Ancho del contenido principal (ajustar según sea necesario) */
 	font-family: 'Ancizar sans';
-	
+
 }
 
 /* clase para el botón de la side bar */
 
 .side-bar-link {
-    color: #fff;
-    background-color: #2200ff;
-    border-color: #007bff;
-    display: inline-block;
-    font-weight: 400;
-    text-align: center;
-    white-space: nowrap;
-    vertical-align: middle;
-    user-select: none;
-    border: 1px solid transparent;
-    padding: 0.375rem 0.75rem;
-    font-size: 1rem;
-    line-height: 1.5;
-    border-radius: 0.25rem;
-    transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-    cursor: pointer;
-    text-decoration: none;
-    text-transform: none;
+	color: #fff;
+	background-color: #2200ff;
+	border-color: #007bff;
+	display: inline-block;
+	font-weight: 400;
+	text-align: center;
+	white-space: nowrap;
+	vertical-align: middle;
+	user-select: none;
+	border: 1px solid transparent;
+	padding: 0.375rem 0.75rem;
+	font-size: 1rem;
+	line-height: 1.5;
+	border-radius: 0.25rem;
+	transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+	cursor: pointer;
+	text-decoration: none;
+	text-transform: none;
 	width: 100%;
 	margin-right: -30px;
-	
+
 }
 
 .side-bar-link:hover {
-    color: #fff;
-    background-color: #0056b3;
-    border-color: #004185;
+	color: #fff;
+	background-color: #0056b3;
+	border-color: #004185;
 }
 
-.side-bar-link:focus, .btn-primary.focus {
-    color: #fff;
-    background-color: #0056b3;
-    border-color: #004185;
-    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.5);
+.side-bar-link:focus,
+.btn-primary.focus {
+	color: #fff;
+	background-color: #0056b3;
+	border-color: #004185;
+	box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.5);
 }
 
 /* Otros estados del botón, como active, disabled, etc. */
 
 /* Ejemplo para el estado active */
-.side-bar-link:active, .btn-primary.active {
-    color: #fff;
-    background-color: #004185;
-    border-color: #003157;
+.side-bar-link:active,
+.btn-primary.active {
+	color: #fff;
+	background-color: #004185;
+	border-color: #003157;
 }
 
 .background-image-login {
@@ -1411,9 +1417,414 @@ footer .logos a img {
 	left: 0;
 	width: 100px;
 	height: 100px;
-	background-image: url(../images/login_image_2.jpg); /* Agrega la ruta de tu imagen */
-	opacity: 0.7; /* Ajusta la opacidad a tu preferencia */
+	background-image: url(../images/login_image_2.jpg);
+	/* Agrega la ruta de tu imagen */
+	opacity: 0.7;
+	/* Ajusta la opacidad a tu preferencia */
 	z-index: 0;
+}
+
+/* estilo carrusel incio */
+.carousel-inner img {
+	width: 100%;
+	height: auto;
+	opacity: 0.7;
+	
+}
+
+/* Para pantallas pequeñas */
+@media (max-width: 767px) {
+    #carouselExampleIndicators {
+        margin-left: 0; /* Eliminar el margen izquierdo en pantallas pequeñas */
+		margin-top: 5%;
+		margin-bottom: 0;
+		padding-top: 20%;
+		padding-bottom: 20%;
+
+    }
+}
+
+/* Para pantallas medianas y grandes */
+@media (min-width: 768px) {
+    #carouselExampleIndicators {
+        margin-left: 10%; /* Agregar un margen izquierdo del 5% en pantallas medianas y grandes */
+    }
+}
+
+
+@media (max-width: 767px) {
+	.carousel-inner img {
+		width: 100%;
+		height: auto;
+	}
+}
+.multiline {
+    white-space: normal;
+}
+
+
+/* Botón de Google */
+.gsi-material-button {
+	-moz-user-select: none;
+	-webkit-user-select: none;
+	-ms-user-select: none;
+	-webkit-appearance: none;
+	background-color: WHITE;
+	background-image: none;
+	border: 1px solid #747775;
+	-webkit-border-radius: 20px;
+	border-radius: 20px;
+	-webkit-box-sizing: border-box;
+	box-sizing: border-box;
+	color: #1f1f1f;
+	cursor: pointer;
+	font-family: 'Roboto', arial, sans-serif;
+	font-size: 14px;
+	height: 40px;
+	letter-spacing: 0.25px;
+	outline: none;
+	overflow: hidden;
+	padding: 0 12px;
+	position: relative;
+	text-align: center;
+	-webkit-transition: background-color .218s, border-color .218s, box-shadow .218s;
+	transition: background-color .218s, border-color .218s, box-shadow .218s;
+	vertical-align: middle;
+	white-space: nowrap;
+	width: auto;
+	max-width: 400px;
+	min-width: min-content;
+  }
+  
+  .gsi-material-button .gsi-material-button-icon {
+	height: 20px;
+	margin-right: 12px;
+	min-width: 20px;
+	width: 20px;
+  }
+  
+  .gsi-material-button .gsi-material-button-content-wrapper {
+	-webkit-align-items: center;
+	align-items: center;
+	display: flex;
+	-webkit-flex-direction: row;
+	flex-direction: row;
+	-webkit-flex-wrap: nowrap;
+	flex-wrap: nowrap;
+	height: 100%;
+	justify-content: space-between;
+	position: relative;
+	width: 100%;
+  }
+  
+  .gsi-material-button .gsi-material-button-contents {
+	-webkit-flex-grow: 1;
+	flex-grow: 1;
+	font-family: 'Roboto', arial, sans-serif;
+	font-weight: 500;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	vertical-align: top;
+  }
+  
+  .gsi-material-button .gsi-material-button-state {
+	-webkit-transition: opacity .218s;
+	transition: opacity .218s;
+	bottom: 0;
+	left: 0;
+	opacity: 0;
+	position: absolute;
+	right: 0;
+	top: 0;
+  }
+  
+  .gsi-material-button:disabled {
+	cursor: default;
+	background-color: #ffffff61;
+	border-color: #1f1f1f1f;
+  }
+  
+  .gsi-material-button:disabled .gsi-material-button-contents {
+	opacity: 38%;
+  }
+  
+  .gsi-material-button:disabled .gsi-material-button-icon {
+	opacity: 38%;
+  }
+  
+  .gsi-material-button:not(:disabled):active .gsi-material-button-state, 
+  .gsi-material-button:not(:disabled):focus .gsi-material-button-state {
+	background-color: #303030;
+	opacity: 12%;
+  }
+  
+  .gsi-material-button:not(:disabled):hover {
+	-webkit-box-shadow: 0 1px 2px 0 rgba(60, 64, 67, .30), 0 1px 3px 1px rgba(60, 64, 67, .15);
+	box-shadow: 0 1px 2px 0 rgba(60, 64, 67, .30), 0 1px 3px 1px rgba(60, 64, 67, .15);
+  }
+  
+  .gsi-material-button:not(:disabled):hover .gsi-material-button-state {
+	background-color: #303030;
+	opacity: 8%;
   }
   
 
+  .custom-table {
+    background-color: rgba(255, 255, 255, 0.258);
+    border-radius: 5px;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+.custom-table th,
+.custom-table td {
+    
+    padding: 8px;  /* Ajusta según tus necesidades de espaciado en las celdas */
+    text-align: left;  /* O ajusta según tus necesidades de alineación */
+	cursor: pointer;
+}
+
+/* Estilos para filas leídas */
+.leido {
+	background-color: #f0f0f0; /* Puedes ajustar el color de fondo según tus preferencias */
+	color: #666; /* Puedes ajustar el color del texto según tus preferencias */
+	cursor: pointer;
+	/* Otros estilos específicos para filas leídas */
+}
+
+/* Estilos para filas no leídas */
+.no-leido {
+	background-color: #fff; /* Puedes ajustar el color de fondo según tus preferencias */
+	color: #000; /* Puedes ajustar el color del texto según tus preferencias */
+	font-weight: bold; /* Puedes ajustar otros estilos según tus preferencias */
+	/* Otros estilos específicos para filas no leídas */
+	
+}
+/* Estilos para ancho de filas en listado de solicitudes externas */
+.table-row .lab-column {
+	max-width: 90px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.table-row .subject-column {
+	max-width: 130px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.table-row .sender-column {
+	max-width: 100px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	
+}
+
+.table-row .date-column {
+	max-width: 40px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	
+}
+
+.table-row .id-column {
+	max-width: 5px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	
+}
+
+/* incio uniclab */
+/* incio uniclab */
+.inicio-container {
+    background-color: #ffffff6f;
+    /* Fondo blanco */
+    border: 1px solid #131313a7;
+    /* Borde gris claro */
+    border-radius: 3px;
+    /* Esquinas redondeadas */
+    position: relative;
+    /* Para posicionar la marca de agua */
+	height: 660px;
+	width: 100%;
+}
+
+.contenido {
+    margin: 0 auto;
+    /* Centra el contenido */
+    padding: 20px;
+    /* Espaciado interno */
+    text-align: left;
+    /* Alinea el texto a la izquierda */
+    position: relative;
+    /* Añade posición relativa para alinear la marca de agua */
+    z-index: 1;
+    /* Eleva el contenido sobre la marca de agua */
+}
+
+.marca-agua {
+    position: absolute;
+    top: 120%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 200px;
+    /* Ancho de la imagen */
+    height: 200px;
+    /* Alto de la imagen */
+    opacity: 0.1;
+    z-index: 0;
+    /* Coloca la marca de agua detrás del contenido */
+}
+
+@media (max-width: 767px) {
+    /* Estilos específicos para pantallas más pequeñas (menos de 768px de ancho) */
+    .marca-agua {
+        width: 120px;
+        /* Ajusta el tamaño de la imagen para pantallas más pequeñas */
+        height: 120px;
+		top: 60%;
+		opacity: 0.1;
+    }
+}
+
+
+
+
+/* --------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------- */
+
+
+/* clase para columkna nombre de reactivo */
+.table-row .name-reagent {
+	max-width: 150px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	
+}
+/* clase para columna nombre de reactivo */
+.table-row .codes-reagent {
+	max-width: 60px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	
+}
+
+/* clase para columna almacenamiento interno de reactivo */
+.table-row .internal-storage {
+	max-width: 100px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	
+}
+
+/* clase para columna almacenamiento interno de reactivo */
+.table-row .action-list {
+	max-width: 80px;
+	min-width: 80px;
+	
+}
+
+/* estilo para desbordamiento de texto en barra lateral */
+.lateral_button {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	
+}
+
+/* centrar para movil */
+@media (max-width: 767px) {
+	/* Ajusta los estilos para pantallas más pequeñas (menos de 768px de ancho) */
+	.text-md-left {
+		text-align: center !important;
+		/* Sobrescribe la alineación a la izquierda y centra en pantallas pequeñas */
+	}
+}
+
+/* justificar para movil */
+@media (max-width: 767px) {
+	/* Ajusta los estilos para pantallas más pequeñas (menos de 768px de ancho) */
+	.text-xs-justify {
+		text-align: justify !important;
+		/* Sobrescribe la alineación a la izquierda y centra en pantallas pequeñas */
+	}
+}
+
+
+/* clase para columna marcaso */
+.table-row .trademark-reagent {
+	max-width: 100px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+
+/* clase para columna marcaso */
+.table-row .amount-reagent {
+	max-width: 20px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+/* clase para columna fechac de solicitud */
+.table-row .date-reagent {
+	max-width: 70px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	
+}
+
+/* clase para columna asunto de la solcitud*/
+.table-row .subject-reagent {
+	max-width: 170px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	
+}
+
+
+/* clase para columna asunto de la solcitud*/
+.table-row .subject-request {
+	max-width: 100px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	
+}
+
+/* clase para columna almacenamiento interno de reactivo */
+.table-row .action-list-sol {
+	max-width: 40px;
+	min-width: 40px;
+	
+}
+
+.table-row .user-column {
+	max-width: 200px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+/* Coloca la input del captcha al 100% */
+#captcha-container {
+	width: 100%;
+}
+
+/* JUstifica el texto de la politica de tratamiento */
+
+.politica {
+	text-align: justify;
+}

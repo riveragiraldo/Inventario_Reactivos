@@ -49,7 +49,7 @@ from django.http import HttpResponseRedirect, QueryDict
 from django.shortcuts import resolve_url
 from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
-from django.utils.deprecation import RemovedInDjango50Warning
+# from django.utils.deprecation import RemovedInDjango50Warning
 from django.utils.http import url_has_allowed_host_and_scheme, urlsafe_base64_decode
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.cache import never_cache
@@ -75,7 +75,7 @@ from django.http import HttpResponseRedirect, QueryDict
 from django.shortcuts import resolve_url
 from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
-from django.utils.deprecation import RemovedInDjango50Warning
+# from django.utils.deprecation import RemovedInDjango50Warning
 from django.utils.http import url_has_allowed_host_and_scheme, urlsafe_base64_decode
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.cache import never_cache
@@ -85,7 +85,7 @@ from django.views.generic.base import TemplateView
 from django.views.generic.edit import FormView
 from django.utils.dateparse import parse_date
 from datetime import datetime, timedelta, date
-from .forms import ReCaptchaForm,CustomPasswordResetForm, FormularioUsuario, SolicitudForm,ConfiguracionSistemaForm 
+from .forms import  FormularioUsuario, SolicitudForm,ConfiguracionSistemaForm, CustomPasswordResetForm, SolicitudesExternasForm
 from django.core.mail import send_mail
 from django.utils.translation import gettext as _
 from django.contrib.auth.tokens import default_token_generator
@@ -105,11 +105,108 @@ from django import forms
 from django.utils import timezone
 from django.utils.timezone import now
 from django.http import FileResponse
-
+from django.core.mail import EmailMessage
+from django.core.mail import EmailMultiAlternatives
+from django.utils.html import strip_tags
+from collections import defaultdict
 
 
 from apscheduler.schedulers.background import BlockingScheduler, BackgroundScheduler
 from time import sleep
+from captcha.fields import CaptchaField, CaptchaTextInput
+from captcha.models import CaptchaStore
+from django.utils.html import format_html
+from babel.dates import format_datetime, format_time
+import threading
+import os  # Importa el módulo os para trabajar con rutas de archivo
+from openpyxl.styles import NamedStyle
+
+
+
+# # Enviar correo electrónico administrativo
+# @login_required(login_url='/UniCLab/accounts/login/')
+# def enviar_correo(request):
+#     if request.method == 'POST':
+#         form = CorreoForm(request.POST, request.FILES)
+#         if form.is_valid():
+#             destino = form.cleaned_data['destino']
+#             print(destino)
+#             laboratorio = form.cleaned_data['laboratorio']
+#             usuario = form.cleaned_data['usuario']
+#             asunto = form.cleaned_data['asunto']
+#             contenido = form.cleaned_data['mensaje']
+#             adjunto = form.cleaned_data['adjunto']
+#             if adjunto and adjunto.size > 5 * 1024 * 1024:  # 2 MB en bytes
+#                 nombre=adjunto.name
+#                 peso=adjunto.size / (1024 * 1024)
+#                 mensaje = f'No se ha podido enviar el mensaje porque el tamaño del archivo adjunto con nombre {nombre}, con tamaño de {peso:.2f} MB es superior al máximo permitido (5 MB).'
+#                 messages.error(request, mensaje)  # Agregar mensaje de error
+#                 return redirect('reactivos:enviar_correo')
+        
+
+#             # Lógica para determinar a quién enviar el correo y construir la lista de destinatarios
+#             if destino=='USUARIO_ESPECIFICO':
+#                 destinatarios=[usuario,]
+#             elif destino=='TODOS' and laboratorio=='TODOS':
+#                 destinatarios = UserModel.objects.filter(is_active=True).values_list('email', flat=True)
+#             elif destino=='TODOS' and laboratorio!='TODOS':
+#                 destinatarios = UserModel.objects.filter(is_active=True, lab=laboratorio).values_list('email', flat=True)
+#             elif destino!='TODOS' and laboratorio=='TODOS':
+#                 destinatarios = UserModel.objects.filter(is_active=True, rol=destino).values_list('email', flat=True)
+#             elif destino!='TODOS' and laboratorio!='TODOS':
+#                 destinatarios = UserModel.objects.filter(is_active=True, rol=destino, lab=laboratorio).values_list('email', flat=True)
+                
+#             else:
+#                 destinatarios = ['andresrgiraldo@gmail.com']
+
+#             # Lógica para construir el mensaje de correo
+
+#             # Crear de contexto para el mensaje de correo
+#             # Obtener el dominio
+#             url = settings.BASE_URL
+#             # Obtener la fecha y hora actual en el formato "dd/mm/aaaa hh:mm:ss"
+#             fecha_actual = localtime().strftime('%d/%m/%Y %H:%M:%S')
+#             # Formatear el valor con separadores de miles
+#             locale.setlocale(locale.LC_ALL, 'es_ES.UTF-8')
+
+#             # Contexto del template del diseño del correo 
+#             context = {
+#                 'url': url,
+#                 'fecha_actual': fecha_actual,
+#                 'message': contenido,
+#             }
+
+#             # Template
+#             html_message = render_to_string('admin/enviar_correo_admin.html', context)
+#             plain_message = strip_tags(html_message)
+#             from_email = "noreply@unal.edu.co"  # Agrega el correo electrónico desde el cual se enviará el mensaje
+#             recipient_list = destinatarios
+#             subject = f'Mensaje desde {url} -  {asunto}'
+
+#             # Adjuntar el archivo al correo si se proporciona
+#             if adjunto:
+#                 # Si hay archivos adjuntos, enviar con mensaje HTML y adjunto
+#                 email = EmailMultiAlternatives(subject, plain_message, from_email, recipient_list)
+#                 email.attach_alternative(html_message, "text/html")  # Agregar versión HTML del mensaje
+#                 email.attach(adjunto.name, adjunto.read(), adjunto.content_type)
+#                 email.send()
+#                 print('Se ha enviado el correo con mensaje HTML y adjunto')
+#             else:
+#                 print('Se ha enviado el correo')
+#                 send_mail(subject, plain_message, from_email, recipient_list, fail_silently=False, html_message=html_message,)
+            
+#             mensaje=f'Se ha enviado el mensaje de manera correcta'
+#             messages.success(request, mensaje)  # Agregar mensaje de éxito
+#             return redirect('reactivos:enviar_correo')
+#         else:
+#             mensaje=f'{form.errors}'
+#             messages.error(request, mensaje)  # Agregar mensaje de error
+#             return redirect('reactivos:enviar_correo')
+#     else:
+#         form = CorreoForm()
+
+#     return render(request, 'admin/enviar_correo.html', {'form': form})
+
 
 # Función para crear enlace de descarga de manual de usuario
 def descargar_manual(request):
@@ -246,6 +343,11 @@ def programar_tareas():
         start_date=start_date+five_minutes
         print(start_date)
         scheduler.add_job(check_edate, 'interval', days=configuracion.intervalo_tiempo, start_date=start_date,)
+        one_minutes=timedelta(minutes=1)
+        print(start_date)
+        start_date=start_date+one_minutes
+        print(start_date)
+        scheduler.add_job(depurar_eventos_antiguos, 'interval', days=1, start_date=start_date,)
         print(scheduler.state)
         if  configuracion.programacion_activa:
             if scheduler.state==0:
@@ -258,10 +360,11 @@ def programar_tareas():
             if scheduler.state==1:
                 scheduler.pause()
         print(scheduler.state)
-programar_tareas()
+# programar_tareas()
 
 # Vista para depuración de eventos
 def depurar_eventos_antiguos():
+    # Depurar eventos antiguos
     # Obtén la configuración del sistema
     configuracion = ConfiguracionSistema.objects.first()  # Suponiendo que solo hay una configuración en la base de datos.
 
@@ -271,18 +374,66 @@ def depurar_eventos_antiguos():
 
         # Elimina eventos antiguos
         Eventos.objects.filter(fecha_evento__lt=fecha_limite).delete()
+        print('Se han depurado los eventos')
 
-# Vista para la creación de eventos
+    # Depurar solicitudes Internas
+    # Obtener la configuración del sistema, suponiendo que existe un único registro.
+    configuracion_sistema = ConfiguracionSistema.objects.first()
+    # Comprobar si se obtuvo la configuración.
+    if configuracion_sistema:
+        # Usar el campo tiempo_solicitudes de la configuración como max_antiguedad.
+        max_antiguedad = timedelta(days=configuracion_sistema.tiempo_solicitudes)
+    else:
+        # Si no se pudo obtener la configuración, usar un valor predeterminado (30 días, por ejemplo).
+        max_antiguedad = timedelta(days=30)
+    fecha_limite = timezone.now() - max_antiguedad
+    # Obtén las solicitudes antiguas que cumplen con el criterio de antigüedad
+    solicitudes_antiguas = Solicitudes.objects.filter(tramitado=True, fecha_tramite__lt=fecha_limite)
+    # Eliminar los archivos adjuntos asociados a las solicitudes antiguas
+    for solicitud in solicitudes_antiguas:
+        if solicitud.archivos_adjuntos:
+            # Asegúrate de que el archivo realmente se elimine del disco.
+            solicitud.archivos_adjuntos.delete()
+    # Eliminar las solicitudes antiguas
+    solicitudes_antiguas.delete()
+    print('Se han depurado las solicitudes internas')
+
+    # Depurar solicitudes Externas
+    # Obtener la configuración del sistema, suponiendo que existe un único registro.
+    configuracion_sistema = ConfiguracionSistema.objects.first()
+    # Comprobar si se obtuvo la configuración.
+    if configuracion_sistema:
+        # Usar el campo tiempo_solicitudes de la configuración como max_antiguedad.
+        max_antiguedad = timedelta(days=configuracion_sistema.tiempo_solicitudes)
+    else:
+        # Si no se pudo obtener la configuración, usar un valor predeterminado (30 días, por ejemplo).
+        max_antiguedad = timedelta(days=30)
+    fecha_limite = timezone.now() - max_antiguedad
+    # Obtén las solicitudes antiguas que cumplen con el criterio de antigüedad
+    solicitudes_antiguas = SolicitudesExternas.objects.filter(is_view=True, registration_date__lt=fecha_limite)
+    # Eliminar los archivos adjuntos asociados a las solicitudes antiguas
+    for solicitud in solicitudes_antiguas:
+        if solicitud.attach:
+            # Asegúrate de que el archivo realmente se elimine del disco.
+            solicitud.attach.delete()
+    # Eliminar las solicitudes antiguas
+    solicitudes_antiguas.delete()
+    print('Se han depurado las solicitudes externas')
+
+from django.shortcuts import get_object_or_404
+
 def crear_evento(tipo_evento, usuario_evento):
-    tipo_evento=get_object_or_404(TipoEvento, name=tipo_evento)
+    # Verifica si el tipo de evento existe
+    tipo_evento_obj, created = TipoEvento.objects.get_or_create(name=tipo_evento)
+
+    # Si no existía, se creó un nuevo objeto tipo_evento
+    if created:
+        print(f"Se ha creado un nuevo tipo de evento: {tipo_evento}")
+
     evento = Eventos.objects.create(
-
-            tipo_evento=tipo_evento,
-            usuario_evento=usuario_evento,            
-
-        )
-    # Después de crear el evento, depura los eventos antiguos
-    depurar_eventos_antiguos()
+        tipo_evento=tipo_evento_obj,
+        usuario_evento=usuario_evento,
+    )
 
 
 #-------------------------------------------------#
@@ -329,7 +480,7 @@ def webtemplate(request):
     return render(request, 'webtemplate.html', context)
 
 # Función que envía alertas de Stock Mínimo, o stock =0
-def enviar_correo_alerta(request, alerta, reactivo, marca, referencia,cantidad,unidad,mensaje):
+def enviar_correo_alerta(request, alerta, reactivo, marca, referencia,cantidad,unidad,mensaje, inventario_existente):
     # Crear de contexto para el mensaje de correo
     # Obtener el dominio
     protocol = 'https' if request.is_secure() else 'http'
@@ -340,7 +491,7 @@ def enviar_correo_alerta(request, alerta, reactivo, marca, referencia,cantidad,u
     # Formatear el valor con separadores de miles
     locale.setlocale(locale.LC_ALL, 'es_ES.UTF-8')
     usuario=f'{request.user.first_name} {request.user.last_name}'
-    laboratorio=request.user.lab
+    laboratorio=inventario_existente.lab
                 
     # Contexto del template del diseño del correo 
     context = {
@@ -361,11 +512,13 @@ def enviar_correo_alerta(request, alerta, reactivo, marca, referencia,cantidad,u
     message = render_to_string('reactivos/alerta_reactivos.html', context)
     plain_message = strip_tags(message)
     from_email = "noreply@unal.edu.co"  # Agrega el correo electrónico desde el cual se enviará el mensaje
-    current_lab=request.user.lab
-    rol=get_object_or_404(Rol,name='COORDINADOR')
-    coordinators=User.objects.filter(lab=current_lab, rol=rol, is_active=True)
+    rol_coordinador=get_object_or_404(Rol, name='COORDINADOR')
+    rol_tecnico=get_object_or_404(Rol, name='TECNICO')
+    coordinators=User.objects.filter(lab=inventario_existente.lab, rol=rol_coordinador, is_active=True)
+    technicians=User.objects.filter(lab=inventario_existente.lab, rol=rol_tecnico, is_active=True)
     recipient_list = [request.user.email]
     recipient_list.extend(coordinator.email for coordinator in coordinators)
+    recipient_list.extend(technician.email for technician in technicians)
     subject = f"Alerta en reactivo {reactivo} - {alerta} - {laboratorio}"
     send_mail(subject, plain_message, from_email, recipient_list, fail_silently=False, html_message=message)
 
@@ -424,7 +577,12 @@ def configuraciones(request):
         if request.method == 'POST':
             form = ConfiguracionSistemaForm(request.POST, request.FILES)
             if form.is_valid():
-                form.save()
+                instance = form.save(commit=False)
+                # Completa el campo 'url' con el protocolo y el dominio principal
+                protocol = 'https' if request.is_secure() else 'http'
+                domain = request.get_host()
+                instance.url = f'{protocol}://{domain}'
+                instance.save()
                 # Crea un evento de modificar configuraciones
                 tipo_evento = 'MODIFICAR CONFIGURACIONES'
                 usuario_evento = request.user
@@ -440,7 +598,12 @@ def configuraciones(request):
         if request.method == 'POST':
             form = ConfiguracionSistemaForm(request.POST, request.FILES, instance=configuracion)
             if form.is_valid():
-                form.save()
+                instance = form.save(commit=False)
+                # Completa el campo 'url' con el protocolo y el dominio principal
+                protocol = 'https' if request.is_secure() else 'http'
+                domain = request.get_host()
+                instance.url = f'{protocol}://{domain}'
+                instance.save()
                 # Crea un evento de modificar configuraciones
                 tipo_evento = 'MODIFICAR CONFIGURACIONES'
                 usuario_evento = request.user
@@ -451,8 +614,10 @@ def configuraciones(request):
                 return redirect('reactivos:configuraciones')
         else:
             form = ConfiguracionSistemaForm(instance=configuracion)
-
-    laboratorio = request.user.lab.name
+    if request.user.lab:
+        laboratorio = request.user.lab.name
+    else:
+        laboratorio = 'No Lab'
     usuario = request.user
     context = {
         'usuario': usuario,
@@ -462,6 +627,552 @@ def configuraciones(request):
 
     return render(request, 'admin/configuraciones.html', context)
 
+
+# Vista para la validación de solicitudes externas, 
+
+class PreSolDirLab(View):  # Utiliza LoginRequiredMixin como clase base
+    template_name = 'dir_lab/pre_solicitudes_externas.html'  # Nombre de la plantilla
+
+    def get(self, request,*args,**kwargs):
+        
+             
+        context = {
+            
+        }
+        return render(request, self.template_name, context)
+
+import requests
+# solicitudes externas  
+class SolDirLab(View):
+    template_name = 'dir_lab/solicitudes_externas.html'
+
+    def get_recipient_list(self, lab):
+        # Obtener correos de usuarios con rol 'COORDINADOR' o 'ADMINISTRADOR' en el laboratorio especificado
+        recipient_list = User.objects.filter(
+            lab=lab
+        ).values_list('email', flat=True)
+        return list(recipient_list)
+    
+    def enviar_correo_asincrono(self, recipient_list, subject, message, attach_path):
+        try:
+            enviar_correo(recipient_list, subject, message, attach_path)
+        except Exception as e:
+            print(f'Error al enviar correo: {e}')
+
+    def get(self, request, *args, **kwargs):
+        form = SolicitudesExternasForm()
+        return render(request, self.template_name, {'form': form})
+    
+    
+            
+
+    def post(self, request, *args, **kwargs):
+        form = SolicitudesExternasForm(request.POST, request.FILES)
+        
+        try:
+            if form.is_valid():
+                # Obtener el token
+                token = request.POST.get('access_token', '')
+                
+                # URL de verificación del token de Google
+                google_token_url = 'https://www.googleapis.com/oauth2/v2/userinfo'
+
+                # Parámetros de la solicitud
+                params = {'access_token': token}
+
+                # Realizar la solicitud a la API de Google
+                response = requests.get(google_token_url, params=params)
+
+                # Verificar el estado de la respuesta
+                if response.status_code == 200:
+                    # La solicitud fue exitosa, verificar los datos en la respuesta
+                    data = response.json()
+                    if 'error_description' in data:
+                        # El token no es válido, ha expirado u otro error
+                        print(f'Token inválido: {data["error_description"]}')
+                        return JsonResponse({'success': False, 'errors': 'La sesión no es válida o ha caducado, debe autenticarse nuevamente para realizar la solicitud'})
+
+                    else:
+                        # El token es válido, puedes acceder a los datos en 'data'
+                        print('Token válido')
+                        # Guardar la solicitud si el formulario es válido
+                        solicitud = form.save()
+                        # Obtener la lista de destinatarios
+                        recipient_list = self.get_recipient_list(solicitud.lab)
+                        # Agregar el correo de la solicitud a la lista de destinatarios
+                        recipient_list.append(solicitud.email)
+
+                        subject=f'Registro de solicitud externa {solicitud.subject} en {solicitud.lab.name}'
+                        header=f'<p>El presente mensaje es para informarte que desde la web principal de Dirección de Laboratorios se ha registrado una solicitud externa dirigida al laboratorio {solicitud.lab.name}, los datos de la solcitud son los siguientes:</p>'
+                        body=f'<p><b>Laboratorio: </b>{solicitud.lab.name}<br><b>Remitente: </b>{solicitud.name}<br><b>Correo electrónico: </b>{solicitud.email}<br><b>Teléfono de contacto: </b>{solicitud.mobile_number}<br><b>Área: </b>{solicitud.department}<br><b>Asunto: </b>{solicitud.subject}<br><b>Mensaje: </b>{solicitud.message}</p>'
+                        if solicitud.attach:
+                            footer=f'<p>Adjunto encontrarás la información cargada desde el formulario de solicitudes.</p>'
+                        else:
+                            footer=f''
+                        message=header+body+footer
+
+                        if solicitud.attach:
+                            attach_path=solicitud.attach.path
+                        else:
+                            attach_path=None
+                        # Crear un hilo y ejecutar enviar_correo en segundo plano
+                        correo_thread = threading.Thread(
+                            target=self.enviar_correo_asincrono,
+                            args=(recipient_list, subject, message, attach_path),
+                        )
+                        correo_thread.start()
+                        # enviar_correo(recipient_list, subject, message,attach_path)
+                        mensaje=f'La solicitud se ha registrado de manera correcta, se ha enviado un correo electrónico a {solicitud.email} con los datos de la solicitud.'
+
+                        # Devuelve una respuesta JSON de éxito
+                        return JsonResponse({'success': True, 'message': mensaje})
+
+                else:
+                    # La solicitud no fue exitosa, manejar el error
+                    print(f'Error al verificar el token: {response.status_code}')
+                    return JsonResponse({'success': False, 'errors': 'La sesión no es válida o ha caducado, debe autenticarse nuevamente para realizar la solicitud'})
+
+                
+            else:
+                # Devuelve una respuesta JSON con los errores de validación
+                return JsonResponse({'success': False, 'errors': form.errors})
+        except Exception as e:
+            # Imprimir el error en la consola o logs
+            print(e)
+            mensaje=f'Error: {e}'
+            # Devolver una respuesta de error o redirigir a una página de error
+            return HttpResponseBadRequest(f'Error interno del servidor:{mensaje}')
+
+class SolicitudesExternasListView(LoginRequiredMixin,ListView):
+    model = SolicitudesExternas
+    template_name = "solicitudes/listado_solicitudes_externas.html"
+    paginate_by = 10
+    
+    
+    @check_group_permission(groups_required=['ADMINISTRADOR','COORDINADOR','TECNICO'])
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        # Obtener el número de registros por página de la sesión del usuario
+        per_page = request.session.get('per_page')
+        if per_page:
+            self.paginate_by = int(per_page)
+        else:
+            self.paginate_by = 10  # Valor predeterminado si no hay variable de sesión
+
+        # Obtener los parámetros de filtrado
+        
+        # Obtener las fechas de inicio y fin de la solicitud GET
+        start_date = self.request.GET.get('start_date')
+        end_date = self.request.GET.get('end_date')
+        lab = self.request.GET.get('lab')
+        keyword = self.request.GET.get('keyword')  
+        
+        
+
+        # Guardar los valores de filtrado en la sesión
+        
+        request.session['filtered_start_date'] = start_date
+        request.session['filtered_end_date'] = end_date
+        request.session['filtered_lab'] = lab
+        request.session['filtered_keyword'] = keyword
+        
+
+        return super().get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # Obtener la fecha de hoy
+        today = date.today()
+        # Calcular la fecha hace un mes hacia atrás
+        one_month_ago = today - timedelta(days=30)
+
+        # Agregar la fecha al contexto
+        context['one_month_ago'] = one_month_ago
+
+        # Agregar la fecha de hoy al contexto
+        context['today'] = today
+        laboratorio = self.request.user.lab
+        
+    
+        context['usuarios'] = User.objects.all()
+        context['laboratorio'] = laboratorio
+        context['laboratorios'] = Laboratorios.objects.all()
+        
+        # Obtener la lista de inventarios
+        entradas = context['object_list']
+        # Recorrer los entradas y cambiar el formato de la fecha        
+               
+        context['object_list'] = entradas
+        return context
+    
+    def get_queryset(self):
+        queryset = super().get_queryset()
+
+        lab = self.request.GET.get('lab')
+        keyword = self.request.GET.get('keyword')
+        
+        
+
+        # si el valor de lab viene de sesión superusuario o ADMINISTRADOR lab=0 cambiar por lab=''
+        if lab=='0':
+             lab=''
+
+        # Obtener las fechas de inicio y fin de la solicitud GET
+        start_date = self.request.GET.get('start_date')
+        end_date = self.request.GET.get('end_date')
+        
+        # Validar y convertir las fechas
+        try:
+            if start_date:
+                start_date = make_aware(datetime.strptime(start_date, '%Y-%m-%d'))
+            if end_date:
+                end_date = make_aware(datetime.strptime(end_date, '%Y-%m-%d').replace(hour=23, minute=59, second=59))
+        except ValueError:
+            # Manejar errores de formato de fecha aquí si es necesario
+            pass
+
+        
+        # Realiza la filtración de acuerdo a las fechas
+        if start_date:
+            queryset = queryset.filter(registration_date__gte=start_date)
+        if end_date:
+            queryset = queryset.filter(registration_date__lte=end_date)
+        elif start_date and end_date:
+            queryset = queryset.filter(registration_date__gte=start_date,date_create__lte=end_date)
+        
+        # Filtrar por  campos que contengan la palabra clave en su nombre
+        if keyword:
+            queryset = queryset.filter(Q(name__icontains=keyword) | Q(subject__icontains=keyword) | Q(message__icontains=keyword) | Q(attach__icontains=keyword))
+        
+        if lab:
+            queryset = queryset.filter(lab=lab)
+
+        queryset = queryset.order_by('id')
+        return queryset
+
+@login_required
+def export_to_excel_solicitud_externa(request):
+    # Obtener los valores filtrados almacenados en la sesión del usuario    
+    start_date = request.session.get('filtered_start_date')
+    end_date = request.session.get('filtered_end_date')
+    lab = request.session.get('filtered_lab')
+    keyword = request.session.get('filtered_keyword')
+    # si el valor de lab viene de sesión superusuario o ADMINISTRADOR lab=0 cambiar por lab=''
+    if lab=='0':
+         lab=''
+    
+    
+    # Validar y convertir las fechas
+    try:
+        if start_date:
+            start_date = make_aware(datetime.strptime(start_date, '%Y-%m-%d'))
+        if end_date:
+            end_date = make_aware(datetime.strptime(end_date, '%Y-%m-%d').replace(hour=23, minute=59, second=59))
+    except ValueError:
+            # Manejar errores de formato de fecha aquí si es necesario
+        pass
+
+    queryset = SolicitudesExternas.objects.all()
+    #Filtra según los valores previos de filtro en los selectores
+        
+    # Realiza la filtración de acuerdo a las fechas
+    if start_date:
+        queryset = queryset.filter(registration_date__gte=start_date)
+    if end_date:
+        queryset = queryset.filter(registration_date__lte=end_date)
+    elif start_date and end_date:
+        queryset = queryset.filter(registration_date__gte=start_date,date_create__lte=end_date)
+    
+    # Filtrar por  campos que contengan la palabra clave en su nombre
+    if keyword:
+        queryset = queryset.filter(Q(name__icontains=keyword) | Q(subject__icontains=keyword) | Q(message__icontains=keyword) | Q(attach__icontains=keyword))
+    
+    if lab:
+        queryset = queryset.filter(lab=lab)
+    
+    queryset = queryset.order_by('id')
+        
+    workbook = openpyxl.Workbook()
+    sheet = workbook.active
+
+    # Ruta al archivo de imagen del logotipo
+
+    logo_path = finders.find('inventarioreac/Images/escudoUnal_black.png')
+
+    # Cargar la imagen y procesarla con pillow
+    pil_image = PILImage.open(logo_path)
+
+    # Crear un objeto Image de openpyxl a partir de la imagen procesada
+    image = ExcelImage(pil_image)
+
+    # Anclar la imagen a la celda A1
+    sheet.add_image(image, 'A1')
+
+    # Obtener la fecha actual
+    fecha_creacion = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+
+    # Unificar las celdas A1, B1, C1 y D1
+    sheet.merge_cells('C1:F1')
+
+    sheet['C1'] = 'Listado de solicitudes externas'
+    sheet['C2'] = 'Fecha de Creación: '+fecha_creacion
+    sheet['A4'] = 'Id'
+    sheet['B4'] = 'Fecha de solicitud'
+    sheet['C4'] = 'Asunto'
+    sheet['D4'] = 'Mensaje'
+    sheet['E4'] = 'Archivos Adjuntos'
+    sheet['F4'] = 'Laboratorio a la que va dirigida la solicitud'
+    sheet['G4'] = 'Remitente'
+    sheet['H4'] = 'Correo electrónico'
+    sheet['I4'] = 'Teléfono'
+    sheet['J4'] = 'Área'
+
+    # Establecer la altura de la fila 1 y 2 a 30 y fila 3 a 25
+    sheet.row_dimensions[1].height = 30
+    sheet.row_dimensions[2].height = 30
+    sheet.row_dimensions[3].height = 25
+
+    # Establecer estilo de celda para A1
+
+    cell_A1 = sheet['C1']
+    cell_A1.font = Font(bold=True, size=16)
+
+    # Configurar los estilos de borde
+    
+    thin_border = Border(left=Side(style='thin'), right=Side(
+    style='thin'), top=Side(style='thin'), bottom=Side(style='thin'))
+
+    # Establecer el estilo de las celdas A2:D3
+    bold_font = Font(bold=True)
+
+    # Establecer el ancho de la columna A a 5
+    sheet.column_dimensions['A'].width = 5
+
+    # Establecer el ancho de la columna B a 26
+    sheet.column_dimensions['B'].width = 26
+
+    # Establecer el ancho de la columna C a 34
+    sheet.column_dimensions['C'].width = 34
+
+    # Establecer el ancho de la columna D a 40
+    sheet.column_dimensions['D'].width = 40
+
+    # Establecer el ancho de la columna E a 30
+    sheet.column_dimensions['E'].width = 30
+
+    # Establecer el ancho de la columna F a 27
+    sheet.column_dimensions['F'].width = 27
+
+    # Establecer el ancho de la columna G a 21
+    sheet.column_dimensions['G'].width = 21
+
+    # Establecer el ancho de la columna H a 30
+    sheet.column_dimensions['H'].width = 30
+
+    # Establecer el ancho de la columna I a 11
+    sheet.column_dimensions['I'].width = 11
+
+    # Establecer el ancho de la columna J a 20
+    sheet.column_dimensions['J'].width = 20
+
+
+    # Define una alineación que tenga la vertical en la parte superior y la horizontal a la izquierda
+    # Crear un objeto de alineación
+    alignment = Alignment(wrap_text=True, vertical="top", horizontal="left")
+
+    
+    
+    row = 4
+    # Aplicar el estilo de borde a las celdas de la fila actual
+    for col in range(1, 11):
+        sheet.cell(row=row, column=col).border = thin_border
+        sheet.cell(row=row, column=col).font = bold_font
+
+    row = 5
+    for item in queryset:
+        if item.attach:
+            protocol = 'https' if request.is_secure() else 'http'
+            domain = request.get_host()
+            url = f'{protocol}://{domain}{item.attach.url}'
+
+            # Obtener solo el nombre del archivo de la ruta completa
+            nombre_archivo = os.path.basename(item.attach.name)
+
+            # Establecer un estilo para la celda con el nombre del archivo
+            estilo_celda = sheet.cell(row=row, column=5)
+            estilo_celda.value = nombre_archivo
+            estilo_celda.font = Font(color="0000FF", underline="single")  # Azul y subrayado
+
+            # Crear un objeto Hyperlink con la URL
+            hyperlink = Hyperlink(target=url, ref=f'A{row}')
+
+            # Aplicar el hipervínculo a la celda
+            estilo_celda.hyperlink = hyperlink
+        else:
+            sheet.cell(row=row, column=5).value = ""
+
+        sheet.cell(row=row, column=1).value = (item.id)
+        sheet.cell(row=row, column=2).value = str((item.registration_date).strftime('%d/%m/%Y %H:%M:%S'))
+        sheet.cell(row=row, column=3).value = str(item.subject)
+        sheet.cell(row=row, column=4).value = item.message
+        # sheet.cell(row=row, column=5).value = download
+        sheet.cell(row=row, column=6).value = item.lab.name
+        sheet.cell(row=row, column=7).value = item.name
+        sheet.cell(row=row, column=8).value = item.email
+        sheet.cell(row=row, column=9).value = str(item.mobile_number)
+        sheet.cell(row=row, column=10).value =item.department
+
+               
+        # Aplicar el estilo de borde a las celdas de la fila actual
+        for col in range(1, 11):
+            sheet.cell(row=row, column=col).border = thin_border
+            sheet.cell(row=row, column=col).alignment = alignment
+
+        row += 1
+
+    # Obtén el rango de las columnas de la tabla
+    start_column = 1
+    end_column = 10
+    start_row = 4
+    end_row = row - 1
+
+    # Convertir los números de las columnas en letras de columna
+    start_column_letter = get_column_letter(start_column)
+    end_column_letter = get_column_letter(end_column)
+
+    # Rango de la tabla con el formato "A4:I{n}", donde n es el número de filas en la tabla
+    table_range = f"{start_column_letter}{start_row}:{end_column_letter}{end_row}"
+
+    # Agregar filtros solo a las columnas de la tabla
+    sheet.auto_filter.ref = table_range
+
+    # Establecer fondo blanco desde la celda A1 hasta el final de la tabla
+
+    fill = PatternFill(fill_type="solid", fgColor=WHITE)
+    start_cell = sheet['A1']
+    end_column_letter = get_column_letter(end_column+1)
+    end_row = row+1
+    end_cell = sheet[end_column_letter + str(end_row)]
+    table_range = start_cell.coordinate + ':' + end_cell.coordinate
+
+    for row in sheet[table_range]:
+        for cell in row:
+            cell.fill = fill
+
+    response = HttpResponse(
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename=Listado_solicitudes_externas.xlsx'
+
+    workbook.save(response)
+    # crear evento descarga de archivos
+    tipo_evento = 'DESCARGA DE ARCHIVOS'
+    usuario_evento = request.user
+    crear_evento(tipo_evento, usuario_evento)
+
+    return response
+
+# Vista que maneja el elimina la solicitud externa
+@login_required
+def eliminar_solicitud_externa(request, solicitud_code):
+    try:
+        solicitud_id = int(base64.urlsafe_b64decode(solicitud_code).decode())
+        
+    except (ValueError, SolicitudesExternas.DoesNotExist):
+        return HttpResponse('Solicitud no existe', 400)
+
+    solicitud = get_object_or_404(SolicitudesExternas, pk=solicitud_id)
+    solicitud.delete()
+    # crear evento 
+    tipo_evento = 'ELIMINAR SOLICITUD EXTERNA'
+    usuario_evento = request.user
+    crear_evento(tipo_evento, usuario_evento)
+    return HttpResponse('Solicitud eliminada correctamente', 200)
+
+# Vista que cambia la solicitud a leída
+@login_required
+def solicitud_leida(request, solicitud_code):
+    try:
+        solicitud_id = int(base64.urlsafe_b64decode(solicitud_code).decode())
+        
+    except (ValueError, SolicitudesExternas.DoesNotExist):
+        return HttpResponse('Solicitud no existe', 400)
+
+    solicitud = get_object_or_404(SolicitudesExternas, pk=solicitud_id)
+    solicitud.is_view=True
+    solicitud.save()
+    # Evento
+    tipo_evento = 'MARCAR SOLICITUD EXTERNA COMO LEIDA'
+    usuario_evento = request.user
+    crear_evento(tipo_evento, usuario_evento)
+    return HttpResponse('Solicitud marcada como leída correctamente', 200)
+
+# Vista que cambia la solicitud a leída
+@login_required
+def solicitud_no_leida(request, solicitud_code):
+    try:
+        solicitud_id = int(base64.urlsafe_b64decode(solicitud_code).decode())
+        
+    except (ValueError, SolicitudesExternas.DoesNotExist):
+        return HttpResponse('Solicitud no existe', 400)
+
+    solicitud = get_object_or_404(SolicitudesExternas, pk=solicitud_id)
+    solicitud.is_view=False
+    solicitud.save()
+    # Evento
+    tipo_evento = 'MARCAR SOLICITUD EXTERNA COMO  NO LEIDA'
+    usuario_evento = request.user
+    crear_evento(tipo_evento, usuario_evento)
+    return HttpResponse('Solicitud marcada como no leída correctamente', 200)
+
+
+# Enviar Correo
+def enviar_correo(recipient_list, subject, message,attach_path):
+    attach = None  # Asigna un valor predeterminado
+    # Lógica para construir el mensaje de correo
+    if attach_path:
+        attach = open(attach_path, 'rb')
+    message = format_html(message)
+    # Obtener el dominio
+    configuracion = ConfiguracionSistema.objects.first()
+    url = configuracion.url
+    # Configura la localización a español
+    locale.setlocale(locale.LC_TIME, 'es_ES.UTF-8')
+    
+    # Obtén la fecha y hora actual en el formato "dd de mes de aaaa, hh:mm AM/PM"
+    fecha_actual = format_datetime(localtime(), 'dd MMMM yyyy, hh:mm a', locale='es_ES')
+    
+    # Contexto del template del diseño del correo 
+    context = {
+        'url': url,
+        'fecha_actual': fecha_actual,
+        'message':message,
+        }
+    
+    # Template
+    html_message = render_to_string('dir_lab/enviar_correo.html', context)
+    plain_message = strip_tags(html_message)
+    from_email = "noreply@unal.edu.co"  # Agrega el correo electrónico desde el cual se enviará el mensaje
+    recipient_list = recipient_list
+    subject = f'{subject} - {url}'
+
+    try:
+        email = EmailMultiAlternatives(subject, plain_message, from_email, recipient_list)
+        email.attach_alternative(html_message, 'text/html')  # Agrega el contenido HTML
+        if attach:
+            email.attach_file(attach_path)
+        email.send()
+        print('Se ha enviado el correo con mensaje HTML y adjunto')
+    except Exception as e:
+        print(f'Error al enviar el correo: {e}')
+    finally:
+        if attach:
+            attach.close()
+
+    mensaje=f'Se ha enviado el mensaje de manera correcta'
+    print(mensaje)
 
 # Vista para la creación del index, 
 
@@ -476,6 +1187,16 @@ class Index(LoginRequiredMixin, View):  # Utiliza LoginRequiredMixin como clase 
             'laboratorio': laboratorio,
         }
         return render(request, self.template_name, context)
+    
+# Recargar Captcha
+def recargar_captcha(request):
+    if request.method == 'POST':
+        # Generar una nueva clave de captcha
+        captcha_key = CaptchaStore.generate_key()
+
+        return JsonResponse({'captcha_key': captcha_key})
+
+    return JsonResponse({'error': 'Método de solicitud no permitido.'})
 
 # Vista para la visualización de enlaces, 
 
@@ -501,6 +1222,7 @@ class Enlaces(LoginRequiredMixin, View):  # Utiliza LoginRequiredMixin como clas
 
 class CrearUnidades(LoginRequiredMixin, View):
     template_name = 'reactivos/crear_unidades.html'
+    template_exito = 'reactivos:crear_estado'
 
     @check_group_permission(groups_required=['COORDINADOR','ADMINISTRADOR'])
     def get(self, request, *args, **kwargs):
@@ -519,28 +1241,35 @@ class CrearUnidades(LoginRequiredMixin, View):
         if Unidades.objects.filter(name=name).exists():
             unidad = Unidades.objects.get(name=name)
             unidad_id = unidad.id
-            messages.error(
-                request, 'Ya existe una unidad con nombre ' + name + ' id: ' + str(unidad_id))
-            return HttpResponse('Error al insertar en la base de datos', status=400)
+            mensaje=f'Ya existe una unidad con nombre {name} id: {str(unidad_id)}'
+            messages.error(request, mensaje)
+            return HttpResponse(mensaje,400)            
 
         unidad = Unidades.objects.create(
             name=name,
             created_by=request.user,
             last_updated_by=request.user,
         )
-        unidad_id = unidad.id
-
-        messages.success(
-            request, 'Se ha creado exitosamente la unidad con nombre ' + name + ' id: ' + str(unidad_id))
+        unidad_id = unidad.id        
 
         context = {'unidad_id': unidad.id, 'unidad_name': unidad.name}
         
         tipo_evento = 'CREAR UNIDAD'
         usuario_evento = request.user
         crear_evento(tipo_evento, usuario_evento)
-        
-        return HttpResponse('Operación exitosa', status=200)
-# La vista "crear_tipo de solicitude" se encarga de gestionar la creación de tipo de solictudes. Esta vista toma los datos del formulario 
+        mensaje=f'Se ha creado exitosamente la unidad con nombre {name} id: {str(unidad_id)}'
+        messages.success(request, mensaje)
+        return HttpResponse(mensaje,200)
+
+# Verificar estado de autenticación
+def check_auth_status(request):
+    if request.user.is_authenticated:
+        return JsonResponse({}, status=200)
+    else:
+        return JsonResponse({}, status=401)
+
+    
+# La vista "crear_tipo de solicitudes" se encarga de gestionar la creación de tipo de solictudes. Esta vista toma los datos del formulario 
 # existente en el template "crear_tipo_solicitudes.html" y realiza las operaciones necesarias en la base de datos utilizando 
 # el modelo "TipoSolicitud". El objetivo es garantizar la unicidad de los registros, lo que implica verificar si el tipo de solicitud
 # ya existe en la base de datos antes de crearla. Si el tipo de solictud es única, se crea un nuevo registro en la tabla 
@@ -632,33 +1361,43 @@ class RegistrarSolicitud(LoginRequiredMixin, CreateView):
 
             mensaje = f'La solicitud se ha registrado correctamente, se a enviado un correo al administrador del sistema el radicado de su solicitud es: {solicitud.id:04}'
             messages.success(request, mensaje)  # Agregar mensaje de éxito
+            
             # Enviar correo al usuario que registra la solicitud
             id = solicitud.id
             solicitud_code = base64.urlsafe_b64encode(str(id).encode()).decode()
-            suffix = f'solicitudes/estado_solicitud/{solicitud_code}'
+            suffix = f'UniCLab/solicitudes/estado_solicitud/{solicitud_code}'
             shipping_email=solicitud.created_by.email
             email_type=f'Registro de solicitud'
             initial_message= f'El presente mensaje de correo electrónico es porque recientemente se ha registrado una solicitud en el aplicativo de inventario y gestión de reactivos, con la siguiente información:'
-            enviar_correo_solicitud(request, suffix, id, initial_message,shipping_email, email_type )
-
-             # Enviar correo al administrador del aplicativo
+            # enviar_correo_solicitud(request, suffix, id, initial_message,shipping_email, email_type )
+            # envío de correo electrónico en segundo plano
+        
+            # Crear un hilo y ejecutar enviar_correo en segundo plano
+            correo_thread = threading.Thread(
+            target=enviar_correo_solicitud, args=(request, suffix, id, initial_message,shipping_email, email_type),)
+            correo_thread.start()
+            # Enviar correo al administrador del aplicativo
             # Obtener el correo del administrador desde la base de datos
             configuracion = ConfiguracionSistema.objects.first()
             if configuracion:
                 admin_email = configuracion.correo_administrador
             else:
-                admin_email = 'mriveragi@unal.edu.co'
+                admin_email = 'uniclab_man@unal.edu.co'
 
             id = solicitud.id
             protocol = 'https' if request.is_secure() else 'http'
             domain = request.get_host()
-            url=f'{protocol}://{domain}/solicitudes/listado_solicitudes'
+            url=f'{protocol}://{domain}/UniCLab/solicitudes/listado_solicitudes'
             solicitud_code = base64.urlsafe_b64encode(str(id).encode()).decode()
-            suffix = f'solicitudes/responder_solicitud/{solicitud_code}\no visita: {url}'
+            suffix = f'UniCLab/solicitudes/responder_solicitud/{solicitud_code} o visita: {url}'
             shipping_email=admin_email
             email_type=f'Registro de solicitud'
             initial_message= f'Recientemente se ha registrado una solicitud en el aplicativo de inventario y gestión de reactivos, con la siguiente información:'
-            enviar_correo_solicitud(request, suffix, id, initial_message,shipping_email,email_type )
+            # enviar_correo_solicitud(request, suffix, id, initial_message,shipping_email,email_type )
+            # Crear un hilo y ejecutar enviar_correo en segundo plano
+            correo_thread = threading.Thread(
+            target=enviar_correo_solicitud, args=(request, suffix, id, initial_message,shipping_email, email_type),)
+            correo_thread.start()
         else:
             mensaje = f'La solicitud no se ha podido enviar, por favor consulte el administrador del sistema, error:.'
             error = form.errors
@@ -715,11 +1454,17 @@ def responder_solicitud(request, solicitud_code):
         # Enviar correo al usuario que registra la solicitud
         id = solicitud.id
         solicitud_code = base64.urlsafe_b64encode(str(id).encode()).decode()
-        suffix = f'solicitudes/estado_solicitud/{solicitud_code}'
+        suffix = f'UniCLab/solicitudes/estado_solicitud/{solicitud_code}'
         shipping_email=solicitud.created_by.email
         initial_message= f'Cordial saludo se ha dado respuesta a una solicitud realizada por usted en el aplicativo de inventario y gestión de reactivos, con la siguiente información:'
         email_type=f'Respuesta a solicitud'
-        enviar_correo_solicitud(request, suffix, id, initial_message,shipping_email, email_type )
+        # enviar_correo_solicitud(request, suffix, id, initial_message,shipping_email, email_type )
+        # envío de correo electrónico en segundo plano
+        
+        # Crear un hilo y ejecutar enviar_correo en segundo plano
+        correo_thread = threading.Thread(
+        target=enviar_correo_solicitud, args=(request, suffix, id, initial_message,shipping_email, email_type),)
+        correo_thread.start()
 
         # Realiza la depuración automática de registros
         # Registros antiguos: fecha_tramite es más antigua que los días configurados en configuración del sistema.
@@ -1400,8 +2145,16 @@ def crear_reactivo(request):
         coordinators=User.objects.filter(lab=current_lab, rol=rol, is_active=True)
         recipient_list = [request.user.email]
         recipient_list.extend(coordinator.email for coordinator in coordinators)
-        subject = f"Registro exitoso de creación de reactivo {reactivo.name} - {protocol}://{domain}"
-        send_mail(subject, plain_message, from_email, recipient_list, fail_silently=False, html_message=message)           
+        subject = f"Creación exitosa de reactivo {reactivo.name} - {protocol}://{domain}"
+        # send_mail(subject, plain_message, from_email, recipient_list, fail_silently=False, html_message=message)           
+        
+        # envío de correo electrónico en segundo plano
+        # Archivo adjunto nulo
+        attach_path=None
+        # Crear un hilo y ejecutar enviar_correo en segundo plano
+        correo_thread = threading.Thread(
+        target=enviar_correo, args=(recipient_list, subject, message, attach_path),)
+        correo_thread.start()
 
         # Crea un evento de crear reactivo
         tipo_evento = 'CREAR REACTIVO'
@@ -1485,19 +2238,21 @@ def registrar_entrada(request):
             return HttpResponse("El reactivo "+nReactivo +" no se encuentra en la base de datos, favor crearlo primero.", status=400)
 
         facultad = request.POST.get('facultad')
-        facultad=get_object_or_404(Facultades, name=facultad)
-        
         location = request.POST.get('location')
-        nlocation = location
-        try:
-            nameLocation = Ubicaciones.objects.get(name=location, facultad=facultad)
-            location = nameLocation
-
-        except Ubicaciones.DoesNotExist:
-            messages.error(request, "La ubicación "+nlocation +
-                           " no se encuentra en la base de datos, favor crearlo primero.")
+        if facultad=='' and location =='':
             location = None
-            return HttpResponse("La ubicación "+nlocation +" no se encuentra en la base de datos, favor crearlo primero.", status=400)
+        else:
+            facultad=get_object_or_404(Facultades, name=facultad)
+            nlocation = location
+            try:
+                nameLocation = Ubicaciones.objects.get(name=location, facultad=facultad)
+                location = nameLocation
+
+            except Ubicaciones.DoesNotExist:
+                messages.error(request, "La ubicación "+nlocation +
+                               " no se encuentra en la base de datos, favor crearlo primero.")
+                location = None
+                return HttpResponse("La ubicación "+nlocation +" no se encuentra en la base de datos, favor crearlo primero.", status=400)
         
         correo = request.POST.get('correo')
         
@@ -1567,10 +2322,13 @@ def registrar_entrada(request):
 
         #verificar que el valor sea positivo
         price = request.POST.get('price')
-        price_number=float(price)
-        if price_number<=0:
-            messages.error(request, 'Solo se permiten registros con precios positivos')
-            return HttpResponse("Error de cantidades al insertar en la base de datos", status=400)
+        if price:
+            price=float(price)
+            if price<0:
+                messages.error(request, 'Solo se permiten registros con precios positivos')
+                return HttpResponse("Error de cantidades al insertar en la base de datos", status=400)
+        else:
+            price=None
         
         #Obtener minStockControl
         minStockControl = request.POST.get('minStockControl')
@@ -1730,8 +2488,7 @@ def registrar_entrada(request):
             observations = estandarizar_nombre(observations)
             unit = request.POST.get('unit')
             nproject = request.POST.get('nproject')
-            nproject = estandarizar_nombre(nproject)
-            price = request.POST.get('price')
+            nproject = estandarizar_nombre(nproject)         
             
             
 
@@ -1762,7 +2519,10 @@ def registrar_entrada(request):
             fecha_actual = localtime().strftime('%d/%m/%Y %H:%M:%S')
             # Formatear el valor con separadores de miles
             locale.setlocale(locale.LC_ALL, 'es_ES.UTF-8')
-            formatted_price = locale.format_string('%.2f', float(entrada.price), grouping=True)
+            if entrada.price:
+                formatted_price = locale.format_string('%.2f', float(entrada.price), grouping=True)
+            else:
+                formatted_price=''
             formatted_weight = locale.format_string('%.2f', float(entrada.weight), grouping=True)
             formatted_minstock = locale.format_string('%.2f', float(inventario.minstock), grouping=True)
             formatted_edate=(inventario.edate).strftime('%d/%m/%Y')
@@ -1788,14 +2548,27 @@ def registrar_entrada(request):
             # Template
             message = render_to_string('reactivos/registro_exitoso_entrada.html', context)
             plain_message = strip_tags(message)
-            from_email = "noreply@unal.edu.co"  # Agrega el correo electrónico desde el cual se enviará el mensaje
-            current_lab=request.user.lab
+            from_email = "Notificación Dirección de Laboratorios"  # Agrega el correo electrónico desde el cual se enviará el mensaje
+            current_lab=lab
             rol=get_object_or_404(Rol,name='COORDINADOR')
             coordinators=User.objects.filter(lab=current_lab, rol=rol, is_active=True)
             recipient_list = [request.user.email]
             recipient_list.extend(coordinator.email for coordinator in coordinators)
+            
             subject = f"Registro exitoso de entrada de inventario de {entrada.name} en {entrada.lab.name} - {protocol}://{domain}"
-            send_mail(subject, plain_message, from_email, recipient_list, fail_silently=False, html_message=message)           
+            # send_mail(subject, plain_message, from_email, recipient_list, fail_silently=False, html_message=message)           
+            
+            attach_path=None
+
+            # Crear un hilo y ejecutar enviar_correo en segundo plano
+            correo_thread = threading.Thread(
+                target=enviar_correo,
+                args=(recipient_list, subject, message, attach_path),
+            )
+            correo_thread.start()
+
+            # enviar_correo(recipient_list, subject, message, attach_path)
+            
             # Crea un evento de registrar entrada
             tipo_evento = 'REGISTRAR ENTRADA'
             usuario_evento = request.user
@@ -1870,6 +2643,7 @@ def registrar_salida(request):
             return HttpResponse("El reactivo "+nReactivo +" no se encuentra en la base de datos, favor crearlo primero.", status=400)
 
         facultad = request.POST.get('facultad')
+        print(facultad)
         facultad=get_object_or_404(Facultades, name=facultad)
         
         location = request.POST.get('location')
@@ -1975,8 +2749,13 @@ def registrar_salida(request):
                         cantidad=f'{inventario_existente.weight}'
                         unidad=f'{inventario_existente.name.unit}'
                         mensaje=f'La cantidad de reactivo {reactivo}, con marca {marca} y referencia {referencia}; ha llegado a cero en inventario ({cantidad} {unidad}).'
-                        enviar_correo_alerta(request, alerta, reactivo, marca, referencia, cantidad, unidad, mensaje)
-                        
+                        # enviar_correo_alerta(request, alerta, reactivo, marca, referencia, cantidad, unidad, mensaje, inventario_existente)
+                        # envío de correo electrónico en segundo plano        
+                        # Crear un hilo y ejecutar enviar_correo en segundo plano
+                        correo_thread = threading.Thread(
+                        target=enviar_correo_alerta, args=(request, alerta, reactivo, marca, referencia,cantidad,unidad,mensaje, inventario_existente),)
+                        correo_thread.start()
+
                     if (inventario_existente.weight<=inventario_existente.minstock) and inventario_existente.minStockControl==True and inventario_existente.weight>0:
                         # preparar alerta para mensaje al usuario    
                         warning=", pero el inventario actual es menor o igual que el stock mínimo para este reactivo. Favor informar al coordinador de laboratorio."
@@ -1988,7 +2767,14 @@ def registrar_salida(request):
                         cantidad=f'{inventario_existente.weight}'
                         unidad=f'{inventario_existente.name.unit}'
                         mensaje=f'El reactivo {reactivo}, con marca {marca} y referencia {referencia}; ha llegado a cantidades críticas ({cantidad} {unidad}), por debajo del stock mínimo ({inventario_existente.minstock} {unidad}).'
-                        enviar_correo_alerta(request, alerta, reactivo, marca, referencia,cantidad,unidad,mensaje)
+                        # enviar_correo_alerta(request, alerta, reactivo, marca, referencia,cantidad,unidad,mensaje, inventario_existente)
+                        
+                        # envío de correo electrónico en segundo plano
+        
+                        # Crear un hilo y ejecutar enviar_correo en segundo plano
+                        correo_thread = threading.Thread(
+                        target=enviar_correo_alerta, args=(request, alerta, reactivo, marca, referencia,cantidad,unidad,mensaje, inventario_existente),)
+                        correo_thread.start()
 
                 else:
                     inventario_existente.weight=int(inventario_existente.weight)
@@ -2012,7 +2798,7 @@ def registrar_salida(request):
         if name:
 
             inventario=nuevo_inventario.id
-            inventario=get_object_or_404(Inventarios,id=inventario)
+            inventario=nuevo_inventario
             reference = request.POST.get('reference')
             weight = request.POST.get('weight')
             observations = request.POST.get('observations')
@@ -2060,12 +2846,20 @@ def registrar_salida(request):
             plain_message = strip_tags(message)
             from_email = "noreply@unal.edu.co"  # Agrega el correo electrónico desde el cual se enviará el mensaje
             current_lab=request.user.lab
-            rol=get_object_or_404(Rol,name='COORDINADOR')
+            rol=get_object_or_404(Rol, name='COORDINADOR')
             coordinators=User.objects.filter(lab=current_lab, rol=rol, is_active=True)
             recipient_list = [request.user.email]
             recipient_list.extend(coordinator.email for coordinator in coordinators)
             subject = f"Registro exitoso de salida de inventario de {salida.name} en {salida.lab.name} - {protocol}://{domain}"
-            send_mail(subject, plain_message, from_email, recipient_list, fail_silently=False, html_message=message)           
+            # send_mail(subject, plain_message, from_email, recipient_list, fail_silently=False, html_message=message)           
+            # envío de correo electrónico en segundo plano
+            # Archivo adjunto nulo
+            attach_path=None
+            # Crear un hilo y ejecutar enviar_correo en segundo plano
+            correo_thread = threading.Thread(
+            target=enviar_correo, args=(recipient_list, subject, message, attach_path),)
+            correo_thread.start()
+
 
             # Crea un evento de registrar salida
             tipo_evento = 'REGISTRAR SALIDA'
@@ -2218,18 +3012,21 @@ def editar_entrada(request, pk):
             return HttpResponse("El reactivo "+nReactivo +" no se encuentra en la base de datos, favor crearlo primero.", status=400)
         
         #ubicación y asignatura
-        facultad = request.POST.get('facultad')
-        facultad=get_object_or_404(Facultades, name=facultad)
+        facultad = request.POST.get('facultad')        
         location = request.POST.get('location')
-        nlocation = location
-        try:
-            nameLocation = Ubicaciones.objects.get(name=location, facultad=facultad)
-            location = nameLocation
-
-        except Ubicaciones.DoesNotExist:
-            location = None
-            return HttpResponse("La ubicación "+nlocation +" no se encuentra en la base de datos, favor crearlo primero.", status=400)
         
+        if facultad and location:
+            facultad=get_object_or_404(Facultades, name=facultad)
+            nlocation = location
+            try:
+                nameLocation = Ubicaciones.objects.get(name=location, facultad=facultad)
+                location = nameLocation
+            except Ubicaciones.DoesNotExist:
+                location = None
+                return HttpResponse("La ubicación "+nlocation +" no se encuentra en la base de datos, favor crearlo primero.", status=400)
+        else:
+            location=None
+            print('Hola Mundo')
         # Responsable y correo
         correo = request.POST.get('correo')
         manager = request.POST.get('manager')
@@ -2269,10 +3066,12 @@ def editar_entrada(request, pk):
         
         # Precio - verificar que el valor sea positivo
         price = request.POST.get('price')
-        price_number=float(price)
-        if price_number<=0:
-            return HttpResponse("Solo se permiten registros con precios positivos", status=400)
-        
+        if price:
+            price_number=float(price)
+            if price_number<0:
+                return HttpResponse("Solo se permiten registros con precios positivos", status=400)
+        else:
+            price=None
         # Cantidad
         weight = request.POST.get('weight')
         weight=float(weight)
@@ -2382,7 +3181,7 @@ def editar_entrada(request, pk):
                     cantidad=f'{inventario_existente.weight}'
                     unidad=f'{inventario_existente.name.unit}'
                     mensaje=f'Con el proceso de edición de entrada de reactivo {reactivo}, con marca {marca} y referencia {referencia}; ha llegado a cero en inventario ({cantidad} {unidad}).'
-                    enviar_correo_alerta(request, alerta, reactivo, marca, referencia, cantidad, unidad, mensaje)
+                    enviar_correo_alerta(request, alerta, reactivo, marca, referencia, cantidad, unidad, mensaje, inventario_existente)
                 # Si el reactivo ya existe y NO está activo(cantidad00), poner is_active=True y sumar el peso obtenido del formulario al peso existente    
                 if inventario_existente.minStockControl and inventario_existente.weight > 0 and float(inventario_existente.weight) <= float(inventario_existente.minstock):
                     warning=' pero la cantidad en inventario quedó por debajo del mínimo, por favor verifique y comuniquese con el coordinador de área'
@@ -2395,7 +3194,7 @@ def editar_entrada(request, pk):
                     cantidad=f'{inventario_existente.weight}'
                     unidad=f'{inventario_existente.name.unit}'
                     mensaje=f'Con el proceso de edición de la entrada de reactivo {reactivo}, con marca {marca} y referencia {referencia}; ha llegado a cantidades críticas ({cantidad} {unidad}), por debajo del stock mínimo ({inventario_existente.minstock} {unidad}).'
-                    enviar_correo_alerta(request, alerta, reactivo, marca, referencia,cantidad,unidad,mensaje)
+                    enviar_correo_alerta(request, alerta, reactivo, marca, referencia,cantidad,unidad,mensaje, inventario_existente)
                 inventario_existente.save()
             
             # Crea un evento de editar inventario
@@ -2463,7 +3262,12 @@ def editar_entrada(request, pk):
     
     # Contexto para incluir valores previos en el template
     
-    precio = int(entrada.price)
+    if entrada.price:
+        precio = int(entrada.price)
+    elif entrada.price==0:
+        precio=0
+    else:
+        precio =''
     # Formatear la fecha en el formato "YYYY-MM-DD"
     vdate = django_date(entrada.inventario.edate, "Y-m-d")
     if entrada.inventario.minStockControl:
@@ -2658,20 +3462,22 @@ def editar_salida(request, pk):
                         cantidad=f'{inventario_existente.weight}'
                         unidad=f'{inventario_existente.name.unit}'
                         mensaje=f'Con el proceso de edición de salida de reactivo {reactivo}, con marca {marca} y referencia {referencia}; ha llegado a cero en inventario ({cantidad} {unidad}).'
-                        enviar_correo_alerta(request, alerta, reactivo, marca, referencia, cantidad, unidad, mensaje)
+                        enviar_correo_alerta(request, alerta, reactivo, marca, referencia, cantidad, unidad, mensaje, inventario_existente)
                         # Si el inventario es mayor o igual a 0 verificar si está por debajo del control de stock mínimo
                     elif inventario_existente.minStockControl and inventario_existente.weight<=inventario_existente.minstock:
                         warning=', pero esta a hecho que el inventario llegue a una cantidad inferior al "Inventario Mínimo", por favor verifique e informe al coordinador de laboratorio'
                         
                         # Envío de correo al coordinador del laboratorio
                         alerta='Cantidad reactivo por debajo de inventario mínimo'
+                        
                         reactivo=f'{inventario_existente.name}'
+                        
                         marca=f'{inventario_existente.trademark}'
                         referencia=f'{inventario_existente.reference}'
                         cantidad=f'{inventario_existente.weight}'
                         unidad=f'{inventario_existente.name.unit}'
                         mensaje=f'Con el proceso de edición de la salida de reactivo {reactivo}, con marca {marca} y referencia {referencia}; ha llegado a cantidades críticas ({cantidad} {unidad}), por debajo del stock mínimo ({inventario_existente.minstock} {unidad}).'
-                        enviar_correo_alerta(request, alerta, reactivo, marca, referencia,cantidad,unidad,mensaje)
+                        enviar_correo_alerta(request, alerta, reactivo, marca, referencia,cantidad,unidad,mensaje, inventario_existente)
                     # Actualizar el resto de datos del inventario
                     inventario_existente.last_updated_by=request.user
                     inventario_existente.save()  
@@ -2859,8 +3665,9 @@ def eliminar_entrada(request, pk):
             referencia=f'{inventario.reference}'
             cantidad=f'{inventario.weight}'
             unidad=f'{inventario.name.unit}'
+            inventario_existente=inventario
             mensaje=f'Con el proceso de eliminación del registro de entrada de reactivo {reactivo}, con marca {marca} y referencia {referencia}; ha llegado a cero en inventario ({cantidad} {unidad}).'
-            enviar_correo_alerta(request, alerta, reactivo, marca, referencia, cantidad, unidad, mensaje)
+            enviar_correo_alerta(request, alerta, reactivo, marca, referencia, cantidad, unidad, mensaje, inventario_existente)
         elif inventario.minStockControl and inventario.weight>0 and inventario.weight<=inventario.minstock:
             warning= ' Con esta acción el inventario a llegado por debajo al inventario mínimo por favor verifique y comuniquese con su coordinador.'    
             # Envío de correo al coordinador del laboratorio
@@ -2870,8 +3677,9 @@ def eliminar_entrada(request, pk):
             referencia=f'{inventario.reference}'
             cantidad=f'{inventario.weight}'
             unidad=f'{inventario.name.unit}'
+            inventario_existente=inventario
             mensaje=f'Con el proceso de eliminación del registro de la entrada de reactivo {reactivo}, con marca {marca} y referencia {referencia}; ha llegado a cantidades críticas ({cantidad} {unidad}), por debajo del stock mínimo ({inventario.minstock} {unidad}).'
-            enviar_correo_alerta(request, alerta, reactivo, marca, referencia,cantidad,unidad,mensaje)
+            enviar_correo_alerta(request, alerta, reactivo, marca, referencia,cantidad,unidad,mensaje, inventario_existente)
     
 
     # Crea un evento de editar inventario
@@ -2930,8 +3738,9 @@ def eliminar_salida(request, pk):
             referencia=f'{inventario.reference}'
             cantidad=f'{inventario.weight}'
             unidad=f'{inventario.name.unit}'
+            inventario_existente=inventario
             mensaje=f'Con el proceso de eliminación del registro de salida de reactivo {reactivo}, con marca {marca} y referencia {referencia}; ha llegado a cero en inventario ({cantidad} {unidad}).'
-            enviar_correo_alerta(request, alerta, reactivo, marca, referencia, cantidad, unidad, mensaje)
+            enviar_correo_alerta(request, alerta, reactivo, marca, referencia, cantidad, unidad, mensaje, inventario_existente)
         elif inventario.minStockControl and inventario.weight>0 and inventario.weight<=inventario.minstock:
             warning= ' Pero con esta acción el inventario a llegado por debajo al inventario mínimo por favor verifique y comuniquese con su coordinador.'    
             # Envío de correo al coordinador del laboratorio
@@ -2941,8 +3750,9 @@ def eliminar_salida(request, pk):
             referencia=f'{inventario.reference}'
             cantidad=f'{inventario.weight}'
             unidad=f'{inventario.name.unit}'
+            inventario_existente=inventario
             mensaje=f'Con el proceso de eliminación del registro de la salida de reactivo {reactivo}, con marca {marca} y referencia {referencia}; ha llegado a cantidades críticas ({cantidad} {unidad}), por debajo del stock mínimo ({inventario.minstock} {unidad}).'
-            enviar_correo_alerta(request, alerta, reactivo, marca, referencia,cantidad,unidad,mensaje)
+            enviar_correo_alerta(request, alerta, reactivo, marca, referencia,cantidad,unidad,mensaje, inventario_existente)
     
     inventario.save()
     # Crea un evento de editar inventario
@@ -2990,7 +3800,7 @@ class InventarioListView(LoginRequiredMixin,ListView):
         # Obtener los parámetros de filtrado
         lab = request.GET.get('lab')
         name = request.GET.get('name')
-        trademark = request.GET.get('trademark')
+        id_r = request.GET.get('id_r')
         
         # si el valor de lab viene de sesión superusuario o ADMINISTRADOR lab=0 cambiar por lab=''
         if lab=='0':
@@ -2999,13 +3809,55 @@ class InventarioListView(LoginRequiredMixin,ListView):
         # Guardar los valores de filtrado en la sesión
         request.session['filtered_lab'] = lab
         request.session['filtered_name'] = name
-        request.session['filtered_trademark'] = trademark
+        request.session['filtered_id_r'] = id_r
         
 
         return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
+        # Entradas para colocar un contexto de acuerdo con el filtro
+        lab = self.request.GET.get('lab')
+        name = self.request.GET.get('id_r')
+        # si el valor de lab viene de sesión superusuario o ADMINISTRADOR lab=0 cambiar por lab=''
+        if lab=='0':
+             lab=''
+        
+        # Colocar contexto de acuerdo con el filtro seleccionado
+        if name and lab:
+            reactivo=get_object_or_404(Reactivos, id=name)
+            lab=get_object_or_404(Laboratorios, id=lab)
+            # Busca en el inventario por Reactivo y Marca y obtén la cantidad total
+            inventario_entries = Inventarios.objects.filter(name=reactivo, lab=lab, is_active=True)
+
+            # Calcula la cantidad total en inventario
+            total_weight = inventario_entries.aggregate(total_weight=models.Sum('weight'))['total_weight'] or 0
+
+            context['reactivo_filtrado']=reactivo.name
+            context['cantidad_filtrada']=total_weight
+            context['unidad_filtrada']=reactivo.unit.name
+        
+        
+        elif name:
+            reactivo=get_object_or_404(Reactivos, id=name)
+            
+            # Busca en el inventario por Reactivo y Marca y obtén la cantidad total
+            inventario_entries = Inventarios.objects.filter(name=reactivo, is_active=True)
+
+            # Calcula la cantidad total en inventario
+            total_weight = inventario_entries.aggregate(total_weight=models.Sum('weight'))['total_weight'] or 0
+
+            context['reactivo_filtrado']=reactivo.name
+            context['cantidad_filtrada']=total_weight
+            context['unidad_filtrada']=reactivo.unit.name
+            
+        
+        else:
+            context['reactivo_filtrado']=''
+            context['cantidad_filtrada']=''
+            context['unidad_filtrada']=''
+
 
         unique_labs_ids = Inventarios.objects.values('lab').distinct()
         unique_labs = Laboratorios.objects.filter(id__in=unique_labs_ids)
@@ -3052,28 +3904,23 @@ class InventarioListView(LoginRequiredMixin,ListView):
     def get_queryset(self):
         queryset = super().get_queryset()
         lab = self.request.GET.get('lab')
-        name = self.request.GET.get('name')
-        trademark = self.request.GET.get('trademark')
-
+        id_reactivo = self.request.GET.get('id_r')
         # si el valor de lab viene de sesión superusuario o ADMINISTRADOR lab=0 cambiar por lab=''
         if lab=='0':
              lab=''
              
         # Definir Queryset para filtrado de visulización
-        if lab and name and trademark:
-            queryset = queryset.filter(lab=lab, name=name, trademark=trademark, is_active=True)
-        elif lab and name:
-            queryset = queryset.filter(lab=lab, name=name, is_active=True)
-        elif lab and trademark:
-            queryset = queryset.filter(lab=lab, trademark=trademark, is_active=True)
-        elif name and trademark:
-            queryset = queryset.filter(name=name, trademark=trademark, is_active=True)
+             
+        if lab and id_reactivo:
+            queryset = queryset.filter(name=id_reactivo, lab=lab, is_active=True)
         elif lab:
             queryset = queryset.filter(lab=lab, is_active=True)
-        elif name:
-            queryset = queryset.filter(name=name, is_active=True)
-        elif trademark:
-            queryset = queryset.filter(trademark=trademark, is_active=True)
+
+
+        elif id_reactivo:
+            queryset = queryset.filter(name=id_reactivo, is_active=True)
+
+        
         
         else:
             queryset = queryset.filter(is_active=True)
@@ -3116,9 +3963,8 @@ class EntradasListView(LoginRequiredMixin,ListView):
         # Obtener los parámetros de filtrado
         lab = request.GET.get('lab')
         name = request.GET.get('name')
-        location = request.GET.get('location')
-        destination = request.GET.get('destination')
-        created_by = request.GET.get('created_by')
+        id_reagent = request.GET.get('id_r')
+        
         # Obtener las fechas de inicio y fin de la solicitud GET
         start_date = self.request.GET.get('start_date')
         end_date = self.request.GET.get('end_date')  
@@ -3130,9 +3976,7 @@ class EntradasListView(LoginRequiredMixin,ListView):
         # Guardar los valores de filtrado en la sesión
         request.session['filtered_lab'] = lab
         request.session['filtered_name'] = name
-        request.session['filtered_location'] = location
-        request.session['filtered_destination'] = destination
-        request.session['filtered_created_by'] = created_by
+        request.session['filtered_id_reagent'] = id_reagent
         request.session['filtered_start_date'] = start_date
         request.session['filtered_end_date'] = end_date
         
@@ -3203,10 +4047,9 @@ class EntradasListView(LoginRequiredMixin,ListView):
     def get_queryset(self):
         queryset = super().get_queryset()
         lab = self.request.GET.get('lab')
-        name = self.request.GET.get('name')
-        location = self.request.GET.get('location')
-        destination= self.request.GET.get('destination')
-        created_by= self.request.GET.get('created_by')
+        id_reagent = self.request.GET.get('id_r')
+        
+        
         # Obtener las fechas de inicio y fin de la solicitud GET
         start_date = self.request.GET.get('start_date')
         end_date = self.request.GET.get('end_date')
@@ -3240,68 +4083,12 @@ class EntradasListView(LoginRequiredMixin,ListView):
 
              
         
-        if lab and name and destination and location and created_by:
-            queryset = queryset.filter(lab=lab, name=name, destination=destination, location=location, created_by=created_by, is_active=True)
-        elif lab and name and destination and location:
-            queryset = queryset.filter(lab=lab, name=name, destination=destination, location=location, is_active=True)
-        elif lab and name and destination and created_by:
-            queryset = queryset.filter(lab=lab, name=name, destination=destination, created_by=created_by, is_active=True)
-        elif lab and name and location and created_by:
-            queryset = queryset.filter(lab=lab, name=name, location=location, created_by=created_by, is_active=True)
-        elif lab and destination and location and created_by:
-            queryset = queryset.filter(lab=lab, destination=destination, location=location, created_by=created_by, is_active=True)
-        elif name and destination and location and created_by:
-            queryset = queryset.filter(name=name, destination=destination, location=location, created_by=created_by, is_active=True)
-        elif lab and name and destination:
-            queryset = queryset.filter(lab=lab, name=name, destination=destination, is_active=True)
-        elif lab and name and location:
-            queryset = queryset.filter(lab=lab, name=name, location=location, is_active=True)
-        elif lab and name and created_by:
-            queryset = queryset.filter(lab=lab, name=name, created_by=created_by, is_active=True)
-        elif lab and destination and location:
-            queryset = queryset.filter(lab=lab, destination=destination, location=location, is_active=True)
-        elif lab and destination and created_by:
-            queryset = queryset.filter(lab=lab, destination=destination, created_by=created_by, is_active=True)
-        elif lab and location and created_by:
-            queryset = queryset.filter(lab=lab, location=location, created_by=created_by, is_active=True)
-        elif name and destination and location:
-            queryset = queryset.filter(name=name, destination=destination, location=location, is_active=True)
-        elif name and destination and created_by:
-            queryset = queryset.filter(name=name, destination=destination, created_by=created_by, is_active=True)
-        elif name and location and created_by:
-            queryset = queryset.filter(name=name, location=location, created_by=created_by, is_active=True)
-        elif destination and location and created_by:
-            queryset = queryset.filter(destination=destination, location=location, created_by=created_by, is_active=True)
-        elif location and created_by:
-            queryset = queryset.filter(location=location, created_by=created_by, is_active=True)
-        elif destination and created_by:
-            queryset = queryset.filter(destination=destination, created_by=created_by, is_active=True)
-        elif destination and location:
-            queryset = queryset.filter(destination=destination, location=location, is_active=True)
-        elif name and created_by:
-            queryset = queryset.filter(name=name, created_by=created_by, is_active=True)
-        elif name and location:
-            queryset = queryset.filter(name=name, location=location, is_active=True)
-        elif name and destination:
-            queryset = queryset.filter(name=name, destination=destination, is_active=True)
-        elif lab and created_by:
-            queryset = queryset.filter(lab=lab, created_by=created_by, is_active=True)
-        elif lab and location:
-            queryset = queryset.filter(lab=lab, location=location, is_active=True)
-        elif lab and destination:
-            queryset = queryset.filter(lab=lab, destination=destination, is_active=True)
-        elif lab and name:
-            queryset = queryset.filter(lab=lab, name=name, is_active=True)
+        if lab and id_reagent:
+            queryset = queryset.filter(name=id_reagent, lab=lab, is_active=True)
         elif lab:
             queryset = queryset.filter(lab=lab, is_active=True)
-        elif name:
-            queryset = queryset.filter(name=name, is_active=True)
-        elif destination:
-            queryset = queryset.filter(destination=destination, is_active=True)
-        elif location:
-            queryset = queryset.filter(location=location, is_active=True)
-        elif created_by:
-            queryset = queryset.filter(created_by=created_by, is_active=True)
+        elif id_reagent:
+            queryset = queryset.filter(name=id_reagent, is_active=True)
         else:
             queryset = queryset.filter(is_active=True)
 
@@ -3331,9 +4118,8 @@ class SalidasListView(LoginRequiredMixin,ListView):
         # Obtener los parámetros de filtrado
         lab = request.GET.get('lab')
         name = request.GET.get('name')
-        location = request.GET.get('location')
-        destination = request.GET.get('destination')
-        created_by = request.GET.get('created_by')
+        id_reagent = request.GET.get('id_r')
+        
         # Obtener las fechas de inicio y fin de la solicitud GET
         start_date = self.request.GET.get('start_date')
         end_date = self.request.GET.get('end_date')  
@@ -3345,9 +4131,7 @@ class SalidasListView(LoginRequiredMixin,ListView):
         # Guardar los valores de filtrado en la sesión
         request.session['filtered_lab'] = lab
         request.session['filtered_name'] = name
-        request.session['filtered_location'] = location
-        request.session['filtered_destination'] = destination
-        request.session['filtered_created_by'] = created_by
+        request.session['filtered_id_reagent'] = id_reagent
         request.session['filtered_start_date'] = start_date
         request.session['filtered_end_date'] = end_date
         
@@ -3407,10 +4191,9 @@ class SalidasListView(LoginRequiredMixin,ListView):
     def get_queryset(self):
         queryset = super().get_queryset()
         lab = self.request.GET.get('lab')
-        name = self.request.GET.get('name')
-        location = self.request.GET.get('location')
-        destination= self.request.GET.get('destination')
-        created_by= self.request.GET.get('created_by')
+        id_reagent = self.request.GET.get('id_r')
+        
+        
         # Obtener las fechas de inicio y fin de la solicitud GET
         start_date = self.request.GET.get('start_date')
         end_date = self.request.GET.get('end_date')
@@ -3444,68 +4227,12 @@ class SalidasListView(LoginRequiredMixin,ListView):
 
              
         
-        if lab and name and destination and location and created_by:
-            queryset = queryset.filter(lab=lab, name=name, destination=destination, location=location, created_by=created_by, is_active=True)
-        elif lab and name and destination and location:
-            queryset = queryset.filter(lab=lab, name=name, destination=destination, location=location, is_active=True)
-        elif lab and name and destination and created_by:
-            queryset = queryset.filter(lab=lab, name=name, destination=destination, created_by=created_by, is_active=True)
-        elif lab and name and location and created_by:
-            queryset = queryset.filter(lab=lab, name=name, location=location, created_by=created_by, is_active=True)
-        elif lab and destination and location and created_by:
-            queryset = queryset.filter(lab=lab, destination=destination, location=location, created_by=created_by, is_active=True)
-        elif name and destination and location and created_by:
-            queryset = queryset.filter(name=name, destination=destination, location=location, created_by=created_by, is_active=True)
-        elif lab and name and destination:
-            queryset = queryset.filter(lab=lab, name=name, destination=destination, is_active=True)
-        elif lab and name and location:
-            queryset = queryset.filter(lab=lab, name=name, location=location, is_active=True)
-        elif lab and name and created_by:
-            queryset = queryset.filter(lab=lab, name=name, created_by=created_by, is_active=True)
-        elif lab and destination and location:
-            queryset = queryset.filter(lab=lab, destination=destination, location=location, is_active=True)
-        elif lab and destination and created_by:
-            queryset = queryset.filter(lab=lab, destination=destination, created_by=created_by, is_active=True)
-        elif lab and location and created_by:
-            queryset = queryset.filter(lab=lab, location=location, created_by=created_by, is_active=True)
-        elif name and destination and location:
-            queryset = queryset.filter(name=name, destination=destination, location=location, is_active=True)
-        elif name and destination and created_by:
-            queryset = queryset.filter(name=name, destination=destination, created_by=created_by, is_active=True)
-        elif name and location and created_by:
-            queryset = queryset.filter(name=name, location=location, created_by=created_by, is_active=True)
-        elif destination and location and created_by:
-            queryset = queryset.filter(destination=destination, location=location, created_by=created_by, is_active=True)
-        elif location and created_by:
-            queryset = queryset.filter(location=location, created_by=created_by, is_active=True)
-        elif destination and created_by:
-            queryset = queryset.filter(destination=destination, created_by=created_by, is_active=True)
-        elif destination and location:
-            queryset = queryset.filter(destination=destination, location=location, is_active=True)
-        elif name and created_by:
-            queryset = queryset.filter(name=name, created_by=created_by, is_active=True)
-        elif name and location:
-            queryset = queryset.filter(name=name, location=location, is_active=True)
-        elif name and destination:
-            queryset = queryset.filter(name=name, destination=destination, is_active=True)
-        elif lab and created_by:
-            queryset = queryset.filter(lab=lab, created_by=created_by, is_active=True)
-        elif lab and location:
-            queryset = queryset.filter(lab=lab, location=location, is_active=True)
-        elif lab and destination:
-            queryset = queryset.filter(lab=lab, destination=destination, is_active=True)
-        elif lab and name:
-            queryset = queryset.filter(lab=lab, name=name, is_active=True)
+        if lab and id_reagent:
+            queryset = queryset.filter(name=id_reagent, lab=lab, is_active=True)
         elif lab:
             queryset = queryset.filter(lab=lab, is_active=True)
-        elif name:
-            queryset = queryset.filter(name=name, is_active=True)
-        elif destination:
-            queryset = queryset.filter(destination=destination, is_active=True)
-        elif location:
-            queryset = queryset.filter(location=location, is_active=True)
-        elif created_by:
-            queryset = queryset.filter(created_by=created_by, is_active=True)
+        elif id_reagent:
+            queryset = queryset.filter(name=id_reagent, is_active=True)
         else:
             queryset = queryset.filter(is_active=True)
 
@@ -3534,9 +4261,8 @@ class UsuariosListView(LoginRequiredMixin,ListView):
 
         # Obtener los parámetros de filtrado
         lab = request.GET.get('lab')
-        rol = request.GET.get('rol')
+        
         id_user = request.GET.get('id_user')
-        is_active = request.GET.get('is_active')
         
         
         # si el valor de lab viene de sesión superusuario o ADMINISTRADOR lab=0 cambiar por lab=''
@@ -3545,9 +4271,8 @@ class UsuariosListView(LoginRequiredMixin,ListView):
 
         # Guardar los valores de filtrado en la sesión
         request.session['filtered_lab'] = lab
-        request.session['filtered_rol'] = rol
-        request.session['filtered_id'] = id_user
-        request.session['filtered_is_active'] = is_active      
+        
+        request.session['filtered_id'] = id_user      
         
 
         return super().get(request, *args, **kwargs)
@@ -3577,42 +4302,17 @@ class UsuariosListView(LoginRequiredMixin,ListView):
     def get_queryset(self):
         queryset = super().get_queryset()
         lab = self.request.GET.get('lab')
-        rol = self.request.GET.get('rol')
+        
         user_id = self.request.GET.get('id_user')
-        is_active = self.request.GET.get('is_active')
         
         # si el valor de lab viene de sesión superusuario o ADMINISTRADOR lab=0 cambiar por lab=''
         if lab=='0':
              lab=None
-        if lab and rol and user_id and is_active:
-            queryset = queryset.filter(lab=lab, rol=rol, id=user_id, is_active=is_active)
-        elif lab and rol and user_id:
-            queryset = queryset.filter(lab=lab, rol=rol, id=user_id)
-        elif lab and rol and is_active:
-            queryset = queryset.filter(lab=lab, rol=rol, is_active=is_active)
-        elif lab and is_active and user_id:
-            queryset = queryset.filter(lab=lab, is_active=is_active, id=user_id)
-        elif is_active and rol and user_id:
-            queryset = queryset.filter(is_active=is_active, rol=rol, id=user_id)
-        elif lab and is_active:
-            queryset = queryset.filter(lab=lab, is_active=is_active)
-        elif lab and rol:
-            queryset = queryset.filter(lab=lab, rol=rol)
-        elif lab and user_id:
-            queryset = queryset.filter(lab=lab, id=user_id)
-        elif user_id and rol:
-            queryset = queryset.filter(id=user_id, rol=rol)
-        elif user_id and is_active:
-            queryset = queryset.filter(id=user_id, is_active=is_active)
-        elif is_active and rol:
-            queryset = queryset.filter(is_active=is_active, rol=rol)
-        elif is_active:
-            queryset = queryset.filter(is_active=is_active)
-        elif lab:
+
+                
+        if lab:
             queryset = queryset.filter(lab=lab)
-        elif rol:
-            queryset = queryset.filter(rol=rol)
-        elif user_id:
+        if user_id:
             queryset = queryset.filter(id=user_id)
                     
         queryset = queryset.order_by('id')
@@ -3828,9 +4528,14 @@ class CrearUsuario(LoginRequiredMixin, CreateView):
         plain_message = strip_tags(message)
         from_email = None  # Agrega el correo electrónico desde el cual se enviará el mensaje
         recipient_list = [user.email]
+        # envío de correo electrónico en segundo plano
+        # Archivo adjunto nulo
+        attach_path=None
+        # Crear un hilo y ejecutar enviar_correo en segundo plano
+        correo_thread = threading.Thread(
+        target=enviar_correo, args=(recipient_list, subject, message, attach_path),)
+        correo_thread.start()
 
-        send_mail(subject, plain_message, from_email, recipient_list, fail_silently=False, html_message=message)           
-    
     def form_valid(self, form):
 
         def has_required_password_conditions(password):
@@ -3905,7 +4610,37 @@ class CrearUsuario(LoginRequiredMixin, CreateView):
         
      
         # Enviar correo electrónico de confirmación
-        self.send_confirmation_email(user)
+        protocol = 'https' if self.request.is_secure() else 'http'
+        domain = self.request.get_host()
+        # Codificar el correo electrónico en base64 y agregarlo en la URL
+        encoded_email = base64.urlsafe_b64encode(user.email.encode()).decode()
+        reset_link = reverse('reactivos:password_reset') + '?' + urlencode({'email': encoded_email})
+        reset_url = f"{protocol}://{domain}{reset_link}"
+        home_url = f"{protocol}://{domain}"
+
+        subject = _('Bienvenido a la Gestión de Insumos Químicos')
+        if user.acceptDataProcessing:
+            aceptapolitica='Acepta'
+        else:
+            aceptapolitica='No acepta'
+
+        context = {
+            'user': user,
+            'reset_url': reset_url,
+            'aceptapolitica':aceptapolitica,
+            'home_url':home_url,
+        }
+        message = render_to_string('registration/registro_exitoso_email.html', context)
+        plain_message = strip_tags(message)
+        from_email = None  # Agrega el correo electrónico desde el cual se enviará el mensaje
+        recipient_list = [user.email]
+        # envío de correo electrónico en segundo plano
+        # Archivo adjunto nulo
+        attach_path=None
+        # Crear un hilo y ejecutar enviar_correo en segundo plano
+        correo_thread = threading.Thread(
+        target=enviar_correo, args=(recipient_list, subject, message, attach_path),)
+        correo_thread.start()
 
         # Agregar mensaje de éxito
         # Crea un evento de crear usuario
@@ -3939,6 +4674,7 @@ class EditarUsuario(UpdateView):
         # Verificar si el id_number ya existe en la base de datos
         id_number = form.cleaned_data['id_number']
         user = self.get_object()
+        
 
         if User.objects.filter(id_number=id_number).exclude(pk=user.pk).exists():
             messages.error(self.request, f"No es posible editar el usuario {user.username} ya que su número de identificación {id_number} ya existe en la base de datos.")
@@ -3967,7 +4703,7 @@ class EditarUsuario(UpdateView):
 
         # Aplicar los cambios al usuario y guardarlo
         user = form.save()
-
+        print(f'{user.first_name}')
         # Agregar mensaje de éxito
         messages.success(self.request, f"Se ha editado exitosamente el usuario {user.first_name} {user.last_name}.")
 
@@ -4007,7 +4743,9 @@ def editar_usuario(request, pk):
         email = request.POST.get('email')
         username = request.POST.get('username')
         first_name = request.POST.get('first_name')
+        first_name=estandarizar_nombre(first_name)
         last_name = request.POST.get('last_name')
+        last_name=estandarizar_nombre(last_name)
         rol = request.POST.get('rol')
         lab = request.POST.get('lab')
 
@@ -4189,7 +4927,7 @@ class GuardarPerPageView(LoginRequiredMixin,View):
         # Redirigir a la página de inventario con los parámetros de filtrado actuales
         filtered_lab = request.session.get('filtered_lab')
         filtered_name = request.session.get('filtered_name')
-        filtered_trademark = request.session.get('filtered_trademark')
+        filtered_id_r = request.session.get('filtered_id_r')
         
         url = reverse('reactivos:inventario')
         params = {}
@@ -4197,8 +4935,8 @@ class GuardarPerPageView(LoginRequiredMixin,View):
             params['lab'] = filtered_lab
         if filtered_name:
             params['name'] = filtered_name
-        if filtered_trademark:
-            params['trademark'] = filtered_trademark
+        if filtered_id_r:
+            params['id_r'] = filtered_id_r
         
         
         if params:
@@ -4215,9 +4953,7 @@ class GuardarPerPageViewIn(LoginRequiredMixin,View):
         # Redirigir a la página de inventario con los parámetros de filtrado actuales
         filtered_lab = request.session.get('filtered_lab')
         filtered_name = request.session.get('filtered_name')
-        filtered_location = request.session.get('filtered_location')
-        filtered_destination = request.session.get('filtered_destination')
-        filtered_created_by = request.session.get('filtered_created_by')
+        filtered_id_reagent = request.session.get('filtered_id_reagent')
         filtered_start_date = request.session.get('filtered_start_date')
         filtered_end_date = request.session.get('filtered_end_date')
         
@@ -4228,12 +4964,9 @@ class GuardarPerPageViewIn(LoginRequiredMixin,View):
         if filtered_name:
             params['name'] = filtered_name
 
-        if filtered_location:
-            params['location'] = filtered_location
-        if filtered_destination:
-            params['destination'] = filtered_destination
-        if filtered_created_by:
-            params['created_by'] = filtered_created_by
+        if filtered_id_reagent:
+            params['id_r'] = filtered_id_reagent
+        
         if filtered_start_date:
             params['start_date'] = filtered_start_date
         if filtered_end_date:
@@ -4286,9 +5019,7 @@ class GuardarPerPageViewOut(LoginRequiredMixin,View):
         # Redirigir a la página de inventario con los parámetros de filtrado actuales
         filtered_lab = request.session.get('filtered_lab')
         filtered_name = request.session.get('filtered_name')
-        filtered_location = request.session.get('filtered_location')
-        filtered_destination = request.session.get('filtered_destination')
-        filtered_created_by = request.session.get('filtered_created_by')
+        filtered_id_reagent = request.session.get('filtered_id_reagent')
         filtered_start_date = request.session.get('filtered_start_date')
         filtered_end_date = request.session.get('filtered_end_date')
         
@@ -4299,12 +5030,9 @@ class GuardarPerPageViewOut(LoginRequiredMixin,View):
         if filtered_name:
             params['name'] = filtered_name
 
-        if filtered_location:
-            params['location'] = filtered_location
-        if filtered_destination:
-            params['destination'] = filtered_destination
-        if filtered_created_by:
-            params['created_by'] = filtered_created_by
+        if filtered_id_reagent:
+            params['id_r'] = filtered_id_reagent
+        
         if filtered_start_date:
             params['start_date'] = filtered_start_date
         if filtered_end_date:
@@ -4343,6 +5071,36 @@ class GuardarPerPageViewSolicitud(LoginRequiredMixin,View):
 
         return redirect(url)
     
+# Paginación de solicitudes externas
+class GuardarPerPageViewSolicitudExterna(LoginRequiredMixin,View):
+    def get(self, request, *args, **kwargs):
+        per_page = kwargs.get('per_page')
+        request.session['per_page'] = per_page
+
+        # Redirigir a la página de inventario con los parámetros de filtrado actuales
+        filtered_start_date = request.session.get('filtered_start_date')
+        filtered_end_date = request.session.get('filtered_end_date')
+        filtered_lab = request.session.get('filtered_lab')
+        filtered_keyword = request.session.get('filtered_keyword')
+        
+        url = reverse('reactivos:listado_solicitudes_externas')
+        params = {}
+        
+        if filtered_start_date:
+            params['start_date'] = filtered_start_date
+        if filtered_end_date:
+            params['end_date'] = filtered_end_date
+        if filtered_lab:
+            params['lab'] = filtered_lab
+        if filtered_keyword:
+            params['keyword'] = filtered_keyword
+        
+        
+        if params:
+            url += '?' + urlencode(params)
+
+        return redirect(url)
+    
 # Guarda los valores de búsqueda del listado para cuando se efectue un cambio en la paginación se conserven 
 # estos valores y se sostenga los criterios de búsqueda
 
@@ -4372,20 +5130,16 @@ class GuardarPerPageViewUser(LoginRequiredMixin,View):
 
         # Redirigir a la página de inventario con los parámetros de filtrado actuales
         filtered_lab = request.session.get('filtered_lab')
-        filtered_rol = request.session.get('filtered_rol')
+        
         filtered_id = request.session.get('filtered_id')
-        filtered_is_active = request.session.get('filtered_is_active')
         
         url = reverse('reactivos:listado_usuarios')
         params = {}
         if filtered_lab:
             params['lab'] = filtered_lab
-        if filtered_rol:
-            params['rol'] = filtered_rol
+        
         if filtered_id:
             params['id_user'] = filtered_id
-        if filtered_is_active:
-            params['is_active'] = filtered_is_active
 
         if params:
             url += '?' + urlencode(params)
@@ -4670,26 +5424,23 @@ class WlocationsAPI(LoginRequiredMixin,View):
 def export_to_excel(request):
     # Obtener los valores filtrados almacenados en la sesión del usuario
     lab = request.session.get('filtered_lab')
-    name = request.session.get('filtered_name')
-    trademark = request.session.get('filtered_trademark')
+    id_reactivo = request.session.get('filtered_id_r')
     
     queryset = Inventarios.objects.all()
     #Filtra según los valores previos de filtro en los selectores
 
-    if lab and name and trademark:
-        queryset = queryset.filter(lab=lab, name=name, trademark=trademark, is_active=True)
-    elif lab and name:
-        queryset = queryset.filter(lab=lab, name=name, is_active=True)
-    elif lab and trademark:
-        queryset = queryset.filter(lab=lab, trademark=trademark, is_active=True)
-    elif name and trademark:
-        queryset = queryset.filter(name=name, trademark=trademark, is_active=True)
+    # si el valor de lab viene de sesión superusuario o ADMINISTRADOR lab=0 cambiar por lab=''
+    if lab=='0':
+         lab=''
+         
+    # Definir Queryset para filtrado de visulización
+         
+    if lab and id_reactivo:
+        queryset = queryset.filter(name=id_reactivo, lab=lab, is_active=True)
     elif lab:
         queryset = queryset.filter(lab=lab, is_active=True)
-    elif name:
-        queryset = queryset.filter(name=name, is_active=True)
-    elif trademark:
-        queryset = queryset.filter(trademark=trademark, is_active=True)
+    elif id_reactivo:
+        queryset = queryset.filter(name=id_reactivo, is_active=True)          
     else:
         queryset = queryset.filter(is_active=True)
 
@@ -4724,16 +5475,17 @@ def export_to_excel(request):
     sheet['C4'] = 'CAS'
     sheet['D4'] = 'Reactivo'
     sheet['E4'] = 'Marca'
-    sheet['F4'] = 'Cantidad'
-    sheet['G4'] = 'Referencia'
-    sheet['H4'] = 'Unidad'
-    sheet['I4'] = 'Ubicación'
-    sheet['J4'] = 'Laboratorio'
-    sheet['K4'] = 'Vencimiento'
-    sheet['L4'] = 'Registrado por'
-    sheet['M4'] = 'Fecha y hora de Registro'
-    sheet['N4'] = 'Actualizado por'
-    sheet['O4'] = 'Fecha y hora de última Actualización'
+    sheet['F4'] = 'Referencia'
+    sheet['G4'] = 'Cantidad'
+    sheet['H4'] = 'Unidades'
+    sheet['I4'] = 'Inventario mínimo'
+    sheet['J4'] = 'Ubicación'
+    sheet['K4'] = 'Laboratorio'
+    sheet['L4'] = 'Vencimiento'
+    sheet['M4'] = 'Registrado por'
+    sheet['N4'] = 'Fecha y hora de Registro'
+    sheet['O4'] = 'Actualizado por'
+    sheet['P4'] = 'Fecha y hora de última Actualización'
 
     # Establecer la altura de la fila 1 y 2 a 30
     sheet.row_dimensions[1].height = 35
@@ -4751,50 +5503,52 @@ def export_to_excel(request):
     # Establecer el estilo de las celdas A2:D3
     bold_font = Font(bold=True)
 
-    # Establecer el ancho de la columna A a 16
-    sheet.column_dimensions['A'].width = 9
+    # Establecer el ancho de la columna A a 7
+    sheet.column_dimensions['A'].width = 7
 
-    # Establecer el ancho de la columna B a 10
+    # Establecer el ancho de la columna B a 9
     sheet.column_dimensions['B'].width = 9
 
-    # Establecer el ancho de la columna B a6
-    sheet.column_dimensions['C'].width = 19
+    # Establecer el ancho de la columna C a 13
+    sheet.column_dimensions['C'].width = 13
 
-    # Establecer el ancho de la columna C a1
-    sheet.column_dimensions['D'].width = 40
+    # Establecer el ancho de la columna D a 28
+    sheet.column_dimensions['D'].width = 28
 
-    # Establecer el ancho de la columna D a0
-    sheet.column_dimensions['E'].width = 14
+    # Establecer el ancho de la columna E a 13
+    sheet.column_dimensions['E'].width = 13
 
-    # Establecer el ancho de la columna E a0
+    # Establecer el ancho de la columna F a 10
     sheet.column_dimensions['F'].width = 10
 
-    # Establecer el ancho de la columna F a0
-    sheet.column_dimensions['G'].width = 12
+    # Establecer el ancho de la columna G a 8
+    sheet.column_dimensions['G'].width = 8
 
-    # Establecer el ancho de la columna G a2
-    sheet.column_dimensions['H'].width = 9
+    # Establecer el ancho de la columna H a 5
+    sheet.column_dimensions['H'].width = 5
 
-    # Establecer el ancho de la columna H a4
-    sheet.column_dimensions['I'].width = 34
+    # Establecer el ancho de la columna I a 10
+    sheet.column_dimensions['I'].width = 10
 
-    # Establecer el ancho de la columna I a3
-    sheet.column_dimensions['J'].width = 51
-    # Establecer el ancho de la columna J a9
+    # Establecer el ancho de la columna J a 17
+    sheet.column_dimensions['J'].width = 17
+    # Establecer el ancho de la columna K a 13
     sheet.column_dimensions['K'].width = 13
-    # Establecer el ancho de la columna K a9
+    
+    # Establecer el ancho de la columna L a 13
+    sheet.column_dimensions['L'].width = 13
+    # Establecer el ancho de la columna M a 23
     sheet.column_dimensions['M'].width = 23
-    # Establecer el ancho de la columna M a1
-    sheet.column_dimensions['L'].width = 29
-    # Establecer el ancho de la columna L a1
-    sheet.column_dimensions['N'].width = 29
-    # Establecer el ancho de la columna N a1
-    sheet.column_dimensions['M'].width = 23
-    sheet.column_dimensions['O'].width = 34
+    # Establecer el ancho de la columna N a 19
+    sheet.column_dimensions['N'].width = 19
+    # Establecer el ancho de la columna O a 23
+    sheet.column_dimensions['O'].width = 23
+    # Establecer el ancho de la columna P a 19
+    sheet.column_dimensions['P'].width = 19
 
     row = 4
     # Aplicar el estilo de borde a las celdas de la fila actual
-    for col in range(1, 16):
+    for col in range(1, 17):
         sheet.cell(row=row, column=col).border = thin_border
         sheet.cell(row=row, column=col).font = bold_font
 
@@ -4808,23 +5562,24 @@ def export_to_excel(request):
         sheet.cell(row=row, column=6).value = item.reference
         sheet.cell(row=row, column=7).value = item.weight
         sheet.cell(row=row, column=8).value = item.name.unit.name
-        sheet.cell(row=row, column=9).value = item.wlocation.name
-        sheet.cell(row=row, column=10).value = item.lab.name
-        sheet.cell(row=row, column=11).value = item.edate
-        sheet.cell(row=row, column=12).value = item.created_by.first_name+' '+item.created_by.last_name
-        sheet.cell(row=row, column=13).value = str((item.date_create).strftime('%d/%m/%Y %H:%M:%S'))
-        sheet.cell(row=row, column=14).value = item.last_updated_by.first_name+' '+item.last_updated_by.last_name
-        sheet.cell(row=row, column=15).value = str((item.last_update).strftime('%d/%m/%Y %H:%M:%S'))
+        sheet.cell(row=row, column=9).value = f'{int(item.minstock)} {item.name.unit.name}'
+        sheet.cell(row=row, column=10).value = item.wlocation.name
+        sheet.cell(row=row, column=11).value = item.lab.name
+        sheet.cell(row=row, column=12).value = item.edate
+        sheet.cell(row=row, column=13).value = item.created_by.first_name+' '+item.created_by.last_name
+        sheet.cell(row=row, column=14).value = str((item.date_create).strftime('%d/%m/%Y %H:%M:%S'))
+        sheet.cell(row=row, column=15).value = item.last_updated_by.first_name+' '+item.last_updated_by.last_name
+        sheet.cell(row=row, column=16).value = str((item.last_update).strftime('%d/%m/%Y %H:%M:%S'))
 
         # Aplicar el estilo de borde a las celdas de la fila actual
-        for col in range(1, 16):
+        for col in range(1, 17):
             sheet.cell(row=row, column=col).border = thin_border
 
         row += 1
 
     # Obtén el rango de las columnas de la tabla
     start_column = 1
-    end_column = 15
+    end_column = 16
     start_row = 4
     end_row = row - 1
 
@@ -4853,7 +5608,7 @@ def export_to_excel(request):
 
     response = HttpResponse(
         content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-    response['Content-Disposition'] = 'attachment; filename=inventario_insumos.xlsx'
+    response['Content-Disposition'] = 'attachment; filename=Inventario_Reactivos.xlsx'
 
     workbook.save(response)
     # crear evento descarga de archivos
@@ -4871,10 +5626,8 @@ def export_to_excel(request):
 def export_to_excel_input(request):
     # Obtener los valores filtrados almacenados en la sesión del usuario
     lab = request.session.get('filtered_lab')
-    name = request.session.get('filtered_name')
-    location = request.session.get('filtered_location')
-    destination = request.session.get('filtered_destination')
-    created_by = request.session.get('filtered_created_by')
+    id_reagent = request.session.get('filtered_id_reagent')
+    
     start_date = request.session.get('filtered_start_date')
     end_date = request.session.get('filtered_end_date')
     
@@ -4901,68 +5654,12 @@ def export_to_excel_input(request):
     elif start_date and end_date:
         queryset = queryset.filter(date_create__gte=start_date,date_create__lte=end_date)
     
-    if lab and name and destination and location and created_by:
-            queryset = queryset.filter(lab=lab, name=name, destination=destination, location=location, created_by=created_by, is_active=True)
-    elif lab and name and destination and location:
-        queryset = queryset.filter(lab=lab, name=name, destination=destination, location=location, is_active=True)
-    elif lab and name and destination and created_by:
-        queryset = queryset.filter(lab=lab, name=name, destination=destination, created_by=created_by, is_active=True)
-    elif lab and name and location and created_by:
-        queryset = queryset.filter(lab=lab, name=name, location=location, created_by=created_by, is_active=True)
-    elif lab and destination and location and created_by:
-        queryset = queryset.filter(lab=lab, destination=destination, location=location, created_by=created_by, is_active=True)
-    elif name and destination and location and created_by:
-        queryset = queryset.filter(name=name, destination=destination, location=location, created_by=created_by, is_active=True)
-    elif lab and name and destination:
-        queryset = queryset.filter(lab=lab, name=name, destination=destination, is_active=True)
-    elif lab and name and location:
-        queryset = queryset.filter(lab=lab, name=name, location=location, is_active=True)
-    elif lab and name and created_by:
-        queryset = queryset.filter(lab=lab, name=name, created_by=created_by, is_active=True)
-    elif lab and destination and location:
-        queryset = queryset.filter(lab=lab, destination=destination, location=location, is_active=True)
-    elif lab and destination and created_by:
-        queryset = queryset.filter(lab=lab, destination=destination, created_by=created_by, is_active=True)
-    elif lab and location and created_by:
-        queryset = queryset.filter(lab=lab, location=location, created_by=created_by, is_active=True)
-    elif name and destination and location:
-        queryset = queryset.filter(name=name, destination=destination, location=location, is_active=True)
-    elif name and destination and created_by:
-        queryset = queryset.filter(name=name, destination=destination, created_by=created_by, is_active=True)
-    elif name and location and created_by:
-        queryset = queryset.filter(name=name, location=location, created_by=created_by, is_active=True)
-    elif destination and location and created_by:
-        queryset = queryset.filter(destination=destination, location=location, created_by=created_by, is_active=True)
-    elif location and created_by:
-        queryset = queryset.filter(location=location, created_by=created_by, is_active=True)
-    elif destination and created_by:
-        queryset = queryset.filter(destination=destination, created_by=created_by, is_active=True)
-    elif destination and location:
-        queryset = queryset.filter(destination=destination, location=location, is_active=True)
-    elif name and created_by:
-        queryset = queryset.filter(name=name, created_by=created_by, is_active=True)
-    elif name and location:
-        queryset = queryset.filter(name=name, location=location, is_active=True)
-    elif name and destination:
-        queryset = queryset.filter(name=name, destination=destination, is_active=True)
-    elif lab and created_by:
-        queryset = queryset.filter(lab=lab, created_by=created_by, is_active=True)
-    elif lab and location:
-        queryset = queryset.filter(lab=lab, location=location, is_active=True)
-    elif lab and destination:
-        queryset = queryset.filter(lab=lab, destination=destination, is_active=True)
-    elif lab and name:
-        queryset = queryset.filter(lab=lab, name=name, is_active=True)
+    if lab and id_reagent:
+        queryset = queryset.filter(name=id_reagent, lab=lab, is_active=True)
     elif lab:
         queryset = queryset.filter(lab=lab, is_active=True)
-    elif name:
-        queryset = queryset.filter(name=name, is_active=True)
-    elif destination:
-        queryset = queryset.filter(destination=destination, is_active=True)
-    elif location:
-        queryset = queryset.filter(location=location, is_active=True)
-    elif created_by:
-        queryset = queryset.filter(created_by=created_by, is_active=True)
+    elif id_reagent:
+        queryset = queryset.filter(name=id_reagent, is_active=True)
     else:
         queryset = queryset.filter(is_active=True)
     queryset = queryset.order_by('id')
@@ -5100,7 +5797,8 @@ def export_to_excel_input(request):
     # Establecer el ancho de la columna V a 60
     sheet.column_dimensions['V'].width = 60
 
-      
+    # Crear un estilo con formato de moneda
+    currency_style = NamedStyle(name='currency', number_format='_("$"* #,##0.00_);_("$"* \(#,##0.00\);_("$"* "-"??_);_(@_)')
     
 
     row = 4
@@ -5113,6 +5811,12 @@ def export_to_excel_input(request):
     for item in queryset:
         if not item.date_order:
             item.date_order=''
+        if item.location:
+            subject=item.location.name
+            school=item.location.facultad.name
+        else:
+            subject=''
+            school=''
         sheet.cell(row=row, column=1).value = item.id
         sheet.cell(row=row, column=2).value = str((item.date_create).strftime('%d/%m/%Y %H:%M:%S'))
         sheet.cell(row=row, column=3).value = item.name.name
@@ -5126,11 +5830,13 @@ def export_to_excel_input(request):
         sheet.cell(row=row, column=11).value = item.order
         sheet.cell(row=row, column=12).value = str(item.date_order)
         sheet.cell(row=row, column=13).value = item.nproject
+        # Aplicar el estilo a la celda
+        sheet.cell(row=row, column=14).style = currency_style
         sheet.cell(row=row, column=14).value = item.price
         sheet.cell(row=row, column=15).value = item.destination.name
         sheet.cell(row=row, column=16).value = item.manager.name
-        sheet.cell(row=row, column=17).value = item.location.name
-        sheet.cell(row=row, column=18).value = item.location.facultad.name
+        sheet.cell(row=row, column=17).value = subject
+        sheet.cell(row=row, column=18).value = school
         sheet.cell(row=row, column=19).value = item.created_by.first_name+' '+item.created_by.last_name
         sheet.cell(row=row, column=20).value = item.last_updated_by.first_name+' '+item.last_updated_by.last_name
         sheet.cell(row=row, column=21).value = str((item.last_update).strftime('%d/%m/%Y %H:%M:%S'))
@@ -5352,10 +6058,8 @@ def export_to_excel_event(request):
 def export_to_excel_output(request):
     # Obtener los valores filtrados almacenados en la sesión del usuario
     lab = request.session.get('filtered_lab')
-    name = request.session.get('filtered_name')
-    location = request.session.get('filtered_location')
-    destination = request.session.get('filtered_destination')
-    created_by = request.session.get('filtered_created_by')
+    id_reagent = request.session.get('filtered_id_reagent')
+    
     start_date = request.session.get('filtered_start_date')
     end_date = request.session.get('filtered_end_date')
     
@@ -5382,71 +6086,16 @@ def export_to_excel_output(request):
     elif start_date and end_date:
         queryset = queryset.filter(date_create__gte=start_date,date_create__lte=end_date)
     
-    if lab and name and destination and location and created_by:
-            queryset = queryset.filter(lab=lab, name=name, destination=destination, location=location, created_by=created_by, is_active=True)
-    elif lab and name and destination and location:
-        queryset = queryset.filter(lab=lab, name=name, destination=destination, location=location, is_active=True)
-    elif lab and name and destination and created_by:
-        queryset = queryset.filter(lab=lab, name=name, destination=destination, created_by=created_by, is_active=True)
-    elif lab and name and location and created_by:
-        queryset = queryset.filter(lab=lab, name=name, location=location, created_by=created_by, is_active=True)
-    elif lab and destination and location and created_by:
-        queryset = queryset.filter(lab=lab, destination=destination, location=location, created_by=created_by, is_active=True)
-    elif name and destination and location and created_by:
-        queryset = queryset.filter(name=name, destination=destination, location=location, created_by=created_by, is_active=True)
-    elif lab and name and destination:
-        queryset = queryset.filter(lab=lab, name=name, destination=destination, is_active=True)
-    elif lab and name and location:
-        queryset = queryset.filter(lab=lab, name=name, location=location, is_active=True)
-    elif lab and name and created_by:
-        queryset = queryset.filter(lab=lab, name=name, created_by=created_by, is_active=True)
-    elif lab and destination and location:
-        queryset = queryset.filter(lab=lab, destination=destination, location=location, is_active=True)
-    elif lab and destination and created_by:
-        queryset = queryset.filter(lab=lab, destination=destination, created_by=created_by, is_active=True)
-    elif lab and location and created_by:
-        queryset = queryset.filter(lab=lab, location=location, created_by=created_by, is_active=True)
-    elif name and destination and location:
-        queryset = queryset.filter(name=name, destination=destination, location=location, is_active=True)
-    elif name and destination and created_by:
-        queryset = queryset.filter(name=name, destination=destination, created_by=created_by, is_active=True)
-    elif name and location and created_by:
-        queryset = queryset.filter(name=name, location=location, created_by=created_by, is_active=True)
-    elif destination and location and created_by:
-        queryset = queryset.filter(destination=destination, location=location, created_by=created_by, is_active=True)
-    elif location and created_by:
-        queryset = queryset.filter(location=location, created_by=created_by, is_active=True)
-    elif destination and created_by:
-        queryset = queryset.filter(destination=destination, created_by=created_by, is_active=True)
-    elif destination and location:
-        queryset = queryset.filter(destination=destination, location=location, is_active=True)
-    elif name and created_by:
-        queryset = queryset.filter(name=name, created_by=created_by, is_active=True)
-    elif name and location:
-        queryset = queryset.filter(name=name, location=location, is_active=True)
-    elif name and destination:
-        queryset = queryset.filter(name=name, destination=destination, is_active=True)
-    elif lab and created_by:
-        queryset = queryset.filter(lab=lab, created_by=created_by, is_active=True)
-    elif lab and location:
-        queryset = queryset.filter(lab=lab, location=location, is_active=True)
-    elif lab and destination:
-        queryset = queryset.filter(lab=lab, destination=destination, is_active=True)
-    elif lab and name:
-        queryset = queryset.filter(lab=lab, name=name, is_active=True)
+    if lab and id_reagent:
+        queryset = queryset.filter(name=id_reagent, lab=lab, is_active=True)
     elif lab:
         queryset = queryset.filter(lab=lab, is_active=True)
-    elif name:
-        queryset = queryset.filter(name=name, is_active=True)
-    elif destination:
-        queryset = queryset.filter(destination=destination, is_active=True)
-    elif location:
-        queryset = queryset.filter(location=location, is_active=True)
-    elif created_by:
-        queryset = queryset.filter(created_by=created_by, is_active=True)
+    elif id_reagent:
+        queryset = queryset.filter(name=id_reagent, is_active=True)
     else:
         queryset = queryset.filter(is_active=True)
     queryset = queryset.order_by('id')
+    
         
 
     workbook = openpyxl.Workbook()
@@ -5896,43 +6545,18 @@ def export_to_excel_user(request):
     # Obtener los valores filtrados almacenados en la sesión del usuario
     
     lab = request.session.get('filtered_lab')
-    rol = request.session.get('filtered_rol')
     user_id = request.session.get('filtered_id')
-    is_active = request.session.get('filtered_is_active')
     
     queryset = User.objects.all()
-    #Filtra según los valores previos de filtro en los selectores
-    # 
-    if lab and rol and user_id and is_active:
-        queryset = queryset.filter(lab=lab, rol=rol, id=user_id, is_active=is_active)
-    elif lab and rol and user_id:
-        queryset = queryset.filter(lab=lab, rol=rol, id=user_id)
-    elif lab and rol and is_active:
-        queryset = queryset.filter(lab=lab, rol=rol, is_active=is_active)
-    elif lab and is_active and user_id:
-        queryset = queryset.filter(lab=lab, is_active=is_active, id=user_id)
-    elif is_active and rol and user_id:
-        queryset = queryset.filter(is_active=is_active, rol=rol, id=user_id)
-    elif lab and is_active:
-        queryset = queryset.filter(lab=lab, is_active=is_active)
-    elif lab and rol:
-        queryset = queryset.filter(lab=lab, rol=rol)
-    elif lab and user_id:
-        queryset = queryset.filter(lab=lab, id=user_id)
-    elif user_id and rol:
-        queryset = queryset.filter(id=user_id, rol=rol)
-    elif user_id and is_active:
-        queryset = queryset.filter(id=user_id, is_active=is_active)
-    elif is_active and rol:
-        queryset = queryset.filter(is_active=is_active, rol=rol)
-    elif is_active:
-        queryset = queryset.filter(is_active=is_active)
-    elif lab:
-        queryset = queryset.filter(lab=lab)
-    elif rol:
-        queryset = queryset.filter(rol=rol)
-    elif user_id:
-        queryset = queryset.filter(id=user_id)
+    # Filtra según los valores previos de filtro en los selectores
+    
+    if lab=='0':
+             lab=None
+
+    if lab:
+            queryset = queryset.filter(lab=lab)
+    if user_id:
+            queryset = queryset.filter(id=user_id)
                 
     queryset = queryset.order_by('id')
         
@@ -6062,6 +6686,11 @@ def export_to_excel_user(request):
             item.last_login=item.last_login.strftime('%d/%m/%Y %H:%M:%S')
         else:
             item.last_login='No access'
+        
+        if item.user_create:
+            creator=f'{item.user_create.first_name} {item.user_create.last_name}'
+        else:
+            creator=''
               
 
         sheet.cell(row=row, column=1).value = item.id
@@ -6076,7 +6705,7 @@ def export_to_excel_user(request):
         sheet.cell(row=row, column=10).value = item.acceptDataProcessing
         sheet.cell(row=row, column=11).value = item.is_active
         sheet.cell(row=row, column=12).value = item.date_joined.strftime('%d/%m/%Y %H:%M:%S')
-        sheet.cell(row=row, column=13).value = item.user_create.first_name+' '+item.user_create.last_name
+        sheet.cell(row=row, column=13).value = creator
         sheet.cell(row=row, column=14).value = str((item.last_update).strftime('%d/%m/%Y %H:%M:%S'))
         sheet.cell(row=row, column=15).value = item.last_updated_by.first_name+' '+item.last_updated_by.last_name
         
@@ -6829,6 +7458,88 @@ def autocomplete(request):
     return JsonResponse(results, safe=False)
 
 
+# Autocompleta reactivos en el inventario
+class AutocompleteReactivosAPI(LoginRequiredMixin,View):
+    def get(self, request):
+        term = request.GET.get('term', '')
+        lab = request.GET.get('lab', '')
+        if lab=='0':
+            inventarios = Inventarios.objects.filter(
+            Q(name__name__icontains=term) | Q(name__code__icontains=term) | Q(name__cas__icontains=term), is_active=True
+        ).order_by('name').distinct('name')[:10]
+        else:
+            inventarios = Inventarios.objects.filter(
+            Q(name__name__icontains=term) | Q(name__code__icontains=term) | Q(name__cas__icontains=term),
+            lab=lab, is_active=True
+        ).order_by('name').distinct('name')[:10]
+        results = []
+        for inventario in inventarios:
+            result = {
+                'id': inventario.name.id,
+                'name': inventario.name.name,
+                'code': inventario.name.code,
+                'cas': inventario.name.cas,
+                
+            }
+            results.append(result)
+
+        return JsonResponse(results, safe=False)
+
+# Autocompleta reactivos en listado de entradas
+class AutocompleteReactivosInAPI(LoginRequiredMixin,View):
+    def get(self, request):
+        term = request.GET.get('term', '')
+        lab = request.GET.get('lab', '')
+        if lab=='0':
+            entradas = Entradas.objects.filter(
+            Q(name__name__icontains=term) | Q(name__code__icontains=term) | Q(name__cas__icontains=term), is_active=True
+        ).order_by('name').distinct('name')[:10]
+        else:
+            entradas = Entradas.objects.filter(
+            Q(name__name__icontains=term) | Q(name__code__icontains=term) | Q(name__cas__icontains=term),
+            lab=lab, is_active=True
+        ).order_by('name').distinct('name')[:10]
+        results = []
+        for entrada in entradas:
+            result = {
+                'id': entrada.name.id,
+                'name': entrada.name.name,
+                'code': entrada.name.code,
+                'cas': entrada.name.cas,
+                
+            }
+            results.append(result)
+
+        return JsonResponse(results, safe=False)
+
+# Autocompleta reactivos en listado de salidas
+class AutocompleteReactivosOutAPI(LoginRequiredMixin,View):
+    def get(self, request):
+        term = request.GET.get('term', '')
+        lab = request.GET.get('lab', '')
+        if lab=='0':
+            entradas = Salidas.objects.filter(
+            Q(name__name__icontains=term) | Q(name__code__icontains=term) | Q(name__cas__icontains=term), is_active=True
+        ).order_by('name').distinct('name')[:10]
+        else:
+            entradas = Salidas.objects.filter(
+            Q(name__name__icontains=term) | Q(name__code__icontains=term) | Q(name__cas__icontains=term),
+            lab=lab, is_active=True
+        ).order_by('name').distinct('name')[:10]
+        results = []
+        for entrada in entradas:
+            result = {
+                'id': entrada.name.id,
+                'name': entrada.name.name,
+                'code': entrada.name.code,
+                'cas': entrada.name.cas,
+                
+            }
+            results.append(result)
+
+        return JsonResponse(results, safe=False)
+    
+
 # Devuelve los valores de la tabla Inventarios según lo escrito en el campo name del formulario registrar_salida.html en forma de una 
 # lista de autocompletado
 
@@ -6866,12 +7577,12 @@ class AutocompleteUserAPI(LoginRequiredMixin,View):
         if lab=='0':       
             usuarios = User.objects.filter(
                 Q(first_name__icontains=term) | Q(last_name__icontains=term) | Q(id_number__icontains=term) | Q(phone_number__icontains=term) | Q(email__icontains=term) | Q(username__icontains=term)
-            ).order_by('first_name').distinct('first_name')[:10]
+            ).order_by('first_name')[:10]
         else:
             usuarios = User.objects.filter(
                 Q(first_name__icontains=term) | Q(last_name__icontains=term) | Q(id_number__icontains=term) | Q(phone_number__icontains=term) | Q(email__icontains=term) | Q(username__icontains=term),
                 lab=lab
-            ).order_by('first_name').distinct('first_name')[:10]
+            ).order_by('first_name')[:10]
 
         results = []
         for usuario in usuarios:
@@ -6949,6 +7660,119 @@ def estandarizar_nombre(nombre):
     return nombre
 
 
+class OcultarReactivoView(LoginRequiredMixin, View):
+    template_name = 'reactivos/ocultar_visibilidad.html'  # Asegúrate de tener este template creado
+
+    @check_group_permission(groups_required=['COORDINADOR', 'ADMINISTRADOR'])
+    def get(self, request, pk):
+        usuario = get_object_or_404(User, pk=pk)
+        context = {
+            'usuario': usuario,
+        }
+        return render(request, self.template_name, context)
+    
+    @check_group_permission(groups_required=['COORDINADOR', 'ADMINISTRADOR'])
+    def post(self, request, pk):
+        
+        # Obtiene el objeto de inventario
+        try:
+            inventory = Inventarios.objects.get(pk=pk)
+        except Inventarios.DoesNotExist:
+            mensaje = f'El reactivo no existe.'
+            return HttpResponse(mensaje,200)
+
+        # Realiza la actualización
+        inventory.visibility = False
+        inventory.last_updated_by = request.user
+        inventory.save()
+
+        # Crea un evento de ELIMINAR USUARIO
+        tipo_evento = 'OCULTAR REACTIVO'
+        usuario_evento = request.user
+        crear_evento(tipo_evento, usuario_evento)
+
+        # Construye el mensaje de éxito
+        mensaje = f'El reactivo "{inventory.name}" se ha ocultado de manera exitosa.'
+        
+        return HttpResponse(mensaje,200)
+    
+class MostrarReactivoView(LoginRequiredMixin, View):
+    template_name = 'reactivos/mostrar_visibilidad.html'  # Asegúrate de tener este template creado
+
+    @check_group_permission(groups_required=['COORDINADOR', 'ADMINISTRADOR'])
+    def get(self, request, pk):
+        usuario = get_object_or_404(User, pk=pk)
+        context = {
+            'usuario': usuario,
+        }
+        return render(request, self.template_name, context)
+    
+    @check_group_permission(groups_required=['COORDINADOR', 'ADMINISTRADOR'])
+    def post(self, request, pk):
+        
+        # Obtiene el objeto de inventario
+        try:
+            inventory = Inventarios.objects.get(pk=pk)
+        except Inventarios.DoesNotExist:
+            mensaje = f'El reactivo no existe.'
+            return HttpResponse(mensaje,200)
+
+        # Realiza la actualización
+        inventory.visibility = True
+        inventory.last_updated_by = request.user
+        inventory.save()
+
+        # Crea un evento de ELIMINAR USUARIO
+        tipo_evento = 'MOSTRAR REACTIVO'
+        usuario_evento = request.user
+        crear_evento(tipo_evento, usuario_evento)
+
+        # Construye el mensaje de éxito
+        mensaje = f'Se a activado la visibilidad del reactivo "{inventory.name}" de manera exitosa.'
+        
+        return HttpResponse(mensaje,200)
+
+class RevisarDisponibilidadView(LoginRequiredMixin, View):
+    template_name = 'reactivos/revisar_disponibilidad.html'  # Asegúrate de tener este template creado
+
+    @check_group_permission(groups_required=['COORDINADOR', 'ADMINISTRADOR'])
+    def get(self, request, pk):
+        usuario = get_object_or_404(User, pk=pk)
+        context = {
+            'usuario': usuario,
+        }
+        return render(request, self.template_name, context)
+    
+    @check_group_permission(groups_required=['COORDINADOR', 'ADMINISTRADOR', 'TECNICO'])
+    def post(self, request, pk):
+        # Inicializar el diccionario para realizar el seguimiento del total por laboratorio
+        total_por_laboratorio = defaultdict(Decimal)
+        # Incializar el mensaje
+        mensaje=''
+        # Obtener el nombre del reactivo
+        reactivo = get_object_or_404(Reactivos, pk=pk)
+        # Obtener el objeto de inventario
+        try:
+            inventories = Inventarios.objects.filter(name=pk, is_active=True, visibility=True)
+        except Inventarios.DoesNotExist:
+            mensaje = f'No hay existencia del reactivo en inventario.'
+            return HttpResponse(mensaje,200)
+
+        # Calcular el total por cada laboratorio
+        for inventory in inventories:
+            if inventory.lab:
+                total_por_laboratorio[inventory.lab.name] += inventory.weight
+
+        # Imprimir el total por cada laboratorio
+        for lab_name, total_quantity in total_por_laboratorio.items():
+            units = inventories.filter(lab__name=lab_name).first().name.unit
+            # Mensaje como html para que se pueda ver como sweet alert
+            mensaje+=f'<li><strong>Laboratorio:</strong> {lab_name}</li><li><strong>Cantidad:</strong> {total_quantity} {units}</li><br>'
+        
+        mensaje=f'<div class="card" style="text-align: left;"><div class="card-body"><h5><strong>Existencia en Laboratorios - {reactivo.name}</strong></h5><br><ul class="list-unstyled">{mensaje}<a href="/export2xlsxlab/">Ver información de Laboratorios</a></ul></div></div>'
+        
+
+        return HttpResponse(mensaje, 200)
 
 
 
@@ -7049,9 +7873,9 @@ class LoginView(RedirectURLMixin, FormView):
         """Security check complete. Log the user in."""
         auth_login(self.request, form.get_user())
         # Crea un evento de inicio de sesión
-        # tipo_evento = 'INICIO DE SESION'
-        # usuario_evento = self.request.user
-        # crear_evento(tipo_evento, usuario_evento)
+        tipo_evento = 'INICIO DE SESION'
+        usuario_evento = self.request.user
+        crear_evento(tipo_evento, usuario_evento)
         return HttpResponseRedirect(self.get_success_url())
 
     def get_context_data(self, **kwargs):
@@ -7083,12 +7907,6 @@ class LogoutView(RedirectURLMixin, TemplateView):
     # @method_decorator(csrf_protect) from post() to dispatch().
     @method_decorator(never_cache)
     def dispatch(self, request, *args, **kwargs):
-        if request.method.lower() == "get":
-            warnings.warn(
-                "Log out via GET requests is deprecated and will be removed in Django "
-                "5.0. Use POST requests for logging out.",
-                RemovedInDjango50Warning,
-            )
         return super().dispatch(request, *args, **kwargs)
 
     @method_decorator(csrf_protect)

@@ -34,7 +34,8 @@
         {% if entrada.nproject %}
         <br>Número de proyecto: {{ entrada.nproject }}
         {% endif %}
-        <br>Asignatura: {{ entrada.location }} - {{ entrada.location.facultad }}
+        <br>Asignatura:{% if entrada.location %}{{ entrada.location }} - {{ entrada.location.facultad }}{% endif %}
+            
         <br>Destino: {{ entrada.destination }}
         <br>Responsable: {{ entrada.manager }} - Correo electrónico: {{ entrada.manager.mail }}
         <br>Ubicación en almacén: {{ inventario.wlocation }}

@@ -28,66 +28,66 @@
     <ul>
         {% if request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
         <li>
-            <a href="{% url 'reactivos:crear_estado'%}" class="btn btn-primary" style="width: 100%;" title="redirecciona al formulario de creación de estados">Crear Estados</a>
+            <a href="{% url 'reactivos:crear_estado'%}" class="btn btn-primary multiline" style="width: 100%;" title="redirecciona al formulario de creación de estados">Crear Estados</a>
         </li>
         {% endif %}
         {% if request.user|has_group:"COORDINADOR" or request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
         <li>
-            <a href="{% url 'reactivos:crear_unidades'%}" class="btn btn-primary" style="width: 100%;" title="redirecciona al formulario de creación de unidades">Crear Unidades</a>
+            <a href="{% url 'reactivos:crear_unidades'%}" class="btn btn-primary multiline" style="width: 100%;" title="redirecciona al formulario de creación de unidades">Crear Unidades</a>
         </li>
         <li>
-            <a href="{% url 'reactivos:crear_almacenamiento_interno'%}" class="btn btn-primary" style="width: 100%;" title="redirecciona al formulario de creación de almacenamiento interno">Crear almacenamiento interno</a>
+            <a href="{% url 'reactivos:crear_almacenamiento_interno'%}" class="btn btn-primary multiline" style="width: 100%;" title="redirecciona al formulario de creación de almacenamiento interno">Crear Almacenamiento Interno</a>
         </li>
         <li>
-            <a href="{% url 'reactivos:crear_clase_almacenamiento'%}" class="btn btn-primary" style="width: 100%;" title="redirecciona al formulario de creación de clase de almacenamiento">Crear clase de almacenamiento</a>
+            <a href="{% url 'reactivos:crear_clase_almacenamiento'%}" class="btn btn-primary multiline" style="width: 100%;" title="redirecciona al formulario de creación de clase de almacenamiento">Crear Clase de Almacenamiento</a>
         </li>
         <li>
-            <a href="{% url 'reactivos:crear_reactivo'%}" class="btn btn-primary" style="width: 100%;" title="redirecciona al formulario de creación de reactivos">Crear reactivos</a>
+            <a href="{% url 'reactivos:crear_reactivo'%}" class="btn btn-primary multiline" style="width: 100%;" title="redirecciona al formulario de creación de reactivos">Crear Reactivos</a>
         </li>
         {% endif %}
         <li>
-            <a href="{% url 'reactivos:listado_reactivos'%}" class="btn btn-primary" style="width: 100%;" title="redirecciona a la vista listado de reactivos">Listado de reactivos</a>
+            <a href="{% url 'reactivos:listado_reactivos'%}" class="btn btn-primary multiline" style="width: 100%;" title="redirecciona a la vista listado de reactivos">Listado de Reactivos</a>
         </li>
     </ul>
     {% elif category == "inventario" %}
     <ul>
         <li>
-            <a href="{% url 'reactivos:registrar_entrada'%}" class="btn btn-primary" style="width: 100%;" title="Redirecciona al formulario de registro de entradas">Registrar Entradas</a>
+            <a href="{% url 'reactivos:registrar_entrada'%}" class="btn btn-primary multiline" style="width: 100%;" title="Redirecciona al formulario de registro de entradas">Registrar Entradas</a>
         </li>
         <li>
-            <a href="{% url 'reactivos:registrar_salida'%}" class="btn btn-primary" style="width: 100%;" title="Redirecciona al formulario de registro de salidas">Registrar Salidas</a>
+            <a href="{% url 'reactivos:registrar_salida'%}" class="btn btn-primary multiline" style="width: 100%;" title="Redirecciona al formulario de registro de salidas">Registrar Salidas</a>
         </li>
         <li>
-            <a href="{% url 'reactivos:crear_responsable'%}" class="btn btn-primary" style="width: 100%;" title="Redirecciona al formulario de creación de responsables">Crear Responsables</a>
+            <a href="{% url 'reactivos:crear_responsable'%}" class="btn btn-primary multiline" style="width: 100%;" title="Redirecciona al formulario de creación de responsables">Crear Responsables</a>
         </li>
         <li>
-            <a href="{% url 'reactivos:crear_marca'%}" class="btn btn-primary" style="width: 100%;" title="Redirecciona al formulario de creación de marrcas">Crear Marcas</a>
-        </li>
-        
-        <li>
-            <a href="{% url 'reactivos:crear_ubicacion'%}" class="btn btn-primary" style="width: 100%;" title="Redirecciona al formulario de creación de ubicaciones o asignaturas">Crear Ubicaciones / Asignaturas</a>
+            <a href="{% url 'reactivos:crear_marca'%}" class="btn btn-primary multiline" style="width: 100%;" title="Redirecciona al formulario de creación de marrcas">Crear Marcas</a>
         </li>
         
         <li>
-            <a href="{% url 'reactivos:crear_walmacen'%}" class="btn btn-primary" style="width: 100%;" title="Redirecciona al formulario de creación de ubicaciones en el almacén">Crear Ubicaciones en Almacén</a>
+            <a href="{% url 'reactivos:crear_ubicacion'%}" class="btn btn-primary multiline" style="width: 100%;" title="Redirecciona al formulario de creación de Asignatura / Ubicación">Crear Asignatura / Ubicación</a>
+        </li>
+        
+        <li>
+            <a href="{% url 'reactivos:crear_walmacen'%}" class="btn btn-primary multiline" style="width: 100%;" title="Redirecciona al formulario de creación de ubicaciones en el almacén">Crear Ubicaciones en Almacén</a>
         </li>
         <li>
-            <a href="{% url 'reactivos:inventario'%}" class="btn btn-primary" style="width: 100%;" title="Redirecciona a la vista listado de inventarios">Ver inventario</a>
+            <a href="{% url 'reactivos:inventario'%}" class="btn btn-primary multiline" style="width: 100%;" title="Redirecciona a la vista listado de inventarios">Ver Inventario</a>
         </li>
         {% if request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
         <li>
-            <a href="{% url 'reactivos:crear_facultad'%}" class="btn btn-primary" style="width: 100%;" title="Redirecciona al formulario de creación de facultades">Crear Facultades</a>
+            <a href="{% url 'reactivos:crear_facultad'%}" class="btn btn-primary multiline" style="width: 100%;" title="Redirecciona al formulario de creación de facultades">Crear Facultades</a>
         </li>
         <li>
-            <a href="{% url 'reactivos:crear_destino'%}" class="btn btn-primary" style="width: 100%;" title="Redirecciona al formulario de creación de destinos">Crear Destinos</a>
+            <a href="{% url 'reactivos:crear_destino'%}" class="btn btn-primary multiline" style="width: 100%;" title="Redirecciona al formulario de creación de destinos">Crear Destinos</a>
         </li>
         {% endif %}
         {% if request.user|has_group:"COORDINADOR" or request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
         <li>
-            <a href="{% url 'reactivos:listado_entradas'%}" class="btn btn-primary" style="width: 100%;" title="Redirecciona a la vista listado de entradas">Listado de entradas</a>
+            <a href="{% url 'reactivos:listado_entradas'%}" class="btn btn-primary multiline" style="width: 100%;" title="Redirecciona a la vista listado de entradas">Listado de Entradas</a>
         </li>
         <li>
-            <a href="{% url 'reactivos:listado_salidas'%}" class="btn btn-primary" style="width: 100%;" title="Redirecciona a la vista listado de salidas">Listado de salidas</a>
+            <a href="{% url 'reactivos:listado_salidas'%}" class="btn btn-primary multiline" style="width: 100%;" title="Redirecciona a la vista listado de salidas">Listado de Salidas</a>
         </li>									
         {% endif %}
     </ul>
@@ -95,46 +95,54 @@
     <ul>
 									
         <li>
-            <a href="{% url 'reactivos:registrar_solicitud'%}" class="btn btn-primary" style="width: 100%;" title="Redirecciona al formulario de registro de solicitudes">Registrar solicitud</a>
+            <a href="{% url 'reactivos:registrar_solicitud'%}" class="btn btn-primary multiline" style="width: 100%;" title="Redirecciona al formulario de registro de solicitudes">Registrar Solicitud</a>
         </li>
         <li>
-            <a href="{% url 'reactivos:descargar_manual'%}" class="btn btn-primary" style="width: 100%;" title="Descargar Manual de usuario">Manual de usuario</a>
+            <a href="{% url 'reactivos:descargar_manual'%}" class="btn btn-primary multiline" style="width: 100%;" title="Descargar Manual de usuario">Manual de Usuario</a>
         </li>
         {% if request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
         <li>
-            <a href="{% url 'reactivos:crear_tipo_solicitud'%}" class="btn btn-primary" style="width: 100%;" title="Redirecciona al formulario de creación de tipo de solicitud">Crear tipo de solicitud</a>
+            <a href="{% url 'reactivos:crear_tipo_solicitud'%}" class="btn btn-primary multiline" style="width: 100%;" title="Redirecciona al formulario de creación de tipo de solicitud">Crear Tipo de Solicitud</a>
         </li>
         <li>
-            <a href="{% url 'reactivos:listado_solicitudes'%}" class="btn btn-primary" style="width: 100%;" title="Redirecciona a la vista que muestra el listado de solicitudes">Listado de solicitudes</a>
+            <a href="{% url 'reactivos:listado_solicitudes'%}" class="btn btn-primary multiline" style="width: 100%;" title="Redirecciona a la vista que muestra el listado de solicitudes">Listado de Solicitudes</a>
         </li>
         {% endif %}
+        {% if request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser or request.user|has_group:"COORDINADOR" or request.user|has_group:"TECNICO" %}
+							
+        <li>
+        <a class="side-bar-link btn-primary multiline" href="{% url 'reactivos:listado_solicitudes_externas'%}"
+								title="Redirecciona a la vista que muestra el listado de solicitudes externas">Listado de
+								Solicitudes Externas</a>
+                            </li>
+		{% endif %}
     </ul>
     {% elif category == "usuarios" %}
     <ul>
         <li>
-            <a href="{% url 'reactivos:password_change'%}" class="btn btn-primary" style="width: 100%;" title="Redirecciona al formulario de cambio de contraseña">Cambiar contraseña</a>
+            <a href="{% url 'reactivos:password_change'%}" class="btn btn-primary multiline" style="width: 100%;" title="Redirecciona al formulario de cambio de contraseña">Cambiar Contraseña</a>
         </li>
         <li>
-            <a href="{% url 'reactivos:password_reset'%}" class="btn btn-primary" style="width: 100%;" title="Redirecciona al formulario de restablecimiento de contraseña">¿Olvido su contraseña?</a>
+            <a href="{% url 'reactivos:password_reset'%}" class="btn btn-primary multiline" style="width: 100%;" title="Redirecciona al formulario de restablecimiento de contraseña">¿Olvido su Contraseña?</a>
         </li>
         {% if request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
         <li>
-            <a href="{% url 'reactivos:crear_laboratorio'%}" class="btn btn-primary" style="width: 100%;" title="Redirecciona al formulario de creación de laboratorios">Crear Laboratorio</a>
+            <a href="{% url 'reactivos:crear_laboratorio'%}" class="btn btn-primary multiline" style="width: 100%;" title="Redirecciona al formulario de creación de laboratorios">Crear Laboratorio</a>
         </li>
         <li>
-            <a href="{% url 'reactivos:crear_roles'%}" class="btn btn-primary" style="width: 100%;" title="Redirecciona al formulario de creación de roles">Crear Roles</a>
+            <a href="{% url 'reactivos:crear_roles'%}" class="btn btn-primary multiline" style="width: 100%;" title="Redirecciona al formulario de creación de roles">Crear Roles</a>
         </li>
         {% endif %}
         {% if request.user|has_group:"COORDINADOR" or request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
         <li>
-            <a href="{% url 'reactivos:crear_usuarios'%}" class="btn btn-primary" style="width: 100%;" title="Redirecciona al formulario de creación de usuarios">Crear Usuarios</a>
+            <a href="{% url 'reactivos:crear_usuarios'%}" class="btn btn-primary multiline" style="width: 100%;" title="Redirecciona al formulario de creación de usuarios">Crear Usuarios</a>
         </li>
         <li>
-            <a href="{% url 'reactivos:listado_usuarios'%}" class="btn btn-primary" style="width: 100%;" title="Redirecciona a la vista listado de usuarios">Listado Usuarios</a>
+            <a href="{% url 'reactivos:listado_usuarios'%}" class="btn btn-primary multiline" style="width: 100%;" title="Redirecciona a la vista listado de usuarios">Listado de Usuarios</a>
         </li>
         {% endif %}
         <li>
-            <a href="{% url 'reactivos:logout'%}" class="btn btn-primary" style="width: 100%;" title="Cierra sesión de usuario">Cerrar sesión</a>
+            <a href="{% url 'reactivos:logout'%}" class="btn btn-primary multiline" style="width: 100%;" title="Cierra sesión de usuario">Cerrar Sesión</a>
         </li>
     </ul>
     {% elif category == "administrar" %}
@@ -142,16 +150,17 @@
 									
         {% if request.user.is_superuser %}
         <li>
-            <a href="{% url 'admin:index'%}" class="btn btn-primary" style="width: 100%;" title="Consola de superusuario">Consola de superusuario</a>
+            <a href="{% url 'admin:index'%}" class="btn btn-primary multiline" style="width: 100%;" title="Consola de superusuario">Consola de Superusuario</a>
         </li>										
         {% endif %}						
         
         <li>
-            <a href="{% url 'reactivos:configuraciones'%}" class="btn btn-primary" style="width: 100%;" title="Configuraciones generales del sistema">Configuraciones</a>
+            <a href="{% url 'reactivos:configuraciones'%}" class="btn btn-primary multiline" style="width: 100%;" title="Configuraciones generales del sistema">Configuraciones</a>
         </li>
         <li>
-            <a href="{% url 'reactivos:listado_eventos'%}" class="btn btn-primary" style="width: 100%;" title="Listado de eventos del sistema">Listado de eventos</a>
+            <a href="{% url 'reactivos:listado_eventos'%}" class="btn btn-primary multiline" style="width: 100%;" title="Listado de eventos del sistema">Listado de Eventos</a>
         </li>
+        
     </ul>
     {% endif %}
 </div>

@@ -1,0 +1,46 @@
+{% extends "webtemplate_residuos.html" %}
+{% load has_group %}
+{% load static %}
+
+<!doctype html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Inicio UniCLab Residuos{% endblock %}</title>
+    {% block head %}
+    <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous"> -->
+    <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe" crossorigin="anonymous"
+        defer></script> -->
+
+    <!-- Estilo para relleno de los enlaces, no se incluye en archivo de estilos, ya que este index de momento es solo funcional, no es definitivo -->
+
+    {% endblock %}
+</head>
+
+<body>
+    {% block content %}
+    <div class="col-lg-10 container inicio-container">
+        <div class="row">
+            <div class="col-xs-12 contenido">
+                <h1>Inicio UniCLab Residuos</h1>
+                <br>
+                <p>
+                    <h4><i>Bienvenido a UniCLab Residuos, usted se encuentra en el aplicativo de gestión de residuos de sustancias
+                            químicas
+                            de la Universidad Nacional de Colombia, Sede Manizales. <br><br><b>En Desarrollo</b></i></h4>
+                </p>
+
+                <!-- Agrega la imagen como marca de agua -->
+                <img src="{% static 'inventarioreac/Images/UniCLab_Residuos_logo.png' %}" alt="Logo UniCLab Residuos" class="marca-agua">
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+</body>
+
+</html>

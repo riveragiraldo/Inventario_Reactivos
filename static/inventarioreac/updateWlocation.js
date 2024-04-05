@@ -13,7 +13,7 @@ function updateWlocationOptions() {
     wlocationInput.innerHTML = '';
 
     // Realizar una solicitud AJAX para obtener las ubicaciones correspondientes al laboratorio seleccionado
-    fetch(`/api/wlocations?lab=${selectedLab}`)
+    fetch(`/api/wlocations/?lab=${selectedLab}`)
         .then(response => response.json())
         .then(data => {
             // Iterar sobre la respuesta JSON (lista de ubicaciones)

@@ -5,6 +5,7 @@ from django.contrib.auth.models import AbstractUser,User,Permission
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import Permission, Group
 from django.contrib.contenttypes.models import ContentType
+from django.core.validators import RegexValidator, EmailValidator
 
 
 
@@ -181,6 +182,7 @@ class ConfiguracionSistema(models.Model):
     programacion_activa=models.BooleanField(default=False, verbose_name="Activar / Desactivar programación")
     manual = models.FileField(upload_to='manual/', null=True, blank=True)
     logo_institucional=models.ImageField(upload_to='logo',null=True, blank=True)
+    url=models.CharField(max_length=500, verbose_name='Url', blank=True, null=True, default='https://manizales.unal.edu.co/')
     
     
 
@@ -193,7 +195,7 @@ class ConfiguracionSistema(models.Model):
 
 # Modelo para tabla Marcas en base de datos Reactivos
 class Marcas(models.Model):
-    name = models.CharField(max_length=30, verbose_name="Marca")
+    name = models.CharField(max_length=50, verbose_name="Marca")
     is_active = models.BooleanField(default=True)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Usuario')
     date_create = models.DateTimeField(auto_now_add=True, verbose_name='Fecha Registro')
@@ -295,10 +297,10 @@ class Facultades(models.Model):
 class AlmacenamientoInterno(models.Model):
     name = models.CharField(max_length=100, verbose_name="Nombre")
     description=models.TextField(max_length=1000, verbose_name="Descripción")
-    is_active = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=True, null=True, blank=True)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Usuario')
-    date_create = models.DateTimeField(auto_now_add=True,verbose_name='Fecha registro',)
-    last_update = models.DateTimeField(auto_now=True,verbose_name='Última Actualización')
+    date_create = models.DateTimeField(auto_now_add=True,verbose_name='Fecha registro', null=True, blank=True)
+    last_update = models.DateTimeField(auto_now=True,verbose_name='Última Actualización', null=True, blank=True)
     last_updated_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Actualizado por',related_name='updateby_respel',)
 
     def __str__(self):
@@ -312,18 +314,18 @@ class AlmacenamientoInterno(models.Model):
 class ClaseAlmacenamiento(models.Model):
     name = models.CharField(max_length=100, verbose_name="Nombre")
     description=models.TextField(max_length=1000, verbose_name="Descripción")
-    is_active = models.BooleanField(default=True)
-    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Usuario')
-    date_create = models.DateTimeField(auto_now_add=True,verbose_name='Fecha registro',)
-    last_update = models.DateTimeField(auto_now=True,verbose_name='Última Actualización')
-    last_updated_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Actualizado por',related_name='updateby_Clase_Alamcenamiento',)
+    is_active = models.BooleanField(default=True, null=True, blank=True)
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Usuario', related_name='created_by')
+    date_create = models.DateTimeField(auto_now_add=True,verbose_name='Fecha registro', null=True, blank=True)
+    last_update = models.DateTimeField(auto_now=True,verbose_name='Última Actualización', null=True, blank=True)
+    last_updated_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Actualizado por', related_name='updateby_storage_class')
 
     def __str__(self):
         return self.name
 
     class Meta:
-        verbose_name_plural = 'Clase de almacenamiento'
-        verbose_name = 'Clase de almacenamiento'
+        verbose_name_plural = 'Clases de almacenamiento'
+        verbose_name = 'Clase de Almacenamiento'
 
 # Modelo para tabla Ubicaciones en base de datos Reactivos
 class Ubicaciones(models.Model):
@@ -348,7 +350,7 @@ class Ubicaciones(models.Model):
 # Modelo para tabla Almacenamiento (Ubicaciones en almacén) en base de datos Reactivos
 class Almacenamiento(models.Model):
     name = models.CharField(
-        max_length=100, verbose_name="Ubicación/Asignaturas")
+        max_length=100, verbose_name="Ubicación en almacen")
     lab=models.ForeignKey(Laboratorios, on_delete=models.CASCADE, related_name='labrel', verbose_name='Laboratorio')    
     description=models.TextField(max_length=1000, verbose_name="Descripción")
     is_active = models.BooleanField(default=True)
@@ -356,6 +358,7 @@ class Almacenamiento(models.Model):
     date_create = models.DateTimeField(auto_now_add=True,verbose_name='Fecha registro',)
     last_update = models.DateTimeField(auto_now=True,verbose_name='Última Actualización')
     last_updated_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Actualizado por',related_name='updateby_Storage',)
+    
     def __str__(self):
         return self.name
 
@@ -373,9 +376,9 @@ class Reactivos(models.Model):
     state = models.ForeignKey(Estados, on_delete=models.CASCADE,
                               related_name='state', verbose_name="Presentación")
     almacenamiento_interno = models.ForeignKey(AlmacenamientoInterno, on_delete=models.CASCADE,
-                              related_name='AlmacenamientoInterno', verbose_name="Almacenamiento Interno")
+                              related_name='AlmacenamientoInterno', verbose_name="Almacenamiento Interno", blank=True, null=True)
     clase_almacenamiento = models.ForeignKey(ClaseAlmacenamiento, on_delete=models.CASCADE,
-                              related_name='ClaseAlmacenamiento', verbose_name="Clase Almacenamiento")
+                              related_name='ClaseAlmacenamiento', verbose_name="Clase Almacenamiento", blank=True, null=True)
     is_active = models.BooleanField(default=True)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Usuario')
     date_create = models.DateTimeField(auto_now_add=True,verbose_name='Fecha registro',)
@@ -409,8 +412,8 @@ class Entradas(models.Model):
     observations = models.TextField(
         max_length=1000, verbose_name='Observaciones')
     location = models.ForeignKey(
-        Ubicaciones, on_delete=models.CASCADE, related_name='Ubicacion', verbose_name='Asignatura/Ubicación')
-    price=models.DecimalField(max_digits=20, decimal_places=2, verbose_name="Valor")
+        Ubicaciones, on_delete=models.CASCADE, related_name='Ubicacion', verbose_name='Asignatura/Ubicación', blank=True, null=True)
+    price=models.DecimalField(max_digits=20, decimal_places=2, verbose_name="Valor", blank=True, null=True)
     
     nproject=models.CharField(max_length=15, verbose_name='Número de proyecto')
     destination=models.ForeignKey(Destinos, on_delete=models.CASCADE, verbose_name='Destino')
@@ -478,6 +481,7 @@ class Inventarios(models.Model):
     lab=models.ForeignKey(Laboratorios, on_delete=models.CASCADE, related_name='laboratorio', verbose_name='Laboratorio')
     wlocation=models.ForeignKey(Almacenamiento, on_delete=models.CASCADE, related_name='wloc', verbose_name='Ubicación en Almacén')
     edate=models.DateField(verbose_name="Fecha de vencimiento", null=True, blank=True)
+    visibility=models.BooleanField(default=True, verbose_name='Visibilidad')
     minStockControl = models.BooleanField(default=True, verbose_name='Control de Stock Mínimo')
     minstock = models.DecimalField(
         max_digits=8, decimal_places=2, blank=True, null=True, default=0, help_text="Ingrese el stock mínimo (puede ser nulo).", verbose_name="Stock mínimo")
@@ -497,3 +501,45 @@ class Inventarios(models.Model):
 
 
 
+
+
+
+
+# Modelo SolicitudesExternas
+class SolicitudesExternas(models.Model):
+    # Validador para nombres y apellidos (solo letras y espacios)
+    name_validator = RegexValidator(
+        regex='^[A-Za-z\s]+$',
+        message='El nombre y apellido debe incluir únicamente letras, máximo 50 caracteres.',
+    )
+
+    # Validador para números de móvil en el rango especificado
+    mobile_number_validator = RegexValidator(
+        regex='^[3-9]\d{9}$',
+        message='El número de móvil debe estar en el rango de 3000000000 a 3999999999.',
+    )
+
+    # Validador para correos con dominio @unal.edu.co
+    email_validator = EmailValidator(
+        message='El correo electrónico debe pertenecer al dominio @unal.edu.co.',
+        allowlist=['@unal.edu.co']
+    )
+
+    # Campos del modelo SolicitudesExternas
+    name = models.CharField(max_length=50, validators=[name_validator], verbose_name='Nombres y apellidos',)
+    subject = models.CharField(max_length=100, verbose_name='Asunto',)
+    message = models.TextField(max_length=1000, verbose_name='Mensaje',)
+    attach = models.FileField(upload_to='solicitud_attachments/', null=True, blank=True, verbose_name='Archivos adjunto',)
+    registration_date = models.DateTimeField(auto_now_add=True, editable=False)
+    lab = models.ForeignKey(Laboratorios, on_delete=models.CASCADE, verbose_name='Fecha y hora de solicitud',)
+    email = models.EmailField(validators=[email_validator], verbose_name='Correo Electrónico',)
+    mobile_number = models.CharField(max_length=10, validators=[mobile_number_validator], verbose_name='Teléfono Móvil',)
+    department = models.CharField(max_length=100, verbose_name='Departamento',)
+    accept_politics = models.BooleanField(verbose_name='PTDP', blank=False, null=False)
+    is_view= models.BooleanField(verbose_name='Visto', default=False,)
+
+    class Meta:
+        verbose_name_plural = "Solicitudes Externas"
+
+    def __str__(self):
+        return f'Solicitud de {self.name} - {self.subject}'

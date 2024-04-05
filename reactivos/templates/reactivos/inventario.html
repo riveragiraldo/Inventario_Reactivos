@@ -9,12 +9,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}Visualización de inventarios{% endblock %}</title>
     {% block head %}
-    <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe" crossorigin="anonymous"
-        defer>
-        </script> -->
+    <!-- jquery para autocomplete -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+    
+    <script src="https://code.jquery.com/ui/1.13.0/jquery-ui.min.js"></script>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.0/themes/smoothness/jquery-ui.css">
 
     <!-- Incluir SweetAlert2 desde CDN -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.min.js"></script>
@@ -41,7 +40,6 @@
     <link rel="stylesheet" href="{% static 'inventarioreac/inventoryStyles.css' %}">
     <script src="{% static 'inventarioreac/paginationInventoryControl.js' %}"></script>
     <!-- Llama Script que controla la paginación -->
-    <script src="{% static 'inventarioreac/selectControl.js' %}" defer></script>
     <!-- Llama Script que controla los select según el inventario -->
     <script src="{% static 'inventarioreac/holdSelect.js' %}" defer></script>
     <!-- Llama Script que controla los select según el inventario -->
@@ -51,27 +49,31 @@
     <script src="{% static 'inventarioreac/sortByControl.js' %}" defer></script>
     <!-- Llama Script que envía datos de ordenamiento de registros -->
     <script src="{% static 'inventarioreac/openDetailReactive.js' %}" defer></script>
-    <script src="{% static 'inventarioreac/openDetailUser.js' %}" defer></script>
     <!-- Llama Script que resalta los controles de paginación -->
     <script src="{% static 'inventarioreac/updateUrl.js' %}"></script>
     <!-- Llama Script que actualiza URL -->
-    <script src="{% static 'inventarioreac/validateEDateReagent.js' %}" defer></script>
     <!-- Llama Script que verifica la fecha de vencimiento de los reactivos -->
+    <script src="{% static 'inventarioreac/listActionsControl.js' %}" defer></script>
+    <!-- Llama Script que controla las acciones de la lista -->
+    <script src="{% static 'inventarioreac/js/clearFieldsFindEvent.js' %}" defer></script>
+    <!-- Llama Script que Limpia la búsqueda -->
+    <script src="{% static 'inventarioreac/autocompletelistin.js' %}"></script>
+    <!-- Llama Script que coloca una lista autocompletable de reactivos sobre el campo name -->
     {% endblock %}
 </head>
 
 <body>
     {% block content %}
-    <div class="row col-md-7 mb-4">
-        <div class="card">
+    
+        <div class="card col-md-9 col-lg-9" style="margin-left: -15px;">
             <div class="card-header">
                 <h1>Inventario Reactivos</h1>
             </div>
             <br>
             <div class="card-body">
-                <form method="get" onsubmit="guardarValoresSelect()" class="row g-3">
+                <form method="get" onsubmit="guardarValoresSelect()" class="row g-3" name="listadoReactivos" id="listadoReactivos">
 
-                    <div class="form-group col-md-4">
+                    <div class="form-group col-md-6">
                         <label for="lab">Laboratorio:</label>
                         {% if request.user|has_group:"COORDINADOR" or request.user|has_group:"TECNICO" %}
                         <select name="lab" class="form-control" id="lab">
@@ -85,7 +87,7 @@
 
                         {% if request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
                         <select name="lab" class="form-control" id="lab">
-                            <option value='0' selected="">Todos</option>
+                            <option value='0' selected="">TODOS</option>
                             {% for lab in laboratorios %}
                             <option value="{{ lab.id }}">{{ lab.name }}</option>
                             {% endfor %}
@@ -93,35 +95,25 @@
                         {% endif %}
                     </div>
 
-                    <div class="form-group col-md-4">
-                        <label for="name">Nombre Reactivo:</label>
-                        <select id="name" name="name" class="form-control">
-                            <option value="">Todos</option>
-                            {% for item in unique_names %}
-                            <option value="{{ item.id }}">{{ item.name }}</option>
-                            {% endfor %}
-                        </select>
+                    <div class="form-group col-md-6">
+                        <label for="name">Nombre, código o cas:</label>
+                        <input type="text" class="form-control" id="name" name="name">
+                        <input type="hidden" id="id_r" name="id_r">
                     </div>
 
-                    <div class="form-group col-md-4">
-                        <label for="trademark">Marca:</label>
-                        <select id="trademark" name="trademark" class="form-control">
-                            <option value="">Todas</option>
-                            {% for item in unique_trademarks %}
-                            <option value="{{ item.id }}">{{ item.name }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
             </div>
 
-            <div class="card-footer">
+            <div class="card-footer text-md-left">
                 <button id="boton-buscar" type="submit" class="btn btn-primary">Buscar</button>
+                <button type="button" class="btn btn-success visible-xs-inline" onclick="limpiarCampos('listadoReactivos')">Limpiar
+                    búsqueda
+                </button>
             </div>
             </form>
         </div>
-    </div>
+    
 
-    <div class="row col-md-7" style="margin-top: 20px; margin-bottom: 10px;">
+    <div class="col-md-12 col-lg-12" style="margin-bottom: 10px; margin-top: 10px; margin-left: -15px;">
         <!-- Control de paginación -->
         <div class="d-flex justify-content-between">
             <div>Ver&nbsp;
@@ -141,97 +133,104 @@
     
     <br>
     <div class="table-responsive">
-        <table class="table table-striped table-condensed table-bordered" id="tabla-inventario">
-            <thead style="background-color: rgb(171, 169, 169);position: sticky; top: 0; z-index: 10;">
+        <table class="table custom-table" id="tabla-inventario">
+            <thead style="background-color: rgb(205, 203, 203); position: sticky; top: 0; z-index: 10; border-bottom: 1px solid black; border-top: 1px solid black;">
                 <tr>
-                    <th class="sortable-header" data-column="0" data-column-name="id" title="Ordenar por Consecutivo">Id
-                    </th>
-                    <th class="sortable-header" data-column="1" title="Ordenar por código">Cód.</th>
-                    <th class="sortable-header" data-column="2" title="Ordenar por cas">CAS</th>
-                    <th class="sortable-header" data-column="3" title="Ordenar por nombre">Nombre</th>
-                    <th class="sortable-header" data-column="4" title="Ordenar por marca">Marca</th>
-                    <th class="sortable-header" data-column="5" title="Ordenar por referencia">Ref.</th>
-                    <th class="sortable-header" data-column="6" title="Ordenar por cantidad">Cant.</th>
-                    <th class="sortable-header" data-column="7" title="Ordenar por Stock Mínimo">Stock Mín.</th>
-                    <th class="sortable-header" data-column="8" title="Ordenar por ubicación">Ubicación</th>
-                    <th class="sortable-header" data-column="9" title="Ordenar por laboratorio">Lab.</th>
-                    <th class="sortable-header" data-column="10" data-column-name="date"
-                        title="Ordenar por fecha de vencimiento">Venc.</th>
-                    <th class="sortable-header" data-column="11" title="Ordenar por Responsable del Registro">Usuario reg.</th>
-                    <th class="sortable-header" data-column="12" title="Ordenar por Última Actualización por">Usuario act.</th>
-                    <th class="sortable-header" title="Visualización de detalle (no ordena)">Más</th>
+                    <th class="sortable-header hidden-xs" data-column="0" data-column-name="id" title="Ordenar por código" style="border-bottom: 1px solid black; border-top: 1px solid black;text-align: left; vertical-align: middle;">Id</th>
+                    <th class="sortable-header" data-column="1" title="Ordenar por nombre" style="border-bottom: 1px solid black; border-top: 1px solid black;text-align: left; vertical-align: middle;">Nombre</th>
+                    <th class="sortable-header hidden-xs" data-column="2" title="Ordenar por marca" style="border-bottom: 1px solid black; border-top: 1px solid black;text-align: left; vertical-align: middle;">Marca</th>
+                    <th class="sortable-header hidden-xs" data-column="3" title="Ordenar por referencia" style="border-bottom: 1px solid black; border-top: 1px solid black;text-align: left; vertical-align: middle;">Referencia</th>
+                    <th class="sortable-header" data-column="4" title="Ordenar por cantidad" style="border-bottom: 1px solid black; border-top: 1px solid black;text-align: left; vertical-align: middle;">Cantidad</th>
+                    <th class="sortable-header hidden-xs" data-column="5" title="Ordenar por Stock Mínimo" style="border-bottom: 1px solid black; border-top: 1px solid black;text-align: left; vertical-align: middle;">Inventario Mínimo</th>
+                    <th class="sortable-header hidden-xs" data-column="6" title="Ordenar por ubicación" style="border-bottom: 1px solid black; border-top: 1px solid black;text-align: left; vertical-align: middle;">Ubicación</th>
+                    <th class="sortable-header hidden-xs" data-column="7" title="Ordenar por laboratorio"style="border-bottom: 1px solid black; border-top: 1px solid black;text-align: left; vertical-align: middle;">Laboratorio</th>
+                    <th class="sortable-header hidden-xs" data-column="8" data-column-name="date"title="Ordenar por fecha de vencimiento" style="border-bottom: 1px solid black; border-top: 1px solid black;text-align: left; vertical-align: middle; cursor: default;">Vencimiento</th>
+                    <th class="sortable-header" title="Visibilidad a los demás laboratorios" style="border-bottom: 1px solid black; border-top: 1px solid black;text-align: left; vertical-align: middle; cursor: default;">Visbilidad</th>
+                    
                 </tr>
             </thead>
 
             <tbody>
                 {% for item in object_list %}
                 <tr class="table-row">
-                    <td title="Número de registro de la entrada">{{ item.id }}</td>
-                    <td title="Código Interno de {{ item.name }}">{{ item.name.code }}</td>
-                    <td title="CAS de {{ item.name }}">{{ item.name.cas }}</td>
-                    <td title="Nombre: {{ item.name }}">{{ item.name }}</td>
-                    <td title="Marca de {{ item.name }}">{{ item.trademark }}</td>
-                    <td title="Referencia de {{ item.name }}">{{ item.reference }}</td>
-                    <td title="Cantidad  de {{ item.name }}">{{ item.weight|floatformat:1 }} {{ item.name.unit }}</td>
-                    <td title="Stock Mínimo">{{ item.minstock|floatformat:0 }} {{ item.name.unit }}</td>
-                    <td title="Ubicación en almacén de {{ item.name }}">{{ item.wlocation }}</td>
-                    <td title="Labratorio al que pertenece el reactivo {{ item.name }}">{{ item.lab }}</td>
-                    <td title="Fecha de vencimiento del reactivo {{ item.name }}" data-reactivo-name="{{ item.name }}"
-                        data-reactivo-edate="{{ item.edate }}">
+                    
+                    <td title="Consecutivo {{ item.id }}" style="border-bottom: 1px solid black; border-top: 1px solid black; cursor: default;" class="codes-reagent hidden-xs">{{ item.id }}</td>
+                    <td title="Nombre: {{ item.name }}" class="detalle-reactivo name-reagent" style="border-bottom: 1px solid black; border-top: 1px solid black;"
+                    data-reactivo-id="{{ item.id }}"
+                    data-reactivo-name="{{ item.name }}" data-reactivo-code="{{ item.name.code }}"
+                    data-reactivo-cas="{{ item.name.cas }}" data-reactivo-trademark="{{ item.trademark }}"
+                    data-reactivo-reference="{{ item.reference }}"
+                    data-reactivo-quantity="{{ item.weight|floatformat:1 }}"
+                    data-reactivo-minstock="{{ item.minstock|floatformat:0 }}"
+                    data-reactivo-unit="{{ item.name.unit }}" data-reactivo-wlocation="{{ item.wlocation }}"
+                    data-reactivo-lab="{{ item.lab }}" data-reactivo-edate="{{ item.edate }}"
+                    data-reactivo-almacenamiento_interno="{{ item.name.almacenamiento_interno }}"
+                    data-reactivo-clase_almacenamiento="{{ item.name.clase_almacenamiento }} {{ item.name.clase_almacenamiento.description }}"
+                    data-reactivo-state="{{ item.name.state }}"
+                    data-reactivo-date_create="{{ item.date_create }}"
+                    data-reactivo-create_by="{{ item.created_by.first_name }} {{ item.created_by.last_name }}"
+                    data-reactivo-lastupdate="{{ item.last_update }}"
+                    data-reactivo-update_by="{{ item.last_updated_by.first_name }} {{ item.last_updated_by.last_name }}"
+                    title="Más información sobre el registro de inventario de: {{ item.name }}"><a>{{ item.name }}</a></td>
+                    <td title="Marca {{ item.trademark }}" class="trademark-reagent hidden-xs" style="border-bottom: 1px solid black; border-top: 1px solid black; cursor: default;">{{ item.trademark }}</td>
+                    <td title="Referencia {{ item.reference }}" class="codes-reagent hidden-xs" style="border-bottom: 1px solid black; border-top: 1px solid black; cursor: default;">{{ item.reference }}</td>
+                    <td title="Cantidad  {{ item.weight|floatformat:1 }} {{ item.name.unit }}" style="border-bottom: 1px solid black; border-top: 1px solid black; cursor: default;">{{ item.weight|floatformat:1 }} {{ item.name.unit }}</td>
+                    <td title="Stock Mínimo {{ item.minstock|floatformat:0 }} {{ item.name.unit }}" class="codes-reagent hidden-xs" style="border-bottom: 1px solid black; border-top: 1px solid black; cursor: default;">{{ item.minstock|floatformat:0 }} {{ item.name.unit }}</td>
+                    <td title="Ubicación {{ item.wlocation }}" class="trademark-reagent hidden-xs" style="border-bottom: 1px solid black; border-top: 1px solid black; cursor: default;">{{ item.wlocation }}</td>
+                    <td title="Laboratorio {{ item.lab }}" class="trademark-reagent hidden-xs" style="border-bottom: 1px solid black; border-top: 1px solid black; cursor: default;">{{ item.lab }}</td>
+                    <td title="Fecha de vencimiento {% if item.edate %}{{ item.edate }}{% endif %}" style="border-bottom: 1px solid black; border-top: 1px solid black; cursor: default;" class="hidden-xs">
                         {% if item.edate %}
                         {{ item.edate }}
                         {% endif %}
                     </td>
-                    <td class="created_by_cell"
-                        title="Más información de: {{ item.created_by.first_name }} {{ item.created_by.last_name }}"
-                        date_user_create="{{ item.created_by.first_name }} {{ item.created_by.last_name }}"
-                        data-reactivo-name="{{ item.name }}" data-reactivo-date="{{ item.date_create|date:'d/m/Y' }}"
-                        date_user_id="{{ item.created_by.id_number }}"
-                        date_user_username="{{ item.created_by.username }}" date_user_mail="{{ item.created_by.email }}"
-                        date_user_phone="{{ item.created_by.phone_number }}" date_user_lab="{{ item.created_by.lab }}"
-                        date_user_rol="{{ item.created_by.rol }}"
-                        date_user_datejoined="{{ item.created_by.date_joined }}"
-                        date_user_lastlogin="{{ item.created_by.last_login }}" date_user_type="crea"
-                        date_user_vist="el registro de inventario">{{ item.created_by.first_name }}
-                        {{item.created_by.last_name }}
-                    </td>
-                    <td class="created_by_cell"
-                        title="Más información de: {{ item.last_updated_by.first_name }} {{ item.last_updated_by.last_name }}"
-                        date_user_create="{{ item.last_updated_by.first_name }} {{ item.last_updated_by.last_name }}"
-                        data-reactivo-name="{{ item.name }}" data-reactivo-date="{{ item.last_update|date:'d/m/Y' }}"
-                        date_user_id="{{ item.last_updated_by.id_number }}"
-                        date_user_username="{{ item.last_updated_by.username }}"
-                        date_user_mail="{{ item.last_updated_by.email }}"
-                        date_user_phone="{{ item.last_updated_by.phone_number }}"
-                        date_user_lab="{{ item.last_updated_by.lab }}" date_user_rol="{{ item.last_updated_by.rol }}"
-                        date_user_datejoined="{{ item.last_updated_by.date_joined }}"
-                        date_user_lastlogin="{{ item.last_updated_by.last_login }}" date_user_type="actualiza"
-                        date_user_vist="el registro de inventario">{{ item.last_updated_by.first_name }}
-                        {{item.last_updated_by.last_name }}</td>
+                    <td title="Visibilidad de reactivo {{ item.name }}: {% if item.visibility %}visible{% else %}no visible{% endif %}" style="border-bottom: 1px solid black; border-top: 1px solid black; text-align: center;">
 
-                    <!-- Modifica el evento click de la imagen para mostrar SweetAlert -->
-                    <td>
-                        <img src="{% static 'inventarioreac/Images/moreInfo.ico' %}" alt="" width="18" height="18"
-                            class="detalle-reactivo" data-reactivo-id="{{ item.id }}"
-                            data-reactivo-name="{{ item.name }}" data-reactivo-code="{{ item.name.code }}"
-                            data-reactivo-cas="{{ item.name.cas }}" data-reactivo-trademark="{{ item.trademark }}"
-                            data-reactivo-reference="{{ item.reference }}"
-                            data-reactivo-quantity="{{ item.weight|floatformat:1 }}"
-                            data-reactivo-unit="{{ item.name.unit }}" data-reactivo-wlocation="{{ item.wlocation }}"
-                            data-reactivo-lab="{{ item.lab }}" data-reactivo-edate="{{ item.edate }}"
-                            data-reactivo-almacenamiento_interno="{{ item.name.almacenamiento_interno }}"
-                            data-reactivo-clase_almacenamiento="{{ item.name.clase_almacenamiento }} {{ item.name.clase_almacenamiento.description }}"
-                            data-reactivo-state="{{ item.name.state }}"
-                            data-reactivo-date_create="{{ item.date_create }}"
-                            data-reactivo-create_by="{{ item.created_by.first_name }} {{ item.created_by.last_name }}"
-                            data-reactivo-lastupdate="{{ item.last_update }}"
-                            data-reactivo-update_by="{{ item.last_updated_by.first_name }} {{ item.last_updated_by.last_name }}"
-                            title="Más información sobre el registro de inventario de: {{ item.name }}">
+                        <!-- si es adminstrador permite activar o inactivar si no lo es solo muestra la imagen -->
+                        {% if request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser or request.user|has_group:"COORDINADOR" %}
+                        {% if item.visibility %}
+                        <a href="javascript:void(0);" onclick="confirmHideReagent({{ item.id }}, '{{ item.name }}')"><img
+                                src="{% static 'inventarioreac/Images/active_icon.png' %}" alt="" width="18" height="18"
+                                title="Desactivar visibilidad de reactivo {{ item.name }}"></a>
+                        {% else %}
+                        <a href="javascript:void(0);" onclick="confirmShowReagent({{ item.id }}, '{{ item.name }}')"><img
+                                src="{% static 'inventarioreac/Images/inactive_icon.png' %}" alt="" width="18"
+                                height="18" title="Activar visibilidad de reactivo {{ item.name }}"></a>
+                        {% endif %}
+                        {% elif request.user|has_group:"TECNICO" %}
+                        {% if item.visibility %}
+                        <img src="{% static 'inventarioreac/Images/active_icon.png' %}" alt="" width="18" height="18"
+                            title="Reactivo {{ item.name }} visible a otros laboratorios">
+                        {% else %}
+                        <img src="{% static 'inventarioreac/Images/inactive_icon.png' %}" alt="" width="18" height="18"
+                            title="Reactivo {{ item.name }} no visible a otros laboratorios">
+                        {% endif %}
+                        {% endif %}
                     </td>
-
                 </tr>
                 {% endfor %}
             </tbody>
+            
+            {% if reactivo_filtrado %}
+                
+            
+                
+            <tfoot style="background-color: #419741e7; color: #f7fff6;">
+                <tr>
+                    <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; font-weight: bold;" class="hidden-xs">TOTAL</td>
+                    <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; font-weight: bold;">{{ reactivo_filtrado }}</td>
+                    <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; font-weight: bold;" class="hidden-xs"></td>
+                    <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; font-weight: bold;" class="hidden-xs"></td>
+                    <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; font-weight: bold;">{{ cantidad_filtrada }} {{ unidad_filtrada }}</td>
+                    <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; font-weight: bold;" class="hidden-xs"></td>
+                    <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; font-weight: bold;" class="hidden-xs"></td>
+                    <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; font-weight: bold;" class="hidden-xs"></td>
+                    <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; font-weight: bold;" class="hidden-xs"></td>
+                    <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; font-weight: bold;"></td>
+                      
+                </tr>
+            </tfoot>
+            
+            {% endif %}
         </table>
 
         <br>

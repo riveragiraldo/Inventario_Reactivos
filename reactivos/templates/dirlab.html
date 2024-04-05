@@ -1,0 +1,321 @@
+{% load static %}<!-- Permite invocar archivos estáticos -->
+{% load has_group %}<!-- Template tag de configuración de grupos -->
+<!DOCTYPE html>
+<!--[if lt IE 7]> <html class="ie6 oldie"> <![endif]-->
+<!--[if IE 7]> <html class="ie7 oldie"> <![endif]-->
+<!--[if IE 8]> <html class="ie8 oldie"> <![endif]-->
+<!--[if IE 9]> <html class="ie9 oldie"> <![endif]-->
+<!--[if (gt IE 9)|!(IE)]><!-->
+<html>
+<!--<![endif]-->
+
+<head>
+	<meta charset="utf-8">
+	<!-- 
+	 =============================================================================
+	 === PLANTILLA DESARROLLADA POR LA OFICINA DE MEDIOS DIGITALES - UNIMEDIOS ===
+	 =============================================================================
+		-->
+
+	<!-- base href="http://subdominio.unal.edu.co/" -->
+	<link rel="shortcut icon" href="{% static 'inventarioreac/images/favicon.ico' %}" type="image/x-icon">
+
+
+	<meta name="revisit-after" content="1 hour">
+	<meta name="distribution" content="all">
+	<meta name="viewport"
+		content="width=device-width, initial-scale=1.0, minimum-scale=0.5, maximum-scale=2.5, user-scalable=yes">
+	<meta name="expires" content="1">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="robots" content="all">
+
+
+	<link rel="stylesheet" type="text/css" href="{% static 'inventarioreac/css/bootstrap.min.css' %}" media="all">
+	<link rel="stylesheet" type="text/css" href="{% static 'inventarioreac/css/bootstrap-theme.min.css' %}" media="all">
+	<link rel="stylesheet" type="text/css" href="{% static 'inventarioreac/css/reset.css' %}" media="all">
+	<link rel="stylesheet" type="text/css" href="{% static 'inventarioreac/css/unal.css' %}" media="all">
+	<link rel="stylesheet" type="text/css" href="{% static 'inventarioreac/css/base.css' %}" media="all">
+	<link rel="stylesheet" type="text/css" href="{% static 'inventarioreac/css/tablet.css' %}" media="all">
+	<link rel="stylesheet" type="text/css" href="{% static 'inventarioreac/css/phone.css' %}" media="all">
+	<link rel="stylesheet" type="text/css" href="{% static 'inventarioreac/css/small.css' %}" media="all">
+	<link rel="stylesheet" type="text/css" href="{% static 'inventarioreac/css/printer.css' %}" media="print">
+
+	<script src="{% static 'inventarioreac/js/webtemplate.js' %}" type="text/javascript" defer></script>
+	<script src="{% static 'inventarioreac/js/jquery.js' %}" type="text/javascript"></script>
+	<script src="{% static 'inventarioreac/js/unal.js' %}" type="text/javascript"></script>
+	<!-- jQuery -->
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+	<!-- Bootstrap CSS -->
+	<!-- <link href="https://stackpath.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet"> -->
+
+	<!-- Bootstrap JS (incluyendo jQuery) -->
+	<!-- <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script> -->
+
+	<!--[if lt IE 9]><script src="js/html5shiv.js" type="text/javascript"></script><![endif]-->
+	<!--[if lt IE 9]><script src="js/respond.js" type="text/javascript"></script><![endif]-->
+	{% block head %}{% endblock %}
+
+
+	<title>{% block title %}Inicio: Universidad Nacional de Colombia{% endblock %}</title>
+</head>
+
+<body>
+	<div id="services">
+		<div class="indicator hidden-xs"></div>
+		<ul class="dropdown-menu">
+			<li>
+				<a href="http://correo.unal.edu.co" target="_blank"><img
+						src="{% static 'inventarioreac/images/icnServEmail.png' %}" width="32" height="32"
+						alt="Correo Electrónico">Correo Electrónico</a>
+			</li>
+			<li>
+				<a href="https://dninfoa.unal.edu.co" target="_blank"><img
+						src="{% static 'inventarioreac/images/icnServSia.png' %}" width="32" height="32"
+						alt="Dirección Nacional de Información Académica">DNINFOA - SIA</a>
+			</li>
+			<li>
+				<a href="http://bibliotecas.unal.edu.co" target="_blank"><img
+						src="{% static 'inventarioreac/images/icnServLibrary.png' %}" width="32" height="32"
+						alt="Biblioteca">Bibliotecas</a>
+			</li>
+			<li>
+				<a href="http://personal.unal.edu.co" target="_blank"><img
+						src="{% static 'inventarioreac/images/icnServCall.png' %}" width="32" height="32"
+						alt="Convocatorias">Convocatorias</a>
+			</li>
+			<li>
+				<a href="http://identidad.unal.edu.co"><img
+						src="{% static 'inventarioreac/images/icnServIdentidad.png' %}" width="32" height="32"
+						alt="Identidad U.N.">Identidad U.N.</a>
+			</li>
+		</ul>
+	</div>
+	<header id="unalTop">
+		<div class="logo">
+			<a href="http://unal.edu.co">
+				<!--[if (gte IE 9)|!(IE)]><!-->
+				<svg width="93%" height="93%">
+					<image xlink:href="{% static 'inventarioreac/images/escudoUnal.svg' %}" width="100%" height="100%"
+						class="hidden-print" />
+				</svg>
+
+				<!--<![endif]-->
+				<!--[if lt IE 9]>
+			<img src="images/escudoUnal.png" width="93%" height="auto" class="hidden-print"/> 
+	  <![endif]-->
+				<img src="{% static 'inventarioreac/images/escudoUnal_black.png' %}" class="visible-print" />
+			</a>
+		</div>
+		<div class="seal">
+			<img class="hidden-print" alt="Escudo de la República de Colombia"
+				src="{% static 'inventarioreac/images/sealColombia.png' %}" width="66" height="66" />
+
+			<img class="visible-print" alt="Escudo de la República de Colombia"
+				src="{% static 'inventarioreac/images/sealColombia_black.png' %}" width="66" height="66" />
+		</div>
+		<div class="firstMenu">
+
+			<button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#bs-navbar"
+				aria-controls="bs-navbar" aria-expanded="false">
+				<span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span>
+			</button>
+
+			<ul class="socialLinks hidden-xs">
+				<li>
+					<a href="https://www.facebook.com/UNColombia" target="_blank" class="facebook"
+						title="Página oficial en Facebook"></a>
+				</li>
+				<li>
+					<a href="https://twitter.com/UNColombia" target="_blank" class="twitter"
+						title="Cuenta oficial en Twitter"></a>
+				</li>
+				<li>
+					<a href="https://www.youtube.com/channel/UCnE6Zj2llVxcvL5I38B0Ceg" target="_blank" class="youtube"
+						title="Canal oficial de Youtube"></a>
+				</li>
+				<li>
+					<a href="http://agenciadenoticias.unal.edu.co/nc/sus/type/rss2.html" target="_blank" class="rss"
+						title="Suscripción a canales de información RSS"></a>
+				</li>
+			</ul>
+			<div class="navbar-default">
+				<nav id="profiles">
+					<ul class="nav navbar-nav dropdown-menu">
+						<li class="item_Aspirantes #>"><a href="#">Aspirantes</a></li>
+						<li class="item_Estudiantes #>"><a href="#">Estudiantes</a></li>
+						<li class="item_Egresados #>"><a href="#">Egresados</a></li>
+						<li class="item_Docentes #>"><a href="#">Docentes</a></li>
+						<li class="item_Administrativos #>"><a href="#">Administrativos</a></li>
+					</ul>
+				</nav>
+			</div>
+		</div>
+		<div id="bs-navbar" class="navbar-collapse collapse navigation">
+			<div class="site-url">
+				<a href="https://manizales.unal.edu.co/">https://manizales.unal.edu.co</a>
+			</div>
+			<div class="buscador">
+				<div class="gcse-searchbox-only" data-resultsUrl="http://unal.edu.co/resultados-de-la-busqueda/"
+					data-newWindow="true"></div>
+			</div>
+			<div class="mainMenu" style="margin-bottom: 0%;">
+				<div class="btn-group"><a href="{% url 'dir_lab:home_dir_lab' %}" class="btn btn-default dropdown-toggle">Inicio</a><span class="caret-right"></span></div>
+				<div class="btn-group">
+					<div class="btn btn-default dropdown-toggle" data-toggle="dropdown">Nosotros<span
+							class="caret"></span></div>
+					<ul class="dropdown-menu">
+						<li><a href="#">Quiénes somos</a></li>
+						<li><a href="#">Servicios</a></li>
+						<li><a href="#">Iniciativa Laboratorios al parque</a></li>
+					</ul>
+				</div>
+				<div class="btn-group">
+					<div class="btn btn-default dropdown-toggle" data-toggle="dropdown">Aplicaciones<span
+							class="caret"></span></div>
+					<ul class="dropdown-menu">
+						<li><a href="{% url 'reactivos:index'%}" title="Acceso a UniCLab Reactivos">UniCLab Reactivos</a></li>
+						<li><a href="{% url 'residuos:home_residuos'%}" title="Acceso a UniCLab Residuos">UniCLab Residuos</a></li>
+						<li><a href="https://d1xb30i372mnxf.cloudfront.net/"
+								title="Acceso a plataforma de laboratorios remotos">Laboratorios Remotos</a></li>
+					</ul>
+				</div>
+
+				<div class="btn-group">
+					<div class="btn btn-default dropdown-toggle" data-toggle="dropdown">Contacto<span
+							class="caret"></span></div>
+					<ul class="dropdown-menu">
+						<li><a href="#" title="Formulario de contacto dirección de Laboratorios">Contacto</a></li>
+						<li><a href="{% url 'reactivos:pre_sol_dir_lab'%}"
+								title="Solicitudes a los Laboratorios">Solicitudes</a></li>
+					</ul>
+				</div>
+
+				<div class="btn-group">
+					<div class="btn btn-default dropdown-toggle" data-toggle="dropdown">Sedes<span class="caret"></span>
+					</div>
+					<ul class="dropdown-menu dropItem-16">
+						<li><a href="http://amazonia.unal.edu.co" target="_blank">Amazonia</a><span
+								class="caret-right"></span></li>
+						<li><a href="http://bogota.unal.edu.co" target="_blank">Bogotá</a><span
+								class="caret-right"></span></li>
+						<li><a href="http://caribe.unal.edu.co" target="_blank">Caribe</a><span
+								class="caret-right"></span></li>
+						<li><a href="http://delapaz.unal.edu.co" target="_blank">De La Paz</a><span
+								class="caret-right"></span></li>
+						<li><a href="http://www.manizales.unal.edu.co" target="_blank">Manizales</a><span
+								class="caret-right"></span></li>
+						<li><a href="http://medellin.unal.edu.co" target="_blank">Medellín</a><span
+								class="caret-right"></span></li>
+						<li><a href="http://orinoquia.unal.edu.co" target="_blank">Orinoquia</a><span
+								class="caret-right"></span></li>
+						<li><a href="http://www.palmira.unal.edu.co" target="_blank">Palmira</a><span
+								class="caret-right"></span></li>
+						<li><a href="http://tumaco-pacifico.unal.edu.co" target="_blank">Tumaco</a><span
+								class="caret-right"></span></li>
+					</ul>
+				</div>
+			</div>
+			<div class="btn-group hidden-sm hidden-md hidden-lg hidden-print">
+				<div class="btn btn-default dropdown-toggle" data-toggle="dropdown" id="unalOpenMenuServicios"
+					data-target="#services">Servicios<span class="caret"> </span>
+				</div>
+			</div>
+			<div class="btn-group hidden-sm hidden-md hidden-lg hidden-print">
+				<div class="btn btn-default dropdown-toggle" data-toggle="dropdown" id="unalOpenMenuPerfiles"
+					data-target="#profiles">Perfiles<span class="caret"> </span>
+				</div>
+			</div>
+		</div>
+
+	</header>
+
+	<main class="detalle">
+		<nav aria-label="breadcrumb">
+			<ol class="breadcrumb" style="background-color: transparent;">
+				<li class="breadcrumb-item active" title="Inicio">Está en:</li>
+				<li class="breadcrumb-item"><a href="{% url 'dir_lab:home_dir_lab' %}" target="_self" title="Inicio: "
+						id="breadcrumb_title">Inicio</a></li>
+				<li class="breadcrumb-item active" aria-current="page" id="breadcrumb-title"></li>
+			</ol>
+		</nav>
+
+		{% block content %}
+
+		{% endblock content %}
+
+
+	</main>
+
+	<footer class="clear">
+		<nav class="col-md-3 col-lg-3 col-sm-3 col-xs-4 col-xxs-6 gobiernoLinea">
+			<a href="http://www.legal.unal.edu.co" target="_top">Régimen Legal</a>
+			<a href="http://personal.unal.edu.co" target="_top">Talento humano</a>
+			<a href="http://contratacion.unal.edu.co" target="_top">Contratación</a>
+			<a href="http://personal.unal.edu.co" target="_top">Ofertas de empleo</a>
+			<a href="http://rendiciondecuentas.unal.edu.co/" target="_top">Rendición de cuentas</a>
+			<a href="http://docentes.unal.edu.co/concurso-profesoral/" target="_top">Concurso docente</a>
+			<a href="http://www.pagovirtual.unal.edu.co/" target="_top">Pago Virtual</a>
+			<a href="http://controlinterno.unal.edu.co/" target="_top">Control interno</a>
+			<a href="http://siga.unal.edu.co" target="_top">Calidad</a>
+			<a href="http://unal.edu.co/buzon-de-notificaciones/" target="_self">Buzón de notificaciones</a>
+		</nav>
+		<nav class="col-md-3 col-lg-3 col-sm-3 col-xs-4 col-xxs-6 gobiernoLinea">
+			<a href="http://correo.unal.edu.co" target="_top">Correo institucional</a>
+			<a href="#">Mapa del sitio</a>
+			<a href="http://redessociales.unal.edu.co" target="_top">Redes Sociales</a>
+			<a href="#">FAQ</a>
+			<a href="http://unal.edu.co/quejas-y-reclamos/" target="_self">Quejas y reclamos</a>
+			<a href="http://unal.edu.co/atencion-en-linea/" target="_self">Atención en línea</a>
+			<a href="http://unal.edu.co/encuesta/" target="_self">Encuesta</a>
+			<a href="#">Contáctenos</a>
+			<a href="http://www.onp.unal.edu.co" target="_top">Estadísticas</a>
+			<a href="#">Glosario</a>
+		</nav>
+		<div class="col-md-4 col-lg-4 col-sm-4 col-xs-4 col-xxs-12 footer-info">
+			<p class="col-sm-12 col-md-6 contacto">
+				<b>Contacto página web:</b>
+				<br /> Carrera 27 # 64-60<br /> 01 8000 916956<br /> Manizales, Caldas - Colombia<br />
+				(57+606) 8879300
+			</p>
+			<p class="col-sm-12 col-md-6 derechos">
+				&copy; Copyright 2023<br /> Algunos derechos reservados.<br />
+				<a title="Comuníquese con el administrador de este sitio web" href="mailto:UniClab_man@unal.edu.co"
+					target="_blank">UniClab_man@unal.edu.co</a><br />
+				<a href="{% url 'dir_lab:home_dir_lab'%}" target="_blank">Acerca de este sitio web</a><br /> Actualización:14/11/2023
+			</p>
+		</div>
+
+		<div class="col-md-2 col-lg-2 col-sm-2 col-xs-12 logos">
+			<div class="col-xs-6 col-sm-12 col-md-6 no-padding">
+				<a class="col-xs-6 col-sm-12" href="http://www.orgulloun.unal.edu.co">
+					<img class="hidden-print" alt="Orgullo UN"
+						src="{% static 'inventarioreac/images/log_orgullo.png' %}" width="78" height="21" />
+					<img class="visible-print" alt="Orgullo UN"
+						src="{% static 'inventarioreac/images/log_orgullo_black.png' %}" width="94" height="37" />
+				</a>
+
+				<a class="col-xs-6 col-sm-12 imgAgencia" href="http://www.agenciadenoticias.unal.edu.co/inicio.html">
+					<img class="hidden-print" alt="Agencia de noticias"
+						src="{% static 'inventarioreac/images/log_agenc.png' %}" width="94" height="25" />
+					<img class="visible-print" alt="Agencia de noticias"
+						src="{% static 'inventarioreac/images/log_agenc_black.png' %}" width="94" height="37" />
+				</a>
+			</div>
+			<div class="col-xs-6 col-sm-12 col-md-6 no-padding">
+				<a class="col-xs-6 col-sm-12" href="https://www.sivirtual.gov.co/memoficha-entidad/-/entidad/T0356">
+					<img alt="Trámites en línea" src="{% static 'inventarioreac/images/log_gobiern.png' %}" width="67"
+						height="51" />
+				</a>
+
+				<a class="col-xs-6 col-sm-12" href="http://www.contaduria.gov.co/">
+					<img alt="Contaduría general de la republica"
+						src="{% static 'inventarioreac/images/log_contra.png' %}" width="67" height="51" />
+				</a>
+			</div>
+
+		</div>
+	</footer>
+</body>
+
+</html>

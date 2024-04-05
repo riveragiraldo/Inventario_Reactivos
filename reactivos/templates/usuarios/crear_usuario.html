@@ -64,36 +64,36 @@
         {% csrf_token %}
 
         <div class="form-group">
-          <label for="{{ form.id_number.id_for_label }}" name="Identificación:">Identificación:</label>
+          <label for="{{ form.id_number.id_for_label }}" name="Identificación:">*Identificación:</label>
           {{ form.id_number }}
         </div>
         <div class="form-group">
-          <label for="{{ form.phone_number.id_for_label }}" name="Teléfono:">Teléfono:</label>
+          <label for="{{ form.phone_number.id_for_label }}" name="Teléfono:">*Teléfono:</label>
           {{ form.phone_number }}
         </div>
 
         <div class="form-group">
-          <label for="{{ form.email.id_for_label }}" name="Correo Electrónico:">Correo Electrónico:</label>
+          <label for="{{ form.email.id_for_label }}" name="Correo Electrónico:">*Correo Electrónico:</label>
 
 
           {{ form.email }}
 
         </div>
         <div class="form-group">
-          <label for="{{ form.username.id_for_label }}" name="Nombre de usuario:">Nombre de usuario:</label>
+          <label for="{{ form.username.id_for_label }}" name="Nombre de usuario:">*Nombre de usuario:</label>
           {{ form.username }}
         </div>
         <div class="form-group">
-          <label for="{{ form.first_name.id_for_label }}" name="Nombres:">Nombres:</label>
+          <label for="{{ form.first_name.id_for_label }}" name="Nombres:">*Nombres:</label>
           {{ form.first_name }}
         </div>
         <div class="form-group">
-          <label for="{{ form.last_name.id_for_label }}" name="Apellidos:">Apellidos:</label>
+          <label for="{{ form.last_name.id_for_label }}" name="Apellidos:">*Apellidos:</label>
           {{ form.last_name }}
         </div>
 
         <div class="form-group">
-          <label for="{{ form.rol.id_for_label }}" name="Rol:">Rol:</label>
+          <label for="{{ form.rol.id_for_label }}" name="Rol:">*Rol:</label>
 
           {% if request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
           <div class="input-group" id="rol-block">
@@ -121,7 +121,7 @@
         </div>
 
         <div class="form-group">
-          <label for="{{ form.lab.id_for_label }}" name="Laboratorio:">Laboratorio:</label>
+          <label for="{{ form.lab.id_for_label }}" name="Laboratorio:">*Laboratorio:</label>
 
           {% if request.user|has_group:"ADMINISTRADOR" or request.user.is_superuser %}
           <div class="input-group" id="lab-block">
@@ -148,7 +148,7 @@
         </div>
 
         <div class="form-group">
-          <label for="{{ form.password1.id_for_label }}" name="Contraseña:">Contraseña:</label>
+          <label for="{{ form.password1.id_for_label }}" name="Contraseña:">*Contraseña:</label>
           <div class="input-group">
             {{ form.password1 }}
                         <div class="input-group-addon">
@@ -161,7 +161,7 @@
         </div>
 
         <div class="form-group">
-          <label for="{{ form.password2.id_for_label }}" name="Confirmación de contraseña:">Confirmación de
+          <label for="{{ form.password2.id_for_label }}" name="Confirmación de contraseña:">*Confirmación de
             contraseña:</label>
           <div class="input-group">
             {{ form.password2 }}
@@ -184,7 +184,7 @@
             <label for="acceptDataProcessing" class="politica-label"
               name="Acepta política de tratamiento de datos personales: ">
               <p class="politica">
-                DE ACUERDO CON LA
+                *DE ACUERDO CON LA
                 <a href="https://unal.edu.co/tratamiento-de-datos-personales" target="_blank">
                   LEY 1581 DE 2012 DE PROTECCIÓN DE DATOS PERSONALES</a>, HE LEÍDO, ENTENDIDO Y ACEPTO, LOS TÉRMINOS
                 DESCRITOS EN LA POLÍTICA DE TRATAMIENTO DE DATOS PERSONALES.<br><br>
@@ -199,9 +199,9 @@
 
 
         <br>
-        <div class="card-footer">
+        <div class="card-footer text-center">
 
-          <button type="button" class="btn btn-primary" onclick="limpiarCampos('form')">Cancelar</button>
+          <button type="button" class="btn btn-success" onclick="limpiarCampos('form')">Cancelar</button>
 
           <input type="button" value="Crear Usuario" class="btn btn-primary" id="open_confirm_in">
 

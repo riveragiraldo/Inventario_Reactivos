@@ -22,6 +22,9 @@ from django.views.static import serve
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('',include('reactivos.urls')),
+    path('',include('dir_lab.urls')),
+     path('',include('residuos.urls')),
+    path('captcha',include('captcha.urls')),
 ]
 
 urlpatterns +=[

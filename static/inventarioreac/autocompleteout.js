@@ -87,6 +87,7 @@ $(document).ready(function () {
         select: function (event, ui) {
             // Muestra el nombre y correo electrónico en la lista desplegable
             $("#location").val(ui.item.name);
+            $("#facultad").val(ui.item.facultad);
             return false;
         },
         create: function () {
@@ -101,7 +102,7 @@ $(document).ready(function () {
         },
         focus: function (event, ui) {
             // Muestra solo el nombre en el campo de entrada mientras se desplaza por la lista desplegable
-            $("#locarion").val(ui.item.name);
+            $("#location").val(ui.item.name);
             $("#facultad").val(ui.item.facultad);
             return false;
         }
@@ -121,6 +122,7 @@ $(document).ready(function () {
         select: function (event, ui) {
             // Muestra el nombre y correo electrónico en la lista desplegable
             $("#manager").val(ui.item.name);
+            $("#correo").val(ui.item.mail);
             return false;
         },
         create: function () {

@@ -1,0 +1,328 @@
+{% load static %}<!-- Permite invocar archivos estáticos -->
+{% load has_group %}<!-- Template tag de configuración de grupos -->
+<!DOCTYPE html>
+
+<html>
+<!--<![endif]-->
+
+<head>
+	<meta charset="utf-8">
+	<!-- 
+	 =============================================================================
+	 === PLANTILLA DESARROLLADA POR LA OFICINA DE MEDIOS DIGITALES - UNIMEDIOS ===
+	 =============================================================================
+		-->
+
+	<!-- base href="http://subdominio.unal.edu.co/" -->
+	<link rel="shortcut icon" href="{% static 'inventarioreac/images/favicon.ico' %}" type="image/x-icon">
+
+
+	<meta name="revisit-after" content="1 hour">
+	<meta name="distribution" content="all">
+	<meta name="viewport"
+		content="width=device-width, initial-scale=1.0, minimum-scale=0.5, maximum-scale=2.5, user-scalable=yes">
+	<meta name="expires" content="1">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="robots" content="all">
+
+
+	<link rel="stylesheet" type="text/css" href="{% static 'inventarioreac/css/bootstrap.min.css' %}" media="all">
+	<link rel="stylesheet" type="text/css" href="{% static 'inventarioreac/css/bootstrap-theme.min.css' %}" media="all">
+	<link rel="stylesheet" type="text/css" href="{% static 'inventarioreac/css/reset.css' %}" media="all">
+	<link rel="stylesheet" type="text/css" href="{% static 'inventarioreac/css/unal.css' %}" media="all">
+	<link rel="stylesheet" type="text/css" href="{% static 'inventarioreac/css/base.css' %}" media="all">
+	<link rel="stylesheet" type="text/css" href="{% static 'inventarioreac/css/tablet.css' %}" media="all">
+	<link rel="stylesheet" type="text/css" href="{% static 'inventarioreac/css/phone.css' %}" media="all">
+	<link rel="stylesheet" type="text/css" href="{% static 'inventarioreac/css/small.css' %}" media="all">
+	<link rel="stylesheet" type="text/css" href="{% static 'inventarioreac/css/printer.css' %}" media="print">
+
+
+
+	<script src="{% static 'inventarioreac/js/jquery.js' %}" type="text/javascript"></script>
+	<script src="{% static 'inventarioreac/js/unal.js' %}" type="text/javascript"></script>
+	<script src="{% static 'inventarioreac/js/webtemplate.js' %}" type="text/javascript" defer></script>
+
+	<!-- Incluir SweetAlert2 desde CDN -->
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.min.js"></script>
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.min.css">
+	<!-- Incluye el archivo CSS de Bootstrap -->
+
+	<!-- Incluye el archivo JavaScript de Bootstrap -->
+	<!-- <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" type="text/javascript" defer></script> -->
+
+	<!-- Para la Sidebar -->
+	
+	
+	<link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="{% static 'inventarioreac/css/sidebar.css' %}" />	
+
+	{% block head %}{% endblock %}
+	<title>{% block title %}{% endblock %}</title>
+</head>
+
+<body>
+	<div id="services">
+		<div class="indicator hidden-xs"></div>
+		<ul class="dropdown-menu">
+			<li>
+				<a href="http://correo.unal.edu.co" target="_blank"><img
+						src="{% static 'inventarioreac/images/icnServEmail.png' %}" width="32" height="32"
+						alt="Correo Electrónico">Correo Electrónico</a>
+			</li>
+			<li>
+				<a href="https://dninfoa.unal.edu.co" target="_blank"><img
+						src="{% static 'inventarioreac/images/icnServSia.png' %}" width="32" height="32"
+						alt="Dirección Nacional de Información Académica">DNINFOA - SIA</a>
+			</li>
+			<li>
+				<a href="http://bibliotecas.unal.edu.co" target="_blank"><img
+						src="{% static 'inventarioreac/images/icnServLibrary.png' %}" width="32" height="32"
+						alt="Biblioteca">Bibliotecas</a>
+			</li>
+			<li>
+				<a href="{% url 'dir_lab:home_dir_lab' %}" target="_blank"><img
+						src="{% static 'inventarioreac/images/icnLrn.png' %}" width="32" height="32"
+						alt="Direccion de Laboratorios">Direccion de Laboratorios Manizales </a>
+			</li>
+			<li>
+				<a href="https://d1xb30i372mnxf.cloudfront.net/" target="_blank"><img
+						src="{% static 'inventarioreac/images/icnLrn.png' %}" width="32" height="32"
+						alt="Plataforma de Laboratorios Remotos">Plataforma de Laboratorios Remotos</a>
+
+			</li>
+			<li>
+				<a href="{% url 'reactivos:index'%}" title="Volver al UniCLab"><img
+						src="{% static 'inventarioreac/images/home_icon.png' %}" width="32" height="32">UniCLab</a>
+
+			</li>
+			<li>
+				<a href="{% url 'residuos:home_residuos'%}" title="Volver al Inicio"><img
+						src="{% static 'inventarioreac/images/home_icon.png' %}" width="32" height="32">Inicio</a>
+
+			</li>
+			
+			
+		</ul>
+	</div>
+
+	<header id="unalTop">
+		<div class="logo">
+			<a href="http://unal.edu.co">
+				<svg width="93%" height="93%">
+					<image xlink:href="{% static 'inventarioreac/images/escudoUnal.svg' %}" width="100%" height="100%"
+						class="hidden-print" />
+				</svg>
+				<img src="{% static 'inventarioreac/images/escudoUnal_black.png' %}" class="visible-print" />
+			</a>
+		</div>
+		<div class="seal">
+			<img class="hidden-print" alt="Escudo de la República de Colombia"
+				src="{% static 'inventarioreac/images/sealColombia.png' %}" width="66" height="66" />
+
+			<img class="visible-print" alt="Escudo de la República de Colombia"
+				src="{% static '/inventarioreac/images/sealColombia_black.png' %}" width="66" height="66" />
+		</div>
+		<div class="firstMenu">
+
+			<button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#bs-navbar"
+				aria-controls="bs-navbar" aria-expanded="false">
+				<span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span>
+			</button>
+
+
+			<div class="navbar-default">
+				<!-- <nav id="profiles">
+					<ul class="nav navbar-nav dropdown-menu">
+						<li class="item_Docentes #>"><a href="{% url 'residuos:home_residuos' %}" title="Volver al inicio">Laboratorio {{ request.user.lab|title}}</a>
+						</li>
+						<li class="item_Docentes #>"><a href="#" title="Datos de usuario" id="datosusuario"
+								class="datos-usuario"
+								data-name="{{ request.user.first_name }} {{request.user.last_name }}"
+								data-message="<li><strong>Nombre:</strong> {{ request.user.first_name }} {{request.user.last_name }}</li><li><strong>Nombre de usuario:</strong> {{request.user.username }}</li><li><strong>Correo eléctrónico:</strong> {{request.user.email }}</li><li><strong>Teléfono:</strong> {{request.user.phone_number }}</li><li><strong>Laboratorio:</strong>{{request.user.lab }}</li><li><strong>Rol:</strong> {{request.user.rol }}</li><li><strong>Su último acceso:</strong> {{request.user.last_login }}</li>">Nombres {{ request.user.first_name|title }} {{request.user.last_name|title }}</a></li>
+						<li class="item_Docentes #>"><a href="#"
+								title="Cambiar contraseña">Cambiar Contraseña</a></li>
+						<li class="item_Docentes #>"><a href="#" title="Cerrar sesión">Cerrar
+								Sesión</a></li>
+					</ul>
+				</nav> -->
+			</div>
+		</div>
+		<div id="bs-navbar" class="navbar-collapse collapse navigation">
+			<div class="site-url">
+				<a href="#" target="_blank" class="custom-url">Cargando URL...</a>
+			</div>
+			<script>
+				document.addEventListener("DOMContentLoaded", function() {
+					const customUrl = document.querySelector('.custom-url');
+					if (customUrl) {
+						customUrl.textContent = window.location.origin + "{% url 'dir_lab:home_dir_lab' %}";
+						customUrl.href = "{% url 'dir_lab:home_dir_lab' %}";
+					}
+				});
+			</script>
+
+
+		</div>
+		<!-- <div class="btn-group hidden-sm hidden-md hidden-lg hidden-print">
+			<div class="btn btn-default dropdown-toggle" data-toggle="dropdown" id="unalOpenMenuServicios"
+				data-target="#services">Opciones<span class="caret"> </span>
+			</div>
+		</div>
+		<div class="btn-group hidden-sm hidden-md hidden-lg hidden-print">
+			<div class="btn btn-default dropdown-toggle" data-toggle="dropdown" id="unalOpenMenuPerfiles"
+				data-target="#profiles">Perfiles<span class="caret"> </span>
+			</div>
+		</div> -->
+		</div>
+		
+
+	</header>
+	<main class="detalle" style="margin-left: 0px; margin-bottom: 2px;">
+
+		<!-- Miga de pan -->
+		<nav aria-label="breadcrumb" class="hidden-xs" >
+			<ol class="breadcrumb" style="background-color: transparent;">
+				<li class="breadcrumb-item active" title="Inicio">Está en:</li>
+				<li class="breadcrumb-item"><a href="{% url 'residuos:home_residuos' %}" target="_self" title="Inicio: "
+						id="breadcrumb_title">Laboratorio{{ request.user.lab|title}}</a></li>
+				<li class="breadcrumb-item active" aria-current="page" id="breadcrumb-title"></li>
+			</ol>
+		</nav>
+
+
+		<div class="flex-container">
+			<!-- <img class="logosidebar" src="{% static '/inventarioreac/images/assets/logo.svg' %}" /> -->
+		<!-- <button type="button" class="burger" onclick="toggleSidebar()"></button> -->
+		
+		<aside class="sidebar" style="margin-right: 5px;">
+			
+			<header class="sidebar-header">
+
+			</header>
+			
+			
+			<nav>
+				<button type="button" onclick="redirect('{% url 'residuos:home_residuos' %}')">
+					<img src="{% static '/inventarioreac/images/assets/icon-home.svg' %}" />
+					<span class="span">Inicio</span>
+				</button>
+			  
+			  <button type="button">
+				<img src="{% static '/inventarioreac/images/assets/icon-settings.svg' %}" />
+				<span>Configuraciones</span>
+			  </button>
+			</nav>
+			<nav>
+			  <button type="button">
+				<img src="{% static '/inventarioreac/images//assets/icon-blockchain.svg' %}" />
+				<span>Sección</span>
+			  </button>
+			  <button type="button">
+				<img src="{% static '/inventarioreac/images//assets/icon-database.svg' %}" />
+				<span>Sección</span>
+			  </button>
+			  <button type="button">
+				<img src="{% static '/inventarioreac/images//assets/icon-speaker.svg' %}" />
+				<span>Sección</span>
+			  </button>
+			  <button type="button">
+				<img src="{% static '/inventarioreac/images//assets/icon-acoustic.svg' %}" />
+				<span>Sección</span>
+			  </button>
+			</nav>
+			<nav class="nav">
+			  
+			  <button type="button">
+				<img src="{% static '/inventarioreac/images//assets/icon-levels.svg' %}" />
+				<span>Sección</span>
+			  </button>
+			  <button type="button">
+				<img src="{% static '/inventarioreac/images//assets/icon-accounts.svg' %}" />
+				<span>Usuarios</span>
+			  </button>
+			  <button type="button">
+				<img src="{% static '/inventarioreac/images//assets/icon-folders.svg' %}" />
+				<span>Informes</span>
+			  </button>
+			  <button type="button">
+				<img src="{% static '/inventarioreac/images//assets/icon-lock.svg' %}" />
+				<span>Seguridad</span>
+			  </button>
+			</nav>
+		  </aside>
+
+		
+			<div class="content">
+				{% block content %}
+				{% endblock %}
+			</div>
+		
+		
+		</div>
+
+	</main>
+
+	<footer class="clear">
+		<nav class="col-md-3 col-lg-3 col-sm-3 col-xs-4 col-xxs-6">
+		</nav>
+		<nav class="col-md-3 col-lg-3 col-sm-3 col-xs-4 col-xxs-6 ">
+		</nav>
+		<div class="col-md-4 col-lg-4 col-sm-4 col|-xs-4 col-xxs-12 footer-info">
+			<p class="col-sm-12 col-md-6 contacto">
+				<b>Contacto página web:</b>
+				<br /> Carrera 27 # 64-60<br /> 01 8000 916956<br /> Manizales, Caldas - Colombia<br />
+				(57+606) 8879300
+			</p>
+			<p class="col-sm-12 col-md-6 derechos">
+				&copy; Copyright 2023<br /> Algunos derechos reservados.<br />
+				<a title="Comuníquese con el administrador de este sitio web" href="mailto:UniClab_man@unal.edu.co"
+					target="_blank">UniClab_man@unal.edu.co</a><br />
+				<a href="{% url 'dir_lab:home_dir_lab'%}" target="_blank">Acerca de este sitio web</a><br /> Actualización:14/11/2023
+			</p>
+		</div>
+
+		<div class="col-md-2 col-lg-2 col-sm-2 col-xs-12 logos">
+			<div class="col-xs-6 col-sm-12 col-md-6 no-padding">
+				<a class="col-xs-6 col-sm-12" href="http://www.orgulloun.unal.edu.co" target="_blank">
+					<img class="hidden-print" alt="Orgullo UN"
+						src="{% static 'inventarioreac/images/log_orgullo.png' %}" width="78" height="21" />
+					<img class="visible-print" alt="Orgullo UN"
+						src="{% static 'inventarioreac/images/log_orgullo_black.png' %}" width="94" height="37" />
+				</a>
+
+				<a class="col-xs-6 col-sm-12 imgAgencia" href="http://www.agenciadenoticias.unal.edu.co/inicio.html"
+					target="_blank">
+					<img class="hidden-print" alt="Agencia de noticias"
+						src="{% static 'inventarioreac/images/log_agenc.png' %}" width="94" height="25" />
+					<img class="visible-print" alt="Agencia de noticias"
+						src="{% static 'inventarioreac/images/log_agenc_black.png' %}" width="94" height="37" />
+				</a>
+			</div>
+			<div class="col-xs-6 col-sm-12 col-md-6 no-padding">
+				<a class="col-xs-6 col-sm-12" href="https://www.sivirtual.gov.co/memoficha-entidad/-/entidad/T0356"
+					target="_blank">
+					<img alt="Trámites en línea" src="{% static 'inventarioreac/images/log_gobiern.png' %}" width="67"
+						height="51" />
+				</a>
+
+				<a class="col-xs-6 col-sm-12" href="http://www.contaduria.gov.co/" target="_blank">
+					<img alt="Contaduría general de la republica"
+						src="{% static 'inventarioreac/images/log_contra.png' %}" width="67" height="51" />
+				</a>
+			</div>
+
+		</div>
+	</footer>
+	<script type="text/javascript">
+		function redirect(link) {
+    window.location.href = link;
+}
+	</script>
+</body>
+
+</html>

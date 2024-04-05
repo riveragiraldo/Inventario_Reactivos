@@ -1,0 +1,52 @@
+{% extends "dirlab.html" %}
+{% load static %}<!-- Permite invocar archivos estáticos -->
+
+	{% block head %}
+
+	{% endblock %}
+
+
+	<title>{% block title %}Inicio Dirección de laboratorios{% endblock %}
+	</title>
+</head>
+
+<body>
+	
+
+
+
+	<main class="detalle">
+
+		{% block content %}
+		<div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel" style="max-width: 100%; overflow: hidden; background: linear-gradient(to right, rgba(177, 175, 175, 0.5), rgba(177, 175, 175, 0.5)); border-radius: 5px;">
+			<ul class="carousel-indicators">
+				<li data-target="#carouselExampleIndicators" data-slide-to="0" class="active"></li>
+				<li data-target="#carouselExampleIndicators" data-slide-to="1"></li>
+				<li data-target="#carouselExampleIndicators" data-slide-to="2"></li>
+			</ul>
+			<div class="carousel-inner">
+				<div class="item active">
+					<img src="{% static 'inventarioreac/images/fondos/fondo.jpg' %}" alt="First slide">
+				</div>
+				<div class="item">
+					<img src="{% static 'inventarioreac/images/fondos/fondo1.jpg' %}" alt="Second slide">
+				</div>
+				<div class="item">
+					<img src="{% static 'inventarioreac/images/fondos/fondo2.jpg' %}" alt="Third slide">
+				</div>
+			</div>
+			<a class="left carousel-control" href="#carouselExampleIndicators" data-slide="prev">
+				<span class="glyphicon glyphicon-chevron-left"></span>
+			</a>
+			<a class="right carousel-control" href="#carouselExampleIndicators" data-slide="next">
+				<span class="glyphicon glyphicon-chevron-right"></span>
+			</a>
+		</div>
+		{% endblock %}
+
+	</main>
+
+	
+</body>
+
+</html>

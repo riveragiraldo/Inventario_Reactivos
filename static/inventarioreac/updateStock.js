@@ -24,15 +24,7 @@ document.addEventListener("DOMContentLoaded", function () {
         var xhr = new XMLHttpRequest();
         xhr.open(
             "GET",
-            "/obtener_stock/?lab=" +
-            lab +
-            "&name=" +
-            nameInput +
-            "&trademark=" +
-            trademark +
-            "&reference=" +
-            reference,
-            true
+            "/obtener_stock/?lab=" + lab + "&name=" + nameInput + "&trademark=" + trademark + "&reference=" + reference, true
         );
         xhr.onreadystatechange = function () {
             if (xhr.readyState === XMLHttpRequest.DONE) {

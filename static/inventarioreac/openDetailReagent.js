@@ -76,12 +76,7 @@ function mostrarSweetAlert(reactivo) {
                         <li><strong>Responsable del registro:</strong> ${reactivo.create_by}</li>
                         <li><strong>Última modificación:</strong> ${reactivo.last_update}</li>
                         <li><strong>Última actualización por:</strong> ${reactivo.update_by}</li></ul>
-                        <br>
-                    <h5>Existencia en Laboratorios:</h5>
-                    <ul class="list-unstyled">
-                        ${reactivo.labsandweight}
-                        <a href='/export2xlsxlab/'>Ver información de Laboratorios</a>
-                    </ul>
+                    
                 </div>
             </div>
         `,
