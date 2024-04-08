@@ -659,9 +659,8 @@ class SolDirLab(View):
 
     def get_recipient_list(self, lab):
         # Obtener correos de usuarios con rol 'COORDINADOR' o 'ADMINISTRADOR' en el laboratorio especificado
-        recipient_list = User.objects.filter(
-            lab=lab
-        ).values_list('email', flat=True)
+        recipient_list = User.objects.filter(lab=lab).values_list('email', flat=True)
+        # print(recipient_list)
         return list(recipient_list)
     
     def enviar_correo_asincrono(self, recipient_list, subject, message, attach_path):
@@ -1149,6 +1148,7 @@ def enviar_correo(recipient_list, subject, message,attach_path):
     # Obtener el dominio
     configuracion = ConfiguracionSistema.objects.first()
     url = configuracion.url
+    print(url)
     # Configura la localización a español
     locale.setlocale(locale.LC_TIME, 'es_ES.UTF-8')
     
@@ -1165,7 +1165,7 @@ def enviar_correo(recipient_list, subject, message,attach_path):
     # Template
     html_message = render_to_string('dir_lab/enviar_correo.html', context)
     plain_message = strip_tags(html_message)
-    from_email = "noreply@unal.edu.co"  # Agrega el correo electrónico desde el cual se enviará el mensaje
+    from_email = "Notificaciones UniCLab <noreply@unal.edu.co>"
     recipient_list = recipient_list
     subject = f'{subject} - {url}'
 

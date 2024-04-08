@@ -7,7 +7,21 @@ from django.contrib.auth.models import Permission, Group
 from django.contrib.contenttypes.models import ContentType
 from django.core.validators import RegexValidator, EmailValidator
 
+# Modelo para tabla Laboratorios en base de datos Reactivos
+class Laboratorios(models.Model):
+    name = models.CharField(max_length=100, verbose_name="Nombre Laboratorio")
+    is_active = models.BooleanField(default=True)
+    created_by = models.ForeignKey('reactivos.User', on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Usuario')
+    date_create = models.DateTimeField(auto_now_add=True,verbose_name='Fecha registro',)
+    last_update = models.DateTimeField(auto_now=True,verbose_name='Última Actualización')
+    last_updated_by = models.ForeignKey('reactivos.User', on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Actualizado por',related_name='updateby_Lab',)
 
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name_plural = 'Laboratorios'
+        verbose_name = 'Laboratorio'
 
 class User(AbstractUser): 
     email = models.EmailField('Correo Electrónico', unique=True)
@@ -240,21 +254,7 @@ class Destinos(models.Model):
         verbose_name_plural = 'Destinos'
         verbose_name = 'Destino'
 
-# Modelo para tabla Laboratorios en base de datos Reactivos
-class Laboratorios(models.Model):
-    name = models.CharField(max_length=100, verbose_name="Nombre Laboratorio")
-    is_active = models.BooleanField(default=True)
-    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Usuario')
-    date_create = models.DateTimeField(auto_now_add=True,verbose_name='Fecha registro',)
-    last_update = models.DateTimeField(auto_now=True,verbose_name='Última Actualización')
-    last_updated_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Actualizado por',related_name='updateby_Lab',)
 
-    def __str__(self):
-        return self.name
-
-    class Meta:
-        verbose_name_plural = 'Laboratorios'
-        verbose_name = 'Laboratorio'
 
 # Modelo para tabla Responsables en base de datos Reactivos
 class Responsables(models.Model):
@@ -531,7 +531,7 @@ class SolicitudesExternas(models.Model):
     message = models.TextField(max_length=1000, verbose_name='Mensaje',)
     attach = models.FileField(upload_to='solicitud_attachments/', null=True, blank=True, verbose_name='Archivos adjunto',)
     registration_date = models.DateTimeField(auto_now_add=True, editable=False)
-    lab = models.ForeignKey(Laboratorios, on_delete=models.CASCADE, verbose_name='Fecha y hora de solicitud',)
+    lab = models.ForeignKey('reactivos.Laboratorios', on_delete=models.CASCADE, verbose_name='Fecha y hora de solicitud',)
     email = models.EmailField(validators=[email_validator], verbose_name='Correo Electrónico',)
     mobile_number = models.CharField(max_length=10, validators=[mobile_number_validator], verbose_name='Teléfono Móvil',)
     department = models.CharField(max_length=100, verbose_name='Departamento',)

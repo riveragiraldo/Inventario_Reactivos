@@ -366,6 +366,10 @@ class CustomCaptchaField(CaptchaField):
     def __init__(self, *args, **kwargs):
         super(CustomCaptchaField, self).__init__(*args, **kwargs)
         self.label = '*Captcha (Soluciona la operación):'
+
+
+from django.db import transaction
+
 # Solicitudes externas
 class SolicitudesExternasForm(forms.ModelForm):
     # Captcha
@@ -373,8 +377,11 @@ class SolicitudesExternasForm(forms.ModelForm):
 
     # Campo adicional para el token de acceso
     access_token = forms.CharField(widget=forms.HiddenInput(attrs={'id': 'access_token'}), required=False)
+    # Realiza la consulta a la base de datos fuera de la inicialización de la aplicación
+         
     # Obtener los nombres de los laboratorios para usar en el campo 'lab'
-    lab_choices = [(lab.id, lab.name) for lab in Laboratorios.objects.all()]
+    # lab_choices = [(lab.id, lab.name) for lab in Laboratorios.objects.all()]
+
 
     # Validador para números de móvil en el rango especificado
     mobile_number_validator = RegexValidator(
@@ -382,7 +389,7 @@ class SolicitudesExternasForm(forms.ModelForm):
         message='El número de móvil debe estar en el rango de 3000000000 a 3999999999.',
     )
 
-    
+       
 
     # Definir el formulario
     class Meta:
@@ -444,7 +451,7 @@ class SolicitudesExternasForm(forms.ModelForm):
         if not (3000000000 <= int(mobile_number) <= 3999999999):
             raise forms.ValidationError('El número de móvil debe estar entre 3000000000 y 3999999999.')
         return mobile_number
-    
+       
     def clean_attach(self):
         attach = self.cleaned_data.get('attach', False)
         if attach:
