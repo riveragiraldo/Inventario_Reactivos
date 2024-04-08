@@ -11,3 +11,6 @@ apscheduler
 django-apscheduler
 babel
 html2text
+dj_database_url
+django-crispy-forms
+requests
